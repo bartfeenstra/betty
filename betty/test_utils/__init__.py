@@ -8,6 +8,20 @@ from typing import final
 
 
 @final
+class AbstractMethod(NotImplementedError):
+    """
+    Raised by abstract methods.
+
+    This is used in tests, where :py:class:`abc.ABCMeta` cannot be used.
+    """
+
+    def __init__(self):
+        super().__init__(  # pragma: no cover
+            "This is an abstract method and must be overridden by a subclass."
+        )
+
+
+@final
 class Counter:
     """
     An object that keeps track of how often it has been called.

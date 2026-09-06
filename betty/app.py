@@ -45,6 +45,7 @@ from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
+from betty.typing import Unreachable
 from betty.user import User
 from betty.user.no_op import NoOpUser
 
@@ -265,7 +266,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         """
         The binary file cache.
         """
-        raise NotImplementedError("This service MUST always be explicitly overridden.")
+        raise Unreachable("this service MUST always be explicitly overridden")
 
     @service
     def process_pool(self) -> futures.ProcessPoolExecutor:

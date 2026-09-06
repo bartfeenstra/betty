@@ -12,6 +12,7 @@ from betty.json_schema import Schema
 from betty.portable import PortableData
 from betty.project import Project
 from betty.test_utils.entity import DummyEntityOne
+from betty.typing import Unreachable
 
 
 class _Association(Association):
@@ -21,30 +22,30 @@ class _Association(Association):
     def is_resolver(
         self, value: Any, /
     ) -> TypeGuard[AssociateResolver[HasAssociations, Entity]]:
-        raise NotImplementedError
+        raise Unreachable
 
     def resolve(self, project: Project, owner: HasAssociations, /) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
     def associate(self, owner: HasAssociations, associate: Entity, /) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
     def disassociate(self, owner: HasAssociations, associate: Entity, /) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
     def get_associates(self, owner: HasAssociations, /) -> Iterable[Entity]:
-        raise NotImplementedError
+        raise Unreachable
 
     async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        raise NotImplementedError
+        raise Unreachable
 
     async def dump_linked_data_for(
         self, project: Project, target: HasAssociations, /
     ) -> PortableData:
-        raise NotImplementedError
+        raise Unreachable
 
     def get(self, owner: HasAssociations, /) -> Any:
-        raise NotImplementedError
+        raise Unreachable
 
 
 class TestProxyAssociation:

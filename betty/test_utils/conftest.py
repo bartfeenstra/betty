@@ -48,6 +48,7 @@ from betty.licenses.spdx import SpdxLicenseDiscoverer
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.project import Project, ProjectLocale
 from betty.stores.file import TransientBinaryFileStore
+from betty.typing import Unreachable
 
 if TYPE_CHECKING:
     from collections.abc import (  # noqa: I001
@@ -133,7 +134,7 @@ class IsolatedAppFactory(Protocol):
         | None = None,
         user: User | None = None,
     ) -> AbstractAsyncContextManager[App]:
-        raise NotImplementedError
+        raise Unreachable
 
 
 @pytest.fixture(scope="session")
@@ -206,7 +207,7 @@ class IsolatedProjectFactory(Protocol):
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
     ) -> AbstractAsyncContextManager[Project]:
-        raise NotImplementedError
+        raise Unreachable
 
 
 @pytest.fixture(scope="session")

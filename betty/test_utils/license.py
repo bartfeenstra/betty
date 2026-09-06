@@ -8,6 +8,7 @@ import pytest
 
 from betty.license import License
 from betty.localizer import default_localizer
+from betty.test_utils import AbstractMethod
 
 
 class LicenseTestBase[LicenseT: License]:
@@ -20,7 +21,7 @@ class LicenseTestBase[LicenseT: License]:
         """
         Provide the system(s) under test.
         """
-        raise NotImplementedError
+        raise AbstractMethod
 
     def test_summary(self, sut: LicenseT) -> None:
         """

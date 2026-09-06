@@ -14,6 +14,7 @@ from betty.entity.collection.multiple import MultipleTypesEntityCollection
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
 from betty.localizer import default_localizer
+from betty.test_utils import AbstractMethod
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -31,7 +32,7 @@ class EntityTestBase[EntityT: Entity]:
         """
         Provide the system(s) under test.
         """
-        raise NotImplementedError
+        raise AbstractMethod
 
     async def test_label(self, sut: EntityT) -> None:
         """

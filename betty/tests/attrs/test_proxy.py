@@ -8,11 +8,12 @@ from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.prop import HasProps
+from betty.typing import Unreachable
 
 
 class _Attr(Attr[HasProps, Any, Any]):
     def get(self, owner: Any, /) -> Any:
-        raise NotImplementedError
+        raise Unreachable
 
 
 class TestProxyAttr:

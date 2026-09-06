@@ -4,6 +4,7 @@ import pytest
 
 from betty.factory import Factory, Manufacturable, Manufacturer, UnsupportedManufacturer
 from betty.service_level import ServiceLevel
+from betty.typing import Unreachable
 
 
 class _Manufacturer:
@@ -18,7 +19,7 @@ class _ManufacturerWithoutServicesWithOptionalInitArguments:
 
 class _ManufacturerWithoutServicesWithRequiredInitArguments:
     def __init__(self, arg: Any, /, *, kwarg: Any):
-        raise NotImplementedError
+        raise Unreachable
 
 
 class _ManufacturerWithoutServicesWithVariadicInitArguments:
@@ -50,7 +51,7 @@ class _ManufacturerWithNamedServicesWithRequiredInitArguments:
         *,
         kwarg: Any,
     ):
-        raise NotImplementedError
+        raise Unreachable
 
 
 class _ManufacturerWithNamedServicesWithVariadicInitArguments:
@@ -74,7 +75,7 @@ class _ManufacturerWithTypedServicesWithOptionalInitArguments:
 
 class _ManufacturerWithTypedServicesWithRequiredInitArguments:
     def __init__(self, _: ServiceLevel, arg: Any, /, *, kwarg: Any):
-        raise NotImplementedError
+        raise Unreachable
 
 
 class _ManufacturerWithTypedServicesWithVariadicInitArguments:
@@ -104,7 +105,7 @@ def _sync_callable_manufacturer_without_services_with_optional_arguments(
 def _sync_callable_manufacturer_without_services_with_required_arguments(
     arg: Any, /, *, kwarg: Any
 ) -> _Manufacturer:
-    raise NotImplementedError
+    raise Unreachable
 
 
 def _sync_callable_manufacturer_without_services_with_variadic_arguments(
@@ -128,7 +129,7 @@ def _sync_callable_manufacturer_with_services_with_optional_arguments(
 def _sync_callable_manufacturer_with_services_with_required_arguments(
     services: ServiceLevel, arg: Any, /, *, kwarg: Any
 ) -> _Manufacturer:
-    raise NotImplementedError
+    raise Unreachable
 
 
 def _sync_callable_manufacturer_with_services_with_variadic_arguments(
@@ -150,7 +151,7 @@ async def _async_callable_manufacturer_without_services_with_optional_arguments(
 async def _async_callable_manufacturer_without_services_with_required_arguments(
     arg: Any, /, *, kwarg: Any
 ) -> _Manufacturer:
-    raise NotImplementedError
+    raise Unreachable
 
 
 async def _async_callable_manufacturer_without_services_with_variadic_arguments(
@@ -174,7 +175,7 @@ async def _async_callable_manufacturer_with_services_with_optional_arguments(
 async def _async_callable_manufacturer_with_services_with_required_arguments(
     services: ServiceLevel, arg: Any, /, *, kwarg: Any
 ) -> _Manufacturer:
-    raise NotImplementedError
+    raise Unreachable
 
 
 async def _async_callable_manufacturer_with_services_with_variadic_arguments(

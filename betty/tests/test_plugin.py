@@ -8,6 +8,7 @@ from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
 )
 from betty.test_utils.plugin import DummyPlugin
+from betty.typing import Unreachable
 
 if TYPE_CHECKING:
     from betty.service_level import ServiceLevel
@@ -84,7 +85,7 @@ class TestPluginDefinition:
 
     def test_requires(self) -> None:
         def requirement(services: ServiceLevel, /) -> None:
-            raise NotImplementedError
+            raise Unreachable
 
         requires = list(
             PluginDefinition("my-first-plugin-id", requires={requirement}).requires

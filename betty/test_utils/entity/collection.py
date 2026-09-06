@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from betty.entity import Entity
+from betty.test_utils import AbstractMethod
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -26,7 +27,7 @@ class EntityCollectionTestBase[EntityT: Entity]:
         """
         Provide the system(s) under test.
         """
-        raise NotImplementedError
+        raise AbstractMethod
 
     @pytest.fixture
     async def sut_entities(self) -> Sequence[EntityT]:
@@ -35,7 +36,7 @@ class EntityCollectionTestBase[EntityT: Entity]:
 
         This MUST return at least 3 entities.
         """
-        raise NotImplementedError
+        raise AbstractMethod
 
     async def test_entity_collection_test_base_sut_entities(
         self, sut_entities: Sequence[EntityT]

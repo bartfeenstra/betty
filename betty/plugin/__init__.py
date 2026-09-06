@@ -62,7 +62,7 @@ class PluginDefinition[StageT: Stage = Never](Definition[StageT]):
         """
         The plugin type definition.
         """
-        raise NotImplementedError(
+        raise NotImplementedError(  # pragma: no cover
             f"{fully_qualified_name(cls)} was not decorated with a {fully_qualified_name(PluginDefinition)} subclass."
         )
 

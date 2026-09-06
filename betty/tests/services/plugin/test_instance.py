@@ -21,6 +21,7 @@ from betty.test_utils.plugin import (
 from betty.tests.services.test_plugin import (
     PluginServiceManagerTestBase,
 )
+from betty.typing import Unreachable
 
 
 class _PluginInstanceServiceManagerTestSut(
@@ -33,7 +34,7 @@ class _PluginInstanceServiceManagerTestSut(
 
     @override
     def new_service(self, owner: HasPluginServices, /) -> DummyPlugin:
-        raise NotImplementedError
+        raise Unreachable
 
 
 class _PluginInstanceServiceManagerTestOwner(HasPluginServices, HasServiceLevel):

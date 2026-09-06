@@ -6,13 +6,14 @@ from betty.datas.plugin.definition import (
 )
 from betty.localizer import default_localizer
 from betty.test_utils.plugin import DummyPluginDefinition
+from betty.typing import Unreachable
 
 
 @PluginDefinitionDefinition(DummyPluginDefinition)
 class _DummyPluginDefinitionData(PluginDefinitionData[DummyPluginDefinition]):
     @override
     def new_plugin(self) -> DummyPluginDefinition:
-        raise NotImplementedError
+        raise Unreachable
 
 
 class TestPluginDefinitionData:

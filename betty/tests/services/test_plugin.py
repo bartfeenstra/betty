@@ -22,6 +22,7 @@ from betty.test_utils.plugin import (
     DummyPluginTwo,
     DummyPluginWithLifeCycle,
 )
+from betty.typing import Unreachable
 
 
 class _HasPluginServices(HasPluginServices, HasServiceLevel):
@@ -205,7 +206,7 @@ class _PluginServiceManagerTestSut(
     def new_service(
         self, owner: ResolvableServiceLevelHasPluginServices, /
     ) -> Sequence[MachineName]:
-        raise NotImplementedError
+        raise Unreachable
 
 
 class _PluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):

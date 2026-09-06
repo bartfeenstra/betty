@@ -25,6 +25,8 @@ from betty.job.scheduler import (
 )
 from betty.jobs.raise_exception import RaiseException
 from betty.jobs.sleep import Sleep
+from betty.test_utils import AbstractMethod
+from betty.typing import Unreachable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -56,15 +58,15 @@ class StaticScheduler(Scheduler):
 
     @override
     async def add(self, *jobs: Job) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
     @override
     async def release(self) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
     @override
     async def cancel(self, reason: BaseException | None = None, /) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
     @override
     async def complete(self) -> None:
@@ -111,7 +113,7 @@ class SchedulerTestBase:
         """
         Provide the systems under test.
         """
-        raise NotImplementedError
+        raise AbstractMethod
 
     async def test___aexit___with_exception(self, sut: Scheduler) -> None:
         """

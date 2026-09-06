@@ -12,6 +12,8 @@ from asyncio import sleep
 from math import floor
 from typing import TYPE_CHECKING, Final, final, override
 
+from betty.typing import Unreachable
+
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Hashable, MutableMapping
     from types import TracebackType
@@ -74,8 +76,7 @@ class ThreadSafeLock(Lock):
             if wait:
                 continue
             return False
-        # This never happens, because backoff() is an infinite generator.
-        raise NotImplementedError
+        raise Unreachable("backoff() is an infinite generator")
 
     @override
     async def release(self) -> None:

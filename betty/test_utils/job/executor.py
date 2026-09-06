@@ -11,6 +11,7 @@ import pytest
 
 from betty.job import Context
 from betty.job.scheduler import Cancelled, ScheduledJobBatch, Scheduler
+from betty.test_utils import AbstractMethod
 from betty.test_utils.job.scheduler import StaticScheduler
 
 if TYPE_CHECKING:
@@ -33,7 +34,7 @@ class ExecutorTestBase:
         """
         Provide the systems under test.
         """
-        raise NotImplementedError
+        raise AbstractMethod
 
     async def test___aexit___with_scheduler_cancelled(
         self, new_sut: Callable[[Scheduler], Executor]

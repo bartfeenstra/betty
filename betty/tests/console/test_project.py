@@ -12,6 +12,7 @@ from betty.console.project import add_project_argument
 from betty.exception import HumanFacingException
 from betty.file import write
 from betty.project import Project
+from betty.typing import Unreachable
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
@@ -68,7 +69,7 @@ async def test_add_project_argument__without_argument_without_file(
     parser = argparse.ArgumentParser()
 
     async def _command_function(*, project: Project) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
     command_function = await add_project_argument(
         parser, _command_function, isolated_app

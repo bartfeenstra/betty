@@ -19,6 +19,7 @@ from betty.datas.aggregate.record import FieldDefinition
 from betty.entity import Entity, EntityDefinition
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.typing import Unreachable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -52,30 +53,30 @@ class _Association[
     def is_resolver(
         self, value: Any, /
     ) -> TypeGuard[AssociateResolver[OwnerT, AssociateT]]:
-        raise NotImplementedError
+        raise Unreachable
 
     def resolve(self, project: Project, owner: OwnerT, /) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
     def associate(self, owner: OwnerT, associate: AssociateT, /) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
     def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
     def get_associates(self, owner: OwnerT, /) -> Iterable[AssociateT]:
-        raise NotImplementedError
+        raise Unreachable
 
     async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        raise NotImplementedError
+        raise Unreachable
 
     async def dump_linked_data_for(
         self, project: Project, target: OwnerT, /
     ) -> PortableData:
-        raise NotImplementedError
+        raise Unreachable
 
     def get(self, owner: HasAssociations, /) -> AssociateT:
-        raise NotImplementedError
+        raise Unreachable
 
 
 @EntityDefinition(

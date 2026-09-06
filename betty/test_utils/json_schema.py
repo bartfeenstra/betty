@@ -12,6 +12,7 @@ from jsonschema.exceptions import ValidationError
 from betty.json_schema import Schema, String
 from betty.json_schemas.json_schema import JsonSchemaSchema
 from betty.portable import PortableData
+from betty.test_utils import AbstractMethod
 
 DUMMY_SCHEMAS: Sequence[
     tuple[Schema, Sequence[PortableData], Sequence[PortableData]]
@@ -45,7 +46,7 @@ class SchemaTestBase:
         """
         Provide the system(s) under test.
         """
-        raise NotImplementedError
+        raise AbstractMethod
 
     async def test_def_name(self, sut_data: SchemaTestBaseSut) -> None:
         """
