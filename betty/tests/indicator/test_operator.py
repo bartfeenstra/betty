@@ -13,6 +13,7 @@ from betty.indicator.operator import (
     Operators,
     _Operator,
 )
+from betty.typing import Unreachable
 
 
 class DummyIndicator(Indicator):
@@ -172,19 +173,19 @@ class TestOperators:
 class OperatorTest_Operator(_Operator):
     @override
     def _get(self, data: Any, /) -> Any:
-        raise NotImplementedError
+        raise Unreachable
 
     @override
     def _set(self, data: Any, value: Any, /) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
     @override
     def _delete(self, data: Any, /) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
     @override
     def format(self) -> str:
-        raise NotImplementedError
+        raise Unreachable
 
 
 class Test_Operator:

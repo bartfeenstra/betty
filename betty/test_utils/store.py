@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.store import StoreItem, TransientStore
+from betty.test_utils import AbstractMethod
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -33,10 +34,10 @@ class StoreTestBase[ItemValueT]:
     def _new_sut(
         self, *, scopes: Sequence[str] = ()
     ) -> AbstractAsyncContextManager[TransientStore[ItemValueT]]:
-        raise NotImplementedError
+        raise AbstractMethod
 
     def _values(self) -> Iterator[ItemValueT]:
-        raise NotImplementedError
+        raise AbstractMethod
 
     async def test_with_scope(self) -> None:
         """

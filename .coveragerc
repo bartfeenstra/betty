@@ -19,7 +19,8 @@ exclude_also =
     if TYPE_CHECKING:
     @abstractmethod
     @overload
-    raise NotImplementedError
+    raise AbstractMethod
+    raise Unreachable
 show_missing = True
 skip_covered = True
 skip_empty = True

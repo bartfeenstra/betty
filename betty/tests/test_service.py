@@ -11,6 +11,7 @@ from betty.life_cycle.manage import ManagedLifeCycle
 from betty.prop import HasProps
 from betty.service import Service, ServiceManager
 from betty.service_level import HasServiceLevel, ResolvableServiceLevel, ServiceLevel
+from betty.typing import Unreachable
 
 
 class _DummyServiceManager[OwnerT: ResolvableServiceLevel](
@@ -46,7 +47,7 @@ class TestServiceManager:
         class _Owner(HasServiceLevel, ManagedLifeCycle, HasProps):
             @_DummyServiceManager
             def my_first_service(self) -> object:
-                raise NotImplementedError
+                raise Unreachable
 
         owner = _Owner(services=ServiceLevel())
         async with owner:
@@ -61,7 +62,7 @@ class TestServiceManager:
 
             @_DummyServiceManager
             def my_first_service(self) -> object:
-                raise NotImplementedError
+                raise Unreachable
 
         service = object()
         owner = _Owner(service)
@@ -72,7 +73,7 @@ class TestServiceManager:
         class _Owner(HasServiceLevel, ManagedLifeCycle, HasProps):
             @_DummyServiceManager
             def my_first_service(self) -> object:
-                raise NotImplementedError
+                raise Unreachable
 
         owner = _Owner(services=ServiceLevel())
         async with owner:

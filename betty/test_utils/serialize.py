@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.serialize import Serializer
+from betty.test_utils import AbstractMethod
 
 if TYPE_CHECKING:
     from betty.portable import PortableData
@@ -24,7 +25,7 @@ class SerializerTestBase[SerializerT: Serializer]:
         """
         Provide the system(s) under test.
         """
-        raise NotImplementedError
+        raise AbstractMethod
 
     @pytest.mark.parametrize(
         "portable",

@@ -4,6 +4,7 @@ from betty.attr import Attr
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.prop import HasProps
+from betty.typing import Unreachable
 
 
 class TestAttr:
@@ -13,7 +14,7 @@ class TestAttr:
 
         @override
         def get(self, owner: HasProps) -> object:
-            raise NotImplementedError
+            raise Unreachable
 
     def test_normalize(self) -> None:
         value = object()

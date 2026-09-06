@@ -23,6 +23,7 @@ from betty.service_provider import (
     ServiceProviderManufacturer,
 )
 from betty.service_providers.maps import Maps
+from betty.test_utils import AbstractMethod
 from betty.tests.conftest import (
     check_skip_playwright,
     check_skip_webpack_entry_point_provider,
@@ -51,7 +52,7 @@ class MapsTestBase:
 
         This is meant to test maps functionality against other extensions that modify maps behavior, such as themes.
         """
-        raise NotImplementedError
+        raise AbstractMethod
 
     @pytest.fixture(scope="session")
     async def server(self) -> AsyncIterator[Server]:

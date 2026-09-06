@@ -198,10 +198,6 @@ class Date(Localizable, Data, HasProps, Frozen, metaclass=TypeABCMeta):
     def __gt__(self, other: Any) -> bool:
         return self._compare(other, operator.gt)
 
-    @classmethod
-    def _load_date(cls, value: str) -> tuple[int | None, int | None, int | None]:
-        raise NotImplementedError
-
 
 def _dump_date_iso8601(date: Date, /) -> str | None:
     if not date.complete:

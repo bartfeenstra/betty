@@ -2,13 +2,14 @@ from typing import override
 
 from betty.datas.plugin.definition.ordered import OrderedPluginDefinitionData
 from betty.plugin.ordered import OrderedPluginDefinition
+from betty.typing import Unreachable
 
 
 class TestOrderedPluginDefinitionData:
     class _Sut(OrderedPluginDefinitionData):
         @override
         def new_plugin(self) -> OrderedPluginDefinition:
-            raise NotImplementedError
+            raise Unreachable
 
     def test_before(self) -> None:
         before = ["my-first-plugin"]

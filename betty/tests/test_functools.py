@@ -18,6 +18,7 @@ from betty.functools import (
     unique,
 )
 from betty.nothing import Nothing
+from betty.typing import Unreachable
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Sequence
@@ -237,12 +238,12 @@ class TestDecoratedCallable:
             def __get__[T](
                 self, instance: T | None, owner: type[T] | None = None
             ) -> Callable[[int], int]:
-                raise NotImplementedError
+                raise Unreachable
 
         class Cls:
             @classmethod
             def f(cls, value: int, /) -> int:
-                raise NotImplementedError
+                raise Unreachable
 
         f = DecoratedCallable(_decorate, _Descriptor())
         with pytest.raises(TypeError):

@@ -11,6 +11,7 @@ from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 from betty.tests.services.test_plugin import (
     PluginServiceManagerTestBase,
 )
+from betty.typing import Unreachable
 
 
 @PluginTypeDefinition(
@@ -39,7 +40,7 @@ class _CollectionPluginServiceManagerTestSut(
     def new_service(
         self, owner: HasPluginServices, /
     ) -> Sequence[_DummyOrderedPluginDefinition]:
-        raise NotImplementedError
+        raise Unreachable
 
     @override
     def new_service_item(
@@ -48,7 +49,7 @@ class _CollectionPluginServiceManagerTestSut(
         plugin: ResolvablePluginDefinition[_DummyOrderedPluginDefinition],
         /,
     ) -> _DummyOrderedPluginDefinition:
-        raise NotImplementedError
+        raise Unreachable
 
 
 class _CollectionPluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):

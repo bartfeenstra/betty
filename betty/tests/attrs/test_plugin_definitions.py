@@ -10,6 +10,7 @@ from betty.datas.plugin.definition import (
 )
 from betty.prop import HasProps
 from betty.test_utils.plugin import DummyPluginDefinition
+from betty.typing import Unreachable
 
 
 @ObjectDefinition(label="-")
@@ -18,7 +19,7 @@ class _Owner(Data, HasProps):
     class _Item(PluginDefinitionData[DummyPluginDefinition]):
         @override
         def new_plugin(self) -> DummyPluginDefinition:
-            raise NotImplementedError
+            raise Unreachable
 
     def __init__(self, plugins: Iterable[_Item] = ()):
         super().__init__()

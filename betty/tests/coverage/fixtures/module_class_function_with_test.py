@@ -1,11 +1,13 @@
 """Provide fixtures for a source method with a matching test method."""
 
+from betty.typing import Unreachable
+
 
 class Src:
     """Provide a fixture source class."""
 
     def src(self) -> None:
-        raise NotImplementedError
+        raise Unreachable
 
 
 class TestSrc:

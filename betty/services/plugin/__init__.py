@@ -24,6 +24,7 @@ from betty.prop import HasProps
 from betty.requirements.plugin_service import PluginServiceRequirement
 from betty.service import Service, ServiceManager
 from betty.service_level import ResolvableServiceLevel, resolve_service_level
+from betty.typing import Unreachable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -39,7 +40,7 @@ class _PluginServiceRequirementPlugins[PluginDefinitionT: PluginDefinition](Prot
     def __call__(
         self, *plugins: ResolvablePluginDefinition[PluginDefinitionT]
     ) -> PluginServiceRequirement:
-        raise NotImplementedError
+        raise Unreachable
 
 
 @final

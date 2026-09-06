@@ -10,6 +10,7 @@ from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, final
 
 from betty.pathlib import resolve_path
+from betty.test_utils import AbstractMethod
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -44,13 +45,13 @@ class PotFileTestBase:
         """
         The asset directory path containing the translations that are being tested.
         """
-        raise NotImplementedError(repr(self))
+        raise AbstractMethod
 
     def command(self) -> str:
         """
         The command to suggest the developer runs in case the translations are out of date.
         """
-        raise NotImplementedError(repr(self))
+        raise AbstractMethod
 
     async def update_translations(
         self, output_asset_directory_override: Path, /
@@ -58,7 +59,7 @@ class PotFileTestBase:
         """
         Update the translations into the given directory.
         """
-        raise NotImplementedError(repr(self))
+        raise AbstractMethod
 
     @final
     async def test(self) -> None:

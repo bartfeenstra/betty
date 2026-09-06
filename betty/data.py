@@ -126,7 +126,7 @@ class Data[DataDefinitionT: DataDefinition = DataDefinition]:
         """
         try:
             return _datas[cls]
-        except KeyError:
+        except KeyError:  # pragma: no cover
             raise NotImplementedError(
                 f"{fully_qualified_name(cls)} was not decorated with {fully_qualified_name(DataDefinition)} or any subclass."
             ) from None

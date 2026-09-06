@@ -8,6 +8,7 @@ import pytest
 
 from betty.copyright_notice import CopyrightNotice
 from betty.localizer import default_localizer
+from betty.test_utils import AbstractMethod
 
 
 class CopyrightNoticeTestBase[CopyrightNoticeT: CopyrightNotice]:
@@ -20,7 +21,7 @@ class CopyrightNoticeTestBase[CopyrightNoticeT: CopyrightNotice]:
         """
         Provide the system(s) under test.
         """
-        raise NotImplementedError
+        raise AbstractMethod
 
     def test_summary(self, sut: CopyrightNoticeT) -> None:
         """
