@@ -153,12 +153,13 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        dump_context(
-            portable,
-            names="https://schema.org/name",
-            parents="https://schema.org/parent",
-            children="https://schema.org/child",
+        portable = dict(
+            dump_context(
+                await super().dump_linked_data(project),
+                names="https://schema.org/name",
+                parents="https://schema.org/parent",
+                children="https://schema.org/child",
+            )
         )
         portable["@type"] = "https://schema.org/Person"
         if self.public:

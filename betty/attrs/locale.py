@@ -57,7 +57,7 @@ class HasLocale(
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
+        portable = dict(await super().dump_linked_data(project))
         portable["locale"] = (
             to_language_tag(self.locale)
             if not isinstance(self, HasPrivacy) or self.public

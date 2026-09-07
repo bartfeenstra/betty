@@ -5,16 +5,27 @@ Provide JSON utilities.
 from __future__ import annotations
 
 import enum
-from typing import TYPE_CHECKING, Any, Final, cast, override
+from collections.abc import MutableMapping, MutableSequence
+from typing import TYPE_CHECKING, Any, Final, override
 
 from jsonschema.validators import Draft202012Validator
 from referencing import Registry, Resource
 
 from betty.localizer import default_localizer
-from betty.portable import PortableData, PortableMapping
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
+
+type _SchemaData = (
+    bool
+    | int
+    | float
+    | str
+    | None
+    | MutableSequence[_SchemaData]
+    | MutableMapping[str, _SchemaData]
+)
+type SchemaData = MutableMapping[str, _SchemaData]
 
 
 class Schema:
@@ -34,7 +45,7 @@ class Schema:
         description: ResolvableLocalizable | None = None,
     ):
         self._def_name = def_name
-        self.schema: Final[PortableMapping] = {
+        self.schema: Final[dict[str, _SchemaData]] = {
             # The entire API assumes this dialect, so enforce it.
             "$schema": "https://json-schema.org/draft/2020-12/schema",
         }
@@ -58,10 +69,7 @@ class Schema:
         """
         The schema's human-readable US English (short) title.
         """
-        try:
-            return cast(str, self.schema["title"])
-        except KeyError:
-            return None
+        return self.schema.get("title", None)  # ty:ignore[invalid-return-type]
 
     @title.setter
     def title(self, title: ResolvableLocalizable) -> None:
@@ -72,26 +80,23 @@ class Schema:
         """
         The schema's human-readable US English (long) description.
         """
-        try:
-            return cast(str, self.schema["description"])
-        except KeyError:
-            return None
+        return self.schema.get("description", None)  # ty:ignore[invalid-return-type]
 
     @description.setter
     def description(self, description: ResolvableLocalizable) -> None:
         self.schema["description"] = default_localizer.localize(description)
 
     @property
-    def defs(self) -> PortableMapping:
+    def defs(self) -> SchemaData:
         """
         The JSON Schema's ``$defs`` definitions, kept separately, so they can be merged when this schema is embedded.
 
         Only top-level definitions are supported. You **MUST NOT** nest definitions. Instead, prefix or suffix
         their names.
         """
-        return cast(PortableMapping, self.schema.setdefault("$defs", {}))
+        return self.schema.setdefault("$defs", {})  # ty:ignore[invalid-return-type]
 
-    def embed(self, into: Schema, /) -> PortableMapping:
+    def embed(self, into: Schema, /) -> SchemaData:
         """
         Embed this schema.
 
@@ -333,7 +338,7 @@ class Const(Schema):
 
     def __init__(
         self,
-        const: PortableData,
+        const: _SchemaData,
         *,
         def_name: str | None = None,
         title: ResolvableLocalizable | None = None,
@@ -350,7 +355,7 @@ class Enum(Schema):
 
     def __init__(
         self,
-        *values: PortableData,
+        *values: _SchemaData,
         def_name: str | None = None,
         title: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
