@@ -4,7 +4,6 @@ from unittest.mock import Mock
 import pytest
 from pytest_mock import MockerFixture
 
-from betty.capability import Incapable
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import (
     FieldDefinition,
@@ -18,6 +17,7 @@ from betty.datas.str import StrDefinition
 from betty.indicator.operator import Attr
 from betty.localizables.plain import Plain
 from betty.portable import Porter
+from betty.portable.error import NotPortable
 from betty.porters.fields import FieldsPorter
 from betty.porters.porter_field import PorterFieldPorter
 
@@ -61,7 +61,7 @@ class TestFieldDefinition:
 
     def test_porter__without_porter_without_data_porter(self) -> None:
         sut = FieldDefinition(DataDefinition(label="-"))
-        with pytest.raises(Incapable):
+        with pytest.raises(NotPortable):
             assert sut.porter
 
     def test_porter__without_porter_with_data_porter(

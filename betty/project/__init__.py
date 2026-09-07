@@ -14,7 +14,7 @@ from contextlib import AsyncExitStack, asynccontextmanager
 from operator import not_
 from shutil import rmtree
 from tempfile import mkdtemp
-from typing import TYPE_CHECKING, Any, Final, Literal, Never, Self, final
+from typing import TYPE_CHECKING, Any, Final, Literal, Self, final
 from urllib.parse import urlsplit
 
 from babel import Locale
@@ -54,7 +54,6 @@ from betty.datas.plugin.definition.license import LicenseDefinitionData
 from betty.datas.plugin.definition.place_type import PlaceTypeDefinitionData
 from betty.datas.plugin.definition.role import RoleDefinitionData
 from betty.datas.str import StrDefinition
-from betty.definition.cls import OnSetCls
 from betty.dirs import builtin_asset_directory
 from betty.document import Document, DocumentProviderDefinition
 from betty.entity import EntityDefinition
@@ -139,7 +138,6 @@ if TYPE_CHECKING:
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
-    from betty.plugin.discovery import ResolvableDiscovery as ResolvableDiscovery
     from betty.plugin.factory import (
         ResolvablePluginManufacturer,
         ResolvablePluginManufacturerSequence,
@@ -637,9 +635,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
 @final
 @ObjectDefinition(
     label=_("Project locale"),
-    porter=OnSetCls(
-        lambda definition: KeyedMappingPorter("locale", FieldsPorter(definition))
-    ),
+    porter=lambda definition: KeyedMappingPorter("locale", FieldsPorter(definition)),
     samples=[
         lambda: Sample(
             ProjectLocale(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL
@@ -652,7 +648,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
     ],
 )
 class ProjectLocale(
-    Data[ObjectDefinition["ProjectLocale", Never, KeyedPorter["ProjectLocale"]]],
+    Data[ObjectDefinition["ProjectLocale", KeyedPorter["ProjectLocale"]]],
     HasProps,
     Frozen,
 ):

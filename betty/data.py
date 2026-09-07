@@ -6,28 +6,29 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
-from betty.collections import _empty_frozen_mapping
-from betty.definition.cls import ClsDefinitionCapabilityStage, OptionalClsDefinition
+from betty.definition.cls import OptionalClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.functools import LazyReCallable
 from betty.importlib import fully_qualified_name
 from betty.portable import Porter
+from betty.portable.error import NotPortable
 from betty.sample import Samplable, Sample, Samples
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Mapping, MutableMapping
+    from collections.abc import Callable, Iterable, MutableMapping
 
-    from betty.capability import ResolvableCapability, ResolvableStagedCapability, Stage
     from betty.localizable import ResolvableLocalizable
     from betty.typing import Intersection
 
 
-class DataDefinition[
-    DataT,
-    StageT: Stage = ClsDefinitionCapabilityStage,
-    PorterT: Porter = Porter,
-](
-    HumanFacingDefinition[StageT | ClsDefinitionCapabilityStage],
-    OptionalClsDefinition[DataT, StageT],
+type ResolvableDataPorter[DataDefinitionT: DataDefinition, PorterT: Porter = Porter] = (
+    PorterT | Callable[[DataDefinitionT], PorterT]
+)
+
+
+class DataDefinition[DataT, PorterT: Porter = Porter](
+    HumanFacingDefinition,
+    OptionalClsDefinition[DataT],
 ):
     """
     A data definition.
@@ -38,17 +39,8 @@ class DataDefinition[
         *args: Any,
         cls: type[DataT] | None = None,
         label: ResolvableLocalizable,
-        capabilities: Mapping[
-            str,
-            tuple[
-                type,
-                ResolvableStagedCapability[
-                    Self, Any, StageT | ClsDefinitionCapabilityStage
-                ],
-            ],
-        ] = _empty_frozen_mapping,
         description: ResolvableLocalizable | None = None,
-        porter: ResolvableCapability[Self, Intersection[PorterT, Porter[DataT]]]
+        porter: ResolvableDataPorter[Self, Intersection[PorterT, Porter[DataT]]]
         | None = None,
         samples: Iterable[
             Callable[[], Sample[DataT]]
@@ -58,15 +50,16 @@ class DataDefinition[
         **kwargs: Any,
     ):
         self.__samples = tuple(samples)
+        self._porter = LazyReCallable(
+            lambda: (
+                porter(self) if porter and not isinstance(porter, Porter) else porter
+            )
+        )
         super().__init__(
             *args,
             cls=cls,
             label=label,
             description=description,
-            capabilities={
-                **capabilities,
-                "porter": (Porter, porter),
-            },
             **kwargs,
         )
 
@@ -76,7 +69,9 @@ class DataDefinition[
         """
         The porter for the data.
         """
-        return self.capability("porter")
+        if not (porter := self.try_porter):
+            raise NotPortable(f"{self!r} does not have a porter.")
+        return porter
 
     @final
     @property
@@ -84,7 +79,7 @@ class DataDefinition[
         """
         The porter for the data, if it has one.
         """
-        return self.try_capability("porter")
+        return self._porter()
 
     @override
     def _set_cls(self, cls: type[DataT], /) -> None:

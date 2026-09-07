@@ -7,25 +7,23 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, Final, Self, final
 
-from betty.capability import Stage
 from betty.collections import _empty_frozen_mapping
 from betty.data import (
     DataDefinition,
     ResolvableDataDefinition,
+    ResolvableDataPorter,
     Sample,
     Samples,
     resolve_data_definition,
 )
-from betty.definition import Definition
-from betty.definition.cls import ClsDefinitionCapabilityStage, OnSetCls
 from betty.indicator.operator import Attr, Key
 from betty.localizable import resolve_localizable
 from betty.portable import PortableData, Porter
+from betty.portable.error import NotPortable
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, MutableMapping
 
-    from betty.capability import ResolvableCapability
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.nothing import NothingType
     from betty.typing import Intersection
@@ -52,13 +50,18 @@ class FieldPorter[OwnerT, DataT, FieldPorterLoadDataT = Any](metaclass=ABCMeta):
         """
 
 
+type ResolvableFieldPorter[FieldPorterT: FieldPorter = FieldPorter] = (
+    FieldPorterT | Callable[[FieldDefinition], FieldPorterT]
+)
+
+
 @final
 class FieldDefinition[
     OwnerT,
     DataT,
     DataDefinitionT: DataDefinition = DataDefinition,
     FieldPorterT: FieldPorter = FieldPorter,
-](Definition):
+]:
     """
     A record field definition.
     """
@@ -72,8 +75,8 @@ class FieldDefinition[
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         optional: bool = False,
-        porter: ResolvableCapability[
-            Self, Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]]
+        porter: ResolvableFieldPorter[
+            Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]]
         ]
         | None = None,
     ):
@@ -110,15 +113,16 @@ class FieldDefinition[
                 porter: FieldPorterT = PorterFieldPorter(data_porter)  # ty:ignore[invalid-assignment]
         elif not isinstance(porter, FieldPorter):
             porter: FieldPorterT = porter(self)
-
-        super().__init__(capabilities={"porter": (FieldPorter, porter)})
+        self._porter = porter
 
     @property
     def porter(self) -> Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]]:
         """
         The porter for the data.
         """
-        return self.capability("porter")
+        if self._porter is None:
+            raise NotPortable(f"{self!r} does not have a porter.")
+        return self._porter
 
     @property
     def try_porter(
@@ -127,7 +131,7 @@ class FieldDefinition[
         """
         The porter for the data, if it has one.
         """
-        return self.try_capability("porter")
+        return self._porter
 
 
 type ResolvableFieldDefinition[
@@ -157,12 +161,9 @@ def resolve_field_definition[
     return FieldDefinition(resolve_data_definition(field))
 
 
-class RecordDefinition[
-    DataT,
-    OperatorT: FieldOperator,
-    StageT: Stage = ClsDefinitionCapabilityStage,
-    PorterT: Porter = Porter,
-](DataDefinition[DataT, StageT, PorterT]):
+class RecordDefinition[DataT, OperatorT: FieldOperator, PorterT: Porter = Porter](
+    DataDefinition[DataT, PorterT]
+):
     """
     A record data definition.
 
@@ -180,7 +181,7 @@ class RecordDefinition[
         description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[DataT]] | Samples] = (),
         factory: Callable[..., DataT] | None = None,
-        porter: ResolvableCapability[Self, Intersection[PorterT, Porter[DataT]]]
+        porter: ResolvableDataPorter[Self, Intersection[PorterT, Porter[DataT]]]
         | None = None,
         **kwargs: Any,
     ):
@@ -198,7 +199,7 @@ class RecordDefinition[
             label=label,
             description=description,
             samples=samples,
-            porter=porter or OnSetCls(FieldsPorter),
+            porter=porter or FieldsPorter,
             **kwargs,
         )
 

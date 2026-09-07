@@ -8,20 +8,16 @@ from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Any, Final, final
 
-from betty.capability import Stage
 from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
-from betty.definition.cls import ClsDefinitionCapabilityStage
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
     from betty.portable import Porter
 
 
-class CollectionDefinition[
-    CollectionT: Collection,
-    ValuesSetT: Iterable,
-    StageT: Stage = ClsDefinitionCapabilityStage,
-](DataDefinition[CollectionT, StageT], metaclass=ABCMeta):
+class CollectionDefinition[CollectionT: Collection, ValuesSetT: Iterable](
+    DataDefinition[CollectionT], metaclass=ABCMeta
+):
     """
     A homogenous collection data definition.
     """
