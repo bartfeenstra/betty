@@ -132,11 +132,17 @@ class PersonName(HasLocale, HasCitations):
         portable = await super().dump_linked_data(project)
         if self.public:
             if self.individual is not None:
-                dump_context(portable, individual="https://schema.org/givenName")
-                portable["individual"] = self.individual
+                portable = {
+                    **dump_context(portable, individual="https://schema.org/givenName"),
+                    "individual": self.individual,
+                }
             if self.affiliation is not None:
-                dump_context(portable, affiliation="https://schema.org/familyName")
-                portable["affiliation"] = self.affiliation
+                portable = {
+                    **dump_context(
+                        portable, affiliation="https://schema.org/familyName"
+                    ),
+                    "affiliation": self.affiliation,
+                }
         return portable
 
     @override

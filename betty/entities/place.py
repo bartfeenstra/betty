@@ -123,28 +123,31 @@ class Place(HasLinks, HasFileReferences, HasNotes):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        dump_context(
-            portable,
-            names="https://schema.org/name",
-            events="https://schema.org/event",
-            enclosedBy="https://schema.org/containedInPlace",
-            encloses="https://schema.org/containsPlace",
+        portable = dict(
+            dump_context(
+                await super().dump_linked_data(project),
+                names="https://schema.org/name",
+                events="https://schema.org/event",
+                enclosedBy="https://schema.org/containedInPlace",
+                encloses="https://schema.org/containsPlace",
+            )
         )
         portable["@type"] = "https://schema.org/Place"
         portable["names"] = [
             await name.dump_linked_data(project) for name in self.names
         ]
         if self.coordinates is not None:
-            portable_coordinates: PortableMapping = {
-                "@type": "https://schema.org/GeoCoordinates",
-                "latitude": self.coordinates.latitude,
-                "longitude": self.coordinates.longitude,
-            }
-            dump_context(portable, coordinates="https://schema.org/geo")
-            dump_context(portable_coordinates, latitude="https://schema.org/latitude")
-            dump_context(portable_coordinates, longitude="https://schema.org/longitude")
+            portable_coordinates = dump_context(
+                {
+                    "@type": "https://schema.org/GeoCoordinates",
+                    "latitude": self.coordinates.latitude,
+                    "longitude": self.coordinates.longitude,
+                },
+                latitude="https://schema.org/latitude",
+                longitude="https://schema.org/longitude",
+            )
             portable["coordinates"] = portable_coordinates
+            portable = dump_context(portable, coordinates="https://schema.org/geo")
         return portable
 
     @override

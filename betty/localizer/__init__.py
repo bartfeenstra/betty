@@ -50,6 +50,8 @@ class Localizer:
         """
         from betty.localizable import Localizable
 
+        if isinstance(localizable, LocalizedStr):
+            return localizable
         if isinstance(localizable, str):
             return LocalizedStr(localizable)
         if not isinstance(localizable, Localizable):

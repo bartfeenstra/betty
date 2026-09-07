@@ -150,9 +150,13 @@ class Event(
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        dump_context(portable, place="https://schema.org/location")
-        dump_context(portable, presences="https://schema.org/performer")
+        portable = dict(
+            dump_context(
+                await super().dump_linked_data(project),
+                place="https://schema.org/location",
+                presences="https://schema.org/performer",
+            )
+        )
         portable["@type"] = "https://schema.org/Event"
         portable["type"] = self.event_type.plugin().id
         portable["eventAttendanceMode"] = (

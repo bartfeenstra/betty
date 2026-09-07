@@ -182,7 +182,7 @@ class PluginManufacturer(
                     "my-first-plugin-id",
                     {
                         "configuration-key": "configuration-value",
-                    },  # ty:ignore[invalid-argument-type]
+                    },
                 ),
                 label="Full",
                 size=Size.FULL,

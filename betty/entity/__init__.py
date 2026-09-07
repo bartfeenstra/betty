@@ -86,7 +86,7 @@ class Entity(
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
+        portable = dict(await super().dump_linked_data(project))
         url_generator = await project.url_generator
         portable["@id"] = url_generator.generate(
             self, media_type=JSON_LD, absolute=True

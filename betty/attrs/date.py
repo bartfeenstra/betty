@@ -55,7 +55,7 @@ class HasAnyDate(
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
+        portable = dict(await super().dump_linked_data(project))
         if self.date and (not isinstance(self, HasPrivacy) or self.public):
             (
                 schema_org_date_definition,
@@ -99,7 +99,7 @@ def _dump_linked_data_for_date(
         # Set a single term definition because JSON-LD does not let us apply multiple
         # for the same term (key).
         if context_definition:
-            dump_context(portable, iso8601=context_definition)
+            portable = dump_context(portable, iso8601=context_definition)
     return portable
 
 

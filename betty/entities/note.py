@@ -73,7 +73,7 @@ class Note(HasLinks, HasMediaType):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
+        portable = dict(await super().dump_linked_data(project))
         portable["@type"] = "https://schema.org/Thing"
         if self.public:
             portable["text"] = dump_linked_data(

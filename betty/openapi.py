@@ -158,7 +158,7 @@ class Specification:
 
         # Add default behavior to all requests.
         for path_specification in specification_paths.values():
-            path_specification["get"]["responses"].update({  # ty:ignore[invalid-argument-type, not-subscriptable, unresolved-attribute]
+            path_specification["get"]["responses"].update({
                 "401": {
                     "$ref": "#/components/responses/401",
                 },

@@ -356,7 +356,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/links/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/linked_data.py": {
         "dump_context": MissingReason.SHOULD_BE_COVERED,
-        "dump_link": MissingReason.SHOULD_BE_COVERED,
         "dump_schema": MissingReason.SHOULD_BE_COVERED,
         "JsonLdObject": MissingReason.SHOULD_BE_COVERED,
         "LinkedDataDumpable": MissingReason.ABSTRACT,

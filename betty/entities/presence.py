@@ -108,7 +108,7 @@ class Presence(Entity):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
+        portable = dict(await super().dump_linked_data(project))
         if self.public:
             portable["role"] = self.role.plugin().id
         return portable

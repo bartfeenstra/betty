@@ -253,9 +253,7 @@ class Builder:
         await gather(
             *(
                 self._update_package_json(
-                    npm_project_directory,
-                    package_jsons_by_package_name,  # ty:ignore[invalid-argument-type]
-                    package_name,
+                    npm_project_directory, package_jsons_by_package_name, package_name
                 )
                 for package_name in package_jsons_by_package_name
             )

@@ -5,9 +5,8 @@ Provide `JSON-LD <https://json-ld.org/>`_ utilities.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from collections.abc import MutableSequence
 from inspect import getmembers
-from typing import TYPE_CHECKING, cast, override
+from typing import TYPE_CHECKING, override
 
 from betty.json_schema import Object, Schema
 from betty.json_schemas.json_ld import JsonLdSchema
@@ -15,25 +14,8 @@ from betty.portable import PortableData, PortableMapping
 from betty.string import snake_case_to_lower_camel_case
 
 if TYPE_CHECKING:
-    from betty.entities.link import Link
     from betty.localizable import ResolvableLocalizable
     from betty.project import Project
-
-
-async def dump_schema(
-    project: Project,
-    portable: PortableMapping,
-    linked_data_dumpable: LinkedDataDumpableWithSchema[Object, PortableMapping],
-    /,
-) -> None:
-    """
-    Add the $schema item to a JSON-LD dump.
-    """
-    from betty.json_schemas.project import ProjectSchema
-
-    schema = await linked_data_dumpable.linked_data_schema(project)
-    if schema.def_name:
-        portable["$schema"] = await ProjectSchema.def_url(project, schema.def_name)
 
 
 class LinkedDataDumpable[PortableDataT: PortableData = PortableData]:
@@ -111,9 +93,13 @@ class LinkedDataDumpableWithSchemaJsonLdObject(
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable: PortableMapping = {}
+        portable = {}
 
-        await dump_schema(project, portable, self)
+        from betty.json_schemas.project import ProjectSchema
+
+        schema = await self.linked_data_schema(project)
+        if schema.def_name:
+            portable["$schema"] = await ProjectSchema.def_url(project, schema.def_name)
 
         for attr_name, class_attr_value in getmembers(type(self)):
             if isinstance(class_attr_value, LinkedDataDumper):
@@ -148,22 +134,16 @@ class LinkedDataDumper[
         """
 
 
-def dump_context(portable: PortableMapping, **context_definitions: str) -> None:
+def dump_context(
+    portable: PortableMapping, **context_definitions: str
+) -> PortableMapping:
     """
     Add one or more contexts to a dump.
     """
-    portable_context = cast(PortableMapping, portable.setdefault("@context", {}))
-    for key, context_definition in context_definitions.items():
-        portable_context[key] = context_definition
-
-
-async def dump_link(portable: PortableMapping, project: Project, *links: Link) -> None:
-    """
-    Add one or more links to a dump.
-    """
-    portable_link = cast(
-        MutableSequence[PortableMapping],
-        portable.setdefault("links", []),
-    )
-    for link in links:
-        portable_link.append(await link.dump_linked_data(project))
+    return {
+        **portable,
+        "@context": {
+            **(portable.get("@context", {})),
+            **context_definitions,
+        },
+    }
