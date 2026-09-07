@@ -124,11 +124,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/capability.py": {
-        "CapabilityError": MissingReason.STATIC_CONTENT_ONLY,
-        "HasCapabilities": MissingReason.STATIC_CONTENT_ONLY,
-        "Stage": MissingReason.STATIC_CONTENT_ONLY,
-    },
     "betty/classtools.py": {
         "OwnedClassVar": {
             "__set_name__": MissingReason.COVERED_ELSEWHERE,
@@ -241,9 +236,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/definition/__init__.py": {
         "Definition": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/definition/cls.py": {
-        "OnSetCls": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/deriver.py": {
         "Derivation": MissingReason.ENUM,
@@ -555,6 +547,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/portable/error.py": {
         "NotDumpable": MissingReason.STATIC_CONTENT_ONLY,
+        "NotPortable": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/role.py": {
         "Role": MissingReason.STATIC_CONTENT_ONLY,

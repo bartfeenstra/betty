@@ -4,7 +4,7 @@ Data definitions for entities as entity references.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Never, final
+from typing import TYPE_CHECKING, final
 
 from betty.data import DataDefinition
 from betty.datas.entity_reference import EntityReference
@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 class EntityAsReferenceDefinition[AssociateT: Entity](
     DataDefinition[
         AssociateT | EntityReference[AssociateT],
-        Never,
         EntityAsReferencePorter[AssociateT],
     ]
 ):

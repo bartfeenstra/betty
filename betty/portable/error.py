@@ -10,6 +10,13 @@ from betty.exception import HumanFacingException
 
 
 @final
+class NotPortable(HumanFacingException):
+    """
+    Raised when data is not portable.
+    """
+
+
+@final
 class NotDumpable(HumanFacingException):
     """
     Raised when data is not dumpable.

@@ -5,16 +5,12 @@ Reusable data for plugin definitions.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Never, final
+from typing import TYPE_CHECKING, final
 
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.classtools import TypeABCMeta
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
-from betty.definition.cls import (
-    ClsDefinitionCapabilityStage as ClsDefinitionCapabilityStage,
-)
-from betty.definition.cls import OnSetCls
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition
@@ -42,7 +38,6 @@ class PluginDefinitionDefinition[
 ](
     ObjectDefinition[
         Intersection[PluginDefinitionDataT, "PluginDefinitionData[PluginDefinitionT]"],
-        Never,
         KeyedPorter[
             Intersection[
                 PluginDefinitionDataT, "PluginDefinitionData[PluginDefinitionT]"
@@ -66,8 +61,8 @@ class PluginDefinitionDefinition[
             label=_("{plugin_type} configuration").format(
                 plugin_type=plugin_type.label
             ),
-            porter=OnSetCls(
-                lambda definition: KeyedMappingPorter("id", FieldsPorter(definition))
+            porter=lambda definition: KeyedMappingPorter(
+                "id", FieldsPorter(definition)
             ),
             samples=samples,
         )
