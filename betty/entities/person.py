@@ -4,7 +4,7 @@ Data types describing persons.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.associations.has_citations import HasCitations
 from betty.associations.has_file_references import HasFileReferences
@@ -48,7 +48,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     .. plugin:: entity:person.
     """
 
-    parents = ToMany[Self, "Person"](
+    parents = ToMany["Person"](
         "betty.entities.person:Person",
         "children",
         label=_("Parents"),
@@ -57,7 +57,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     The person's parents.
     """
 
-    children = ToMany[Self, "Person"](
+    children = ToMany["Person"](
         "betty.entities.person:Person",
         "parents",
         label=_("Children"),
@@ -66,7 +66,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     The person's children.
     """
 
-    presences = ToMany[Self, Presence](
+    presences = ToMany(
         Presence,
         "person",
         label=_("Presences"),
@@ -76,7 +76,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     The person's presences at events.
     """
 
-    names = ToMany[Self, PersonName](PersonName, "person", label=_("Names"))
+    names = ToMany(PersonName, "person", label=_("Names"))
     """
     The person's names.
     """
@@ -85,15 +85,15 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
         self,
         id: ResolvableMachineName | None = None,  # noqa: A002
         *,
-        files: ToManyAssociates[Self, FileReference] = (),
-        citations: ToManyAssociates[Self, Citation] = (),
-        links: ToManyAssociates[Self, Link] = (),
-        notes: ToManyAssociates[Self, Note] = (),
+        files: ToManyAssociates[FileReference] = (),
+        citations: ToManyAssociates[Citation] = (),
+        links: ToManyAssociates[Link] = (),
+        notes: ToManyAssociates[Note] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
-        parents: ToManyAssociates[Self, Person] = (),
-        children: ToManyAssociates[Self, Person] = (),
-        presences: ToManyAssociates[Self, Presence] = (),
-        names: ToManyAssociates[Self, PersonName] = (),
+        parents: ToManyAssociates[Person] = (),
+        children: ToManyAssociates[Person] = (),
+        presences: ToManyAssociates[Presence] = (),
+        names: ToManyAssociates[PersonName] = (),
         gender: Gender | None = None,
     ):
         super().__init__(

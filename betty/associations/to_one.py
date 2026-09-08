@@ -5,7 +5,7 @@ To-one entity associations.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, ClassVar, TypeGuard, final, override
+from typing import TYPE_CHECKING, ClassVar, TypeGuard, final, override
 
 from betty.association import (
     Associate,
@@ -31,17 +31,13 @@ if TYPE_CHECKING:
 
 
 @final
-class MissingAssociate[OwnerT: HasAssociations](AttributeError):
+class MissingAssociate(AttributeError):
     """
     Raised when a to-one association is missing its required associate.
     """
 
     def __init__(
-        self,
-        association: Association[OwnerT, Any, Any, Any, Any],
-        owner: OwnerT,
-        reason: str,
-        /,
+        self, association: Association, owner: HasAssociations, reason: str, /
     ):
         super().__init__(
             f"Missing associate for {association.ownership.fully_qualified_name} on {repr(owner)}. {reason}"
@@ -83,14 +79,14 @@ class Placeholder(_MissingAssociate):
     message = "A placeholder was set, but never explicitly replaced by a real associate entity."
 
 
-type ToOneAssociate[OwnerT: HasAssociations, AssociateT: Entity] = (
-    Associate[OwnerT, AssociateT] | type[_MissingAssociate]
+type ToOneAssociate[AssociateT: Entity] = (
+    Associate[AssociateT] | type[_MissingAssociate]
 )
 
 
 @final
-class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
-    Association[OwnerT, AssociateT, AssociateT, ToOneAssociate[OwnerT, AssociateT]]
+class ToOne[AssociateT: Entity](
+    Association[AssociateT, AssociateT, ToOneAssociate[AssociateT]]
 ):
     r"""
     A \*-to-one entity association.
@@ -114,24 +110,27 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
         )
 
     def _is_missing(
-        self, value: ToOneAssociate[OwnerT, AssociateT]
+        self, value: ToOneAssociate[AssociateT]
     ) -> TypeGuard[_MissingAssociate]:
         return isinstance(value, type) and issubclass(value, _MissingAssociate)
 
     def _assert_not_missing(
-        self, owner: OwnerT, value: ToOneAssociate[OwnerT, AssociateT]
+        self, owner: HasAssociations, value: ToOneAssociate[AssociateT]
     ) -> None:
         if self._is_missing(value):
-            raise MissingAssociate(self, owner, value.message)
+            raise MissingAssociate(
+                self,  # ty:ignore[invalid-argument-type]
+                owner,
+                value.message,
+            )
 
     @property
     def optional(
         self,
     ) -> Association[
-        OwnerT,
         AssociateT,
         AssociateT | None,
-        Associate[OwnerT, AssociateT] | None,
+        Associate[AssociateT] | None,
         DataDefinition[AssociateT | None],
     ]:
         """
@@ -143,14 +142,14 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
 
     @override
     def is_resolver(
-        self, value: ToOneAssociate[OwnerT, AssociateT], /
-    ) -> TypeGuard[AssociateResolver[OwnerT, AssociateT]]:
+        self, value: ToOneAssociate[AssociateT], /
+    ) -> TypeGuard[AssociateResolver[AssociateT]]:
         return not isinstance(value, self.associate_type) and not self._is_missing(
             value
         )
 
     @override
-    def resolve(self, project: Project, owner: OwnerT, /) -> None:
+    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
         try:
             value = self._storage.get(owner)
         except AttributeError:
@@ -163,20 +162,20 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
             )
 
     @override
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
+    def pre_init_owner(self, owner: HasAssociations, /) -> None:
         self._storage.set(owner, _NotInitialized)
 
     @override
-    def delete_owner(self, owner: OwnerT, /) -> None:
+    def delete_owner(self, owner: HasAssociations, /) -> None:
         if associate_attr := self.associate_attr:
             existing_associate = self._storage.get(owner)
-            if isinstance(existing_associate, Entity):
+            if isinstance(existing_associate, Entity) and isinstance(owner, Entity):
                 associate_attr.disassociate(existing_associate, owner)
         self._storage.set(owner, _OwnerDeleted)
 
     @override
-    def set(self, owner: OwnerT, value: ToOneAssociate[OwnerT, AssociateT], /) -> None:
-        existing_associate: ToOneAssociate[OwnerT, AssociateT] | None = None
+    def set(self, owner: HasAssociations, value: ToOneAssociate[AssociateT], /) -> None:
+        existing_associate: ToOneAssociate[AssociateT] | None = None
         with suppress(AttributeError):
             existing_associate = self._storage.get(owner)
         if existing_associate is not None:
@@ -184,29 +183,29 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
         if existing_associate == value:
             return
         self._storage.set(owner, value)
-        if associate_attr := self.associate_attr:
+        if (associate_attr := self.associate_attr) and isinstance(owner, Entity):
             if isinstance(existing_associate, Entity):
                 associate_attr.disassociate(existing_associate, owner)
             if isinstance(value, Entity):
-                associate_attr.associate(value, owner)  # ty:ignore[invalid-argument-type]
+                associate_attr.associate(value, owner)
 
     @override
-    def associate(self, owner: OwnerT, associate: AssociateT, /) -> None:
+    def associate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
         self._storage.set(owner, associate)
 
     @override
-    def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:
+    def disassociate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
         self._storage.set(owner, _Disassociated)
 
     @override
-    def get(self, owner: OwnerT, /) -> AssociateT:
+    def get(self, owner: HasAssociations, /) -> AssociateT:
         value = self._storage.get(owner)
         self._assert_not_missing(owner, value)
         self.assert_not_resolver(owner, value)
         return value
 
     @override
-    def get_associates(self, owner: OwnerT, /) -> Iterable[AssociateT]:
+    def get_associates(self, owner: HasAssociations, /) -> Iterable[AssociateT]:
         yield self.get(owner)
 
     @override
@@ -222,7 +221,7 @@ class ToOne[OwnerT: HasAssociations, AssociateT: Entity](
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, owner: OwnerT, /
+        self, project: Project, owner: HasAssociations, /
     ) -> PortableData:
         associate = self.get(owner)
         url_generator = await project.url_generator

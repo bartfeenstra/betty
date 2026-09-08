@@ -21,13 +21,12 @@ if TYPE_CHECKING:
 
 
 @final
-class OptionalToOne[OwnerT: HasAssociations, AssociateT: Entity](
-    OptionalAttr[OwnerT, AssociateT, ToOneAssociate[OwnerT, AssociateT]],
+class OptionalToOne[AssociateT: Entity](
+    OptionalAttr[HasAssociations, AssociateT, ToOneAssociate[AssociateT]],
     ProxyAssociation[
-        OwnerT,
         AssociateT,
         AssociateT | None,
-        ToOneAssociate[OwnerT, AssociateT] | None,
+        ToOneAssociate[AssociateT] | None,
         DataDefinition[AssociateT | None],
     ],
 ):
@@ -35,42 +34,42 @@ class OptionalToOne[OwnerT: HasAssociations, AssociateT: Entity](
     An optional to-one association.
     """
 
-    def __init__(self, proxied: ToOne[OwnerT, AssociateT], /):
+    def __init__(self, proxied: ToOne[AssociateT], /):
         super().__init__(proxied)
 
     @final
     @override
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
+    def pre_init_owner(self, owner: HasAssociations, /) -> None:
         self._storage.set(owner, None)
 
     @override
     def is_resolver(
-        self, value: Associate[OwnerT, AssociateT] | None, /
-    ) -> TypeGuard[AssociateResolver[OwnerT, AssociateT]]:
+        self, value: Associate[AssociateT] | None, /
+    ) -> TypeGuard[AssociateResolver[AssociateT]]:
         if value is None:
             return False
         return super().is_resolver(value)
 
     @override
-    def resolve(self, project: Project, owner: OwnerT, /) -> None:
+    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
         if self._storage.get(owner) is None:
             return
         super().resolve(project, owner)
 
     @override
-    def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:
+    def disassociate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
         self._proxied_association.disassociate(owner, associate)
         self._storage.set(owner, None)
 
     @override
-    def get_associates(self, owner: OwnerT, /) -> Iterable[AssociateT]:
+    def get_associates(self, owner: HasAssociations, /) -> Iterable[AssociateT]:
         if self._storage.get(owner) is None:
             return ()
         return self._proxied_association.get_associates(owner)
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, owner: OwnerT, /
+        self, project: Project, owner: HasAssociations, /
     ) -> PortableData:
         if self._storage.get(owner) is None:
             return None

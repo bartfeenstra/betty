@@ -5,7 +5,7 @@ Provide the place entity.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.associations.has_file_references import HasFileReferences
 from betty.associations.has_links import HasLinks
@@ -47,7 +47,7 @@ class Place(HasLinks, HasFileReferences, HasNotes):
     .. plugin:: entity:place.
     """
 
-    events = ToMany[Self, "Event"](
+    events = ToMany["Event"](
         "betty.entities.event:Event",
         "place",
         label=_("Events"),
@@ -57,7 +57,7 @@ class Place(HasLinks, HasFileReferences, HasNotes):
     The events that happened here.
     """
 
-    enclosed_by = ToMany[Self, Enclosure](
+    enclosed_by = ToMany(
         Enclosure,
         "encloses",
         label=_("Enclosed by"),
@@ -67,7 +67,7 @@ class Place(HasLinks, HasFileReferences, HasNotes):
     Other places that enclose this place.
     """
 
-    encloses = ToMany[Self, Enclosure](
+    encloses = ToMany(
         Enclosure,
         "enclosed_by",
         label=_("Encloses"),
@@ -82,12 +82,12 @@ class Place(HasLinks, HasFileReferences, HasNotes):
         *,
         id: ResolvableMachineName | None = None,  # noqa: A002
         names: Iterable[PlaceName] = (),
-        events: ToManyAssociates[Self, Event] = (),
-        enclosed_by: ToManyAssociates[Self, Enclosure] = (),
-        encloses: ToManyAssociates[Self, Enclosure] = (),
-        notes: ToManyAssociates[Self, Note] = (),
+        events: ToManyAssociates[Event] = (),
+        enclosed_by: ToManyAssociates[Enclosure] = (),
+        encloses: ToManyAssociates[Enclosure] = (),
+        notes: ToManyAssociates[Note] = (),
         coordinates: Point | None = None,
-        links: ToManyAssociates[Self, Link] = (),
+        links: ToManyAssociates[Link] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
         place_type: PlaceType | None = None,
     ):

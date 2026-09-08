@@ -4,7 +4,7 @@ Provide the Note entity type and utilities.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
@@ -43,7 +43,7 @@ class Note(HasLinks, HasMediaType):
     The note text.
     """
 
-    entity = ToOne[Self, HasNotes](
+    entity = ToOne(
         HasNotes,
         "notes",
         label=_("Owner"),
@@ -57,7 +57,7 @@ class Note(HasLinks, HasMediaType):
         self,
         text: ResolvableLocalizable,
         *,
-        entity: Associate[Self, HasNotes] | None = None,
+        entity: Associate[HasNotes] | None = None,
         id: ResolvableMachineName | None = None,  # noqa: A002
         privacy: Privacy = Privacy.UNDETERMINED,
     ):

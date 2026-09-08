@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _Owner(Entity):
-    associates = ToMany[Self, "_Associate"](
+    associates = ToMany["_Associate"](
         "betty.tests.associations.test_to_many:_Associate",
         "owners",
         label="-",
@@ -35,7 +35,7 @@ class _Owner(Entity):
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _Associate(Entity):
-    owners = ToMany[Self, _Owner](_Owner, "associates", label="-")
+    owners = ToMany(_Owner, "associates", label="-")
 
 
 class TestToMany:
@@ -97,9 +97,7 @@ class TestToMany:
             (False, _Associate()),
         ],
     )
-    def test_is_resolver(
-        self, expected: bool, value: Associate[_Owner, _Associate]
-    ) -> None:
+    def test_is_resolver(self, expected: bool, value: Associate[_Associate]) -> None:
         assert _Owner.associates.is_resolver(value) is expected
 
     def test_resolve(self, isolated_project: Project) -> None:

@@ -4,7 +4,7 @@ Data types to reference files on disk.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final
+from typing import TYPE_CHECKING, final
 
 from betty.associations.has_file_references import HasFileReferences
 from betty.associations.to_one import ToOne, ToOneAssociate
@@ -30,7 +30,7 @@ class FileReference(Entity):
     .. plugin:: entity:file-reference.
     """
 
-    referee = ToOne[Self, HasFileReferences](
+    referee = ToOne(
         HasFileReferences,
         "files",
         label=_("Referee"),
@@ -40,7 +40,7 @@ class FileReference(Entity):
     The entity that references the file.
     """
 
-    file = ToOne[Self, "File"](
+    file = ToOne["File"](
         "betty.entities.file:File",
         "referees",
         label=_("File"),
@@ -52,8 +52,8 @@ class FileReference(Entity):
 
     def __init__(
         self,
-        referee: ToOneAssociate[Self, HasFileReferences],
-        file: ToOneAssociate[Self, File],
+        referee: ToOneAssociate[HasFileReferences],
+        file: ToOneAssociate[File],
         *,
         id: ResolvableMachineName | None = None,  # noqa: A002
         focus: FocusArea | None = None,

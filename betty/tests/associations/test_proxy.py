@@ -19,9 +19,7 @@ class _Association(Association):
     def __init__(self):
         super().__init__(FieldDefinition(DataDefinition(label="-")), Entity)
 
-    def is_resolver(
-        self, value: Any, /
-    ) -> TypeGuard[AssociateResolver[HasAssociations, Entity]]:
+    def is_resolver(self, value: Any, /) -> TypeGuard[AssociateResolver]:
         raise Unreachable
 
     def resolve(self, project: Project, owner: HasAssociations, /) -> None:

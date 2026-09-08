@@ -4,7 +4,7 @@ The Link API allows data to reference external resources.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.associations.has_links import HasLinks
 from betty.associations.to_one import ToOne
@@ -54,7 +54,7 @@ class Link(LinkType, HasMediaType, HasDescription, Entity):
     The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
     """
 
-    owner = ToOne[Self, HasLinks](HasLinks, "links", label=_("Owner")).optional
+    owner = ToOne(HasLinks, "links", label=_("Owner")).optional
     """
     The entity that owns the link.
     """
@@ -68,7 +68,7 @@ class Link(LinkType, HasMediaType, HasDescription, Entity):
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         media_type: ResolvableMediaType | None = None,
-        owner: Associate[Self, HasLinks] | None = None,
+        owner: Associate[HasLinks] | None = None,
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(

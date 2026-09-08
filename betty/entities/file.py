@@ -4,7 +4,7 @@ Data types representing files on disk.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.associations.has_citations import HasCitations
 from betty.associations.has_links import HasLinks
@@ -48,7 +48,7 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
     .. plugin:: entity:file.
     """
 
-    referees = ToMany[Self, FileReference](
+    referees = ToMany(
         FileReference,
         "file",
         label=_("Referees"),
@@ -81,10 +81,10 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
         name: str | None = None,
         media_type: ResolvableMediaType | None = None,
         description: ResolvableLocalizable | None = None,
-        notes: ToManyAssociates[Self, Note] = (),
-        citations: ToManyAssociates[Self, Citation] = (),
+        notes: ToManyAssociates[Note] = (),
+        citations: ToManyAssociates[Citation] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
-        links: ToManyAssociates[Self, Link] = (),
+        links: ToManyAssociates[Link] = (),
         copyright_notice: CopyrightNotice | None = None,
         license: License | None = None,  # noqa: A002
     ):

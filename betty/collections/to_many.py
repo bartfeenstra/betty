@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 
 @final
-class ToManyCollection[OwnerT: HasAssociations, AssociateT: Entity](
+class ToManyCollection[AssociateT: Entity](
     MutableCollection[AssociateT],
     Sequence[AssociateT],
 ):
@@ -38,19 +38,20 @@ class ToManyCollection[OwnerT: HasAssociations, AssociateT: Entity](
     _upstream: MutableKeyedCollection[
         tuple[type[AssociateT], str],
         tuple[type[AssociateT], str],
-        Associate[OwnerT, AssociateT],
-        Associate[OwnerT, AssociateT],
+        Associate[AssociateT],
+        Associate[AssociateT],
     ]
 
     def __init__(
         self,
-        owner: OwnerT,
-        association: ToMany[OwnerT, AssociateT],
-        *associates: Associate[OwnerT, AssociateT],
+        owner: HasAssociations,
+        association: ToMany[AssociateT],
+        *associates: Associate[AssociateT],
     ):
         self._association = association
         self._owner = owner
-        self._unresolved: AssociateResolver[OwnerT, AssociateT] | None = None
+        self._owner_if_entity = owner if isinstance(owner, Entity) else None
+        self._unresolved: AssociateResolver[AssociateT] | None = None
         self._associates = []
         self.add(*associates)
 
@@ -83,7 +84,7 @@ class ToManyCollection[OwnerT: HasAssociations, AssociateT: Entity](
         for associate in associates:
             self._associates.remove(associate)
 
-    def add(self, *associates: Associate[OwnerT, AssociateT]) -> None:
+    def add(self, *associates: Associate[AssociateT]) -> None:
         """
         Add the given associates.
         """
@@ -96,8 +97,12 @@ class ToManyCollection[OwnerT: HasAssociations, AssociateT: Entity](
             elif associate in existing_associates:
                 continue
             self._associates.append(associate)
-            if isinstance(associate, associate_type) and associate_attr:
-                associate_attr.associate(associate, self._owner)
+            if (
+                isinstance(associate, associate_type)
+                and associate_attr
+                and self._owner_if_entity
+            ):
+                associate_attr.associate(associate, self._owner_if_entity)
 
     def remove(self, *associates: AssociateT) -> None:
         """
@@ -111,14 +116,14 @@ class ToManyCollection[OwnerT: HasAssociations, AssociateT: Entity](
             except ValueError:
                 continue
             else:
-                if associate_attr:
-                    associate_attr.disassociate(associate, self._owner)
+                if associate_attr and self._owner_if_entity:
+                    associate_attr.disassociate(associate, self._owner_if_entity)
 
     @override
     def clear(self) -> None:
         self.remove(*self)
 
-    def replace(self, *associates: Associate[OwnerT, AssociateT]) -> None:
+    def replace(self, *associates: Associate[AssociateT]) -> None:
         """
         Replace all associates with the given ones.
         """

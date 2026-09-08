@@ -4,7 +4,7 @@ Tools for entities that have citations.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any
 
 from betty.associations.to_many import ToMany, ToManyAssociates
 from betty.entity import Entity
@@ -19,7 +19,7 @@ class HasCitations(Entity):
     An entity with citations that support it.
     """
 
-    citations = ToMany[Self, "Citation"](
+    citations = ToMany["Citation"](
         "betty.entities.citation:Citation",
         "facts",
         label=_("Citations"),
@@ -32,7 +32,7 @@ class HasCitations(Entity):
     def __init__(
         self,
         *args: Any,
-        citations: ToManyAssociates[Self, Citation] = (),
+        citations: ToManyAssociates[Citation] = (),
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)

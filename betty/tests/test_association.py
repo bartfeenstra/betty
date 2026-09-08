@@ -29,19 +29,15 @@ if TYPE_CHECKING:
     from betty.json_schema import Schema
     from betty.portable import PortableData
     from betty.project import Project
-    from betty.typing import Intersection
 
 
-class _Association[
-    OwnerT: HasAssociations = HasAssociations,
-    AssociateT: Entity = Entity,
-](Association[OwnerT, AssociateT, AssociateT, AssociateT]):
+class _Association[AssociateT: Entity = Entity](
+    Association[AssociateT, AssociateT, AssociateT]
+):
     def __init__(
         self,
         associate: type[AssociateT] | str,
-        associate_attr: Association[AssociateT, Intersection[OwnerT, Entity], Any, Any]
-        | str
-        | None = None,
+        associate_attr: Association | str | None = None,
         /,
     ):
         super().__init__(
@@ -50,28 +46,26 @@ class _Association[
             associate_attr,
         )
 
-    def is_resolver(
-        self, value: Any, /
-    ) -> TypeGuard[AssociateResolver[OwnerT, AssociateT]]:
+    def is_resolver(self, value: Any, /) -> TypeGuard[AssociateResolver[AssociateT]]:
         raise Unreachable
 
-    def resolve(self, project: Project, owner: OwnerT, /) -> None:
+    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
         raise Unreachable
 
-    def associate(self, owner: OwnerT, associate: AssociateT, /) -> None:
+    def associate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
         raise Unreachable
 
-    def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:
+    def disassociate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
         raise Unreachable
 
-    def get_associates(self, owner: OwnerT, /) -> Iterable[AssociateT]:
+    def get_associates(self, owner: HasAssociations, /) -> Iterable[AssociateT]:
         raise Unreachable
 
     async def linked_data_schema_for(self, project: Project, /) -> Schema:
         raise Unreachable
 
     async def dump_linked_data_for(
-        self, project: Project, target: OwnerT, /
+        self, project: Project, target: HasAssociations, /
     ) -> PortableData:
         raise Unreachable
 
@@ -86,7 +80,7 @@ class _Association[
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _NamedEntity(Entity):
-    association = _Association["_NamedEntity", "_TypedEntity"](
+    association = _Association["_TypedEntity"](
         "betty.tests.test_association:_TypedEntity"
     )
 
@@ -98,7 +92,7 @@ class _NamedEntity(Entity):
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _TypedEntity(Entity):
-    association = _Association["_TypedEntity", _NamedEntity](_NamedEntity)
+    association = _Association[_NamedEntity](_NamedEntity)
 
 
 @EntityDefinition(
@@ -108,7 +102,7 @@ class _TypedEntity(Entity):
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _BiNamedEntity(Entity):
-    association = _Association["_BiNamedEntity", "_BiTypedEntity"](
+    association = _Association["_BiTypedEntity"](
         "betty.tests.test_association:_BiTypedEntity", "association"
     )
 
@@ -120,20 +114,22 @@ class _BiNamedEntity(Entity):
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _BiTypedEntity(Entity):
-    association = _Association(_BiNamedEntity, _BiNamedEntity.association)
+    association = _Association(
+        _BiNamedEntity,
+        _BiNamedEntity.association,  # ty:ignore[invalid-argument-type]
+    )
 
 
 class _AssociateDeclaresBidirectionalityOwner(Entity):
-    association = _Association[
-        "_AssociateDeclaresBidirectionalityOwner",
-        "_AssociateDeclaresBidirectionalityAssociate",
-    ]("betty.tests.test_association:_AssociateDeclaresBidirectionalityAssociate")
+    association = _Association["_AssociateDeclaresBidirectionalityAssociate"](
+        "betty.tests.test_association:_AssociateDeclaresBidirectionalityAssociate"
+    )
 
 
 class _AssociateDeclaresBidirectionalityAssociate(Entity):
     association = _Association(
         _AssociateDeclaresBidirectionalityOwner,
-        _AssociateDeclaresBidirectionalityOwner.association,
+        _AssociateDeclaresBidirectionalityOwner.association,  # ty:ignore[invalid-argument-type]
     )
 
 
@@ -170,9 +166,7 @@ class TestAssociation:
 
     def test_assert_not_resolver__without_resolver(self) -> None:
         class IsNoResolverAssociation(_Association):
-            def is_resolver(
-                self, value: Any, /
-            ) -> TypeGuard[AssociateResolver[HasAssociations, Entity]]:
+            def is_resolver(self, value: Any, /) -> TypeGuard[AssociateResolver]:
                 return False
 
         @EntityDefinition(
@@ -188,9 +182,7 @@ class TestAssociation:
 
     def test_assert_not_resolver__with_resolver(self) -> None:
         class IsResolverAssociation(_Association):
-            def is_resolver(
-                self, value: Any, /
-            ) -> TypeGuard[AssociateResolver[HasAssociations, Entity]]:
+            def is_resolver(self, value: Any, /) -> TypeGuard[AssociateResolver]:
                 return True
 
         @EntityDefinition(
@@ -307,7 +299,7 @@ class TestBiResolver:
     def test___call__(self, isolated_project: Project, mocker: MockerFixture) -> None:
         owner = _BiNamedEntity()
         associate = _BiTypedEntity()
-        sut = BiResolver[_BiNamedEntity, _BiTypedEntity](lambda: associate)
+        sut = BiResolver[_BiTypedEntity](lambda: associate)
         m_associate = mocker.patch.object(_BiTypedEntity.association, "associate")
         assert sut(isolated_project, owner, _BiNamedEntity.association) is associate
         m_associate.assert_called_once_with(associate, owner)
