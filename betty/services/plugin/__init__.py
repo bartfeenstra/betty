@@ -63,19 +63,8 @@ class _PluginServiceRequirementGetter(Singleton):
         return partial(PluginServiceRequirement, instance)
 
 
-class PluginServiceManager[
-    OwnerT: ResolvableServiceLevelHasPluginServices,
-    PluginDefinitionT: PluginDefinition,
-    GetServiceT,
-    InitT,
-](
-    ServiceManager[
-        OwnerT,
-        GetServiceT,
-        GetServiceT,
-        Callable[[], GetServiceT],
-        GetServiceT,
-    ]
+class PluginServiceManager[PluginDefinitionT: PluginDefinition, GetServiceT, InitT](
+    ServiceManager[GetServiceT, GetServiceT, Callable[[], GetServiceT], GetServiceT]
 ):
     """
     A plugin service manager.
@@ -95,13 +84,15 @@ class PluginServiceManager[
         """
 
     @override
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
+    def pre_init_owner(self, owner: ResolvableServiceLevelHasPluginServices, /) -> None:
         super().pre_init_owner(owner)
         setattr(owner, f"_plugin_service_init_plugins_{self.ownership.name}", [])
 
     @final
     @override
-    def _new_service_getter(self, owner: OwnerT, /) -> Callable[[], GetServiceT]:
+    def _new_service_getter(
+        self, owner: ResolvableServiceLevelHasPluginServices, /
+    ) -> Callable[[], GetServiceT]:
         def plugin_service_manager_getter() -> GetServiceT:
             factory = self._get_service_or_factory(owner)
             if isinstance(factory, Service):
@@ -117,13 +108,13 @@ class PluginServiceManager[
 
     @final
     def __get_init_plugins(
-        self, owner: OwnerT, /
+        self, owner: ResolvableServiceLevelHasPluginServices, /
     ) -> MutableSequence[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
         return getattr(owner, f"_plugin_service_init_plugins_{self.ownership.name}")
 
     @final
     def get_init_plugins(
-        self, owner: OwnerT, /
+        self, owner: ResolvableServiceLevelHasPluginServices, /
     ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
         """
         Get the initial plugins for the given service provider.
@@ -133,7 +124,7 @@ class PluginServiceManager[
     @final
     def add_init_plugins(
         self,
-        owner: OwnerT,
+        owner: ResolvableServiceLevelHasPluginServices,
         /,
         *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
     ) -> None:
@@ -146,7 +137,7 @@ class PluginServiceManager[
     @final
     async def init_plugins(
         self,
-        owner: OwnerT,
+        owner: ResolvableServiceLevelHasPluginServices,
         /,
         *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
     ) -> None:
@@ -161,7 +152,7 @@ class PluginServiceManager[
 
     async def prepare_plugins(
         self,
-        owner: OwnerT,
+        owner: ResolvableServiceLevelHasPluginServices,
         /,
         *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
     ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
@@ -177,7 +168,7 @@ class PluginServiceManager[
 
     @final
     def get_plugins(
-        self, owner: OwnerT, /
+        self, owner: ResolvableServiceLevelHasPluginServices, /
     ) -> Sequence[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
         """
         Get the initialized plugins.
@@ -186,7 +177,9 @@ class PluginServiceManager[
         return getattr(owner, f"_plugin_service_plugins_{self.ownership.name}")
 
     @abstractmethod
-    def new_service(self, owner: OwnerT, /) -> GetServiceT:
+    def new_service(
+        self, owner: ResolvableServiceLevelHasPluginServices, /
+    ) -> GetServiceT:
         """
         Create the new service value for the given service provider.
         """

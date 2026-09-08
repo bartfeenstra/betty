@@ -16,14 +16,12 @@ from betty.typing import Intersection
 if TYPE_CHECKING:
     from betty.service_level import ResolvableServiceLevel
 
-type ServiceFactory[OwnerT: ResolvableServiceLevelHasServices, FactoryServiceT] = (
-    Callable[[OwnerT], FactoryServiceT]
+type ServiceFactory[FactoryServiceT] = Callable[
+    [ResolvableServiceLevelHasServices], FactoryServiceT
+]
+type ServiceOrFactory[ServiceT, FactoryServiceT] = (
+    Service[ServiceT] | ServiceFactory[FactoryServiceT]
 )
-type ServiceOrFactory[
-    OwnerT: ResolvableServiceLevelHasServices,
-    ServiceT,
-    FactoryServiceT,
-] = Service[ServiceT] | ServiceFactory[OwnerT, FactoryServiceT]
 
 
 @final
@@ -42,21 +40,20 @@ type ResolvableServiceLevelHasServices = Intersection[
 
 
 class ServiceManager[
-    OwnerT: ResolvableServiceLevelHasServices,
     ServiceT,
     GetServiceT,
     GetterServiceT,
     FactoryServiceT,
-](Prop[OwnerT, GetServiceT]):
+](Prop[ResolvableServiceLevelHasServices, GetServiceT]):
     """
     Manage a single service for a service provider.
     """
 
-    def __init__(self, factory: ServiceOrFactory[OwnerT, ServiceT, FactoryServiceT], /):
+    def __init__(self, factory: ServiceOrFactory[ServiceT, FactoryServiceT], /):
         self.__service_or_factory = factory
 
     @override
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
+    def pre_init_owner(self, owner: ResolvableServiceLevelHasServices, /) -> None:
         owner.assert_not_initialized()
         setattr(
             owner,
@@ -65,7 +62,9 @@ class ServiceManager[
         )
 
     @abstractmethod
-    def _new_service_getter(self, owner: OwnerT, /) -> GetterServiceT:
+    def _new_service_getter(
+        self, owner: ResolvableServiceLevelHasServices, /
+    ) -> GetterServiceT:
         """
         Create a new service getter.
 
@@ -77,7 +76,7 @@ class ServiceManager[
 
     @final
     @override
-    def get(self, owner: OwnerT, /) -> GetServiceT:
+    def get(self, owner: ResolvableServiceLevelHasServices, /) -> GetServiceT:
         return self._get_service(getattr(owner, f"_service_{self.ownership.name}"))
 
     @abstractmethod
@@ -88,8 +87,8 @@ class ServiceManager[
 
     @final
     def _get_service_or_factory(
-        self, owner: OwnerT, /
-    ) -> ServiceOrFactory[OwnerT, ServiceT, FactoryServiceT]:
+        self, owner: ResolvableServiceLevelHasServices, /
+    ) -> ServiceOrFactory[ServiceT, FactoryServiceT]:
         return getattr(
             owner,
             f"_service_{self.ownership.name}_or_factory",
@@ -99,8 +98,8 @@ class ServiceManager[
     @final
     def override(
         self,
-        owner: OwnerT,
-        service: ServiceOrFactory[OwnerT, ServiceT, FactoryServiceT],
+        owner: ResolvableServiceLevelHasServices,
+        service: ServiceOrFactory[ServiceT, FactoryServiceT],
         /,
     ) -> None:
         """

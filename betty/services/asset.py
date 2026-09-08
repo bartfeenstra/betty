@@ -4,20 +4,20 @@ Asset services.
 
 from __future__ import annotations
 
-from typing import final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.asset import AssetDirectoryDefinition, AssetRepository, StaticAssetRepository
-from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.definition.collection import (
     CollectionPluginDefinitionServiceManager,
 )
 
+if TYPE_CHECKING:
+    from betty.service import ResolvableServiceLevelHasServices
+
 
 @final
-class AssetRepositoryService[OwnerT: ResolvableServiceLevelHasPluginServices](
-    CollectionPluginDefinitionServiceManager[
-        OwnerT, AssetDirectoryDefinition, AssetRepository
-    ]
+class AssetRepositoryService(
+    CollectionPluginDefinitionServiceManager[AssetDirectoryDefinition, AssetRepository]
 ):
     """
     A service of plugin definitions keyed by their IDs.
@@ -27,10 +27,12 @@ class AssetRepositoryService[OwnerT: ResolvableServiceLevelHasPluginServices](
         super().__init__(AssetDirectoryDefinition)
 
     @override
-    def new_service(self, instance: OwnerT, /) -> AssetRepository:
+    def new_service(
+        self, owner: ResolvableServiceLevelHasServices, /
+    ) -> AssetRepository:
         return StaticAssetRepository(
             *(
-                self.new_service_item(instance, asset).assets
-                for asset in self.get_plugins(instance)
+                self.new_service_item(owner, asset).assets
+                for asset in self.get_plugins(owner)
             )
         )

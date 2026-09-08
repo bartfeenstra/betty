@@ -4,7 +4,7 @@ Asynchronous simple services.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import final, override
 
 from betty.asyncio import (
     LazyReAwaitable,
@@ -13,7 +13,6 @@ from betty.asyncio import (
     resolve_await,
 )
 from betty.life_cycle import Bootstrappable, Shutdownable
-from betty.life_cycle.manage import ManagedLifeCycle
 from betty.service import (
     ResolvableServiceLevelHasServices,
     Service,
@@ -21,31 +20,21 @@ from betty.service import (
     ServiceManager,
     ServiceOrFactory,
 )
-from betty.typing import Intersection
 
-if TYPE_CHECKING:
-    from betty.service_level import ResolvableServiceLevel
-
-type AsynchronousServiceFactory[OwnerT: ResolvableServiceLevelHasServices, ServiceT] = (
-    ServiceFactory[OwnerT, ResolvableAwaitable[ServiceT]]
+type AsynchronousServiceFactory[ServiceT] = ServiceFactory[
+    ResolvableAwaitable[ServiceT]
+]
+type AsynchronousServiceOrFactory[ServiceT] = ServiceOrFactory[
+    ServiceT, ResolvableAwaitable[ServiceT]
+]
+type TypedAsynchronousServiceOrFactory[ServiceT] = (
+    ServiceT | AsynchronousServiceOrFactory[ServiceT]
 )
-type AsynchronousServiceOrFactory[
-    OwnerT: ResolvableServiceLevelHasServices,
-    ServiceT,
-] = ServiceOrFactory[OwnerT, ServiceT, ResolvableAwaitable[ServiceT]]
-type TypedAsynchronousServiceOrFactory[
-    OwnerT: ResolvableServiceLevelHasServices,
-    ServiceT,
-] = ServiceT | AsynchronousServiceOrFactory[OwnerT, ServiceT]
 
 
 @final
-class AsynchronousServiceManager[
-    OwnerT: Intersection[ResolvableServiceLevel, ManagedLifeCycle],
-    ServiceT,
-](
+class AsynchronousServiceManager[ServiceT](
     ServiceManager[
-        OwnerT,
         ServiceT,
         ReAwaitable[ServiceT],
         ReAwaitable[ServiceT],
@@ -57,7 +46,9 @@ class AsynchronousServiceManager[
     """
 
     @override
-    def _new_service_getter(self, owner: OwnerT, /) -> ReAwaitable[ServiceT]:
+    def _new_service_getter(
+        self, owner: ResolvableServiceLevelHasServices, /
+    ) -> ReAwaitable[ServiceT]:
         async def _factory() -> ServiceT:
             factory = self._get_service_or_factory(owner)
             if isinstance(factory, Service):

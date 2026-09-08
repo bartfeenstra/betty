@@ -16,29 +16,25 @@ from betty.service import (
     ServiceOrFactory,
 )
 
-type SynchronousServiceFactory[OwnerT: ResolvableServiceLevelHasServices, ServiceT] = (
-    ServiceFactory[OwnerT, ServiceT]
+type SynchronousServiceFactory[ServiceT] = ServiceFactory[ServiceT]
+type SynchronousServiceOrFactory[ServiceT] = ServiceOrFactory[ServiceT, ServiceT]
+type TypedSynchronousServiceOrFactory[ServiceT] = (
+    ServiceT | SynchronousServiceOrFactory[ServiceT]
 )
-type SynchronousServiceOrFactory[
-    OwnerT: ResolvableServiceLevelHasServices,
-    ServiceT,
-] = ServiceOrFactory[OwnerT, ServiceT, ServiceT]
-type TypedSynchronousServiceOrFactory[
-    OwnerT: ResolvableServiceLevelHasServices,
-    ServiceT,
-] = ServiceT | SynchronousServiceOrFactory[OwnerT, ServiceT]
 
 
 @final
-class SynchronousServiceManager[OwnerT: ResolvableServiceLevelHasServices, ServiceT](
-    ServiceManager[OwnerT, ServiceT, ServiceT, Callable[[], ServiceT], ServiceT]
+class SynchronousServiceManager[ServiceT](
+    ServiceManager[ServiceT, ServiceT, Callable[[], ServiceT], ServiceT]
 ):
     """
     Manage a synchronous service.
     """
 
     @override
-    def _new_service_getter(self, owner: OwnerT, /) -> Callable[[], ServiceT]:
+    def _new_service_getter(
+        self, owner: ResolvableServiceLevelHasServices, /
+    ) -> Callable[[], ServiceT]:
         def _factory() -> ServiceT:
             factory = self._get_service_or_factory(owner)
             if isinstance(factory, Service):

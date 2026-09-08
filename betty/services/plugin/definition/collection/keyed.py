@@ -8,7 +8,6 @@ from typing import final
 
 from betty.plugin import PluginDefinition
 from betty.plugin.resolve import ResolvablePluginDefinition
-from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection.keyed import (
     KeyedCollectionPluginServiceManager,
     KeyedPluginCollectionService,
@@ -20,16 +19,13 @@ from betty.services.plugin.definition.collection import (
 
 @final
 class PluginDefinitionsService[
-    OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginDefinition,
 ](
     CollectionPluginDefinitionServiceManager[
-        OwnerT,
         PluginDefinitionT,
         KeyedPluginCollectionService[PluginDefinitionT, PluginDefinitionT],
     ],
     KeyedCollectionPluginServiceManager[
-        OwnerT,
         PluginDefinitionT,
         PluginDefinitionT,
         ResolvablePluginDefinition[PluginDefinitionT],

@@ -22,11 +22,10 @@ if TYPE_CHECKING:
 
 
 class SinglePluginServiceManager[
-    OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginDefinition,
     GetServiceT,
     InitT,
-](PluginServiceManager[OwnerT, PluginDefinitionT, GetServiceT, InitT]):
+](PluginServiceManager[PluginDefinitionT, GetServiceT, InitT]):
     """
     A service containing a single plugin item.
     """
@@ -38,7 +37,7 @@ class SinglePluginServiceManager[
     @override
     async def prepare_plugins(
         self,
-        owner: OwnerT,
+        owner: ResolvableServiceLevelHasPluginServices,
         /,
         *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
     ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:

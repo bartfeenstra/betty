@@ -25,12 +25,11 @@ if TYPE_CHECKING:
 
 
 class CollectionPluginServiceManager[
-    OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginDefinition,
     GetServiceT,
     GetServiceItemT,
     InitT,
-](PluginServiceManager[OwnerT, PluginDefinitionT, GetServiceT, InitT]):
+](PluginServiceManager[PluginDefinitionT, GetServiceT, InitT]):
     """
     A service containing a collection of plugin items.
     """
@@ -38,7 +37,7 @@ class CollectionPluginServiceManager[
     @override
     async def prepare_plugins(
         self,
-        owner: OwnerT,
+        owner: ResolvableServiceLevelHasPluginServices,
         /,
         *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
     ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
@@ -78,7 +77,7 @@ class CollectionPluginServiceManager[
     @abstractmethod
     def new_service_item(
         self,
-        owner: OwnerT,
+        owner: ResolvableServiceLevelHasPluginServices,
         plugin: InitT | ResolvablePluginDefinition[PluginDefinitionT],
         /,
     ) -> GetServiceItemT:

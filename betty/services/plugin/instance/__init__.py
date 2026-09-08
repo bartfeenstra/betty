@@ -35,13 +35,11 @@ type ServicePluginInstances[PluginDefinitionT: PluginClsDefinition] = Iterable[
 
 
 class PluginInstanceServiceManager[
-    OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginClsDefinition,
     GetServiceT,
     PluginT: Plugin,
 ](
     PluginServiceManager[
-        OwnerT,
         PluginDefinitionT,
         GetServiceT,
         ServicePluginInstance[PluginDefinitionT],
@@ -54,7 +52,7 @@ class PluginInstanceServiceManager[
     @final
     def new_plugin_instance_service_item(
         self,
-        owner: OwnerT,
+        owner: ResolvableServiceLevelHasPluginServices,
         item: ServicePluginInstance[PluginDefinitionT],
         /,
     ) -> ReAwaitable[PluginT]:
@@ -76,7 +74,7 @@ class PluginInstanceServiceManager[
     @override
     async def prepare_plugins(
         self,
-        owner: OwnerT,
+        owner: ResolvableServiceLevelHasPluginServices,
         /,
         *plugins: ServicePluginInstance[PluginDefinitionT],
     ) -> Iterable[ServicePluginInstance[PluginDefinitionT]]:

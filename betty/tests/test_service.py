@@ -14,11 +14,13 @@ from betty.service_level import HasServiceLevel, ResolvableServiceLevel, Service
 from betty.typing import Unreachable
 
 
-class _DummyServiceManager[OwnerT: ResolvableServiceLevel](
-    ServiceManager[OwnerT, object, object, Callable[[], object], object]
+class _DummyServiceManager(
+    ServiceManager[object, object, Callable[[], object], object]
 ):
     @override
-    def _new_service_getter(self, owner: OwnerT, /) -> Callable[[], object]:
+    def _new_service_getter(
+        self, owner: ResolvableServiceLevel, /
+    ) -> Callable[[], object]:
         def _factory() -> object:
             factory = self._get_service_or_factory(owner)
             if isinstance(factory, Service):

@@ -4,7 +4,7 @@ Multiple-item plugin services.
 
 from __future__ import annotations
 
-from typing import final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.collection.keyed import KeyedCollection
 from betty.collections.keyed.adapter import KeyedCollectionAdapter
@@ -13,8 +13,10 @@ from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
+
+if TYPE_CHECKING:
+    from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 
 type KeyedPluginCollectionService[PluginDefinitionT: PluginDefinition, ItemT] = (
     KeyedCollection[MachineName, ResolvablePluginId[PluginDefinitionT], ItemT]
@@ -26,13 +28,11 @@ class _PluginNotFound(PluginNotFound, KeyError):
 
 
 class KeyedCollectionPluginServiceManager[
-    OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginDefinition,
     GetServiceItemT,
     InitT,
 ](
     CollectionPluginServiceManager[
-        OwnerT,
         PluginDefinitionT,
         KeyedPluginCollectionService[PluginDefinitionT, GetServiceItemT],
         GetServiceItemT,
@@ -46,7 +46,7 @@ class KeyedCollectionPluginServiceManager[
     @final
     @override
     def new_service(
-        self, owner: OwnerT, /
+        self, owner: ResolvableServiceLevelHasPluginServices, /
     ) -> KeyedPluginCollectionService[PluginDefinitionT, GetServiceItemT]:
         return ErroringKeyedCollection[
             MachineName, ResolvablePluginId[PluginDefinitionT], GetServiceItemT

@@ -19,10 +19,9 @@ if TYPE_CHECKING:
 
 
 @overload
-def service[OwnerT: ResolvableServiceLevelHasServices, ServiceT](
-    factory: Callable[[OwnerT], Awaitable[ServiceT]], /
+def service[ServiceT](
+    factory: Callable[[ResolvableServiceLevelHasServices], Awaitable[ServiceT]], /
 ) -> ServiceManager[
-    OwnerT,
     ServiceT,
     ReAwaitable[ServiceT],
     ReAwaitable[ServiceT],
@@ -32,9 +31,9 @@ def service[OwnerT: ResolvableServiceLevelHasServices, ServiceT](
 
 
 @overload
-def service[OwnerT: ResolvableServiceLevelHasServices, ServiceT](
-    factory: Callable[[OwnerT], ServiceT], /
-) -> ServiceManager[OwnerT, ServiceT, ServiceT, Callable[[], ServiceT], ServiceT]:
+def service[ServiceT](
+    factory: Callable[[ResolvableServiceLevelHasServices], ServiceT], /
+) -> ServiceManager[ServiceT, ServiceT, Callable[[], ServiceT], ServiceT]:
     pass
 
 

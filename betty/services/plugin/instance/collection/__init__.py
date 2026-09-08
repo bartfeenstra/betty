@@ -4,32 +4,31 @@ Plugin instance collection services.
 
 from __future__ import annotations
 
-from typing import final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.asyncio import ReAwaitable
 from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
 from betty.services.plugin.instance import (
     PluginInstanceServiceManager,
     ServicePluginInstance,
 )
 
+if TYPE_CHECKING:
+    from betty.services.plugin import ResolvableServiceLevelHasPluginServices
+
 
 class CollectionPluginInstanceServiceManager[
-    OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: PluginClsDefinition,
     GetServiceT,
     PluginT: Plugin,
 ](
     PluginInstanceServiceManager[
-        OwnerT,
         PluginDefinitionT,
         GetServiceT,
         PluginT,
     ],
     CollectionPluginServiceManager[
-        OwnerT,
         PluginDefinitionT,
         GetServiceT,
         ReAwaitable[PluginT],
@@ -44,7 +43,7 @@ class CollectionPluginInstanceServiceManager[
     @override
     def new_service_item(
         self,
-        owner: OwnerT,
+        owner: ResolvableServiceLevelHasPluginServices,
         plugin: ServicePluginInstance[PluginDefinitionT],
         /,
     ) -> ReAwaitable[PluginT]:
