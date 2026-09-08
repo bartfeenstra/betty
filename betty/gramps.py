@@ -643,12 +643,14 @@ class GrampsLoader:
         _associate_type: type[AssociateT],
         handle: str,
         /,
-    ) -> AssociateResolver[OwnerT, AssociateT]:
-        return BiResolver(lambda: self._handles_to_entities[handle])
+    ) -> AssociateResolver[AssociateT]:
+        return BiResolver(
+            lambda: self._handles_to_entities[handle],
+        )  # ty:ignore[invalid-return-type]
 
     def _resolve_many[OwnerT: HasAssociations, AssociateT: Entity](
         self, owner_type: type[OwnerT], associate_type: type[AssociateT], *handles: str
-    ) -> Iterable[AssociateResolver[OwnerT, AssociateT]]:
+    ) -> Iterable[AssociateResolver[AssociateT]]:
         return (
             self._resolve_one(owner_type, associate_type, handle) for handle in handles
         )

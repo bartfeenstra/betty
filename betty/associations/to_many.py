@@ -23,19 +23,12 @@ if TYPE_CHECKING:
     from betty.portable import PortableData
     from betty.project import Project
 
-type ToManyAssociates[OwnerT: HasAssociations, AssociateT: Entity] = Iterable[
-    Associate[OwnerT, AssociateT]
-]
+type ToManyAssociates[AssociateT: Entity] = Iterable[Associate[AssociateT]]
 
 
 @final
-class ToMany[OwnerT: HasAssociations, AssociateT: Entity](
-    Association[
-        OwnerT,
-        AssociateT,
-        ToManyCollection[OwnerT, AssociateT],
-        ToManyAssociates[OwnerT, AssociateT],
-    ]
+class ToMany[AssociateT: Entity](
+    Association[AssociateT, ToManyCollection[AssociateT], ToManyAssociates[AssociateT]]
 ):
     r"""
     A \*-to-many entity association.
@@ -59,51 +52,48 @@ class ToMany[OwnerT: HasAssociations, AssociateT: Entity](
 
     @final
     @override
-    def is_deletable(self, owner: OwnerT, /) -> bool:
+    def is_deletable(self, owner: HasAssociations, /) -> bool:
         return True
 
     @override
-    def pre_init_owner(self, owner: OwnerT, /) -> None:
+    def pre_init_owner(self, owner: HasAssociations, /) -> None:
         super().pre_init_owner(owner)
         self._storage.set(owner, ToManyCollection(owner, self))
 
     @override
-    def get(self, owner: OwnerT, /) -> ToManyCollection[OwnerT, AssociateT]:
+    def get(self, owner: HasAssociations, /) -> ToManyCollection[AssociateT]:
         return self._storage.get(owner)
 
     @override
     def set(
-        self,
-        owner: OwnerT,
-        value: ToManyAssociates[OwnerT, AssociateT],
-        /,
+        self, owner: HasAssociations, value: ToManyAssociates[AssociateT], /
     ) -> None:
         self.get(owner).replace(*value)
 
     @override
-    def delete(self, owner: OwnerT, /) -> None:
+    def delete(self, owner: HasAssociations, /) -> None:
         self.get(owner).clear()
 
     @override
     def is_resolver(
-        self, value: Associate[OwnerT, AssociateT], /
-    ) -> TypeGuard[AssociateResolver[OwnerT, AssociateT]]:
+        self, value: Associate[AssociateT], /
+    ) -> TypeGuard[AssociateResolver[AssociateT]]:
         return not isinstance(value, self.associate_type)
 
     @override
-    def associate(self, owner: OwnerT, associate: AssociateT, /) -> None:
+    def associate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
         self.get(owner).associate(associate)
 
     @override
-    def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:
+    def disassociate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
         self.get(owner).disassociate(associate)
 
     @override
-    def get_associates(self, owner: OwnerT, /) -> Iterable[AssociateT]:
+    def get_associates(self, owner: HasAssociations, /) -> Iterable[AssociateT]:
         yield from self.get(owner)
 
     @override
-    def resolve(self, project: Project, owner: OwnerT, /) -> None:
+    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
         self.get(owner).resolve(project)
 
     @override
@@ -118,7 +108,7 @@ class ToMany[OwnerT: HasAssociations, AssociateT: Entity](
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, owner: OwnerT, /
+        self, project: Project, owner: HasAssociations, /
     ) -> PortableData:
         url_generator = await project.url_generator
         return [

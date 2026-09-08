@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, override
+from typing import TYPE_CHECKING, override
 
 import pytest
 
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _TestEntityPool_OneToOne_Left(Entity):
-    one_right = ToOne[Self, "_TestEntityPool_OneToOne_Right"](
+    one_right = ToOne["_TestEntityPool_OneToOne_Right"](
         "betty.tests.entity.collection.test_pool:_TestEntityPool_OneToOne_Right",
         "one_left",
         label="-",
@@ -42,7 +42,7 @@ class _TestEntityPool_OneToOne_Left(Entity):
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _TestEntityPool_OneToOne_Right(Entity):
-    one_left = ToOne[Self, _TestEntityPool_OneToOne_Left](
+    one_left = ToOne[_TestEntityPool_OneToOne_Left](
         "betty.tests.entity.collection.test_pool:_TestEntityPool_OneToOne_Left",
         "one_right",
         label="-",

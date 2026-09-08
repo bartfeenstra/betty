@@ -4,7 +4,7 @@ Data types to describe information sources.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.associations.has_file_references import HasFileReferences
 from betty.associations.has_links import HasLinks
@@ -61,7 +61,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
     The source's publisher.
     """
 
-    contained_by = ToOne[Self, "Source"](
+    contained_by = ToOne["Source"](
         "betty.entities.source:Source",
         "contains",
         label=_("Contained by"),
@@ -71,7 +71,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
     Another source that contains this source.
     """
 
-    contains = ToMany[Self, "Source"](
+    contains = ToMany["Source"](
         "betty.entities.source:Source",
         "contained_by",
         label=_("Contains"),
@@ -81,7 +81,7 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
     Other sources this source contains.
     """
 
-    citations = ToMany[Self, "Citation"](
+    citations = ToMany["Citation"](
         "betty.entities.citation:Citation",
         "source",
         label=_("Citations"),
@@ -98,12 +98,12 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
         id: ResolvableMachineName | None = None,  # noqa: A002
         author: ResolvableLocalizable | None = None,
         publisher: ResolvableLocalizable | None = None,
-        contained_by: Associate[Self, Source] | None = None,
-        contains: ToManyAssociates[Self, Source] = (),
-        notes: ToManyAssociates[Self, Note] = (),
+        contained_by: Associate[Source] | None = None,
+        contains: ToManyAssociates[Source] = (),
+        notes: ToManyAssociates[Note] = (),
         date: AnyDate | None = None,
-        files: ToManyAssociates[Self, FileReference] = (),
-        links: ToManyAssociates[Self, Link] = (),
+        files: ToManyAssociates[FileReference] = (),
+        links: ToManyAssociates[Link] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(

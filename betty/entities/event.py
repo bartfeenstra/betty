@@ -4,7 +4,7 @@ Data types to describe events.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.associations.has_citations import HasCitations
 from betty.associations.has_file_references import HasFileReferences
@@ -64,16 +64,13 @@ class Event(
     The event's name, if it has any.
     """
 
-    place = ToOne[Self, Place](
-        Place,
-        "events",
-        label=_("Place"),
-        description=_("The location of the event"),
+    place = ToOne(
+        Place, "events", label=_("Place"), description=_("The location of the event")
     ).optional
     """
     The place the event happened.
     """
-    presences = ToMany[Self, Presence](
+    presences = ToMany(
         Presence,
         "event",
         label=_("Presences"),
@@ -89,13 +86,13 @@ class Event(
         id: ResolvableMachineName | None = None,  # noqa: A002
         event_type: EventType | None = None,
         date: AnyDate | None = None,
-        files: ToManyAssociates[Self, FileReference] = (),
-        citations: ToManyAssociates[Self, Citation] = (),
-        notes: ToManyAssociates[Self, Note] = (),
+        files: ToManyAssociates[FileReference] = (),
+        citations: ToManyAssociates[Citation] = (),
+        notes: ToManyAssociates[Note] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
-        place: Associate[Self, Place] | None = None,
+        place: Associate[Place] | None = None,
         description: ResolvableLocalizable | None = None,
-        presences: ToManyAssociates[Self, Presence] = (),
+        presences: ToManyAssociates[Presence] = (),
         name: ResolvableLocalizable | None = None,
     ):
         super().__init__(

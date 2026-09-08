@@ -4,7 +4,7 @@ Data types for citations.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.associations.has_citations import HasCitations
 from betty.associations.has_file_references import HasFileReferences
@@ -49,7 +49,7 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
     The location within the source this citation references.
     """
 
-    facts = ToMany[Self, HasCitations](
+    facts = ToMany(
         HasCitations,
         "citations",
         label=_("Facts"),
@@ -61,7 +61,7 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
     The other entities that reference these citations to back up their claims.
     """
 
-    source = ToOne[Self, Source](
+    source = ToOne(
         Source,
         "citations",
         label=_("Source"),
@@ -74,13 +74,13 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
     def __init__(
         self,
         *,
-        source: ToOneAssociate[Self, Source],
-        facts: ToManyAssociates[Self, HasCitations] = (),
+        source: ToOneAssociate[Source],
+        facts: ToManyAssociates[HasCitations] = (),
         id: ResolvableMachineName | None = None,  # noqa: A002
         location: ResolvableLocalizable | None = None,
         date: AnyDate | None = None,
-        files: ToManyAssociates[Self, FileReference] = (),
-        links: ToManyAssociates[Self, Link] = (),
+        files: ToManyAssociates[FileReference] = (),
+        links: ToManyAssociates[Link] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(

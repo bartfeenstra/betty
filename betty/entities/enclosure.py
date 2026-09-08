@@ -4,7 +4,7 @@ Data types to describe the relationships between places.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final
+from typing import TYPE_CHECKING, final
 
 from betty.associations.has_citations import HasCitations
 from betty.associations.to_one import ToOne, ToOneAssociate
@@ -30,7 +30,7 @@ class Enclosure(HasAnyDate, HasCitations, Entity):
     .. plugin:: entity:enclosure.
     """
 
-    enclosed_by = ToOne[Self, "Place"](
+    enclosed_by = ToOne["Place"](
         "betty.entities.place:Place",
         "encloses",
         label=_("Enclosed by"),
@@ -40,7 +40,7 @@ class Enclosure(HasAnyDate, HasCitations, Entity):
     The place that encloses the other place.
     """
 
-    encloses = ToOne[Self, "Place"](
+    encloses = ToOne["Place"](
         "betty.entities.place:Place",
         "enclosed_by",
         label=_("Encloses"),
@@ -53,8 +53,8 @@ class Enclosure(HasAnyDate, HasCitations, Entity):
     def __init__(
         self,
         *,
-        enclosed_by: ToOneAssociate[Self, Place],
-        encloses: ToOneAssociate[Self, Place],
+        enclosed_by: ToOneAssociate[Place],
+        encloses: ToOneAssociate[Place],
         id: ResolvableMachineName | None = None,  # noqa: A002
     ):
         super().__init__(id=id)

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _Owner(Entity):
-    associate = ToOne[Self, "_Associate"](
+    associate = ToOne["_Associate"](
         "betty.tests.associations.test_to_one:_Associate", label="-"
     )
 
@@ -37,7 +37,7 @@ class _Owner(Entity):
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _Associate(Entity):
-    owner = ToOne[Self, _Owner](_Owner, label="-")
+    owner = ToOne[_Owner](_Owner, label="-")
 
 
 @EntityDefinition(
@@ -47,7 +47,7 @@ class _Associate(Entity):
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _BiOwner(Entity):
-    associate = ToOne[Self, "_BiAssociate"](
+    associate = ToOne["_BiAssociate"](
         "betty.tests.associations.test_to_one:_BiAssociate",
         "owner",
         label="-",
@@ -61,7 +61,7 @@ class _BiOwner(Entity):
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _BiAssociate(Entity):
-    owner = ToOne[Self, _BiOwner](_BiOwner, "associate", label="-")
+    owner = ToOne[_BiOwner](_BiOwner, "associate", label="-")
 
 
 class TestToOne:
@@ -154,7 +154,7 @@ class TestToOne:
         ],
     )
     def test_is_resolver(
-        self, expected: bool, value: ToOneAssociate[_BiOwner, _BiAssociate]
+        self, expected: bool, value: ToOneAssociate[_BiAssociate]
     ) -> None:
         assert _BiOwner.associate.is_resolver(value) is expected
 

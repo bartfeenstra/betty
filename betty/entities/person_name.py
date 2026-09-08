@@ -4,7 +4,7 @@ Data types to describe people's names.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.associations.has_citations import HasCitations
 from betty.associations.to_one import ToOne, ToOneAssociate
@@ -72,7 +72,7 @@ class PersonName(HasLocale, HasCitations):
         self._assert_names(name, self.affiliation)
         return name
 
-    person = ToOne[Self, "Person"](
+    person = ToOne["Person"](
         "betty.entities.person:Person",
         "names",
         label=_("Person"),
@@ -85,12 +85,12 @@ class PersonName(HasLocale, HasCitations):
         self,
         *,
         id: ResolvableMachineName | None = None,  # noqa: A002
-        person: ToOneAssociate[Self, Person],
+        person: ToOneAssociate[Person],
         individual: str | None = None,
         affiliation: str | None = None,
         privacy: Privacy = Privacy.UNDETERMINED,
         locale: ResolvableLocale | None = None,
-        citations: ToManyAssociates[Self, Citation] = (),
+        citations: ToManyAssociates[Citation] = (),
     ):
         super().__init__(
             id=id,

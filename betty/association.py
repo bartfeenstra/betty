@@ -11,7 +11,6 @@ from typing import (
     Any,
     Final,
     Never,
-    Self,
     TypeGuard,
     final,
     overload,
@@ -41,7 +40,7 @@ class HasAssociations(HasProps):
 
     @final
     @classmethod
-    def associations(cls) -> Iterable[Association[Self]]:
+    def associations(cls) -> Iterable[Association]:
         """
         Get all associations on objects of this type.
         """
@@ -51,24 +50,24 @@ class HasAssociations(HasProps):
 
 
 class Association[
-    OwnerT: HasAssociations = HasAssociations,
     AssociateT: Entity = Entity,
     GetT = Any,
     SetT = Any,
     DataDefinitionT: DataDefinition = DataDefinition,
-](LinkedDataDumper[OwnerT], Attr[OwnerT, GetT, SetT, DataDefinitionT]):
+](
+    LinkedDataDumper[HasAssociations],
+    Attr[HasAssociations, GetT, SetT, DataDefinitionT],
+):
     """
     An entity association.
     """
 
     def __init__(
         self,
-        field: FieldDefinition[OwnerT, GetT, DataDefinitionT]
+        field: FieldDefinition[HasAssociations, GetT, DataDefinitionT]
         | ResolvableDataDefinition[DataDefinitionT],
         associate: type[AssociateT] | str,
-        associate_attr: Association[AssociateT, Intersection[OwnerT, Entity], Any, Any]
-        | str
-        | None = None,
+        associate_attr: Association | str | None = None,
         /,
         *args: Any,
         **kwargs: Any,
@@ -85,24 +84,20 @@ class Association[
         self.associate_attr_name: Final[str | None] = (
             associate_attr.ownership.name
             if isinstance(associate_attr, Association)
-            else associate_attr  # ty:ignore[invalid-assignment]
+            else associate_attr
         )
-        self.__associate_attr: (
-            Association[AssociateT, Intersection[OwnerT, Entity], Any, Any]
-            | None
-            | NothingType
-        ) = associate_attr if isinstance(associate_attr, Association) else Nothing
+        self.__associate_attr: Association | None | NothingType = (
+            associate_attr if isinstance(associate_attr, Association) else Nothing
+        )
 
     @final
     @override
-    def is_settable(self, owner: OwnerT, /) -> bool:
+    def is_settable(self, owner: HasAssociations, /) -> bool:
         return True
 
     @final
     @property
-    def associate_attr(
-        self,
-    ) -> Association[AssociateT, Intersection[OwnerT, Entity], Any, Any] | None:
+    def associate_attr(self) -> Association | None:
         """
         Get the inverse association, if this association is bidirectional.
         """
@@ -116,9 +111,7 @@ class Association[
         return self.__associate_attr
 
     @final
-    def _bi_associate_attr(
-        self,
-    ) -> Association[AssociateT, Intersection[OwnerT, Entity], Any, Any] | None:
+    def _bi_associate_attr(self) -> Association | None:
         for associate_association in self.associate_type.associations():
             if (
                 associate_association.associate_type is self.ownership.owner
@@ -141,12 +134,12 @@ class Association[
 
     @overload
     def assert_not_resolver[T](
-        self, owner: OwnerT, value: T, /
+        self, owner: HasAssociations, value: T, /
     ) -> Intersection[T, Not[AssociateResolver]]:
         pass
 
     @overload
-    def assert_not_resolver(self, owner: OwnerT, value: Any, /) -> Never:
+    def assert_not_resolver(self, owner: HasAssociations, value: Any, /) -> Never:
         pass
 
     @final
@@ -162,49 +155,43 @@ class Association[
 
     @abstractmethod
     def is_resolver(
-        self, value: Associate[OwnerT, AssociateT], /
-    ) -> TypeGuard[AssociateResolver[OwnerT, AssociateT]]:
+        self, value: Associate[AssociateT], /
+    ) -> TypeGuard[AssociateResolver[AssociateT]]:
         """
         Test that the value is an entity (associate) resolver.
         """
 
     @abstractmethod
-    def resolve(self, project: Project, owner: OwnerT, /) -> None:
+    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
         """
         Resolve any associates the owner may have for this association.
         """
 
     @abstractmethod
-    def associate(self, owner: OwnerT, associate: AssociateT, /) -> None:
+    def associate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
         """
         Associate two entities.
         """
 
     @abstractmethod
-    def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:
+    def disassociate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
         """
         Disassociate two entities.
         """
 
     @abstractmethod
-    def get_associates(self, owner: OwnerT, /) -> Iterable[AssociateT]:
+    def get_associates(self, owner: HasAssociations, /) -> Iterable[AssociateT]:
         """
         Get the associates for the given owner.
         """
 
 
-type AssociateResolver[
-    OwnerT: HasAssociations = HasAssociations,
-    AssociateT: Entity = Entity,
-] = (
+type AssociateResolver[AssociateT: Entity = Entity] = (
     EntityResolver[AssociateT]
-    | Callable[[OwnerT, Association[OwnerT, AssociateT]], AssociateT]
-    | Callable[[Project, OwnerT, Association[OwnerT, AssociateT]], AssociateT]
+    | Callable[[HasAssociations, Association[AssociateT]], AssociateT]
+    | Callable[[Project, HasAssociations, Association[AssociateT]], AssociateT]
 )
-type Associate[
-    OwnerT: HasAssociations = HasAssociations,
-    AssociateT: Entity = Entity,
-] = AssociateT | AssociateResolver[OwnerT, AssociateT]
+type Associate[AssociateT: Entity = Entity] = AssociateT | AssociateResolver[AssociateT]
 
 
 @final
@@ -213,11 +200,11 @@ class UnresolvedAssociate(ValueError):
     Raised when an entity (associate) resolver is encountered unexpectedly.
     """
 
-    def __init__[OwnerT: HasAssociations, AssociateT: Entity](
+    def __init__[AssociateT: Entity](
         self,
-        owner: OwnerT,
-        association: Association[OwnerT, AssociateT],
-        resolver: AssociateResolver[OwnerT, AssociateT],
+        owner: HasAssociations,
+        association: Association[AssociateT],
+        resolver: AssociateResolver[AssociateT],
         /,
     ):
         super().__init__(
@@ -225,11 +212,11 @@ class UnresolvedAssociate(ValueError):
         )
 
 
-def resolve_associate[OwnerT: HasAssociations, AssociateT: Entity](
+def resolve_associate[AssociateT: Entity](
     project: Project,
-    owner: OwnerT,
-    association: Association[OwnerT, AssociateT],
-    resolver: AssociateResolver[OwnerT, AssociateT],
+    owner: HasAssociations,
+    association: Association[AssociateT],
+    resolver: AssociateResolver[AssociateT],
     /,
 ) -> AssociateT:
     """
@@ -266,20 +253,16 @@ def resolve_associates(project: Project, *owners: HasAssociations) -> None:
 
 
 @final
-class BiResolver[OwnerT: HasAssociations, AssociateT: Entity]:
+class BiResolver[AssociateT: Entity]:
     """
     Wrap another entity (associate) resolver to bidirectionally associate the owner with the resolved associate.
     """
 
-    def __init__(self, resolver: AssociateResolver[OwnerT, AssociateT], /):
+    def __init__(self, resolver: AssociateResolver[AssociateT], /):
         self._resolver = resolver
 
     def __call__(
-        self,
-        project: Project,
-        owner: OwnerT,
-        association: Association[OwnerT, AssociateT],
-        /,
+        self, project: Project, owner: Entity, association: Association[AssociateT], /
     ):
         """
         Resolve the associate.

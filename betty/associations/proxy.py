@@ -21,14 +21,13 @@ if TYPE_CHECKING:
 
 
 class ProxyAssociation[
-    OwnerT: HasAssociations,
     AssociateT: Entity,
     GetT = Any,
     SetT = Any,
     DataDefinitionT: DataDefinition = DataDefinition,
 ](
-    ProxyAttr[OwnerT, GetT, SetT, DataDefinitionT],
-    Association[OwnerT, AssociateT, GetT, SetT, DataDefinitionT],
+    ProxyAttr[HasAssociations, GetT, SetT, DataDefinitionT],
+    Association[AssociateT, GetT, SetT, DataDefinitionT],
 ):
     """
     An association that proxies to another association.
@@ -36,11 +35,11 @@ class ProxyAssociation[
 
     def __init__(
         self,
-        field: FieldDefinition[OwnerT, GetT, DataDefinitionT]
+        field: FieldDefinition[HasAssociations, GetT, DataDefinitionT]
         | ResolvableDataDefinition[DataDefinitionT]
         | None = None,
         *args: Any,
-        proxied: Association[OwnerT, AssociateT, GetT, SetT, DataDefinitionT],
+        proxied: Association[AssociateT, GetT, SetT, DataDefinitionT],
         **kwargs: Any,
     ):
         super().__init__(
@@ -55,24 +54,24 @@ class ProxyAssociation[
 
     @override
     def is_resolver(
-        self, value: Associate[OwnerT, AssociateT], /
-    ) -> TypeGuard[AssociateResolver[OwnerT, AssociateT]]:
+        self, value: Associate[AssociateT], /
+    ) -> TypeGuard[AssociateResolver[AssociateT]]:
         return self._proxied_association.is_resolver(value)
 
     @override
-    def resolve(self, project: Project, owner: OwnerT, /) -> None:
+    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
         self._proxied_association.resolve(project, owner)
 
     @override
-    def associate(self, owner: OwnerT, associate: AssociateT, /) -> None:
+    def associate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
         self._proxied_association.associate(owner, associate)
 
     @override
-    def disassociate(self, owner: OwnerT, associate: AssociateT, /) -> None:
+    def disassociate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
         self._proxied_association.disassociate(owner, associate)
 
     @override
-    def get_associates(self, owner: OwnerT, /) -> Iterable[AssociateT]:
+    def get_associates(self, owner: HasAssociations, /) -> Iterable[AssociateT]:
         return self._proxied_association.get_associates(owner)
 
     @override
@@ -81,6 +80,6 @@ class ProxyAssociation[
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, owner: OwnerT, /
+        self, project: Project, owner: HasAssociations, /
     ) -> PortableData:
         return await self._proxied_association.dump_linked_data_for(project, owner)
