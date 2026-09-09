@@ -4,7 +4,7 @@ Keyed porters for portable mappings.
 
 from __future__ import annotations
 
-from collections.abc import MutableMapping
+from collections.abc import Mapping
 from typing import final, override
 
 from betty.assertions.mapping import assert_mapping
@@ -31,9 +31,8 @@ class KeyedMappingPorter[DataT](ProxyPorter[DataT], KeyedPorter[DataT]):
     @override
     def dump_keyed(self, data: DataT, /) -> tuple[str, PortableMapping]:
         dumped = self.dump(data)
-        assert isinstance(dumped, MutableMapping)
-        key = dumped.pop(
-            self._key,  # ty:ignore[invalid-argument-type]
-        )
+        assert isinstance(dumped, Mapping)
+        dumped = dict(dumped)
+        key = dumped.pop(self._key)
         assert isinstance(key, str)
-        return (key, dumped)  # ty:ignore[invalid-return-type]
+        return key, dumped
