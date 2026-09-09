@@ -4,7 +4,7 @@ Mapping data assertions.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, MutableMapping
+from collections.abc import Mapping
 from typing import Any, overload
 
 from betty.assertions.type import assert_type
@@ -16,21 +16,21 @@ from betty.indicator.operator import Key
 @overload
 def assert_mapping(
     value_assertion: None = None, key_assertion: None = None, /
-) -> Pipeline[Any, MutableMapping[Any, Any]]:
+) -> Pipeline[Any, Mapping[Any, Any]]:
     pass
 
 
 @overload
 def assert_mapping[ReturnT](
     value_assertion: Pipe[Any, ReturnT], key_assertion: None = None, /
-) -> Pipeline[Any, MutableMapping[Any, ReturnT]]:
+) -> Pipeline[Any, Mapping[Any, ReturnT]]:
     pass
 
 
 @overload
 def assert_mapping[AssertionKeyT](
     value_assertion: None, key_assertion: Pipe[Any, AssertionKeyT], /
-) -> Pipeline[Any, MutableMapping[AssertionKeyT, Any]]:
+) -> Pipeline[Any, Mapping[AssertionKeyT, Any]]:
     pass
 
 
@@ -39,7 +39,7 @@ def assert_mapping[ReturnT, AssertionKeyT](
     value_assertion: Pipe[Any, ReturnT],
     key_assertion: Pipe[Any, AssertionKeyT],
     /,
-) -> Pipeline[Any, MutableMapping[AssertionKeyT, ReturnT]]:
+) -> Pipeline[Any, Mapping[AssertionKeyT, ReturnT]]:
     pass
 
 
@@ -54,10 +54,10 @@ def assert_mapping[ReturnT, AssertionKeyT](
     Optionally assert that keys and/or values are of a given type.
     """
 
-    def _assert_mapping(value: Any, /) -> MutableMapping[AssertionKeyT, ReturnT]:
+    def _assert_mapping(value: Any, /) -> Mapping[AssertionKeyT, ReturnT]:
         mapping = assert_type(Mapping)(value)
         if value_assertion is None and key_assertion is None:
-            return dict(mapping)
+            return mapping
         asserted_mapping = {}
         for value_key, value_value in mapping.items():
             asserted_value_key = value_key
