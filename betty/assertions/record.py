@@ -15,7 +15,7 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, do_you_mean
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, MutableMapping
+    from collections.abc import Mapping
 
     from betty.functools import Pipe, Pipeline
 
@@ -36,7 +36,7 @@ class Field[ValueT, ReturnT]:
 
 def assert_record(
     *fields: Field[Any, Any], allow_extra: bool = False
-) -> Pipeline[Any, MutableMapping[str, Any]]:
+) -> Pipeline[Any, Mapping[str, Any]]:
     """
     Assert that a value is a record: a key-value mapping of arbitrary value types, with a known structure.
 
@@ -45,10 +45,10 @@ def assert_record(
     are provided will cause the entire record assertion to fail.
     """
 
-    def _assert_record(value: Mapping[Any, Any], /) -> MutableMapping[str, Any]:
+    def _assert_record(value: Mapping[Any, Any], /) -> Mapping[str, Any]:
         known_keys = {x.name for x in fields}
         unknown_keys = set(value.keys()) - known_keys
-        record: MutableMapping[str, Any] = {}
+        record: dict[str, Any] = {}
         if not allow_extra:
             for unknown_key in unknown_keys:
                 with reraise_with_indicator(Key(unknown_key)):
