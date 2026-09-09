@@ -3,7 +3,10 @@ from collections.abc import Mapping
 import pytest
 
 from betty.data import DataDefinition
-from betty.datas.aggregate.collection.mapping import MappingDefinition
+from betty.datas.aggregate.collection.mapping import (
+    MappingDefinition,
+    MutableMappingDefinition,
+)
 from betty.datas.str import StrDefinition
 from betty.portable.error import NotPortable
 
@@ -12,16 +15,13 @@ class TestMappingDefinition:
     def test_item(self) -> None:
         key = StrDefinition(label="-")
         sut = MappingDefinition[dict[str, str], str, str](
-            cls=dict,
-            key=key,
-            value=StrDefinition(label="-"),
-            label="-",
+            key=key, value=StrDefinition(label="-"), label="-"
         )
         assert sut.item is key
 
     def test_load__without_items(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
-            cls=dict,
+            factory=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
             value=StrDefinition(label="-"),
             label="-",
@@ -30,29 +30,16 @@ class TestMappingDefinition:
 
     def test_load__with_items(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
-            cls=dict,
+            factory=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
             value=StrDefinition(label="-"),
             label="-",
         )
         assert sut.porter.load({"hello": "Hello, world!"}) == {"hello": "Hello, world!"}
 
-    def test_load__with_factory(self) -> None:
-        class FactoryDict(dict[str, str]):
-            pass
-
-        sut = MappingDefinition[dict[str, str], str, str](
-            cls=dict,
-            key=StrDefinition(label="-"),
-            value=StrDefinition(label="-"),
-            label="-",
-            factory=FactoryDict,
-        )
-        assert isinstance(sut.porter.load({}), FactoryDict)
-
     def test_load__with_item_without_porter(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
-            cls=dict,
+            factory=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
             value=DataDefinition(cls=str, label="-"),
             label="-",
@@ -62,7 +49,7 @@ class TestMappingDefinition:
 
     def test_dump__without_items(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
-            cls=dict,
+            factory=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
             value=StrDefinition(label="-"),
             label="-",
@@ -71,7 +58,7 @@ class TestMappingDefinition:
 
     def test_dump__with_items(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
-            cls=dict,
+            factory=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
             value=StrDefinition(label="-"),
             label="-",
@@ -80,7 +67,7 @@ class TestMappingDefinition:
 
     def test_dump__with_item_without_porter(self) -> None:
         sut = MappingDefinition[dict[str, str], str, str](
-            cls=dict,
+            factory=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
             value=DataDefinition(cls=str, label="-"),
             label="-",
@@ -88,9 +75,11 @@ class TestMappingDefinition:
         with pytest.raises(NotPortable):
             sut.porter.dump({"hello": "Hello, world!"})
 
+
+class TestMutableMappingDefinition:
     def test_clear(self) -> None:
         data = {"foo": "FOO", "bar": "BAR"}
-        MappingDefinition[dict[str, str], str, str](
+        MutableMappingDefinition[dict[str, str], str, str](
             cls=list,
             key=StrDefinition(label="-"),
             value=DataDefinition(cls=str, label="-"),
@@ -113,7 +102,7 @@ class TestMappingDefinition:
     def test_replace(
         self, expected: dict[str, str], data: dict[str, str], values: Mapping[str, str]
     ) -> None:
-        MappingDefinition[dict[str, str], str, str](
+        MutableMappingDefinition[dict[str, str], str, str](
             cls=list,
             key=StrDefinition(label="-"),
             value=DataDefinition(cls=str, label="-"),

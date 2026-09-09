@@ -47,8 +47,8 @@ class PluginManufacturerSequenceDefinition[
     ):
         super().__init__(
             cls=MutableResolvedSequence,
-            factory=lambda: MutableResolvedSequenceAdapter(
-                [], value_resolver=manufacturer.resolve
+            factory=lambda values: MutableResolvedSequenceAdapter(
+                values or [], value_resolver=manufacturer.resolve
             ),
             value=manufacturer,
             label=manufacturer.data().plugin_type.type().label_plural

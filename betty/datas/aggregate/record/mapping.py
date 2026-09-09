@@ -4,7 +4,7 @@ Key-value mapping record data types.
 
 from __future__ import annotations
 
-from collections.abc import MutableMapping
+from collections.abc import Mapping
 from typing import Any, final
 
 from betty.datas.aggregate.record import RecordDefinition
@@ -12,8 +12,8 @@ from betty.indicator.operator import Key
 
 
 @final
-class TypedMappingDefinition[MutableMappingT: MutableMapping[str, Any]](
-    RecordDefinition[MutableMappingT, Key]
+class TypedMappingDefinition[MappingT: Mapping[str, Any]](
+    RecordDefinition[MappingT, Key]
 ):
     """
     A typed mapping definition.

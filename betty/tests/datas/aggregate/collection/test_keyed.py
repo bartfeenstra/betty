@@ -1,11 +1,17 @@
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping
 from typing import ClassVar
 
 import pytest
 
-from betty.collection.keyed import MutableKeyedCollection
-from betty.collections.keyed.adapter import MutableKeyedCollectionAdapter
-from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
+from betty.collections.keyed.adapter import (
+    KeyedCollectionAdapter,
+    MutableKeyedCollectionAdapter,
+)
+from betty.datas.aggregate.collection.keyed import (
+    KeyedCollectionDefinition,
+    MutableKeyedCollectionDefinition,
+)
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.mapping import TypedMappingDefinition
 from betty.datas.str import StrDefinition
@@ -14,34 +20,18 @@ from betty.portable import PortableData
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter
 
+_item = TypedMappingDefinition[dict[str, str]](
+    cls=dict,
+    label="-",
+    fields={
+        Key("key"): FieldDefinition(StrDefinition(label="-")),
+        Key("other_element"): FieldDefinition(StrDefinition(label="-")),
+    },
+    porter=lambda field: KeyedMappingPorter("key", FieldsPorter(field)),
+)
+
 
 class TestKeyedCollectionDefinition:
-    _item = TypedMappingDefinition[dict[str, str]](
-        cls=dict,
-        label="-",
-        fields={
-            Key("key"): FieldDefinition(StrDefinition(label="-")),
-            Key("other_element"): FieldDefinition(StrDefinition(label="-")),
-        },
-        porter=lambda field: KeyedMappingPorter("key", FieldsPorter(field)),
-    )
-    _sut_unordered = KeyedCollectionDefinition[
-        MutableKeyedCollection[str, str, dict[str, str], dict[str, str]],
-        dict[str, str],
-    ](
-        value=_item,
-        label="-",
-        factory=lambda: MutableKeyedCollectionAdapter(key=lambda value: value["key"]),
-    )
-    _sut_ordered = KeyedCollectionDefinition[
-        MutableKeyedCollection[str, str, dict[str, str], dict[str, str]],
-        dict[str, str],
-    ](
-        value=_item,
-        order_dump=True,
-        label="-",
-        factory=lambda: MutableKeyedCollectionAdapter(key=lambda value: value["key"]),
-    )
     _portable_unordered: ClassVar[PortableData] = {
         "my_first_key": {
             "other_element": "my_first_other_element",
@@ -53,42 +43,70 @@ class TestKeyedCollectionDefinition:
             "other_element": "my_first_other_element",
         }
     ]
-    _values: ClassVar[Sequence[dict[str, str]]] = [
-        {
+    _values: Mapping[str, dict[str, str]] = {
+        "my_first_key": {
             "key": "my_first_key",
             "other_element": "my_first_other_element",
         }
-    ]
+    }
+    _sut_unordered = KeyedCollectionDefinition[
+        KeyedCollection[str, str, dict[str, str]],
+        dict[str, str],
+    ](
+        value=_item,
+        label="-",
+        factory=lambda values: KeyedCollectionAdapter(
+            {value["key"]: value for value in values} or {}
+        ),
+    )
+    _sut_ordered = KeyedCollectionDefinition[
+        KeyedCollection[str, str, dict[str, str]],
+        dict[str, str],
+    ](
+        value=_item,
+        order_dump=True,
+        label="-",
+        factory=lambda values: KeyedCollectionAdapter(
+            {value["key"]: value for value in values} or {}
+        ),
+    )
 
     def test_load__unordered(self) -> None:
         data = self._sut_unordered.porter.load(self._portable_unordered)
-        assert isinstance(data, MutableKeyedCollectionAdapter)
+        assert isinstance(data, KeyedCollectionAdapter)
         assert data["my_first_key"]["key"] == "my_first_key"
         assert data["my_first_key"]["other_element"] == "my_first_other_element"
 
     def test_load__ordered(self) -> None:
         data = self._sut_ordered.porter.load(self._portable_ordered)
-        assert isinstance(data, MutableKeyedCollectionAdapter)
+        assert isinstance(data, KeyedCollectionAdapter)
         assert data["my_first_key"]["key"] == "my_first_key"
         assert data["my_first_key"]["other_element"] == "my_first_other_element"
 
     def test_dump__unordered(self) -> None:
-        data = MutableKeyedCollectionAdapter(
-            self._values, key=lambda value: value["key"]
-        )
+        data = KeyedCollectionAdapter[str, str, dict[str, str]](self._values)
         assert self._sut_unordered.porter.dump(data) == self._portable_unordered
 
     def test_dump__ordered(self) -> None:
-        data = MutableKeyedCollectionAdapter(
-            self._values, key=lambda value: value["key"]
-        )
+        data = KeyedCollectionAdapter[str, str, dict[str, str]](self._values)
         assert self._sut_ordered.porter.dump(data) == self._portable_ordered
+
+
+class TestMutableKeyedCollectionDefinition:
+    _sut = MutableKeyedCollectionDefinition[
+        MutableKeyedCollection[str, str, dict[str, str], dict[str, str]],
+        dict[str, str],
+    ](
+        value=_item,
+        label="-",
+        factory=lambda _: MutableKeyedCollectionAdapter(key=lambda value: value["key"]),
+    )
 
     def test_clear(self) -> None:
         data = MutableKeyedCollectionAdapter(
             ({"key": "qux"},), key=lambda value: value["key"]
         )
-        self._sut_unordered.clear(data)
+        self._sut.clear(data)
         assert not data
 
     @pytest.mark.parametrize(
@@ -117,5 +135,5 @@ class TestKeyedCollectionDefinition:
         data: MutableKeyedCollection[str, str, dict[str, str], dict[str, str]],
         values: Iterable[dict[str, str]],
     ) -> None:
-        self._sut_unordered.replace(data, values)
+        self._sut.replace(data, values)
         assert list(data) == expected

@@ -24,7 +24,7 @@ from betty.content_builder import (
     ContentBuilderManufacturer,
 )
 from betty.data import Data
-from betty.datas.aggregate.collection.mapping import MappingDefinition
+from betty.datas.aggregate.collection.mapping import MutableMappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.color import ColorDefinition
@@ -120,10 +120,10 @@ class RaspberryMintData(Data, HasProps):
 
     regional_content = CollectionOwnerAttr(
         FieldDefinition(
-            MappingDefinition(
+            MutableMappingDefinition(
                 cls=MutableResolvedMapping,
-                factory=lambda: MutableResolvedMappingAdapter(
-                    {}, key_resolver=Region.resolve
+                factory=lambda values: MutableResolvedMappingAdapter(
+                    values or {}, key_resolver=Region.resolve
                 ),
                 label=_("Regions"),
                 key=StrDefinition(label=_("Region")),
@@ -276,7 +276,7 @@ class RaspberryMint(
         return cls(
             primary_color=data.primary_color,
             project=project,
-            regional_content=data.regional_content,
+            regional_content=data.regional_content,  # ty:ignore[invalid-argument-type]
             secondary_color=data.secondary_color,
             tertiary_color=data.tertiary_color,
         )

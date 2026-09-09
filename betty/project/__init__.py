@@ -42,7 +42,7 @@ from betty.copyright_notice import (
 )
 from betty.data import Data
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
-from betty.datas.aggregate.collection.sequence import SequenceDefinition
+from betty.datas.aggregate.collection.sequence import MutableSequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
@@ -785,7 +785,8 @@ class ProjectData(Data, HasProps):
             KeyedCollectionDefinition(
                 value=EnricherManufacturer,
                 label=EnricherDefinition.type().label_plural,
-                factory=lambda: MutableKeyedCollectionAdapter(
+                factory=lambda values: MutableKeyedCollectionAdapter(
+                    values or (),
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
                     value_resolver=EnricherManufacturer.resolve,
@@ -811,7 +812,8 @@ class ProjectData(Data, HasProps):
             KeyedCollectionDefinition(
                 value=ServiceProviderManufacturer,
                 label=ServiceProviderDefinition.type().label_plural,
-                factory=lambda: MutableKeyedCollectionAdapter(
+                factory=lambda values: MutableKeyedCollectionAdapter(
+                    values or (),
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
                     value_resolver=ServiceProviderManufacturer.resolve,
@@ -827,16 +829,15 @@ class ProjectData(Data, HasProps):
 
     generate_entity_list_html = CollectionOwnerAttr(
         FieldDefinition(
-            SequenceDefinition[
+            MutableSequenceDefinition[
                 MutableSequence[ResolvablePluginId[EntityDefinition]],
                 ResolvablePluginId[EntityDefinition],
             ](
-                cls=list,
                 label=_("Entity types to generate list HTML pages for"),
                 value=MachineName,
-                factory=lambda: MutableResolvedSequenceAdapter(
-                    [], value_resolver=resolve_plugin_id
-                ),
+                factory=lambda values: MutableResolvedSequenceAdapter[
+                    MachineName, ResolvablePluginId[EntityDefinition]
+                ](values or [], value_resolver=resolve_plugin_id),  # ty:ignore[invalid-argument-type]
             ),
             optional=True,
             porter=OmitFieldPorter.new(not_),
@@ -888,7 +889,8 @@ class ProjectData(Data, HasProps):
             KeyedCollectionDefinition(
                 value=LoaderManufacturer,
                 label=LoaderDefinition.type().label_plural,
-                factory=lambda: MutableKeyedCollectionAdapter(
+                factory=lambda values: MutableKeyedCollectionAdapter(
+                    values or (),
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
                     value_resolver=LoaderManufacturer.resolve,
@@ -908,7 +910,8 @@ class ProjectData(Data, HasProps):
                 value=ProjectLocale,
                 label=_("Locales"),
                 order_dump=True,
-                factory=lambda: MutableKeyedCollectionAdapter(
+                factory=lambda values: MutableKeyedCollectionAdapter(
+                    values or (),
                     key=lambda item: item.locale,
                     key_resolver=resolve_locale,
                     value_resolver=lambda value: (

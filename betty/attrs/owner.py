@@ -12,7 +12,10 @@ from betty.attrs.default import DefaultAttr
 from betty.attrs.optional import OptionalAttr
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
-from betty.datas.aggregate.collection import CollectionDefinition
+from betty.datas.aggregate.collection import (
+    CollectionDefinition,
+    MutableCollectionDefinition,
+)
 from betty.freezer import is_frozen
 from betty.prop import HasProps
 from betty.props.setter import SetterProp
@@ -135,6 +138,7 @@ class OwnerAttr[OwnerT: HasProps, T, DataDefinitionT: DataDefinition = DataDefin
 
     @override
     def set(self, owner: OwnerT, value: T, /) -> None:
+        self.assert_settable(owner)
         self._storage.set(owner, value)
 
 
@@ -217,4 +221,11 @@ class CollectionOwnerAttr[
 
     @override
     def set(self, owner: OwnerT, value: SetT, /) -> None:
-        self.field.data.replace(self.get(owner), value)
+        self.assert_settable(owner)
+        if isinstance(self.field.data, MutableCollectionDefinition):
+            self.field.data.replace(
+                self.get(owner),  # ty:ignore[invalid-argument-type]
+                value,  # ty:ignore[invalid-argument-type]
+            )
+        else:
+            self._storage.set(owner, self.field.data.new(value))

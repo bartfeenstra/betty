@@ -1,11 +1,9 @@
-from collections.abc import Iterable
-from typing import override
-
 import pytest
 
 from betty.attrs.default import DefaultAttr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
-from betty.datas.aggregate.collection import CollectionDefinition
+from betty.datas.aggregate.collection.list import ListDefinition
+from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.str import StrDefinition
 from betty.prop import HasProps
 
@@ -26,30 +24,17 @@ class TestOwnerAttr:
         assert owner.my_first_attr == value
 
 
-class _Collection(list[str]):
-    pass
-
-
-class _CollectionDefinition(CollectionDefinition[_Collection, Iterable[str]]):
-    def __init__(self):
-        super().__init__(
-            label="-",
-            item=StrDefinition(label="-"),
-            factory=lambda: _Collection(["Hello, world!"]),
-        )
-
-    @override
-    def clear(self, data: _Collection, /) -> None:
-        data.clear()
-
-    @override
-    def replace(self, data: _Collection, values: Iterable[str], /) -> None:
-        data.clear()
-        data.extend(values)
-
-
 class _Owner(HasProps):
-    collection = CollectionOwnerAttr(_CollectionDefinition())
+    collection = CollectionOwnerAttr(
+        SequenceDefinition(
+            label="-",
+            value=StrDefinition(label="-"),
+            factory=lambda values: list(values) if values else ["Hello, world!"],
+        )
+    )
+    mutable_collection = CollectionOwnerAttr(
+        ListDefinition(label="-", value=StrDefinition(label="-"))
+    )
 
 
 class TestCollectionOwnerAttr:
@@ -61,15 +46,21 @@ class TestCollectionOwnerAttr:
 
     def test_set(self) -> None:
         owner = _Owner()
-        collection = owner.collection
-        owner.collection = ["Hello,", "world!"]
-        assert owner.collection is collection
-        assert owner.collection == ["Hello,", "world!"]
+        owner.collection = ["Hello", "other", "world!"]
+        assert owner.collection == ["Hello", "other", "world!"]
+
+    def test_set__mutable(self) -> None:
+        owner = _Owner()
+        collection = owner.mutable_collection
+        owner.mutable_collection = ["Hello", "other", "world!"]
+        assert owner.mutable_collection is collection
+        assert owner.mutable_collection == ["Hello", "other", "world!"]
 
     def test_default(self) -> None:
         assert isinstance(_Owner.collection.default(lambda: ()), DefaultAttr)
 
     def test_normalize(self) -> None:
-        assert _Owner.collection.normalize(
-            _Owner(), ["Hello", "world...?"]
-        ) == _Collection(["Hello", "world...?"])
+        assert _Owner.collection.normalize(_Owner(), ["Hello", "world...?"]) == [
+            "Hello",
+            "world...?",
+        ]

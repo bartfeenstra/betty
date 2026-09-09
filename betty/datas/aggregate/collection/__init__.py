@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Collection, Iterable
-from typing import TYPE_CHECKING, Any, Final, final
+from typing import TYPE_CHECKING, Final, final
 
 from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 
@@ -15,7 +15,10 @@ if TYPE_CHECKING:
     from betty.portable import Porter
 
 
-class CollectionDefinition[CollectionT: Collection, ValuesSetT: Iterable](
+type DataFactory[DataT, NewT] = Callable[[NewT | None], DataT]
+
+
+class CollectionDefinition[CollectionT: Collection, ItemT, NewT: Iterable](
     DataDefinition[CollectionT], metaclass=ABCMeta
 ):
     """
@@ -26,38 +29,37 @@ class CollectionDefinition[CollectionT: Collection, ValuesSetT: Iterable](
         self,
         *,
         cls: type[CollectionT] | None = None,
-        item: ResolvableDataDefinition[DataDefinition[Any]],
+        item: ResolvableDataDefinition[DataDefinition[ItemT]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: Porter[CollectionT] | None = None,
-        factory: Callable[[], CollectionT] | None = None,
+        factory: DataFactory[CollectionT, NewT] | None = None,
     ):
         super().__init__(cls=cls, label=label, description=description, porter=porter)
-        self.item: Final[DataDefinition[Any]] = resolve_data_definition(item)
+        self.item: Final[DataDefinition[ItemT]] = resolve_data_definition(item)
         """
         The definition of the items contained by this collection.
         """
         self.__factory = factory
 
-    @property
-    def _factory(self) -> Callable[..., CollectionT]:
-        if self.__factory:
-            return self.__factory
-        if self.cls:
-            return self.cls
-        raise ValueError(
-            "This definition does not have a factory. Either set a data class, or provide a factory when initializing the definition."
-        )
-
     @final
-    def new(self, values: ValuesSetT | None = None) -> CollectionT:
+    def new(self, values: NewT | None = None, /) -> CollectionT:
         """
         Create a new collection.
         """
-        new = self._factory()
-        if values is not None:
-            self.replace(new, values)
-        return new
+        if not self.__factory:
+            raise ValueError(
+                "This definition does not have a factory. Either set a data class, or provide a factory when initializing the definition."
+            )
+        return self.__factory(values)
+
+
+class MutableCollectionDefinition[CollectionT: Collection, ItemT, NewT: Iterable](
+    CollectionDefinition[CollectionT, ItemT, NewT]
+):
+    """
+    A mutable homogenous collection data definition.
+    """
 
     @abstractmethod
     def clear(self, data: CollectionT, /) -> None:
@@ -66,7 +68,7 @@ class CollectionDefinition[CollectionT: Collection, ValuesSetT: Iterable](
         """
 
     @abstractmethod
-    def replace(self, data: CollectionT, values: ValuesSetT, /) -> None:
+    def replace(self, data: CollectionT, values: NewT, /) -> None:
         """
         Replace all values in the collection with the given ones.
         """

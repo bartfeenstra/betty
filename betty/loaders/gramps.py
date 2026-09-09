@@ -14,8 +14,8 @@ from betty.collection.mapping import MutableResolvedMapping
 from betty.collections import _empty_frozen_mapping
 from betty.collections.mapping.adapter import MutableResolvedMappingAdapter
 from betty.data import Data
+from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.collection.mapping import MappingDefinition
-from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
@@ -70,13 +70,13 @@ def _new_plugin_mapping_attr[PluginDefinitionT: PluginClsDefinition, PluginT: Pl
         FieldDefinition(
             MappingDefinition(
                 cls=MutableResolvedMapping,
-                factory=lambda: MutableResolvedMappingAdapter[
+                factory=lambda values: MutableResolvedMappingAdapter[
                     str,
                     str,
                     PluginManufacturer[PluginDefinitionT, PluginT],
                     ResolvablePluginManufacturer[PluginDefinitionT, PluginT],
                 ](
-                    {},
+                    values or {},
                     value_resolver=manufacturer.resolve,
                 ),
                 key=StrDefinition(label=gramps_label),
@@ -242,7 +242,7 @@ class GrampsData(Data, HasProps):
 
     family_trees = CollectionOwnerAttr(
         FieldDefinition(
-            SequenceDefinition(cls=list, value=FamilyTree, label=_("Family trees")),
+            ListDefinition(value=FamilyTree, label=_("Family trees")),
             optional=True,
             porter=OmitFieldPorter.new(not_),
         )

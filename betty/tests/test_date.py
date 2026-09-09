@@ -128,8 +128,7 @@ class TestDate:
 
     def test_fuzzy(self) -> None:
         fuzzy = True
-        sut = Date()
-        sut.fuzzy = fuzzy
+        sut = Date(fuzzy=fuzzy)
         assert sut.fuzzy == fuzzy
 
     @pytest.mark.parametrize(
