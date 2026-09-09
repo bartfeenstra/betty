@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @final
-class FieldsPorter[DataT](Porter[DataT]):
+class FieldsPorter[DataT](Porter[DataT, PortableMapping]):
     """
     Load and dump a record using its fields.
     """

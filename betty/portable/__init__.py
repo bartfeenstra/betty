@@ -39,7 +39,7 @@ Keys are strings.
 """
 
 
-class Porter[DataT](metaclass=ABCMeta):
+class Porter[DataT, PortableDataT: PortableData = PortableData](metaclass=ABCMeta):
     """
     An object capable of dumping and loading data to and from portable data.
     """
@@ -51,13 +51,15 @@ class Porter[DataT](metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def dump(self, data: DataT, /) -> PortableData:
+    def dump(self, data: DataT, /) -> PortableDataT:
         """
         Dump data to its portable form.
         """
 
 
-class KeyedPorter[DataT](Porter[DataT]):
+class KeyedPorter[DataT, PortableDataT: PortableData = PortableData](
+    Porter[DataT, PortableDataT]
+):
     """
     An object capable of dumping and loading data to and from portable data and a paired primary key.
     """
