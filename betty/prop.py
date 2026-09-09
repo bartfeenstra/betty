@@ -14,6 +14,8 @@ from betty.objecttools import AttrOperators
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from ty_extensions import Intersection
+
 
 class HasProps(Object):
     """
@@ -105,7 +107,9 @@ class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
         self.assert_deletable(owner)
 
     @overload
-    def __get__(self, instance: None, owner: type[OwnerT], /) -> Self:
+    def __get__[OwnedOwnerT: HasProps](
+        self, instance: None, owner: Intersection[type[OwnedOwnerT], type[OwnerT]], /
+    ) -> Intersection[Self, Prop[OwnedOwnerT, GetT, SetT]]:
         pass
 
     @overload
