@@ -32,7 +32,7 @@ class MappingDefinition[MutableMappingT: MutableMapping[Any, Any], KeyT, ValueT]
         *,
         cls: type[Intersection[MutableMappingT, MutableMapping[KeyT, ValueT]]]
         | None = None,
-        key: ResolvableDataDefinition[DataDefinition[KeyT, Porter[KeyT]]],
+        key: ResolvableDataDefinition[DataDefinition[KeyT]],
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,

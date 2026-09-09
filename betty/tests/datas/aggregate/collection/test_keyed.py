@@ -10,13 +10,13 @@ from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.mapping import TypedMappingDefinition
 from betty.datas.str import StrDefinition
 from betty.indicator.operator import Key
-from betty.portable import KeyedPorter, PortableData
+from betty.portable import PortableData
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter
 
 
 class TestKeyedCollectionDefinition:
-    _item = TypedMappingDefinition[dict[str, str], KeyedPorter](
+    _item = TypedMappingDefinition[dict[str, str]](
         cls=dict,
         label="-",
         fields={

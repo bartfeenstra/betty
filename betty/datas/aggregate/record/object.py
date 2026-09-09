@@ -9,13 +9,10 @@ from typing import override
 from betty.attr import Attr
 from betty.datas.aggregate.record import RecordDefinition
 from betty.indicator.operator import Attr as AttrOperator
-from betty.portable import Porter
 from betty.prop import HasProps
 
 
-class ObjectDefinition[DataT, PorterT: Porter = Porter](
-    RecordDefinition[DataT, AttrOperator, PorterT]
-):
+class ObjectDefinition[DataT](RecordDefinition[DataT, AttrOperator]):
     """
     Define an object with attributes.
 

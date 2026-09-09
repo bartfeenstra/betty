@@ -17,10 +17,7 @@ if TYPE_CHECKING:
 
 @final
 class EntityAsReferenceDefinition[AssociateT: Entity](
-    DataDefinition[
-        AssociateT | EntityReference[AssociateT],
-        EntityAsReferencePorter[AssociateT],
-    ]
+    DataDefinition[AssociateT | EntityReference[AssociateT]]
 ):
     """
     Define the data for an entity that is ported as an :py:class:`betty.datas.entity_reference.EntityReference`.

@@ -17,7 +17,6 @@ from betty.plugin import PluginDefinition
 from betty.plugin.resolve import (
     resolve_plugin_type_definition,
 )
-from betty.portable import KeyedPorter
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter
 from betty.prop import HasProps
@@ -37,12 +36,7 @@ class PluginDefinitionDefinition[
     PluginDefinitionDataT: "PluginDefinitionData",
 ](
     ObjectDefinition[
-        Intersection[PluginDefinitionDataT, "PluginDefinitionData[PluginDefinitionT]"],
-        KeyedPorter[
-            Intersection[
-                PluginDefinitionDataT, "PluginDefinitionData[PluginDefinitionT]"
-            ]
-        ],
+        Intersection[PluginDefinitionDataT, "PluginDefinitionData[PluginDefinitionT]"]
     ]
 ):
     """

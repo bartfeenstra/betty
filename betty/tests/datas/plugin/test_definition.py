@@ -5,6 +5,7 @@ from betty.datas.plugin.definition import (
     PluginDefinitionDefinition,
 )
 from betty.localizer import default_localizer
+from betty.portable import KeyedPorter
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.typing import Unreachable
 
@@ -35,8 +36,10 @@ class TestPluginDefinitionDefinition:
         ) == {"id": "hello-world"}
 
     def test_porter__dump_keyed(self) -> None:
-        assert _DummyPluginDefinitionData.data().porter.dump_keyed(
-            _DummyPluginDefinitionData(id="hello-world")
+        porter = _DummyPluginDefinitionData.data().porter
+        assert isinstance(porter, KeyedPorter)
+        assert porter.dump_keyed(
+            _DummyPluginDefinitionData(id="hello-world"),  # ty:ignore[invalid-argument-type]
         ) == (
             "hello-world",
             {},
@@ -48,6 +51,8 @@ class TestPluginDefinitionDefinition:
         }) == _DummyPluginDefinitionData(id="hello-world")
 
     def test_porter__load_keyed(self) -> None:
-        assert _DummyPluginDefinitionData.data().porter.load_keyed(
-            "hello-world", {}
-        ) == _DummyPluginDefinitionData(id="hello-world")
+        porter = _DummyPluginDefinitionData.data().porter
+        assert isinstance(porter, KeyedPorter)
+        assert porter.load_keyed("hello-world", {}) == _DummyPluginDefinitionData(
+            id="hello-world"
+        )
