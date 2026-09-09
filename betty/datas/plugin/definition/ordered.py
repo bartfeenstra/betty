@@ -8,7 +8,7 @@ from operator import not_
 from typing import TYPE_CHECKING, Any
 
 from betty.attrs.owner import CollectionOwnerAttr
-from betty.datas.aggregate.collection.sequence import SequenceDefinition
+from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.plugin.definition import PluginDefinitionData
 from betty.localizables.gettext import _
@@ -32,14 +32,14 @@ class OrderedPluginDefinitionData[PluginDefinitionT: OrderedPluginDefinition](
 
     after = CollectionOwnerAttr(
         FieldDefinition(
-            SequenceDefinition(cls=list, label=_("After"), value=MachineName),
+            ListDefinition(label=_("After"), value=MachineName),
             optional=True,
             porter=OmitFieldPorter.new(not_),
         )
     )
     before = CollectionOwnerAttr(
         FieldDefinition(
-            SequenceDefinition(cls=list, label=_("Before"), value=MachineName),
+            ListDefinition(label=_("Before"), value=MachineName),
             optional=True,
             porter=OmitFieldPorter.new(not_),
         )

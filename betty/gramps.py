@@ -688,10 +688,9 @@ class GrampsLoader:
                     return self._load_dateval(dateval_element, "val")
                 dateval_type = str(dateval_type)
                 if dateval_type == "about":
-                    date = self._load_dateval(dateval_element, "val")
+                    date = self._load_dateval(dateval_element, "val", fuzzy=True)
                     if date is None:
                         return None
-                    date.fuzzy = True
                     return date
                 if dateval_type == "before":
                     return DateRange(
@@ -723,7 +722,11 @@ class GrampsLoader:
         return None
 
     def _load_dateval(
-        self, element: ElementTree.Element, value_attribute_name: str
+        self,
+        element: ElementTree.Element,
+        value_attribute_name: str,
+        *,
+        fuzzy: bool = False,
     ) -> Date | None:
         dateval = str(element.get(value_attribute_name))
         if self._date_pattern.fullmatch(dateval):
@@ -735,11 +738,10 @@ class GrampsLoader:
                 )
                 for part in dateval.split("-", 2)
             ]
-            date = Date(*date_parts)
             dateval_quality = element.get("quality")
             if dateval_quality == "estimated":
-                date.fuzzy = True
-            return date
+                fuzzy = True
+            return Date(*date_parts, fuzzy=fuzzy)
         return None
 
     async def _load_notes(self, database: ElementTree.Element) -> None:

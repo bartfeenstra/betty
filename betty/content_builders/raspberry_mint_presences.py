@@ -11,7 +11,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
-from betty.datas.aggregate.collection.sequence import SequenceDefinition
+from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.entities.event import Event
 from betty.factory import DataManufacturable, Manufacturable
@@ -54,16 +54,12 @@ class PresencesData(Data, HasProps):
     .. data:: betty.content_builders.raspberry_mint_presences:PresencesData
     """
 
-    exclude = OwnerAttr(
-        SequenceDefinition(cls=list, value=MachineName, label=_("Exclude"))
-    ).optional
+    exclude = OwnerAttr(ListDefinition(value=MachineName, label=_("Exclude"))).optional
     """
     The presence roles for which to exclude presences.
     """
 
-    include = OwnerAttr(
-        SequenceDefinition(cls=list, value=MachineName, label=_("Include"))
-    ).optional
+    include = OwnerAttr(ListDefinition(value=MachineName, label=_("Include"))).optional
     """
     The presence roles for which to include presences.
     """

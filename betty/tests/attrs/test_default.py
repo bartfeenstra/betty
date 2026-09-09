@@ -38,17 +38,12 @@ class TestDefaultAttr:
         assert _Owner().my_first_attr == default
 
 
-class _CollectionDefinition(CollectionDefinition[MutableSequence[str], Iterable[str]]):
+class _CollectionDefinition(
+    CollectionDefinition[MutableSequence[str], str, Iterable[str]]
+):
     def __init__(self):
         super().__init__(
-            label="-", item=StrDefinition(label="-"), factory=lambda: ["Hello, world!"]
+            label="-",
+            item=StrDefinition(label="-"),
+            factory=lambda _: ["Hello, world!"],
         )
-
-    @override
-    def clear(self, data: MutableSequence[str], /) -> None:
-        data.clear()
-
-    @override
-    def replace(self, data: MutableSequence[str], values: Iterable[str], /) -> None:
-        data.clear()
-        data.extend(values)

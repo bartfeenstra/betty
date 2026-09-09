@@ -24,8 +24,8 @@ from betty.content_builder import (
 from betty.content_builders.render import Render, RenderData
 from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
-from betty.datas.aggregate.collection.mapping import MappingDefinition
-from betty.datas.aggregate.collection.sequence import SequenceDefinition
+from betty.datas.aggregate.collection.dict import DictDefinition
+from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.enum import EnumDefinition
 from betty.datas.int import IntDefinition
@@ -130,8 +130,7 @@ class ColumnsData(Data, HasProps):
     _width: ColumnsWidth
 
     content = OwnerAttr(
-        SequenceDefinition(
-            cls=list,
+        ListDefinition(
             value=PluginManufacturerSequenceDefinition(
                 ContentBuilderManufacturer, label=_("Column content")
             ),
@@ -150,16 +149,13 @@ class ColumnsData(Data, HasProps):
     """
 
     width = OwnerAttr(
-        MappingDefinition(
-            cls=dict,
+        DictDefinition(
             key=EnumDefinition(
                 cls=Breakpoint,
                 label=_("Breakpoint"),
             ),
-            value=SequenceDefinition(
-                cls=list,
-                label=_("Column widths"),
-                value=IntDefinition(label=_("Column width")),
+            value=ListDefinition(
+                label=_("Column widths"), value=IntDefinition(label=_("Column width"))
             ),
             label=_("Breakpoints"),
             porter=CallbackPorter(

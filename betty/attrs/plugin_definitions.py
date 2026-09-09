@@ -58,7 +58,9 @@ def new_plugin_definition_datas_attr[PluginDefinitionT: PluginDefinition](
             ](
                 value=item,
                 label=plugin_type.type().label_plural,
-                factory=lambda: MutableKeyedCollectionAdapter(key=lambda item: item.id),
+                factory=lambda values: MutableKeyedCollectionAdapter(
+                    values or (), key=lambda item: item.id
+                ),
             ),
             label=label,
             description=description,
