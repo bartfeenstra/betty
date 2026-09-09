@@ -21,15 +21,12 @@ if TYPE_CHECKING:
     from betty.typing import Intersection
 
 
-type ResolvableDataPorter[DataDefinitionT: DataDefinition, PorterT: Porter = Porter] = (
-    PorterT | Callable[[DataDefinitionT], PorterT]
+type ResolvableDataPorter[DataDefinitionT: DataDefinition, DataT] = (
+    Porter[DataT] | Callable[[DataDefinitionT], Porter[DataT]]
 )
 
 
-class DataDefinition[DataT, PorterT: Porter = Porter](
-    HumanFacingDefinition,
-    OptionalClsDefinition[DataT],
-):
+class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT]):
     """
     A data definition.
     """
@@ -40,8 +37,7 @@ class DataDefinition[DataT, PorterT: Porter = Porter](
         cls: type[DataT] | None = None,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        porter: ResolvableDataPorter[Self, Intersection[PorterT, Porter[DataT]]]
-        | None = None,
+        porter: ResolvableDataPorter[Self, DataT] | None = None,
         samples: Iterable[
             Callable[[], Sample[DataT]]
             | Samples[DataT]
@@ -50,10 +46,10 @@ class DataDefinition[DataT, PorterT: Porter = Porter](
         **kwargs: Any,
     ):
         self.__samples = tuple(samples)
-        self._porter = LazyReCallable(
+        self.__porter = LazyReCallable[Porter[DataT]](
             lambda: (
                 porter(self) if porter and not isinstance(porter, Porter) else porter
-            )
+            )  # ty:ignore[invalid-argument-type]
         )
         super().__init__(
             *args,
@@ -65,7 +61,7 @@ class DataDefinition[DataT, PorterT: Porter = Porter](
 
     @final
     @property
-    def porter(self) -> Intersection[PorterT, Porter[DataT]]:
+    def porter(self) -> Porter[DataT]:
         """
         The porter for the data.
         """
@@ -75,11 +71,11 @@ class DataDefinition[DataT, PorterT: Porter = Porter](
 
     @final
     @property
-    def try_porter(self) -> Intersection[PorterT, Porter[DataT]] | None:
+    def try_porter(self) -> Porter[DataT] | None:
         """
         The porter for the data, if it has one.
         """
-        return self._porter()
+        return self.__porter()
 
     @override
     def _set_cls(self, cls: type[DataT], /) -> None:

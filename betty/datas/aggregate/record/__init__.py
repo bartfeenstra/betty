@@ -18,7 +18,6 @@ from betty.data import (
 )
 from betty.indicator.operator import Attr, Key
 from betty.localizable import resolve_localizable
-from betty.portable import PortableData, Porter
 from betty.portable.error import NotPortable
 
 if TYPE_CHECKING:
@@ -26,6 +25,7 @@ if TYPE_CHECKING:
 
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.nothing import NothingType
+    from betty.portable import PortableData
     from betty.typing import Intersection
 
 
@@ -50,18 +50,13 @@ class FieldPorter[OwnerT, DataT, FieldPorterLoadDataT = Any](metaclass=ABCMeta):
         """
 
 
-type ResolvableFieldPorter[FieldPorterT: FieldPorter = FieldPorter] = (
-    FieldPorterT | Callable[[FieldDefinition], FieldPorterT]
+type ResolvableFieldPorter[OwnerT, DataT] = (
+    FieldPorter[OwnerT, DataT] | Callable[[FieldDefinition], FieldPorter[OwnerT, DataT]]
 )
 
 
 @final
-class FieldDefinition[
-    OwnerT,
-    DataT,
-    DataDefinitionT: DataDefinition = DataDefinition,
-    FieldPorterT: FieldPorter = FieldPorter,
-]:
+class FieldDefinition[OwnerT, DataT, DataDefinitionT: DataDefinition = DataDefinition]:
     """
     A record field definition.
     """
@@ -75,10 +70,7 @@ class FieldDefinition[
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
         optional: bool = False,
-        porter: ResolvableFieldPorter[
-            Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]]
-        ]
-        | None = None,
+        porter: ResolvableFieldPorter[OwnerT, DataT] | None = None,
     ):
         from betty.porters.porter_field import PorterFieldPorter
 
@@ -110,13 +102,13 @@ class FieldDefinition[
 
         if porter is None:
             if data_porter := self.data.try_porter:
-                porter: FieldPorterT = PorterFieldPorter(data_porter)  # ty:ignore[invalid-assignment]
+                porter = PorterFieldPorter(data_porter)
         elif not isinstance(porter, FieldPorter):
-            porter: FieldPorterT = porter(self)
-        self._porter = porter
+            porter = porter(self)
+        self._porter: FieldPorter[OwnerT, DataT] = porter  # ty:ignore[invalid-assignment]
 
     @property
-    def porter(self) -> Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]]:
+    def porter(self) -> FieldPorter[OwnerT, DataT]:
         """
         The porter for the data.
         """
@@ -125,9 +117,7 @@ class FieldDefinition[
         return self._porter
 
     @property
-    def try_porter(
-        self,
-    ) -> Intersection[FieldPorterT, FieldPorter[OwnerT, DataT]] | None:
+    def try_porter(self) -> FieldPorter[OwnerT, DataT] | None:
         """
         The porter for the data, if it has one.
         """
@@ -138,21 +128,15 @@ type ResolvableFieldDefinition[
     OwnerT,
     DataT,
     DataDefinitionT: DataDefinition = DataDefinition,
-    FieldPorterT: FieldPorter = FieldPorter,
 ] = (
-    FieldDefinition[OwnerT, DataT, DataDefinitionT, FieldPorterT]
+    FieldDefinition[OwnerT, DataT, DataDefinitionT]
     | ResolvableDataDefinition[DataDefinitionT]
 )
 
 
-def resolve_field_definition[
-    OwnerT,
-    DataT,
-    DataDefinitionT: DataDefinition,
-    FieldPorterT: FieldPorter,
-](
-    field: ResolvableFieldDefinition[OwnerT, DataT, DataDefinitionT, FieldPorterT],
-) -> FieldDefinition[OwnerT, DataT, DataDefinitionT, FieldPorterT]:
+def resolve_field_definition[OwnerT, DataT, DataDefinitionT: DataDefinition](
+    field: ResolvableFieldDefinition[OwnerT, DataT, DataDefinitionT],
+) -> FieldDefinition[OwnerT, DataT, DataDefinitionT]:
     """
     Resolve a value to a field definition.
     """
@@ -161,9 +145,7 @@ def resolve_field_definition[
     return FieldDefinition(resolve_data_definition(field))
 
 
-class RecordDefinition[DataT, OperatorT: FieldOperator, PorterT: Porter = Porter](
-    DataDefinition[DataT, PorterT]
-):
+class RecordDefinition[DataT, OperatorT: FieldOperator](DataDefinition[DataT]):
     """
     A record data definition.
 
@@ -181,8 +163,7 @@ class RecordDefinition[DataT, OperatorT: FieldOperator, PorterT: Porter = Porter
         description: ResolvableLocalizable | None = None,
         samples: Iterable[Callable[[], Sample[DataT]] | Samples] = (),
         factory: Callable[..., DataT] | None = None,
-        porter: ResolvableDataPorter[Self, Intersection[PorterT, Porter[DataT]]]
-        | None = None,
+        porter: ResolvableDataPorter[Self, DataT] | None = None,
         **kwargs: Any,
     ):
         from betty.porters.fields import FieldsPorter

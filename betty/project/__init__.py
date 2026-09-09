@@ -97,7 +97,6 @@ from betty.plugin.resolve import (
     ResolvablePluginId,
     resolve_plugin_id,
 )
-from betty.portable import KeyedPorter
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter
 from betty.porters.omit_field import OmitFieldPorter
@@ -647,11 +646,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         ),
     ],
 )
-class ProjectLocale(
-    Data[ObjectDefinition["ProjectLocale", KeyedPorter["ProjectLocale"]]],
-    HasProps,
-    Frozen,
-):
+class ProjectLocale(Data[ObjectDefinition["ProjectLocale"]], HasProps, Frozen):
     """
     A locale to use for a project.
 

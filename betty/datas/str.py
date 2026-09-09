@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, final
 
 from betty.assertions.str import assert_str
 from betty.data import DataDefinition
-from betty.portable import Porter
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
@@ -16,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @final
-class StrDefinition(DataDefinition[str, Porter[str]]):
+class StrDefinition(DataDefinition[str]):
     """
     A string data definition.
     """

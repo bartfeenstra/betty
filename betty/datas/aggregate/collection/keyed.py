@@ -25,7 +25,6 @@ if TYPE_CHECKING:
     )
     from betty.localizable import ResolvableLocalizable
     from betty.portable import (
-        KeyedPorter,
         PortableData,
         PortableMapping,
         PortableSequence,
@@ -44,7 +43,7 @@ class KeyedCollectionDefinition[
         self,
         *,
         cls: type[MutableKeyedCollection] | None = None,
-        value: ResolvableDataDefinition[DataDefinition[ValueT, KeyedPorter[ValueT]]],
+        value: ResolvableDataDefinition[DataDefinition[ValueT]],
         order_dump: bool = False,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,

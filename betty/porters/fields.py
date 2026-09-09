@@ -20,7 +20,7 @@ class FieldsPorter[DataT](Porter[DataT]):
     Load and dump a record using its fields.
     """
 
-    def __init__(self, record: RecordDefinition[DataT, Any, Porter], /):
+    def __init__(self, record: RecordDefinition[DataT, Any], /):
         self._record = record
         self._load = assert_record(*[
             Field(operator.operator, field_porter.load, optional=field.optional)

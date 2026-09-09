@@ -18,7 +18,7 @@ class DataDefinitionProxyPorter[DataT](Porter[DataT]):
     Proxy a data definition's porter.
     """
 
-    def __init__(self, data: DataDefinition[DataT, Porter[DataT]], /):
+    def __init__(self, data: DataDefinition[DataT], /):
         self._data = data
 
     @override

@@ -40,7 +40,7 @@ class LocalizableDefinition(DataDefinition[Localizable], Singleton):
         )
 
 
-class _LocalizablePorter(Porter[StaticTranslations]):
+class _LocalizablePorter(Porter[Localizable]):
     load = override(
         assert_if_else(
             assert_str().pipe(lambda translation: {None: translation}),

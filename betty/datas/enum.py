@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, final
 
 from betty.assertions.enum import assert_enum
 from betty.data import DataDefinition
-from betty.portable import Porter
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
@@ -17,9 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class EnumDefinition[EnumT: Enum[bool | int | float | str]](
-    DataDefinition[EnumT, Porter[EnumT]]
-):
+class EnumDefinition[EnumT: Enum](DataDefinition[EnumT]):
     """
     An enum data definition.
     """

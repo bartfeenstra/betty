@@ -224,7 +224,9 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
     @classmethod
     def _dump_data(cls, configuration: Data | PortableData) -> PortableData:
         if isinstance(configuration, Data):
-            return configuration.data().porter.dump(configuration)
+            return configuration.data().porter.dump(
+                configuration,  # ty:ignore[invalid-argument-type]
+            )
         return configuration
 
     @override
@@ -246,10 +248,7 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
 
 @final
 class PluginManufacturerDefinition[PluginDefinitionT: PluginClsDefinition, PluginT](
-    ObjectDefinition[
-        PluginManufacturer[PluginDefinitionT, PluginT],
-        KeyedPorter[PluginManufacturer[PluginDefinitionT, PluginT]],
-    ]
+    ObjectDefinition[PluginManufacturer[PluginDefinitionT, PluginT]]
 ):
     """
     Define a plugin manufacturer.
