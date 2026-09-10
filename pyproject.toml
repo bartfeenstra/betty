@@ -339,7 +339,7 @@ betty = 'betty.console:main_from_environment'
 setuptools = [
     'build ~= 1.3',
     'twine ~= 7.0',
-    'wheel ~= 0.47.0',
+    'wheel ~= 0.48.0',
 ]
 test = [
     # Work around https://github.com/pnuckowski/aioresponses/issues/289.
