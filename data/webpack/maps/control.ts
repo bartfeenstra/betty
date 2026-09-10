@@ -9,7 +9,7 @@ import Point from "ol/geom/Point"
 import VectorSource from "ol/source/Vector"
 import Feature from "ol/Feature"
 import { AnimationOptions } from "ol/View"
-import { getTranslationFromShorthandStatic } from "@betty.py/betty/locale/localizable.ts"
+import { getTranslationFromResolvableStatic } from "@betty.py/betty/locale/localizable.ts"
 
 /**
  * @internal
@@ -92,7 +92,7 @@ class SelectedPlace extends OpenLayersControl {
 
     public constructor(map: Map, selectedPlaceSource: VectorSource) {
         super({
-            element: htmlToElement(getTranslationFromShorthandStatic(map.options.selectedPlaceHtml, map.locale)),
+            element: htmlToElement(getTranslationFromResolvableStatic(map.options.selectedPlaceHtml, map.locale)),
         })
         this.element.classList.add("map-selected-place")
         this.inner = this.element.getElementsByClassName("map-selected-place-content")[0] as HTMLElement

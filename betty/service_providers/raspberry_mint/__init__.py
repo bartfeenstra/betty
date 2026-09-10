@@ -58,7 +58,7 @@ from betty.services.simple import service
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping, Sequence
 
-    from betty.content_builders.raspberry_mint_columns import ShorthandColumnsWidth
+    from betty.content_builders.raspberry_mint_columns import ResolvableColumnsWidth
     from betty.job.scheduler import Scheduler
     from betty.pathlib import StrPath
 
@@ -393,7 +393,7 @@ class JustifyContent(Enum):
     EVENLY = "evenly"
 
 
-single_column_text_width: Final[ShorthandColumnsWidth] = {
+single_column_text_width: Final[ResolvableColumnsWidth] = {
     Breakpoint.XS: 12,
     Breakpoint.LG: 11,
     Breakpoint.XL: 10,

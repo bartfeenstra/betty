@@ -7,7 +7,7 @@ from betty.localizable import (
     CountableLocalizable,
     Localizable,
     LocalizableCount,
-    ShorthandCountableStaticTranslations,
+    ResolvableCountableStaticTranslations,
     StaticTranslationsMapping,
     resolve_countable_localizable,
     resolve_localizable,
@@ -66,7 +66,7 @@ def test_resolve_countable_localizable__with_localizable() -> None:
 
 
 def test_resolve_countable_localizable__with_mapping() -> None:
-    localizable: ShorthandCountableStaticTranslations = {
+    localizable: ResolvableCountableStaticTranslations = {
         default_locale_tag: {
             "one": "{count} world",
             "other": "{count} worlds",

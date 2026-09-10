@@ -27,7 +27,7 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
     from betty.localizable import (
-        ShorthandStaticTranslations,
+        ResolvableStaticTranslations,
     )
 
 
@@ -55,7 +55,7 @@ class TestLocalizableDefinition:
         )
 
     def test_dump__with_static_translations(self) -> None:
-        localizable: ShorthandStaticTranslations = {
+        localizable: ResolvableStaticTranslations = {
             default_locale_tag: "Hello, world!",
             "nl-NL": "Hallo, wereld!",
         }

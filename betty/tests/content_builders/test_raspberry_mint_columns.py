@@ -5,7 +5,7 @@ from betty.content_builders.raspberry_mint_columns import (
     Columns,
     ColumnsData,
     ColumnsWidth,
-    ShorthandColumnsWidth,
+    ResolvableColumnsWidth,
 )
 from betty.content_builders.render import Render, RenderData
 from betty.document import Document
@@ -32,7 +32,7 @@ class TestColumnsData(DataTestBase[ColumnsData]):
             ({Breakpoint.XS: [7]}, {Breakpoint.XS: [7]}),
         ],
     )
-    def test_width(self, expected: ColumnsWidth, width: ShorthandColumnsWidth) -> None:
+    def test_width(self, expected: ColumnsWidth, width: ResolvableColumnsWidth) -> None:
         assert (
             ColumnsData(
                 [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
