@@ -22,8 +22,8 @@ from betty.localizable import (
     CountableStaticTranslationsMapping,
     Localizable,
     LocalizableCount,
-    ShorthandCountableStaticTranslations,
-    ShorthandStaticTranslations,
+    ResolvableCountableStaticTranslations,
+    ResolvableStaticTranslations,
     StaticTranslationsMapping,
 )
 from betty.localizables.gettext import _
@@ -46,7 +46,7 @@ class CountableStaticTranslations(CountableLocalizable):
 
     __slots__ = ("translations",)
 
-    def __init__(self, translations: ShorthandCountableStaticTranslations, /):
+    def __init__(self, translations: ResolvableCountableStaticTranslations, /):
         assert_len(minimum=1)(translations)
         self.translations: Final[CountableStaticTranslationsMapping] = {
             self._ensure_locale(locale, locale_translations): locale_translations
@@ -206,7 +206,7 @@ class StaticTranslations(Localizable):
 
     __slots__ = ("translations",)
 
-    def __init__(self, translations: ShorthandStaticTranslations, /):
+    def __init__(self, translations: ResolvableStaticTranslations, /):
         """
         :param translations: Keys are locales, values are translations.
         """

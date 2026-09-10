@@ -146,7 +146,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-type ShorthandStaticTranslations = (
+type ResolvableStaticTranslations = (
     Mapping[ResolvableLocale | None, str] | str | StaticTranslationsMapping
 )
 """
@@ -168,7 +168,9 @@ See :py:func:`betty.locale.localizable.assertion.assert_countable_static_transla
 """
 
 
-type ShorthandCountableStaticTranslations = Mapping[ResolvableLocale, Mapping[str, str]]
+type ResolvableCountableStaticTranslations = Mapping[
+    ResolvableLocale, Mapping[str, str]
+]
 """
 Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
 
@@ -178,14 +180,14 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-type ResolvableLocalizable = Localizable | ShorthandStaticTranslations
+type ResolvableLocalizable = Localizable | ResolvableStaticTranslations
 """
 A localizable, or a type that can be converted into a localizable with :py:func:`betty.locale.localizable.ensure_localizable`.
 """
 
 
 type ResolvableCountableLocalizable = (
-    CountableLocalizable | ShorthandCountableStaticTranslations
+    CountableLocalizable | ResolvableCountableStaticTranslations
 )
 """
 A countable localizable, or a type that can be converted into a countable localizable with :py:func:`betty.locale.localizable.ensure_countable_localizable`.

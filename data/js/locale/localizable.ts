@@ -1,7 +1,7 @@
 type StaticTranslations = Record<string, string>
-type ShorthandStaticTranslations = StaticTranslations | string
+type ResolvableStaticTranslations = StaticTranslations | string
 
-function getTranslationFromShorthandStatic(translations: ShorthandStaticTranslations, locale: string): string {
+function getTranslationFromResolvableStatic(translations: ResolvableStaticTranslations, locale: string): string {
     if (typeof translations === "string") {
         return translations
     }
@@ -17,7 +17,7 @@ function getTranslationFromShorthandStatic(translations: ShorthandStaticTranslat
 }
 
 export {
-    getTranslationFromShorthandStatic,
-    ShorthandStaticTranslations,
+    getTranslationFromResolvableStatic,
+    ResolvableStaticTranslations,
     StaticTranslations,
 }

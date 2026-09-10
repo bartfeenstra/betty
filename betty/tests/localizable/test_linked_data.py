@@ -1,7 +1,7 @@
 import pytest
 
 from betty.json_schemas.static_translations import StaticTranslationsSchema
-from betty.localizable import ShorthandStaticTranslations
+from betty.localizable import ResolvableStaticTranslations
 from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.static import StaticTranslations
 from betty.localizer import default_localizer
@@ -30,7 +30,7 @@ from betty.test_utils.conftest import AssertLinkedDataDump
 async def test_dump_linked_data(
     assert_linked_data_dump: AssertLinkedDataDump,
     expected: PortableMapping,
-    translations: ShorthandStaticTranslations,
+    translations: ResolvableStaticTranslations,
 ) -> None:
     actual = await assert_linked_data_dump(
         StaticTranslationsSchema(),

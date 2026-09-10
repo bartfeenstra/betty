@@ -8,7 +8,7 @@ class _Owner(HasProps):
     attr = new_countable_localizable_attr(label="-")
 
 
-def test_new_countable_localizable_attr____set___with_shorthand() -> None:
+def test_new_countable_localizable_attr____set___with_resolvable() -> None:
     owner = _Owner()
     translation = {
         default_locale_tag: {

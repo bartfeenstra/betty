@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from betty.jinja import Environment
 
 type ColumnsWidth = Mapping[Breakpoint, Sequence[int]]
-type ShorthandColumnsWidth = (
+type ResolvableColumnsWidth = (
     int | Sequence[int] | Mapping[Breakpoint, int] | ColumnsWidth
 )
 
@@ -182,7 +182,7 @@ class ColumnsData(Data, HasProps):
     def __init__(
         self,
         *content: Iterable[ResolvableContentBuilderManufacturer],
-        width: ShorthandColumnsWidth | None = None,
+        width: ResolvableColumnsWidth | None = None,
         justify_content: JustifyContent | None = None,
     ):
         super().__init__()

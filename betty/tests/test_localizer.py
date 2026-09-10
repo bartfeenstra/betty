@@ -10,7 +10,7 @@ from betty.localizer import Localizer, LocalizerRepository, default_localizer
 
 if TYPE_CHECKING:
     from betty.localizable import (
-        ShorthandStaticTranslations,
+        ResolvableStaticTranslations,
         StaticTranslationsMapping,
     )
 
@@ -38,11 +38,11 @@ class TestLocalizer:
         }
         assert localizer.localize(localizable) == localized
 
-    def test_localize__with_shorthand_static_translations_mapping(self) -> None:
+    def test_localize__with_resolvable_static_translations_mapping(self) -> None:
         locale = "nl-NL"
         localizer = Localizer(locale)
         localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
-        localizable: ShorthandStaticTranslations = {
+        localizable: ResolvableStaticTranslations = {
             default_locale_tag: "My First Localizable",
             locale: localized,
         }

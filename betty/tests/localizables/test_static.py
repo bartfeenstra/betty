@@ -4,8 +4,8 @@ from babel import Locale
 from betty.locale import default_locale, default_locale_tag, resolve_locale
 from betty.localizable import (
     LocalizableCount,
-    ShorthandCountableStaticTranslations,
-    ShorthandStaticTranslations,
+    ResolvableCountableStaticTranslations,
+    ResolvableStaticTranslations,
     StaticTranslationsMapping,
 )
 from betty.localizables.static import (
@@ -57,7 +57,7 @@ class TestStaticTranslations:
         ],
     )
     def test_localize__with_translations(
-        self, expected: str, locale: str, translations: ShorthandStaticTranslations
+        self, expected: str, locale: str, translations: ResolvableStaticTranslations
     ) -> None:
         sut = StaticTranslations(translations)
         localizer = Localizer(locale)
@@ -93,7 +93,7 @@ class TestStaticTranslations:
     def test_translations(
         self,
         expected: StaticTranslationsMapping,
-        translations: ShorthandStaticTranslations,
+        translations: ResolvableStaticTranslations,
     ) -> None:
         sut = StaticTranslations(translations)
         assert sut.translations == expected
@@ -177,7 +177,7 @@ class TestCountableStaticTranslations:
         expected: str,
         count: LocalizableCount,
         locale: str,
-        translations: ShorthandCountableStaticTranslations,
+        translations: ResolvableCountableStaticTranslations,
     ) -> None:
         sut = CountableStaticTranslations(translations)
         assert sut.count(count).localize(Localizer(resolve_locale(locale))) == expected

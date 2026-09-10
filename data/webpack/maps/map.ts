@@ -27,7 +27,7 @@ import Cluster from "ol/source/Cluster"
 import { BETTY } from "@betty.py/betty/main.ts"
 import { easeOut } from "ol/easing"
 import { IconAnchorUnits } from "ol/style/Icon"
-import { getTranslationFromShorthandStatic, ShorthandStaticTranslations } from "@betty.py/betty/locale/localizable.ts"
+import { getTranslationFromResolvableStatic, ResolvableStaticTranslations } from "@betty.py/betty/locale/localizable.ts"
 
 const kinetic = new Kinetic(-0.005, 0.05, 100)
 
@@ -53,10 +53,10 @@ interface MapOptions {
     viewPadding: [number, number, number, number]
     clusterMaximumFeatureDistance: number
     clusterMinimumClusterDistance: number
-    fullScreenControlButtonHtml: ShorthandStaticTranslations
-    zoomInControlButtonHtml: ShorthandStaticTranslations
-    zoomOutControlButtonHtml: ShorthandStaticTranslations
-    selectedPlaceHtml: ShorthandStaticTranslations
+    fullScreenControlButtonHtml: ResolvableStaticTranslations
+    zoomInControlButtonHtml: ResolvableStaticTranslations
+    zoomOutControlButtonHtml: ResolvableStaticTranslations
+    selectedPlaceHtml: ResolvableStaticTranslations
     markerPlaceSvg: string
     markerPlaceAnchor: [number, number]
     markerPlaceSelectedSvg: string
@@ -170,9 +170,9 @@ class Map {
             view: this.view,
         })
         if (!this.embedded) {
-            this.map.addControl(new FullScreen(getTranslationFromShorthandStatic(this.options.fullScreenControlButtonHtml, this.locale), this.map))
-            this.map.addControl(new ZoomIn(getTranslationFromShorthandStatic(this.options.zoomInControlButtonHtml, this.locale), this.viewAnimationOptions))
-            this.map.addControl(new ZoomOut(getTranslationFromShorthandStatic(this.options.zoomOutControlButtonHtml, this.locale), this.viewAnimationOptions))
+            this.map.addControl(new FullScreen(getTranslationFromResolvableStatic(this.options.fullScreenControlButtonHtml, this.locale), this.map))
+            this.map.addControl(new ZoomIn(getTranslationFromResolvableStatic(this.options.zoomInControlButtonHtml, this.locale), this.viewAnimationOptions))
+            this.map.addControl(new ZoomOut(getTranslationFromResolvableStatic(this.options.zoomOutControlButtonHtml, this.locale), this.viewAnimationOptions))
             this.map.addControl(this.selectedPlace)
             this.map.addInteraction(new DoubleClickZoom())
             this.map.addInteraction(new DragPan({
