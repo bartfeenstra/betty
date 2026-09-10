@@ -17,6 +17,7 @@ from betty import about
 from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import HumanFacingException
+from betty.factory import new
 from betty.localizables.gettext import _
 from betty.user import Severity, User, UserHandler
 
@@ -111,7 +112,7 @@ async def _create_command_parser(
     formatter_class: type[argparse.HelpFormatter],
     /,
 ) -> argparse.ArgumentParser:
-    command = await app.factory.new(command_plugin.cls)
+    command = await new(command_plugin.cls, app)
     command_parser: argparse.ArgumentParser = subparsers.add_parser(
         command.plugin().id,
         aliases=command.plugin().aliases,

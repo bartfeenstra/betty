@@ -14,11 +14,13 @@ from betty.assertions.mapping import assert_mapping
 from betty.assertions.record import Field, assert_record
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import OwnerAttr
+from betty.callback import CallbackError
 from betty.classtools import TypeABCMeta
 from betty.data import Data, DataDefinition
+from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.exception import HumanFacingException
-from betty.factory import DataManufacturable, FactoryError
+from betty.factory import new
 from betty.freezer import Frozen
 from betty.functools import Pipeline
 from betty.localizables.gettext import _
@@ -38,7 +40,7 @@ if TYPE_CHECKING:
     from betty.service_level import ServiceLevel
 
 
-class PluginManufacturerError(HumanFacingException, FactoryError):
+class PluginManufacturerError(HumanFacingException, CallbackError):
     """
     Raised when a plugin manufacturer could not create a new plugin instance.
     """
@@ -105,7 +107,7 @@ class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
             await services.plugins[self.data().plugin_type][self.plugin_id]
         ).cls  # ty:ignore[unresolved-attribute]
         if self.plugin_data is Nothing:
-            return await services.factory.new(plugin_cls)
+            return await new(plugin_cls, services)
         if not issubclass(plugin_cls, DataManufacturable):
             raise PluginManufacturerError(
                 _(

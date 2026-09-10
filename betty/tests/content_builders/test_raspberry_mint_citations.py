@@ -6,6 +6,7 @@ from betty.entities.citation import Citation
 from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entities.source import Source
+from betty.factory import new
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.entity.associations.has_citations import DummyHasCitations
 
@@ -25,7 +26,7 @@ class TestCitations:
         self, resource: object, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory(supported_plugins=[Citations]) as project:
-            sut = await project.factory.new(Citations)
+            sut = await new(Citations, project)
         assert await sut.build(document=Document(resource)) is None
 
     async def test_build_template__with_citation(
@@ -34,7 +35,7 @@ class TestCitations:
         citation = Citation(source=Source())
         resource = DummyHasCitations(citations=[citation])
         async with isolated_project_factory(supported_plugins=[Citations]) as project:
-            sut = await project.factory.new(Citations)
+            sut = await new(Citations, project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
         assert 'href="#reference-1"' in actual

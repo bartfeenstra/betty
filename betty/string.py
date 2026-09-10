@@ -75,3 +75,28 @@ def kebab_case_to_lower_camel_case(string: str, /) -> str:
             for substring in string.split("-")
         )
     )
+
+
+def _join_natural(glue: str, *parts: str) -> str:
+    part_count = len(parts)
+    if part_count > 2:
+        return f"{', '.join(parts[:-1])}, {glue} {parts[-1]}"
+    if part_count > 1:
+        return f"{parts[0]} {glue} {parts[-1]}"
+    if part_count == 1:
+        return parts[0]
+    return ""
+
+
+def join_and(*parts: str) -> str:
+    """
+    An enumeration where all of the parts are applicable.
+    """
+    return _join_natural("and", *parts)
+
+
+def join_or(*parts: str) -> str:
+    """
+    An enumeration where any of the parts may be applicable.
+    """
+    return _join_natural("or", *parts)

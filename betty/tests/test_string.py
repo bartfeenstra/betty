@@ -3,6 +3,8 @@ import pytest
 from betty.string import (
     camel_case_to_kebab_case,
     camel_case_to_snake_case,
+    join_and,
+    join_or,
     kebab_case_to_lower_camel_case,
     kebab_case_to_snake_case,
     snake_case_to_kebab_case,
@@ -152,3 +154,17 @@ async def test_kebab_case_to_snake_case(expected: str, string: str) -> None:
 )
 async def test_snake_case_to_kebab_case(expected: str, string: str) -> None:
     assert expected == snake_case_to_kebab_case(string)
+
+
+def test_join_and() -> None:
+    assert join_and() == ""
+    assert join_and("Foo") == "Foo"
+    assert join_and("Foo", "Bar") == "Foo and Bar"
+    assert join_and("Foo", "Bar", "Baz") == "Foo, Bar, and Baz"
+
+
+def test_join_or() -> None:
+    assert join_or() == ""
+    assert join_or("Foo") == "Foo"
+    assert join_or("Foo", "Bar") == "Foo or Bar"
+    assert join_or("Foo", "Bar", "Baz") == "Foo, Bar, or Baz"

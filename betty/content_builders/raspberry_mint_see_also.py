@@ -10,7 +10,7 @@ from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.associations.has_links import HasLinks
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
 
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     label=_("See also"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class SeeAlso(Template, Manufacturable):
+class SeeAlso(Template, Arg1Manufacturable):
     """
     "See also" links.
 

@@ -2,6 +2,7 @@ import pytest
 
 from betty.exception import (
     HumanFacingException,
+    capture_group,
     do_raise,
     reraise_with_indicator,
 )
@@ -88,3 +89,65 @@ def test_reraise_with_indicator__with_contexts() -> None:
     ):
         raise HumanFacingException("-")
     assert exc_info.value.indicators == [context]
+
+
+def test_capture_group__without_exceptions() -> None:
+    with capture_group(Exception, ""):
+        pass
+
+
+def test_capture_group__with_captured_exception() -> None:
+    class _Exception(Exception):
+        pass
+
+    with pytest.RaisesGroup(_Exception), capture_group(_Exception, "Oops!"):
+        raise _Exception
+
+
+def test_capture_group__with_captured_exception_group() -> None:
+    class _Exception(Exception):
+        pass
+
+    class _ExceptionGroup(ExceptionGroup[_Exception]):
+        pass
+
+    with pytest.RaisesGroup(_Exception) as exc_info, capture_group(_Exception, "Oops!"):
+        raise _ExceptionGroup("", [_Exception()])
+    assert not isinstance(exc_info.value, _ExceptionGroup)
+
+
+def test_capture_group__with_nested_capture__without_exceptions() -> None:
+    with capture_group(Exception, "") as exceptions, exceptions:
+        pass
+
+
+def test_capture_group__with_nested_capture__with_captured_exception() -> None:
+    class _Exception(Exception):
+        pass
+
+    with (
+        pytest.RaisesGroup(_Exception),
+        capture_group(_Exception, "") as exceptions,
+        exceptions,
+    ):
+        raise _Exception
+
+
+def test_capture_group__with_nested_captures__with_captured_exception() -> None:
+    class _Exception(Exception):
+        pass
+
+    class _ExceptionOne(_Exception):
+        pass
+
+    class _ExceptionTwo(_Exception):
+        pass
+
+    with (
+        pytest.RaisesGroup(_ExceptionOne, _ExceptionTwo),
+        capture_group(_Exception, "") as exceptions,
+    ):
+        with exceptions:
+            raise _ExceptionOne
+        with exceptions:
+            raise _ExceptionTwo

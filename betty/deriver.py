@@ -15,6 +15,7 @@ from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.presence import Presence
 from betty.event_type import EventTypeDefinition, ShouldExistEventType
+from betty.factory import new
 from betty.localizables.gettext import _
 from betty.roles.subject import Subject
 from betty.user import Severity
@@ -164,8 +165,8 @@ class Deriver:
                     (
                         Event(
                             id=_derive_event_id(derivable_event_type, person),
-                            event_type=await self._project.factory.new(
-                                derivable_event_type.cls
+                            event_type=await new(
+                                derivable_event_type.cls, self._project
                             ),
                         ),
                         Derivation.CREATE,

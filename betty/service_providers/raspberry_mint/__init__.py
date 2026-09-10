@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
-from betty.collection.mapping import MutableResolvedMapping as MutableResolvedMapping
 from betty.collection.mapping import ResolvedMapping
 from betty.collections import _empty_frozen_mapping
 from betty.collections.mapping.adapter import (
@@ -26,6 +25,7 @@ from betty.content_builder import (
 )
 from betty.content_builders.render import Render, RenderData
 from betty.data import Data
+from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.collection.mapping import MutableMappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -37,7 +37,7 @@ from betty.datas.str import StrDefinition
 from betty.dirs import webpack_entry_point_directory
 from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException, reraise_with_indicator
-from betty.factory import DataManufacturable
+from betty.factory import new
 from betty.indicator.operator import Attr, Key
 from betty.jobs._generate_raspberry_mint_search_index import (
     _GenerateRaspberryMintSearchIndex,
@@ -187,7 +187,9 @@ class RaspberryMintData(Data, HasProps):
     },
 )
 class RaspberryMint(
-    EntryPointProvider[Project], DataManufacturable[RaspberryMintData], Generator
+    EntryPointProvider[Project],
+    DataManufacturable[Project, RaspberryMintData],
+    Generator,
 ):
     """
     .. plugin:: service-provider:raspberry-mint.
@@ -320,7 +322,7 @@ class RaspberryMint(
                     await gather(*[
                         gather(
                             *map(
-                                self.services.factory.new,
+                                lambda manufacturer: new(manufacturer, self.services),
                                 map(ContentBuilderManufacturer.resolve, region_content),
                             )
                         )

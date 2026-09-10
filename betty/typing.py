@@ -4,9 +4,10 @@ Providing typing utilities.
 
 from __future__ import annotations
 
-from typing import final
+from typing import TYPE_CHECKING, Any, TypeGuard, final
 
-type Number = int | float
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 @final
@@ -22,3 +23,12 @@ class Unreachable(NotImplementedError):
         super().__init__(
             f"This code was marked unreachable, and this line should never have been executed{'.' if reason is None else f', because {reason}.'}."
         )
+
+
+def is_lambda(value: Any, /) -> TypeGuard[Callable]:
+    """
+    Check if a value is a lambda function.
+    """
+    if not hasattr(value, "__code__"):
+        return False
+    return value.__code__.co_name == "<lambda>"

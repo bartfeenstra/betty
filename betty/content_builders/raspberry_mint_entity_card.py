@@ -10,9 +10,9 @@ from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.associations.has_file_references import HasFileReferences
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
+from betty.data.factory import DataManufacturable
 from betty.datas.entity_reference import EntityReference
 from betty.entity import ResolvableEntity, resolve
-from betty.factory import DataManufacturable
 from betty.image import is_supported_media_type
 from betty.localizables.gettext import _
 from betty.project import Project
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     label=_("Entity card"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class EntityCard(Template, DataManufacturable[EntityReference]):
+class EntityCard(Template, DataManufacturable[Project, EntityReference]):
     """
     A card featuring an entity.
 

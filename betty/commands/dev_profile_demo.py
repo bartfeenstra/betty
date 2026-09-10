@@ -10,7 +10,7 @@ from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.demo.generate import generate_with_cleanup
 from betty.demo.project import create_project
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.job import Context
 from betty.requirement import UnmetRequirement
 from betty.user import Severity
@@ -51,7 +51,7 @@ def _print(stats: YFuncStats, sort_column: str, sort_direction: str) -> None:
 @CommandDefinition(
     "dev-profile-demo", label="Profile the generation of the demonstration site"
 )
-class DevProfileDemo(Manufacturable, Command):
+class DevProfileDemo(Arg1Manufacturable[App], Command):
     """
     .. plugin:: command:dev-profile-demo.
     """

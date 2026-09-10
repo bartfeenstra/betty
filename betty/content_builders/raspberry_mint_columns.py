@@ -25,6 +25,7 @@ from betty.content_builder import (
 from betty.content_builders.render import Render, RenderData
 from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
+from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.collection.dict import DictDefinition
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -33,7 +34,7 @@ from betty.datas.int import IntDefinition
 from betty.datas.plugin.manufacturer.sequence import (
     PluginManufacturerSequenceDefinition,
 )
-from betty.factory import DataManufacturable
+from betty.factory import new
 from betty.localizables.gettext import _
 from betty.porters.callback import CallbackPorter
 from betty.project import Project
@@ -209,7 +210,7 @@ class ColumnsData(Data, HasProps):
     label=_("Columns"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Columns(Template, DataManufacturable[ColumnsData]):
+class Columns(Template, DataManufacturable[Project, ColumnsData]):
     """
     A container with one or more columns.
 
@@ -242,7 +243,7 @@ class Columns(Template, DataManufacturable[ColumnsData]):
             gather(*[
                 gather(
                     *map(
-                        project.factory.new,
+                        lambda manufacturer: new(manufacturer, project),
                         map(ContentBuilderManufacturer.resolve, column_content),
                     )
                 )

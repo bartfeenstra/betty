@@ -5,7 +5,7 @@ These instructions are focused on setting up a Betty development environment.
 Requirements
 ------------
 - **Linux**, **macOS**, or **Windows**
-- **Python 3.13+**
+- **Python 3.14+**
 - `Node.js 20+ <https://nodejs.org/>`_ (required by some plugins)
 - The `Playwright requirements <https://playwright.dev/docs/intro#system-requirements>`_ (required to run Playwright tests)
 

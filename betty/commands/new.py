@@ -10,7 +10,7 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.enrichers.deriver import Deriver
 from betty.enrichers.privatizer import Privatizer
 from betty.enrichers.wiki import Wiki as WikiEnricher
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.load import LoaderManufacturer
 from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
 from betty.locale import default_locale_tag, to_language_tag
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandDefinition("new", label=_("Create a new project"))
-class New(Manufacturable, Command):
+class New(Arg1Manufacturable[App], Command):
     """
     .. plugin:: command:new.
     """

@@ -11,7 +11,7 @@ from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.entities.citation import Citation
 from betty.entities.source import Source
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.functools import unique
 from betty.localizables.gettext import _
 from betty.project import Project
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     ),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Facts(Template, Manufacturable):
+class Facts(Template, Arg1Manufacturable[Project]):
     """
     A list of facts.
 

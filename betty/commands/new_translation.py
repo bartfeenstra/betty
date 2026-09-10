@@ -8,7 +8,7 @@ from betty.argparse import assertion_to_argument_type
 from betty.assertions.locale import assert_locale
 from betty.asset import AssetDirectoryDefinition
 from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.localizables.gettext import _
 from betty.plugin.error import PluginNotFound
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandDefinition("new-translation", label=_("Create a new translation"))
-class NewTranslation(Manufacturable, Command):
+class NewTranslation(Arg1Manufacturable[App], Command):
     """
     .. plugin:: command:new-translation.
     """

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Self, override
 from babel import Locale
 
 from betty.app import App, AppData
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.user import StaticUser
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import IsolatedAppFactory
 
 
-class _Manufacturable(Manufacturable):
+class _ServiceLevel_Manufacturable(Arg1Manufacturable):
     def __init__(self, app: App, /):
         self.app = app
 

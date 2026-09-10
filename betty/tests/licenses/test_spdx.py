@@ -9,6 +9,7 @@ import pytest
 from aiohttp import ClientSession
 from aioresponses import aioresponses
 
+from betty.factory import new
 from betty.license import LicenseDefinition
 from betty.licenses.spdx import (
     SpdxLicenseDiscoverer,
@@ -165,7 +166,7 @@ class TestSpdxLicenseDiscoverer:
         assert (
             zero_bsd_type.label.localize(default_localizer) == "BSD Zero Clause License"
         )
-        zero_bsd = await services.factory.new(zero_bsd_type.cls)
+        zero_bsd = await new(zero_bsd_type.cls, services)
         assert zero_bsd.summary.localize(default_localizer) == "BSD Zero Clause License"
         assert (
             zero_bsd.text.localize(default_localizer)

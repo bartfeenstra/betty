@@ -1,4 +1,4 @@
-from betty.typing import Unreachable
+from betty.typing import Unreachable, is_lambda
 
 
 class TestUnreachable:
@@ -7,3 +7,12 @@ class TestUnreachable:
 
     def test__with_reason(self) -> None:
         assert ", because I did an oopsie." in str(Unreachable("I did an oopsie"))
+
+
+def _not_a_lambda() -> None:
+    pass
+
+
+def test_is_lambda() -> None:
+    assert is_lambda(lambda: None)
+    assert not is_lambda(_not_a_lambda)

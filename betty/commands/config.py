@@ -7,7 +7,7 @@ from betty.app import App, AppData
 from betty.argparse import assertion_to_argument_type
 from betty.assertions.locale import assert_locale
 from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.locale import default_locale, to_language_tag
 from betty.localizables.gettext import _
 from betty.portable.file import assert_load_file, dump_file
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandDefinition("config", label=_("Configure Betty"))
-class Config(Manufacturable, Command):
+class Config(Arg1Manufacturable[App], Command):
     """
     .. plugin:: command:config.
     """

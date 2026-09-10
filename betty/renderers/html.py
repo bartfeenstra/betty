@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final, Self, override
 
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.html.url import generate_urls
 from betty.localizables.gettext import _
 from betty.localizables.markup import JoinAnd
@@ -30,7 +30,7 @@ _attributes: Final[Sequence[str]] = ("href", "src")
         "The values of the following HTML attributes will automatically be replaced with the URLs generated from them where possible: {attributes}"
     ).format(attributes=JoinAnd(*_attributes)),
 )
-class Html(Manufacturable, Renderer):
+class Html(Arg1Manufacturable[Project], Renderer):
     """
     .. plugin:: renderer:html.
     """

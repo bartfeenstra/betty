@@ -7,7 +7,7 @@ from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.demo import generate
 from betty.demo.project import create_project
-from betty.factory import Manufacturable
+from betty.factory import Arg1Manufacturable
 from betty.job import Context
 from betty.localizables.gettext import _
 from betty.servers import demo
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandDefinition("demo", label=_("Explore a demonstration site"))
-class Demo(Manufacturable, Command):
+class Demo(Arg1Manufacturable[App], Command):
     """
     .. plugin:: command:demo.
     """

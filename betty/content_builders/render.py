@@ -10,8 +10,8 @@ from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import new_media_type_attr
 from betty.content_builder import ContentBuilder, ContentBuilderDefinition
 from betty.data import Data
+from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.record.object import ObjectDefinition
-from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.media_types.plain_text import PLAIN_TEXT
 from betty.project import Project
@@ -55,7 +55,7 @@ class RenderData(Data, HasProps):
 
 @final
 @ContentBuilderDefinition("render", label=_("Rendered content"))
-class Render(DataManufacturable[RenderData], ContentBuilder):
+class Render(DataManufacturable[Project, RenderData], ContentBuilder):
     """
     .. plugin:: content-builder:render.
     """
