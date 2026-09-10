@@ -10,9 +10,9 @@ from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import new_media_type_attr
 from betty.content_builder import ContentBuilder, ContentBuilderDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
-from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.media_types.plain_text import PLAIN_TEXT
+from betty.plugin.config.factory import ConfigurableIntegratable
 from betty.project import Project
 from betty.sample import Sample, Samples, Size
 
@@ -27,10 +27,12 @@ if TYPE_CHECKING:
 @ObjectDefinition(
     label=_("Rendered content configuration"),
     samples=Samples(
-        lambda: Sample(RenderData("Hello, world!"), label="Minimal", size=Size.MINIMAL)
+        lambda: Sample(
+            RenderConfig("Hello, world!"), label="Minimal", size=Size.MINIMAL
+        )
     ),
 )
-class RenderData(Object):
+class RenderConfig(Object):
     """
     Configuration for :py:class:`betty.content_builders.render.Render`.
 
@@ -52,8 +54,10 @@ class RenderData(Object):
 
 
 @final
-@ContentBuilderDefinition("render", label=_("Rendered content"))
-class Render(DataManufacturable[RenderData], ContentBuilder):
+@ContentBuilderDefinition(
+    "render", label=_("Rendered content"), config_cls=RenderConfig
+)
+class Render(ConfigurableIntegratable[RenderConfig], ContentBuilder):
     """
     .. plugin:: content-builder:render.
     """
@@ -70,17 +74,12 @@ class Render(DataManufacturable[RenderData], ContentBuilder):
         self._renderer = renderer
 
     @override
-    @classmethod
-    def new_data_cls(cls) -> type[RenderData]:
-        return RenderData
-
-    @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: RenderData, /) -> Self:
+    async def new(cls, project: Project, config: RenderConfig, /) -> Self:
         return cls(
-            content=data.content,
-            media_type=data.media_type,
+            content=config.content,
+            media_type=config.media_type,
             renderer=await project.renderer,
         )
 

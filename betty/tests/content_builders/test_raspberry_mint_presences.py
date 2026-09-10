@@ -2,7 +2,7 @@ import pytest
 
 from betty.content_builders.raspberry_mint_presences import (
     Presences,
-    PresencesData,
+    PresencesConfig,
 )
 from betty.document import Document
 from betty.entities.event import Event
@@ -15,18 +15,18 @@ from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
 
 
-class TestPresencesData(DataTestBase[PresencesData]):
-    sut_cls = PresencesData
+class TestPresencesData(DataTestBase[PresencesConfig]):
+    sut_cls = PresencesConfig
 
     def test_include(self) -> None:
         include = ["foo"]
-        sut = PresencesData(include=include)
+        sut = PresencesConfig(include=include)
         assert sut.include is not None
         assert list(sut.include) == include
 
     def test_exclude(self) -> None:
         exclude = ["foo"]
-        sut = PresencesData(exclude=exclude)
+        sut = PresencesConfig(exclude=exclude)
         assert sut.exclude is not None
         assert list(sut.exclude) == exclude
 
@@ -85,7 +85,7 @@ class TestPresences:
         Presence(person_include, Subject(), resource)
         Presence(person_exclude, Witness(), resource)
         async with isolated_project_factory(supported_plugins=[Presences]) as project:
-            sut = await Presences.new(project, PresencesData(exclude=[Witness]))
+            sut = await Presences.new(project, PresencesConfig(exclude=[Witness]))
             actual = await sut.build(document=Document(resource))
         assert actual is not None
         assert person_include.id in actual

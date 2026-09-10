@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from betty.datas.plugin.definition.license import LicenseDefinitionData
+from betty.datas.plugin.definition.license import LicenseDefinitionConfig
 from betty.localizables.plain import Plain
 
 
 class TestLicenseDefinitionData:
     def test_summary(self) -> None:
         summary = Plain("My First Summary")
-        sut = LicenseDefinitionData(
+        sut = LicenseDefinitionConfig(
             id="-dummy",
             label="-",
             summary=summary,
@@ -17,7 +17,7 @@ class TestLicenseDefinitionData:
 
     def test_text(self) -> None:
         text = Plain("My First Summary")
-        sut = LicenseDefinitionData(id="-dummy", label="-", summary="-", text=text)
+        sut = LicenseDefinitionConfig(id="-dummy", label="-", summary="-", text=text)
         assert sut.text is text
 
     def test_new_plugin__minimal(self) -> None:
@@ -25,7 +25,7 @@ class TestLicenseDefinitionData:
         label = Plain("-")
         summary = Plain("-")
         text = Plain("-")
-        sut = LicenseDefinitionData(
+        sut = LicenseDefinitionConfig(
             id=plugin_id,
             label=label,
             summary=summary,
@@ -39,7 +39,7 @@ class TestLicenseDefinitionData:
 
     def test_new_plugin__full(self) -> None:
         description = Plain("-")
-        sut = LicenseDefinitionData(
+        sut = LicenseDefinitionConfig(
             id="my-first-license",
             label="-",
             description=description,

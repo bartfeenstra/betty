@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from betty.datas.plugin.definition.gender import GenderDefinitionData
+from betty.datas.plugin.definition.gender import GenderDefinitionConfig
 from betty.localizables.plain import Plain
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -12,7 +12,7 @@ class TestGenderDefinitionData:
         plugin_id = "my-first-gender"
         label = Plain("-")
         label_plural = Plain("-")
-        sut = GenderDefinitionData(
+        sut = GenderDefinitionConfig(
             id=plugin_id,
             label=label,
             label_plural=label_plural,
@@ -26,7 +26,7 @@ class TestGenderDefinitionData:
 
     def test_new_plugin__full(self) -> None:
         description = Plain("-")
-        sut = GenderDefinitionData(
+        sut = GenderDefinitionConfig(
             id="my-first-gender",
             label="-",
             label_plural="-",

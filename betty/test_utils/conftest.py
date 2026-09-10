@@ -64,28 +64,27 @@ if TYPE_CHECKING:
     from playwright.async_api import BrowserContext, Page
 
     from betty.asset import AssetDirectoryDefinition
+    from betty.definition import ResolvableDefinition
+    from betty.definition.id import ResolvableId
     from betty.entity import EntityDefinition
     from betty.entity.collection.pool import EntityPool
     from betty.link import LinkDefinition
     from betty.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
     from betty.load import (
-        ManufacturableLoader,
-        ManufacturableEnricher,
+        EnricherFactory,
+        LoaderFactory,
     )
     from betty.locale import ResolvableLocale
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.pathlib import StrPath
-    from betty.definition import ResolvableDefinition
-    from betty.definition.id import ResolvableId
     from betty.portable import PortableData, PortableMapping
-    from betty.server import ManufacturableServer
+    from betty.server import ServerFactory
     from betty.service_level import Plugins
     from betty.service_provider import (
-        ManufacturableServiceProvider,
+        ServiceProviderFactory,
     )
     from betty.services.plugin import SupportedPlugins
-
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.store import TransientStore
     from betty.user import User
@@ -198,17 +197,17 @@ class IsolatedProjectFactory(Protocol):
         clean_urls: bool = False,
         debug: bool = False,
         directory: StrPath | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
+        enrichers: Iterable[EnricherFactory] = (),
+        service_providers: Iterable[ServiceProviderFactory] = (),
         generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
+        loaders: Iterable[LoaderFactory] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Plugins = _empty_frozen_mapping,
-        servers: Iterable[ManufacturableServer] = (),
+        servers: Iterable[ServerFactory] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
@@ -235,17 +234,17 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         clean_urls: bool = False,
         debug: bool = False,
         directory: StrPath | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
+        enrichers: Iterable[EnricherFactory] = (),
+        service_providers: Iterable[ServiceProviderFactory] = (),
         generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
+        loaders: Iterable[LoaderFactory] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Plugins = _empty_frozen_mapping,
-        servers: Iterable[ManufacturableServer] = (),
+        servers: Iterable[ServerFactory] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
@@ -500,10 +499,10 @@ async def _assert_template(
     assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
     autoescape: bool | None = None,
     data: MutableMapping[str, Any] | None = None,
-    enrichers: Iterable[ManufacturableEnricher] = (),
-    service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
+    enrichers: Iterable[EnricherFactory] = (),
+    service_providers: Iterable[ServiceProviderFactory] = (),
     links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-    loaders: Iterable[ManufacturableLoader] = (),
+    loaders: Iterable[LoaderFactory] = (),
 ) -> AsyncIterator[tuple[str, Project]]:
     async with isolated_project_factory(
         assets=assets,
@@ -533,10 +532,10 @@ class AssertTemplateString(Protocol):
         assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
+        enrichers: Iterable[EnricherFactory] = (),
+        service_providers: Iterable[ServiceProviderFactory] = (),
         links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
+        loaders: Iterable[LoaderFactory] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         """
         Assert that a template string can be rendered.
@@ -557,10 +556,10 @@ def assert_template_string(
         assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
+        enrichers: Iterable[EnricherFactory] = (),
+        service_providers: Iterable[ServiceProviderFactory] = (),
         links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
+        loaders: Iterable[LoaderFactory] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         return _assert_template(
             isolated_project_factory,
@@ -587,10 +586,10 @@ class AssertTemplateFile(Protocol):
         assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
+        enrichers: Iterable[EnricherFactory] = (),
+        service_providers: Iterable[ServiceProviderFactory] = (),
         links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
+        loaders: Iterable[LoaderFactory] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         """
         Assert that a template file can be rendered.
@@ -611,10 +610,10 @@ def assert_template_file(
         assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
+        enrichers: Iterable[EnricherFactory] = (),
+        service_providers: Iterable[ServiceProviderFactory] = (),
         links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
+        loaders: Iterable[LoaderFactory] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         return _assert_template(
             isolated_project_factory,

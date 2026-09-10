@@ -19,8 +19,8 @@ from betty.project import Project
 from betty.project.generate import generate
 from betty.servers import project_builtin
 from betty.service_provider import (
+    NewServiceProvider,
     ServiceProviderDefinition,
-    ServiceProviderManufacturer,
 )
 from betty.service_providers.maps import Maps
 from betty.test_utils import AbstractMethod
@@ -62,7 +62,7 @@ class MapsTestBase:
         async with Project.new_isolated(
             service_providers=[
                 Maps,
-                *map(ServiceProviderManufacturer.resolve, self.get_other_extensions()),
+                *map(NewServiceProvider.resolve, self.get_other_extensions()),
             ],
         ) as project:
             project.ancestry.add(

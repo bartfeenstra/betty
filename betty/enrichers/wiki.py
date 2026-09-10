@@ -8,12 +8,13 @@ from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.enrichers.populate_links import PopulateLinks
-from betty.factory import DataManufacturable, Manufacturable
 from betty.jobs.populate_wiki_entity import PopulateWikiEntity
 from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
+from betty.plugin.config.factory import ConfigurableIntegratable
 from betty.project import Project
 from betty.sample import Sample, Samples, Size
+from betty.service_level.factory import Integratable
 from betty.service_providers.wiki import Wiki as WikiExtension
 
 if TYPE_CHECKING:
@@ -24,11 +25,11 @@ if TYPE_CHECKING:
 @ObjectDefinition(
     label=_("Wiki enricher configuration"),
     samples=Samples(
-        lambda: Sample(WikiData(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(WikiData(populate_images=False), label="Full", size=Size.FULL),
+        lambda: Sample(WikiConfig(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(WikiConfig(populate_images=False), label="Full", size=Size.FULL),
     ),
 )
-class WikiData(Object):
+class WikiConfig(Object):
     """
     Configuration for the :py:class:`betty.enrichers.wiki.Wiki` enricher.
 
@@ -58,12 +59,13 @@ class WikiData(Object):
     description=_(
         "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
     ),
+    config_cls=WikiConfig,
     requires={
         Project.enrichers.require(PopulateLinks),
         Project.service_providers.require(WikiExtension),
     },
 )
-class Wiki(Enricher, DataManufacturable[WikiData], Manufacturable):
+class Wiki(Enricher, ConfigurableIntegratable[WikiConfig], Integratable):
     """
     .. plugin:: enricher:wiki.
 
@@ -86,16 +88,11 @@ class Wiki(Enricher, DataManufacturable[WikiData], Manufacturable):
         self._populate_images = True if populate_images is None else populate_images
 
     @override
-    @classmethod
-    def new_data_cls(cls) -> type[WikiData]:
-        return WikiData
-
-    @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: WikiData | None = None, /) -> Self:
+    async def new(cls, project: Project, config: WikiConfig | None = None, /) -> Self:
         return cls(
-            populate_images=None if data is None else data.populate_images,
+            populate_images=None if config is None else config.populate_images,
             project=project,
         )
 

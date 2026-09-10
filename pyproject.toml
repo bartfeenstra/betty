@@ -130,7 +130,7 @@ betty = 'betty.console:main_from_environment'
 'update-translations' = 'betty.commands.update_translations:UpdateTranslations'
 
 [project.entry-points.'betty.copyright_notice']
-'project-author' = 'betty.copyright_notices.project_author:ProjectAuthor'
+'project-author' = 'betty.copyright_notices.project_author:_discover'
 'project-configuration' = 'betty.project._plugin_discovery:_discover_copyright_notices'
 'public-domain' = 'betty.copyright_notices.public_domain:PublicDomain'
 'streetmix' = 'betty.copyright_notices.streetmix:Streetmix'

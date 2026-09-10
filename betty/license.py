@@ -11,12 +11,6 @@ from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.cls import ClsDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.factory import (
-    ManufacturablePlugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
-    ResolvablePluginManufacturer,
-)
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable, ResolvableLocalizable
@@ -78,20 +72,3 @@ class LicenseDefinition(
         super().__init__(
             license_id, label=label, description=description, requires=requires
         )
-
-
-@final
-@PluginManufacturerDefinition(LicenseDefinition)
-class LicenseManufacturer(PluginManufacturer[LicenseDefinition, License]):
-    """
-    The license manufacturer.
-    """
-
-
-type ResolvableLicenseManufacturer = ResolvablePluginManufacturer[
-    LicenseDefinition, LicenseManufacturer
-]
-
-type ManufacturableLicense = ManufacturablePlugin[
-    LicenseDefinition, LicenseManufacturer, License
-]

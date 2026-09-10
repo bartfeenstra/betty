@@ -10,7 +10,7 @@ from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
+from betty.plugin.cls.factory import NewPlugin, NewPluginDefinition
 
 if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
@@ -48,8 +48,8 @@ class JinjaFilterDefinition(ClsDefinition[JinjaFilter], PluginDefinition):
 
 
 @final
-@PluginManufacturerDefinition(JinjaFilterDefinition)
-class JinjaFilterManufacturer(PluginManufacturer[JinjaFilterDefinition, JinjaFilter]):
+@NewPluginDefinition(JinjaFilterDefinition)
+class NewJinjaFilter(NewPlugin[JinjaFilterDefinition, JinjaFilter]):
     """
-    The Jinja filter manufacturer.
+    The Jinja filter factory.
     """

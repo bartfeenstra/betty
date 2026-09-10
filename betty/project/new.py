@@ -14,11 +14,11 @@ from betty.user import Severity
 if TYPE_CHECKING:
     from betty.app import App
     from betty.pathlib import StrPath
-    from betty.project import ProjectData
+    from betty.project import ProjectConfig
 
 
 async def new(
-    app: App, configuration: ProjectData, configuration_file: StrPath, /
+    app: App, configuration: ProjectConfig, configuration_file: StrPath, /
 ) -> None:
     """
     Create a new project.

@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import final, override
 
 from betty.collections.keyed.error import ErroringKeyedCollection
-from betty.machine_name import MachineName
+from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery import PluginDiscoverer
 
@@ -24,6 +24,6 @@ class PluginDiscovererCollection(
 
     @override
     def __getitem__[DefinitionT: PluginDefinition = PluginDefinition](
-        self, key: type[DefinitionT] | MachineName | str
+        self, key: type[DefinitionT] | ResolvableMachineName
     ) -> PluginDiscoverer[DefinitionT]:
         return super().__getitem__(key)  # ty:ignore[invalid-return-type]

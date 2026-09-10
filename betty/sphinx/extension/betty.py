@@ -21,7 +21,6 @@ from betty.datas.aggregate.record import RecordDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.factory import DataManufacturable
 from betty.functools import Result
 from betty.importlib import import_any
 from betty.localizer import default_localizer
@@ -143,8 +142,8 @@ class _PluginDirective(SphinxDirective):
         self, plugin: Intersection[PluginDefinition, ClsDefinition], plugins: _Plugins
     ) -> list[nodes.Node]:
         cls = plugin.cls
-        if issubclass(cls, DataManufacturable):
-            configuration_content = f":py:class:`{cls.new_data_cls().__name__} <{cls.new_data_cls().__module__}.{cls.new_data_cls().__qualname__}>`"
+        if issubclass(cls, ConfigurablePlugin.__value__):
+            configuration_content = f":py:class:`{cls.plugin().config_cls.__name__} <{cls.plugin().config_cls.__module__}.{cls.plugin().config_cls.__qualname__}>`"
         else:
             configuration_content = "*not configurable*"
         content = f"""
@@ -332,7 +331,7 @@ Data
             for field_selector, field in sorted(
                 data.fields.items(),
                 key=lambda field: (
-                    isinstance(field[1].data, OptionalDefinition),
+                    isinstance(field[1].config, OptionalDefinition),
                     field[0].element,
                 ),
             ):

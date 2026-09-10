@@ -10,10 +10,10 @@ from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.life_cycle import LifeCycle
 from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.factory import (
+from betty.plugin.cls.factory import (
     ManufacturablePlugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
+    NewPlugin,
+    NewPluginDefinition,
 )
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
@@ -80,13 +80,13 @@ class DummyPluginWithLifeCycle(DummyPlugin, LifeCycle):
 
 
 @final
-@PluginManufacturerDefinition(DummyPluginDefinition)
-class DummyPluginManufacturer(PluginManufacturer[DummyPluginDefinition, DummyPlugin]):
+@NewPluginDefinition(DummyPluginDefinition)
+class NewDummyPlugin(NewPlugin[DummyPluginDefinition, DummyPlugin]):
     """
-    The dummy plugin manufacturer.
+    The dummy plugin factory.
     """
 
 
 type ManufacturableDummyPlugin = ManufacturablePlugin[
-    DummyPluginDefinition, DummyPluginManufacturer, DummyPlugin
+    DummyPluginDefinition, NewDummyPlugin, DummyPlugin
 ]

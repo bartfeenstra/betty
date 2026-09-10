@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.asyncio import ReAwaitable
 from betty.definition.cls import ClsDefinition
 from betty.plugin import PluginDefinition
-from betty.plugin.factory import ManufacturablePlugin, PluginManufacturer
+from betty.plugin.cls.factory import ManufacturablePlugin, NewPlugin
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
 from betty.services.plugin.instance import PluginInstanceServiceManager
@@ -22,14 +22,14 @@ class CollectionPluginInstanceServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
     DefinitionT: Intersection[PluginDefinition, ClsDefinition],
     GetServiceT,
-    PluginManufacturerT: PluginManufacturer,
+    NewPluginT: NewPlugin,
     PluginT,
 ](
     PluginInstanceServiceManager[
         OwnerT,
         DefinitionT,
         GetServiceT,
-        PluginManufacturerT,
+        NewPluginT,
         PluginT,
     ],
     CollectionPluginServiceManager[
@@ -37,7 +37,7 @@ class CollectionPluginInstanceServiceManager[
         DefinitionT,
         GetServiceT,
         ReAwaitable[PluginT],
-        ManufacturablePlugin[DefinitionT, PluginManufacturerT, PluginT],
+        ManufacturablePlugin[DefinitionT, NewPluginT, PluginT],
     ],
 ):
     """
@@ -49,7 +49,7 @@ class CollectionPluginInstanceServiceManager[
     def new_service_item(
         self,
         owner: OwnerT,
-        plugin: ManufacturablePlugin[DefinitionT, PluginManufacturerT, PluginT],
+        plugin: ManufacturablePlugin[DefinitionT, NewPluginT, PluginT],
         /,
     ) -> ReAwaitable[PluginT]:
         return self.new_plugin_instance_service_item(owner, plugin)

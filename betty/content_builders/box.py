@@ -7,23 +7,23 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.attrs.owner import OwnerAttr
-from betty.attrs.plugin_manufacturer_sequence import (
-    new_plugin_manufacturer_sequence_attr,
+from betty.attrs.new_plugin_sequence import (
+    new_new_plugin_sequence_attr,
 )
+from betty.attrs.owner import OwnerAttr
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
-    ContentBuilderManufacturer,
+    NewContentBuilder,
     ResolvableContentBuilderManufacturer,
     build,
 )
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.render import Render, RenderConfig
 from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
-from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
+from betty.plugin.config.factory import ConfigurableIntegratable, new
 from betty.project import Project
 from betty.sample import Sample, Samples, Size
 
@@ -36,10 +36,10 @@ if TYPE_CHECKING:
 @ObjectDefinition(
     label=_("Box configuration"),
     samples=Samples(
-        lambda: Sample(BoxData(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(BoxConfig(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
-            BoxData(
-                ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
+            BoxConfig(
+                NewContentBuilder(Render, RenderConfig("Hello, world!")),
                 min_height="100px",
                 max_height="1000px",
                 height="500px",
@@ -51,18 +51,16 @@ if TYPE_CHECKING:
             size=Size.FULL,
         ),
     ),
-    manufacturer=lambda **fields: BoxData(*fields.pop("content"), **fields),
+    manufacturer=lambda **fields: BoxConfig(*fields.pop("content"), **fields),
 )
-class BoxData(Object):
+class BoxConfig(Object):
     """
     Configuration for :py:class:`betty.content_builders.box.Box`.
 
     .. data:: betty.content_builders.box:BoxData
     """
 
-    content = new_plugin_manufacturer_sequence_attr(
-        ContentBuilderManufacturer, label=_("Content")
-    )
+    content = new_new_plugin_sequence_attr(NewContentBuilder, label=_("Content"))
     """
     The content within this box.
     """
@@ -95,8 +93,8 @@ class BoxData(Object):
 
 
 @final
-@ContentBuilderDefinition("box", label=_("Box"))
-class Box(Template, DataManufacturable[BoxData]):
+@ContentBuilderDefinition("box", label=_("Box"), config_cls=BoxConfig)
+class Box(Template, ConfigurableIntegratable[BoxConfig]):
     """
     .. plugin:: content-builder:box.
     """
@@ -123,31 +121,26 @@ class Box(Template, DataManufacturable[BoxData]):
         self._width = width
 
     @override
-    @classmethod
-    def new_data_cls(cls) -> type[BoxData]:
-        return BoxData
-
-    @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: BoxData, /) -> Self:
+    async def new(cls, project: Project, config: BoxConfig, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(
-                    project.factory.new,
-                    map(ContentBuilderManufacturer.resolve, data.content),
+                    lambda manufacturer: new(manufacturer, project),
+                    map(NewContentBuilder.resolve, config.content),
                 )
             ),
             project.jinja,
         )
         return cls(
             *content,
-            min_height=data.min_height,
-            max_height=data.max_height,
-            height=data.height,
-            min_width=data.min_width,
-            max_width=data.max_width,
-            width=data.width,
+            min_height=config.min_height,
+            max_height=config.max_height,
+            height=config.height,
+            min_width=config.min_width,
+            max_width=config.max_width,
+            width=config.width,
             jinja=jinja,
         )
 

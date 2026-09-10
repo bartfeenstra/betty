@@ -18,9 +18,7 @@ from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.definition.cls import ClsDefinition
-from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
 from betty.exception import HumanFacingException
-from betty.factory import DataManufacturable, Manufacturable
 from betty.gramps import (
     DEFAULT_EVENT_TYPE_MAPPING,
     DEFAULT_PLACE_TYPE_MAPPING,
@@ -32,14 +30,14 @@ from betty.load import Loader, LoaderDefinition
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.pathlib import resolve_path
-from betty.place_type import PlaceTypeManufacturer, ResolvablePlaceTypeManufacturer
 from betty.plugin import PluginDefinition
-from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
+from betty.plugin.cls.factory import NewPlugin
+from betty.plugin.config.factory import ConfigurableIntegratable
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.prop import HasProps
-from betty.role import ResolvableRoleManufacturer, RoleManufacturer
 from betty.sample import Sample, Samples, Size
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -55,23 +53,21 @@ if TYPE_CHECKING:
 
 def _new_plugin_mapping_attr[
     DefinitionT: Intersection[PluginDefinition, ClsDefinition],
-    PluginManufacturerT: PluginManufacturer,
+    NewPluginT: NewPlugin,
     PluginT,
 ](
-    manufacturer: type[PluginManufacturerT],
+    manufacturer: type[NewPluginT],
     gramps_label: ResolvableLocalizable,
-    default: Mapping[
-        str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]
-    ],
+    default: Mapping[str, ResolvablePluginManufacturer[DefinitionT, NewPluginT]],
 ) -> CommonAttr[
     HasProps,
-    MutableMapping[str, PluginManufacturerT],
-    Mapping[str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]],
+    MutableMapping[str, NewPluginT],
+    Mapping[str, ResolvablePluginManufacturer[DefinitionT, NewPluginT]],
 ]:
     return CollectionOwnerAttr[
         HasProps,
-        MutableMapping[str, PluginManufacturerT],
-        Mapping[str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]],
+        MutableMapping[str, NewPluginT],
+        Mapping[str, ResolvablePluginManufacturer[DefinitionT, NewPluginT]],
         MappingDefinition,
     ](
         FieldDefinition(
@@ -79,8 +75,8 @@ def _new_plugin_mapping_attr[
                 manufacturer=lambda values: MutableResolvedMappingAdapter[
                     str,
                     str,
-                    PluginManufacturerT,
-                    ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],
+                    NewPluginT,
+                    ResolvablePluginManufacturer[DefinitionT, NewPluginT],
                 ](
                     {} if values is None else dict(values),
                     value_resolver=manufacturer.resolve,
@@ -113,7 +109,7 @@ class FamilyTree(Object):
     """
 
     event_types = _new_plugin_mapping_attr(
-        EventTypeManufacturer, _("Gramps event type"), DEFAULT_EVENT_TYPE_MAPPING
+        NewEventType, _("Gramps event type"), DEFAULT_EVENT_TYPE_MAPPING
     )
     """
     How to map event types.
@@ -130,15 +126,13 @@ class FamilyTree(Object):
     """
 
     place_types = _new_plugin_mapping_attr(
-        PlaceTypeManufacturer, _("Gramps place type"), DEFAULT_PLACE_TYPE_MAPPING
+        NewPlaceType, _("Gramps place type"), DEFAULT_PLACE_TYPE_MAPPING
     )
     """
     How to map place types.
     """
 
-    roles = _new_plugin_mapping_attr(
-        RoleManufacturer, _("Gramps role"), DEFAULT_ROLE_MAPPING
-    )
+    roles = _new_plugin_mapping_attr(NewRole, _("Gramps role"), DEFAULT_ROLE_MAPPING)
     """
     How to map presence roles.
     """
@@ -189,21 +183,21 @@ class FamilyTree(Object):
 @ObjectDefinition(
     label=_("Gramps configuration"),
     samples=Samples(
-        lambda: Sample(GrampsData(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(GrampsConfig(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
-            GrampsData(executable="gramps.exe"),
+            GrampsConfig(executable="gramps.exe"),
             label="A custom Gramps executable",
         ),
         lambda: Sample(
-            GrampsData(family_trees=[FamilyTree(file="./gramps.gpkg")]),
+            GrampsConfig(family_trees=[FamilyTree(file="./gramps.gpkg")]),
             label="Load a family tree from a file",
         ),
         lambda: Sample(
-            GrampsData(family_trees=[FamilyTree(name="my-family-tree")]),
+            GrampsConfig(family_trees=[FamilyTree(name="my-family-tree")]),
             label="Load a family tree by its name directly from Gramps",
         ),
         lambda: Sample(
-            GrampsData(
+            GrampsConfig(
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",
@@ -214,7 +208,7 @@ class FamilyTree(Object):
             label="Map a Gramps event type to a Betty event type",
         ),
         lambda: Sample(
-            GrampsData(
+            GrampsConfig(
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",
@@ -225,7 +219,7 @@ class FamilyTree(Object):
             label="Map a Gramps place type to a Betty place type",
         ),
         lambda: Sample(
-            GrampsData(
+            GrampsConfig(
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",
@@ -237,7 +231,7 @@ class FamilyTree(Object):
         ),
     ),
 )
-class GrampsData(Object):
+class GrampsConfig(Object):
     """
     Configuration for the :py:class:`betty.loaders.gramps.Gramps` extension.
 
@@ -278,8 +272,9 @@ class GrampsData(Object):
     "gramps",
     label="Gramps",
     description=_("Load Gramps family trees."),
+    config_cls=GrampsConfig,
 )
-class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
+class Gramps(ConfigurableIntegratable[GrampsConfig], Integratable, Loader):
     """
     .. plugin:: loader:gramps.
 
@@ -566,18 +561,13 @@ class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
         self._family_trees = tuple(family_trees)
 
     @override
-    @classmethod
-    def new_data_cls(cls) -> type[GrampsData]:
-        return GrampsData
-
-    @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: GrampsData | None = None, /) -> Self:
+    async def new(cls, project: Project, config: GrampsConfig | None = None, /) -> Self:
         return cls(
             project=project,
-            executable=None if data is None else data.executable,
-            family_trees=() if data is None else data.family_trees,
+            executable=None if config is None else config.executable,
+            family_trees=() if config is None else config.family_trees,
         )
 
     @override

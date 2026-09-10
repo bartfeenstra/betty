@@ -11,10 +11,10 @@ from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.entities.citation import Citation
 from betty.entities.source import Source
-from betty.factory import Manufacturable
 from betty.functools import unique
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     ),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Facts(Template, Manufacturable):
+class Facts(Template, Integratable):
     """
     A list of facts.
 

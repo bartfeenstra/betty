@@ -35,24 +35,21 @@ from betty.collections.keyed.adapter import (
     MutableKeyedCollectionAdapter,
 )
 from betty.collections.sequence.list import ResolvedList
-from betty.copyright_notice import (
-    CopyrightNoticeDefinition,
-    CopyrightNoticeManufacturer,
-    ManufacturableCopyrightNotice,
-    ResolvableCopyrightNoticeManufacturer,
-)
+from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.collection.sequence import MutableSequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.int import IntDefinition
-from betty.datas.plugin.definition.copyright_notice import CopyrightNoticeDefinitionData
-from betty.datas.plugin.definition.event_type import EventTypeDefinitionData
-from betty.datas.plugin.definition.gender import GenderDefinitionData
-from betty.datas.plugin.definition.license import LicenseDefinitionData
-from betty.datas.plugin.definition.place_type import PlaceTypeDefinitionData
-from betty.datas.plugin.definition.role import RoleDefinitionData
+from betty.datas.plugin.definition.copyright_notice import (
+    CopyrightNoticeDefinitionConfig,
+)
+from betty.datas.plugin.definition.event_type import EventTypeDefinitionConfig
+from betty.datas.plugin.definition.gender import GenderDefinitionConfig
+from betty.datas.plugin.definition.license import LicenseDefinitionConfig
+from betty.datas.plugin.definition.place_type import PlaceTypeDefinitionConfig
+from betty.datas.plugin.definition.role import RoleDefinitionConfig
 from betty.datas.str import StrDefinition
 from betty.definition.id import ResolvableId, resolve_id
 from betty.dirs import builtin_asset_directory
@@ -69,23 +66,16 @@ from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
 from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
-from betty.license import (
-    LicenseDefinition,
-    LicenseManufacturer,
-    ManufacturableLicense,
-    ResolvableLicenseManufacturer,
-)
+from betty.license import LicenseDefinition
 from betty.licenses.all_rights_reserved import AllRightsReserved
 from betty.link import LinkDefinition
 from betty.load import (
     EnricherDefinition,
-    EnricherManufacturer,
+    EnricherFactory,
     LoaderDefinition,
-    LoaderManufacturer,
-    ManufacturableEnricher,
-    ManufacturableLoader,
-    ResolvableEnricherManufacturer,
-    ResolvableLoaderManufacturer,
+    LoaderFactory,
+    NewEnricher,
+    NewLoader,
 )
 from betty.locale import (
     ResolvableLocale,
@@ -108,16 +98,13 @@ from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
 from betty.sample import Sample, Samples, Size
-from betty.server import ManufacturableServer, ServerDefinition
-from betty.service import (
-    Service,
-)
+from betty.server import ServerDefinition, ServerFactory
+from betty.service import Service
 from betty.service_level import DownstreamServiceLevel, Plugins
 from betty.service_provider import (
-    ManufacturableServiceProvider,
-    ResolvableServiceProviderManufacturer,
+    NewServiceProvider,
     ServiceProviderDefinition,
-    ServiceProviderManufacturer,
+    ServiceProviderFactory,
 )
 from betty.services.asset import AssetRepositoryService
 from betty.services.plugin import HasPluginServices
@@ -200,20 +187,20 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         clean_urls: bool = False,
         copyright_notice: ManufacturableCopyrightNotice | None = None,
         debug: bool = False,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
+        enrichers: Iterable[EnricherFactory] = (),
+        service_providers: Iterable[ServiceProviderFactory] = (),
         generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
         license: ManufacturableLicense | None = None,  # noqa: A002
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
+        loaders: Iterable[LoaderFactory] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         localizers: TypedSynchronousServiceOrFactory[Project, LocalizerRepository]
         | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Plugins = _empty_frozen_mapping,
-        servers: Iterable[ManufacturableServer] = (),
+        servers: Iterable[ServerFactory] = (),
         supported_plugins: SupportedPlugins = (),
         _plugin_discoveries: Iterable[PluginDefinition] = (),
     ):
@@ -380,7 +367,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         self._cache_directory = self.directory / ".cache" / version_major
 
     @classmethod
-    async def new(cls, app: App, data: ProjectData, *, directory: StrPath) -> Self:
+    async def new(cls, app: App, config: ProjectConfig, *, directory: StrPath) -> Self:
         """
         Create a new instance.
         """
@@ -389,27 +376,27 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
             _plugin_discoveries=(
                 plugin.new_plugin()
                 for plugin in (
-                    *data.copyright_notices,
-                    *data.genders,
-                    *data.licenses,
-                    *data.place_types,
-                    *data.roles,
+                    *config.copyright_notices,
+                    *config.genders,
+                    *config.licenses,
+                    *config.place_types,
+                    *config.roles,
                 )
             ),
             app=app,
-            author=data.author,
-            clean_urls=data.clean_urls,
-            copyright_notice=data.copyright_notice,
-            debug=data.debug,
-            enrichers=data.enrichers,
-            license=data.license,
-            lifetime_threshold=data.lifetime_threshold,
-            loaders=data.loaders,
-            locales=data.locales,
-            logo=data.logo,
-            service_providers=data.service_providers,
-            title=data.title,
-            url=data.url,
+            author=config.author,
+            clean_urls=config.clean_urls,
+            copyright_notice=config.copyright_notice,
+            debug=config.debug,
+            enrichers=config.enrichers,
+            license=config.license,
+            lifetime_threshold=config.lifetime_threshold,
+            loaders=config.loaders,
+            locales=config.locales,
+            logo=config.logo,
+            service_providers=config.service_providers,
+            title=config.title,
+            url=config.url,
         )
 
     @classmethod
@@ -427,19 +414,19 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         clean_urls: bool = False,
         debug: bool = False,
         directory: StrPath | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
+        enrichers: Iterable[EnricherFactory] = (),
         generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
+        service_providers: Iterable[ServiceProviderFactory] = (),
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
+        loaders: Iterable[LoaderFactory] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         localizers: TypedSynchronousServiceOrFactory[Project, LocalizerRepository]
         | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Plugins = _empty_frozen_mapping,
-        servers: Iterable[ManufacturableServer] = (),
+        servers: Iterable[ServerFactory] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
@@ -673,45 +660,45 @@ class ProjectLocale(Object, Frozen):
     label=_("Project configuration"),
     samples=Samples(
         lambda: Sample(
-            ProjectData(title="Betty", url="https://example.com"),
+            ProjectConfig(title="Betty", url="https://example.com"),
             label="Minimal",
             size=Size.MINIMAL,
         ),
         lambda: Sample(
-            ProjectData(
+            ProjectConfig(
                 author="Bart Feenstra",
                 clean_urls=True,
-                copyright_notice=CopyrightNoticeManufacturer.definition.samples.get(
+                copyright_notice=NewCopyrightNotice.definition.samples.get(
                     Size.FULL
                 ).subject,
                 copyright_notices=[
-                    CopyrightNoticeDefinitionData.definition.samples.get(
+                    CopyrightNoticeDefinitionConfig.definition.samples.get(
                         Size.FULL
                     ).subject
                 ],
                 debug=True,
                 generate_entity_list_html=["person", "place"],
                 event_types=[
-                    EventTypeDefinitionData.definition.samples.get(Size.FULL).subject
+                    EventTypeDefinitionConfig.definition.samples.get(Size.FULL).subject
                 ],
                 genders=[
-                    GenderDefinitionData.definition.samples.get(Size.FULL).subject
+                    GenderDefinitionConfig.definition.samples.get(Size.FULL).subject
                 ],
                 logo=builtin_asset_directory
                 / "public"
                 / "static"
                 / "betty-512x512.png",
-                license=LicenseManufacturer.definition.samples.get(Size.FULL).subject,
+                license=NewLicense.definition.samples.get(Size.FULL).subject,
                 licenses=[
-                    LicenseDefinitionData.definition.samples.get(Size.FULL).subject
+                    LicenseDefinitionConfig.definition.samples.get(Size.FULL).subject
                 ],
                 lifetime_threshold=123,
                 locales=[ProjectLocale.definition.samples.get(Size.FULL).subject],
                 name="betty-ancestry",
                 place_types=[
-                    PlaceTypeDefinitionData.definition.samples.get(Size.FULL).subject
+                    PlaceTypeDefinitionConfig.definition.samples.get(Size.FULL).subject
                 ],
-                roles=[RoleDefinitionData.definition.samples.get(Size.FULL).subject],
+                roles=[RoleDefinitionConfig.definition.samples.get(Size.FULL).subject],
                 title="Betty's ancestry",
                 url="https://ancestry.example.com/betty",
             ),
@@ -720,7 +707,7 @@ class ProjectLocale(Object, Frozen):
         ),
     ),
 )
-class ProjectData(Object):
+class ProjectConfig(Object):
     """
     Configuration for a :py:class:`betty.project.Project`.
 
@@ -746,21 +733,19 @@ class ProjectData(Object):
     Whether to generate clean URLs.
     """
 
-    copyright_notice = OwnerAttr(CopyrightNoticeManufacturer).setter(
-        CopyrightNoticeManufacturer.resolve
-    )
+    copyright_notice = OwnerAttr(NewCopyrightNotice).setter(NewCopyrightNotice.resolve)
     """
     The project-wide copyright notice.
     """
 
     @copyright_notice.default
-    def copyright_notice(self) -> CopyrightNoticeManufacturer:  # noqa: D102
+    def copyright_notice(self) -> NewCopyrightNotice:  # noqa: D102
         from betty.copyright_notices.project_author import ProjectAuthor
 
-        return CopyrightNoticeManufacturer(ProjectAuthor)
+        return NewCopyrightNotice(ProjectAuthor)
 
     copyright_notices = new_plugin_definition_datas_attr(
-        CopyrightNoticeDefinition, CopyrightNoticeDefinitionData
+        CopyrightNoticeDefinition, CopyrightNoticeDefinitionConfig
     )
     """
     The :py:class:`betty.copyright_notice.CopyrightNotice` plugins created by this project.
@@ -781,13 +766,13 @@ class ProjectData(Object):
     enrichers = CollectionOwnerAttr(
         FieldDefinition(
             KeyedCollectionDefinition(
-                value=EnricherManufacturer,
-                label=EnricherDefinition.definition.label_plural,
+                value=NewEnricher,
+                label=EnricherDefinition.type().label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values),
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_id,
-                    value_resolver=EnricherManufacturer.resolve,
+                    value_resolver=NewEnricher.resolve,
                 ),
             ),
             optional=True,
@@ -799,7 +784,7 @@ class ProjectData(Object):
     """
 
     event_types = new_plugin_definition_datas_attr(
-        EventTypeDefinition, EventTypeDefinitionData
+        EventTypeDefinition, EventTypeDefinitionConfig
     )
     """
     The :py:class:`betty.event_type.EventType` plugins created by this project.
@@ -808,13 +793,13 @@ class ProjectData(Object):
     service_providers = CollectionOwnerAttr(
         FieldDefinition(
             KeyedCollectionDefinition(
-                value=ServiceProviderManufacturer,
-                label=ServiceProviderDefinition.definition.label_plural,
+                value=NewServiceProvider,
+                label=ServiceProviderDefinition.type().label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values),
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_id,
-                    value_resolver=ServiceProviderManufacturer.resolve,
+                    value_resolver=NewServiceProvider.resolve,
                 ),
             ),
             optional=True,
@@ -845,22 +830,22 @@ class ProjectData(Object):
     Which entity types to generate list HTML pages for.
     """
 
-    genders = new_plugin_definition_datas_attr(GenderDefinition, GenderDefinitionData)
+    genders = new_plugin_definition_datas_attr(GenderDefinition, GenderDefinitionConfig)
     """
     The :py:class:`betty.gender.Gender` plugins created by this project.
     """
 
-    license = OwnerAttr(LicenseManufacturer).setter(LicenseManufacturer.resolve)
+    license = OwnerAttr(NewLicense).setter(NewLicense.resolve)
     """
     The project-wide license.
     """
 
     @license.default  # noqa: A003
-    def license(self) -> LicenseManufacturer:  # noqa: D102
-        return LicenseManufacturer(AllRightsReserved)
+    def license(self) -> NewLicense:  # noqa: D102
+        return NewLicense(AllRightsReserved)
 
     licenses = new_plugin_definition_datas_attr(
-        LicenseDefinition, LicenseDefinitionData
+        LicenseDefinition, LicenseDefinitionConfig
     )
     """
     The :py:class:`betty.license.License` plugins created by this project.
@@ -885,13 +870,13 @@ class ProjectData(Object):
     loaders = CollectionOwnerAttr(
         FieldDefinition(
             KeyedCollectionDefinition(
-                value=LoaderManufacturer,
-                label=LoaderDefinition.definition.label_plural,
+                value=NewLoader,
+                label=LoaderDefinition.type().label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values),
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_id,
-                    value_resolver=LoaderManufacturer.resolve,
+                    value_resolver=NewLoader.resolve,
                 ),
             ),
             optional=True,
@@ -938,13 +923,13 @@ class ProjectData(Object):
     """
 
     place_types = new_plugin_definition_datas_attr(
-        PlaceTypeDefinition, PlaceTypeDefinitionData
+        PlaceTypeDefinition, PlaceTypeDefinitionConfig
     )
     """
     The :py:class:`betty.place_type.PlaceType` plugins created by this project.
     """
 
-    roles = new_plugin_definition_datas_attr(RoleDefinition, RoleDefinitionData)
+    roles = new_plugin_definition_datas_attr(RoleDefinition, RoleDefinitionConfig)
     """
     The :py:class:`betty.role.Role` plugins created by this project.
     """
@@ -974,30 +959,29 @@ class ProjectData(Object):
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
         copyright_notice: ResolvableCopyrightNoticeManufacturer | None = None,
-        copyright_notices: Iterable[CopyrightNoticeDefinitionData] = (),
+        copyright_notices: Iterable[CopyrightNoticeDefinitionConfig] = (),
         debug: bool = False,
-        enrichers: Iterable[ResolvableEnricherManufacturer] = (),
-        event_types: Iterable[EventTypeDefinitionData] = (),
-        service_providers: Iterable[ResolvableServiceProviderManufacturer] = (),
+        enrichers: Iterable[EnricherFactory] = (),
+        event_types: Iterable[EventTypeDefinitionConfig] = (),
+        service_providers: Iterable[ServiceProviderFactory] = (),
         generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
-        genders: Iterable[GenderDefinitionData] = (),
+        genders: Iterable[GenderDefinitionConfig] = (),
         license: ResolvableLicenseManufacturer | None = None,  # noqa: A002
-        licenses: Iterable[LicenseDefinitionData] = (),
+        licenses: Iterable[LicenseDefinitionConfig] = (),
         lifetime_threshold: int = default_lifetime_threshold,
-        loaders: Iterable[ResolvableLoaderManufacturer] = (),
+        loaders: Iterable[LoaderFactory] = (),
         locales: Iterable[ResolvableLocale | ProjectLocale] = (),
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
-        place_types: Iterable[PlaceTypeDefinitionData] = (),
-        roles: Iterable[RoleDefinitionData] = (),
+        place_types: Iterable[PlaceTypeDefinitionConfig] = (),
+        roles: Iterable[RoleDefinitionConfig] = (),
     ):
         super().__init__()
         self.author = author
         self.clean_urls = clean_urls
         if copyright_notice is not None:
             self.copyright_notice = copyright_notice
-        if copyright_notices is not None:
-            self.copyright_notices = copyright_notices
+        self.copyright_notices = copyright_notices
         self.debug = debug
         self.enrichers = enrichers
         self.event_types = event_types

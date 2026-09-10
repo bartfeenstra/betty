@@ -20,22 +20,21 @@ from betty.collections.mapping.adapter import (
 )
 from betty.content_builder import (
     ContentBuilder,
-    ContentBuilderManufacturer,
+    NewContentBuilder,
     ResolvableContentBuilderManufacturer,
 )
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.render import Render, RenderConfig
 from betty.datas.aggregate.collection.mapping import MutableMappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.color import ColorDefinition
 from betty.datas.plugin.manufacturer.sequence import (
-    PluginManufacturerSequenceDefinition,
+    NewPluginSequenceDefinition,
 )
 from betty.datas.str import StrDefinition
 from betty.dirs import webpack_entry_point_directory
 from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException, reraise_with_indicator
-from betty.factory import DataManufacturable, Manufacturable
 from betty.indicator.operator import Attr, Key
 from betty.jobs._generate_raspberry_mint_search_index import (
     _GenerateRaspberryMintSearchIndex,
@@ -43,10 +42,12 @@ from betty.jobs._generate_raspberry_mint_search_index import (
 from betty.jobs.generate_logo import GenerateLogo
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, do_you_mean
+from betty.plugin.config.factory import ConfigurableIntegratable, new
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.project.generate import Generator
 from betty.sample import Sample, Samples, Size
+from betty.service_level.factory import Integratable
 from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.webpack.build import EntryPointProvider
@@ -72,9 +73,9 @@ type ManufacturableRegionalContent = Mapping[
 @ObjectDefinition(
     label=_("Raspberry Mint configuration"),
     samples=Samples(
-        lambda: Sample(RaspberryMintData(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(RaspberryMintConfig(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
-            RaspberryMintData(
+            RaspberryMintConfig(
                 primary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
                 secondary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
                 tertiary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
@@ -82,10 +83,10 @@ type ManufacturableRegionalContent = Mapping[
             label="Custom colors",
         ),
         lambda: Sample(
-            RaspberryMintData(
+            RaspberryMintConfig(
                 regional_content={
                     "front-page-content": [
-                        ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
+                        NewContentBuilder(Render, RenderConfig("Hello, world!")),
                     ]
                 }
             ),
@@ -93,7 +94,7 @@ type ManufacturableRegionalContent = Mapping[
         ),
     ),
 )
-class RaspberryMintData(Object):
+class RaspberryMintConfig(Object):
     """
     Configuration for the :py:class:`betty.service_providers.raspberry_mint.RaspberryMint` extension.
 
@@ -123,8 +124,8 @@ class RaspberryMintData(Object):
                 ),
                 label=_("Regions"),
                 key=StrDefinition(label=_("Region")),
-                value=PluginManufacturerSequenceDefinition(
-                    ContentBuilderManufacturer, label=_("Regional content")
+                value=NewPluginSequenceDefinition(
+                    NewContentBuilder, label=_("Regional content")
                 ),
             ),
             optional=True,
@@ -178,6 +179,7 @@ class RaspberryMintData(Object):
 @ServiceProviderDefinition(
     "raspberry-mint",
     label="Raspberry Mint",
+    config_cls=RaspberryMintConfig,
     requires={
         Project.asset_directories.require(raspberry_mint),
         Project.service_providers.require(Webpack),
@@ -185,8 +187,8 @@ class RaspberryMintData(Object):
 )
 class RaspberryMint(
     EntryPointProvider[Project],
-    DataManufacturable[RaspberryMintData],
-    Manufacturable,
+    Integratable,
+    ConfigurableIntegratable[RaspberryMintConfig],
     Generator,
 ):
     """
@@ -249,27 +251,22 @@ class RaspberryMint(
         """
 
     @override
-    @classmethod
-    def new_data_cls(cls) -> type[RaspberryMintData]:
-        return RaspberryMintData
-
-    @override
     @Project.require
     @classmethod
     async def new(
         cls,
         project: Project,
-        data: RaspberryMintData | None = None,
+        config: RaspberryMintConfig | None = None,
         /,
     ) -> Self:
-        if data is None:
+        if config is None:
             return cls(project=project)
         return cls(
-            primary_color=data.primary_color,
+            primary_color=config.primary_color,
             project=project,
-            regional_content=data.regional_content,
-            secondary_color=data.secondary_color,
-            tertiary_color=data.tertiary_color,
+            regional_content=config.regional_content,
+            secondary_color=config.secondary_color,
+            tertiary_color=config.tertiary_color,
         )
 
     @override
@@ -320,8 +317,8 @@ class RaspberryMint(
                     await gather(*[
                         gather(
                             *map(
-                                self.services.factory.new,
-                                map(ContentBuilderManufacturer.resolve, region_content),
+                                lambda manufacturer: new(manufacturer, self.services),
+                                map(NewContentBuilder.resolve, region_content),
                             )
                         )
                         for region_content in regional_content_manufacturers.values()
