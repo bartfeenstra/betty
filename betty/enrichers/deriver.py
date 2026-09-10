@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.factory import Arg1Manufacturable
+from betty.factory import Manufacturable
 from betty.jobs.derive_ancestry import DeriveAncestry
 from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
         "Create events such as births and deaths by deriving their details from existing information."
     ),
 )
-class Deriver(Enricher, Arg1Manufacturable[Project]):
+class Deriver(Enricher, Manufacturable[Project]):
     """
     .. plugin:: enricher:deriver.
 

@@ -11,7 +11,7 @@ from betty.associations.has_links import HasLinks
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.factory import Arg1Manufacturable, new
+from betty.factory import Manufacturable, new
 from betty.locale import negotiate_locale, resolve_locale
 from betty.localizables.gettext import _
 from betty.project import Project
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
         Project.service_providers.require(WikiExtension),
     },
 )
-class WikipediaSummary(Template, Arg1Manufacturable):
+class WikipediaSummary(Template, Manufacturable):
     """
     A Wikipedia summary.
 

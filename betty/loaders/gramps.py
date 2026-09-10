@@ -22,7 +22,7 @@ from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
 from betty.exception import HumanFacingException
-from betty.factory import Arg1Manufacturable
+from betty.factory import Manufacturable
 from betty.gramps import (
     DEFAULT_EVENT_TYPE_MAPPING,
     DEFAULT_PLACE_TYPE_MAPPING,
@@ -284,9 +284,7 @@ class GrampsData(Data, HasProps):
     label="Gramps",
     description=_("Load Gramps family trees."),
 )
-class Gramps(
-    DataManufacturable[Project, GrampsData], Arg1Manufacturable[Project], Loader
-):
+class Gramps(DataManufacturable[Project, GrampsData], Manufacturable[Project], Loader):
     """
     .. plugin:: loader:gramps.
 

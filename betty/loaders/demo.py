@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.copyright_notices.streetmix import Streetmix
-from betty.factory import Arg1Manufacturable, new
+from betty.factory import Manufacturable, new
 from betty.jobs.load_demo_ancestry import LoadDemoAncestry
 from betty.license import LicenseDefinition
 from betty.licenses.spdx import spdx_license_id_to_license_id
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 @final
 @LoaderDefinition("demo", label="Demo")
-class Demo(Arg1Manufacturable, Loader):
+class Demo(Manufacturable, Loader):
     """
     .. plugin:: loader:demo.
     """

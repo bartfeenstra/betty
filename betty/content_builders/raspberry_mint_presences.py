@@ -15,7 +15,7 @@ from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.entities.event import Event
-from betty.factory import Arg1Manufacturable
+from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
@@ -85,7 +85,7 @@ class PresencesData(Data, HasProps):
     requires={Project.asset_directories.require(raspberry_mint)},
 )
 class Presences(
-    Template, DataManufacturable[Project, PresencesData], Arg1Manufacturable[Project]
+    Template, DataManufacturable[Project, PresencesData], Manufacturable[Project]
 ):
     """
     People's presences at an event.

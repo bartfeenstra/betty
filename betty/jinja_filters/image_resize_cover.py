@@ -17,7 +17,7 @@ from PIL.Image import DecompressionBombWarning
 
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
-from betty.factory import Arg1Manufacturable, new
+from betty.factory import Manufacturable, new
 from betty.hashid import hashid_file_meta
 from betty.image import image_file_path_format, resize_cover
 from betty.jinja import context_document
@@ -48,7 +48,7 @@ if TYPE_CHECKING:
     requires={Project.jinja_filters.require(FileFilter)},
     auto=True,
 )
-class ImageResizeCover(JinjaFilter, Arg1Manufacturable):
+class ImageResizeCover(JinjaFilter, Manufacturable):
     """
     Preprocess an image file for use in a page.
 

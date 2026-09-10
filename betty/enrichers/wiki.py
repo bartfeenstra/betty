@@ -10,7 +10,7 @@ from betty.data.factory import DataManufacturable
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.enrichers.populate_links import PopulateLinks
-from betty.factory import Arg1Manufacturable
+from betty.factory import Manufacturable
 from betty.jobs.populate_wiki_entity import PopulateWikiEntity
 from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
@@ -67,7 +67,9 @@ class WikiData(Data, HasProps):
     },
 )
 class Wiki(
-    Enricher, DataManufacturable[Project, WikiData], Arg1Manufacturable[Project]
+    Enricher,
+    Manufacturable[Project, WikiData | None],
+    DataManufacturable[Project, WikiData],
 ):
     """
     .. plugin:: enricher:wiki.

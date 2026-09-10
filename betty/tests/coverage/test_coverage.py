@@ -255,8 +255,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/factory.py": {
         "Manufacturable": MissingReason.ABSTRACT,
-        "Arg1Manufacturable": MissingReason.ABSTRACT,
-        "Arg2Manufacturable": MissingReason.ABSTRACT,
     },
     "betty/functools.py": {
         "Result": {
