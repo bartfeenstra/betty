@@ -114,7 +114,7 @@ from betty.place_types.street import Street
 from betty.place_types.town import Town
 from betty.place_types.unknown import UnknownPlaceType
 from betty.place_types.village import Village
-from betty.plugin.cls import PluginClsDefinition
+from betty.plugin.cls import ClassedPluginDefinition, new
 from betty.plugin.error import PluginNotFound
 from betty.role import ResolvableRoleManufacturer, RoleManufacturer
 from betty.roles.attendee import Attendee
@@ -144,7 +144,10 @@ if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
     from betty.pathlib import StrPath
     from betty.place_type import PlaceType
-    from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
+    from betty.plugin.cls import (
+        PluginManufacturer,
+        ResolvablePluginManufacturer,
+    )
     from betty.project import Project
     from betty.role import Role
 
@@ -308,7 +311,7 @@ _gramps_extensions: Final[Sequence[str]] = (
 
 def _resolve_plugin_manufacturer_mapping[
     T,
-    PluginDefinitionT: PluginClsDefinition,
+    PluginDefinitionT: ClassedPluginDefinition,
     PluginManufacturerT: PluginManufacturer,
 ](
     manufacturer: type[PluginManufacturerT],
@@ -870,8 +873,9 @@ class GrampsLoader:
             gender = await self._gender_mapping[gramps_gender](self._project)
         else:
             try:
-                gender = await self._project.factory.new(
-                    (await self._project.plugins[GenderDefinition][gender_id]).cls
+                gender = await new(
+                    (await self._project.plugins[GenderDefinition][gender_id]).cls,
+                    self._project,
                 )
             except PluginNotFound:
                 await self._project.upstream.user.message(

@@ -9,12 +9,12 @@ from typing import TYPE_CHECKING, final
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.data import DataPlugin, DataPluginDefinition
-from betty.plugin.factory import (
+from betty.plugin.cls import (
     PluginManufacturer,
     PluginManufacturerDefinition,
     ResolvablePluginManufacturer,
 )
+from betty.plugin.data import DataPlugin, DataPluginDefinition
 
 if TYPE_CHECKING:
     from betty.localizable import CountableLocalizable, ResolvableLocalizable

@@ -9,13 +9,14 @@ from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.enrichers.populate_links import PopulateLinks
-from betty.factory import DataManufacturable, Manufacturable
 from betty.jobs.populate_wiki_entity import PopulateWikiEntity
 from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
+from betty.plugin.cls import ConfigurableIntegratable
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size
+from betty.service_level import Integratable
 from betty.service_providers.wiki import Wiki as WikiExtension
 
 if TYPE_CHECKING:
@@ -60,12 +61,13 @@ class WikiData(Data, HasProps):
     description=_(
         "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
     ),
+    configuration_cls=WikiData,
     requires={
         Project.enrichers.require(PopulateLinks),
         Project.service_providers.require(WikiExtension),
     },
 )
-class Wiki(Enricher, DataManufacturable[WikiData], Manufacturable):
+class Wiki(Enricher, ConfigurableIntegratable[WikiData], Integratable):
     """
     .. plugin:: enricher:wiki.
 
@@ -86,11 +88,6 @@ class Wiki(Enricher, DataManufacturable[WikiData], Manufacturable):
         super().__init__()
         self._project = project
         self._populate_images = True if populate_images is None else populate_images
-
-    @override
-    @classmethod
-    def new_data_cls(cls) -> type[WikiData]:
-        return WikiData
 
     @override
     @Project.require

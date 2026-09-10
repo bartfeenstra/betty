@@ -7,8 +7,12 @@ from __future__ import annotations
 from typing import final, override
 
 from betty.asyncio import ReAwaitable
-from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import ManufacturablePlugin, PluginManufacturer
+from betty.plugin.cls import (
+    ClassedPluginDefinition,
+    ManufacturablePlugin,
+    Plugin,
+    PluginManufacturer,
+)
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
 from betty.services.plugin.instance import PluginInstanceServiceManager
@@ -16,7 +20,7 @@ from betty.services.plugin.instance import PluginInstanceServiceManager
 
 class CollectionPluginInstanceServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
-    PluginDefinitionT: PluginClsDefinition,
+    PluginDefinitionT: ClassedPluginDefinition,
     GetServiceT,
     PluginManufacturerT: PluginManufacturer,
     PluginT: Plugin,

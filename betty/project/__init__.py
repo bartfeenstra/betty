@@ -80,12 +80,12 @@ from betty.link import LinkDefinition
 from betty.load import (
     EnricherDefinition,
     EnricherManufacturer,
+    EnrichterFactory,
     LoaderDefinition,
+    LoaderFactory,
     LoaderManufacturer,
     ManufacturableEnricher,
     ManufacturableLoader,
-    ResolvableEnricherManufacturer,
-    ResolvableLoaderManufacturer,
 )
 from betty.locale import (
     ResolvableLocale,
@@ -978,7 +978,7 @@ class ProjectData(Data, HasProps):
         copyright_notice: ResolvableCopyrightNoticeManufacturer | None = None,
         copyright_notices: Iterable[CopyrightNoticeDefinitionData] = (),
         debug: bool = False,
-        enrichers: Iterable[ResolvableEnricherManufacturer] = (),
+        enrichers: Iterable[EnrichterFactory] = (),
         event_types: Iterable[EventTypeDefinitionData] = (),
         service_providers: Iterable[ResolvableServiceProviderManufacturer] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
@@ -986,7 +986,7 @@ class ProjectData(Data, HasProps):
         license: ResolvableLicenseManufacturer | None = None,  # noqa: A002
         licenses: Iterable[LicenseDefinitionData] = (),
         lifetime_threshold: int = default_lifetime_threshold,
-        loaders: Iterable[ResolvableLoaderManufacturer] = (),
+        loaders: Iterable[LoaderFactory] = (),
         locales: Iterable[ResolvableLocale | ProjectLocale] = (),
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,

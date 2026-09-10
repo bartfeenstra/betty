@@ -7,12 +7,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.copyright_notices.streetmix import Streetmix
-from betty.factory import Manufacturable
 from betty.jobs.load_demo_ancestry import LoadDemoAncestry
 from betty.license import LicenseDefinition
 from betty.licenses.spdx import spdx_license_id_to_license_id
 from betty.load import Loader, LoaderDefinition
+from betty.plugin.cls import new
 from betty.project import Project
+from betty.service_level import Integratable
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 
 @final
 @LoaderDefinition("demo", label="Demo")
-class Demo(Manufacturable, Loader):
+class Demo(Integratable, Loader):
     """
     .. plugin:: loader:demo.
     """
@@ -41,13 +42,14 @@ class Demo(Manufacturable, Loader):
         await scheduler.add(
             LoadDemoAncestry(
                 project=self._project,
-                streetmix_copyright_notice=await self._project.factory.new(Streetmix),
-                streetmix_license=await self._project.factory.new(
+                streetmix_copyright_notice=await new(Streetmix, self._project),
+                streetmix_license=await new(
                     (
                         await licenses[
                             spdx_license_id_to_license_id("AGPL-3.0-or-later")
                         ]
-                    ).cls
+                    ).cls,
+                    self._project,
                 ),
             )
         )

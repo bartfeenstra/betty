@@ -9,13 +9,13 @@ from typing import TYPE_CHECKING, final
 
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.data import DataPlugin, DataPluginDefinition
-from betty.plugin.factory import (
+from betty.plugin.cls import (
     ManufacturablePlugin,
     PluginManufacturer,
     PluginManufacturerDefinition,
     ResolvablePluginManufacturer,
 )
+from betty.plugin.data import DataPlugin, DataPluginDefinition
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable, ResolvableLocalizable

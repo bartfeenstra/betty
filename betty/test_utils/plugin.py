@@ -8,9 +8,10 @@ from typing import final
 
 from betty.life_cycle import LifeCycle
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import (
+from betty.plugin.cls import (
+    ClassedPluginDefinition,
     ManufacturablePlugin,
+    Plugin,
     PluginManufacturer,
     PluginManufacturerDefinition,
 )
@@ -30,7 +31,7 @@ class DummyPlugin(Plugin["DummyPluginDefinition"]):
     label_plural="dummy plugin",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
-class DummyPluginDefinition(PluginClsDefinition[DummyPlugin]):
+class DummyPluginDefinition(ClassedPluginDefinition[DummyPlugin]):
     """
     A definition of a dummy plugin.
     """

@@ -9,8 +9,11 @@ from typing import TYPE_CHECKING, final
 from betty.collection.sequence import MutableResolvedSequence
 from betty.collections.sequence.list import ResolvedList
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
-from betty.plugin.cls import PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
+from betty.plugin.cls import (
+    ClassedPluginDefinition,
+    PluginManufacturer,
+    ResolvablePluginManufacturer,
+)
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
@@ -18,7 +21,7 @@ if TYPE_CHECKING:
 
 @final
 class PluginManufacturerSequenceDefinition[
-    PluginDefinitionT: PluginClsDefinition,
+    PluginDefinitionT: ClassedPluginDefinition,
     PluginManufacturerT: PluginManufacturer,
 ](
     SequenceDefinition[

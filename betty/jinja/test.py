@@ -9,8 +9,12 @@ from typing import TYPE_CHECKING, final
 
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
+from betty.plugin.cls import (
+    ClassedPluginDefinition,
+    Plugin,
+    PluginManufacturer,
+    PluginManufacturerDefinition,
+)
 
 if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
@@ -32,7 +36,7 @@ class JinjaTest(Plugin["JinjaTestDefinition"], metaclass=ABCMeta):
     label_plural=_("Jinja tests"),
     label_countable=ngettext("{count} Jinja test", "{count} Jinja tests"),
 )
-class JinjaTestDefinition(PluginClsDefinition[JinjaTest]):
+class JinjaTestDefinition(ClassedPluginDefinition[JinjaTest]):
     """
     .. plugin_type:: jinja-test.
     """

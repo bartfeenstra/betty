@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.servers import documentation
+from betty.service_level import Integratable
 
 if TYPE_CHECKING:
     import argparse
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
         "View Betty's interactive documentation. This will open your web browser."
     ),
 )
-class Docs(Manufacturable, Command):
+class Docs(Integratable, Command):
     """
     .. plugin:: command:docs.
     """

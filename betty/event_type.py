@@ -10,15 +10,15 @@ from typing import TYPE_CHECKING, final
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.data import DataPlugin, DataPluginDefinition
-from betty.plugin.factory import (
+from betty.plugin.cls import (
     PluginManufacturer,
     PluginManufacturerDefinition,
     ResolvablePluginManufacturer,
 )
+from betty.plugin.data import DataPlugin, DataPluginDefinition
 from betty.plugin.ordered import (
     Order,
-    OrderedPluginClsDefinition,
+    OrderedClassedPluginDefinition,
 )
 
 if TYPE_CHECKING:
@@ -57,7 +57,7 @@ class ShouldExistEventType(EventType, metaclass=ABCMeta):
 )
 class EventTypeDefinition(
     CountableHumanFacingDefinition,
-    OrderedPluginClsDefinition[EventType],
+    OrderedClassedPluginDefinition[EventType],
     DataPluginDefinition[EventType],
 ):
     """

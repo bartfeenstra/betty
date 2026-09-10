@@ -23,8 +23,8 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
-from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
+from betty.plugin.cls import ConfigurableIntegratable, new
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size
@@ -97,8 +97,8 @@ class BoxData(Data, HasProps):
 
 
 @final
-@ContentBuilderDefinition("box", label=_("Box"))
-class Box(Template, DataManufacturable[BoxData]):
+@ContentBuilderDefinition("box", label=_("Box"), configuration_cls=BoxData)
+class Box(Template, ConfigurableIntegratable[BoxData]):
     """
     .. plugin:: content-builder:box.
     """
@@ -125,18 +125,13 @@ class Box(Template, DataManufacturable[BoxData]):
         self._width = width
 
     @override
-    @classmethod
-    def new_data_cls(cls) -> type[BoxData]:
-        return BoxData
-
-    @override
     @Project.require
     @classmethod
     async def new(cls, project: Project, data: BoxData, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(
-                    project.factory.new,
+                    lambda manufacturer: new(manufacturer, project),
                     map(ContentBuilderManufacturer.resolve, data.content),
                 )
             ),

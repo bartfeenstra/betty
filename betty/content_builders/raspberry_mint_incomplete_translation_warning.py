@@ -13,10 +13,10 @@ from betty.concurrent import Ledger, ThreadSafeLock
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.dirs import builtin_asset_directory
-from betty.factory import Manufacturable
 from betty.file import read
 from betty.locale import default_locale, to_language_tag
 from betty.project import Project
+from betty.service_level import Integratable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     label="Incomplete translation warning",
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class IncompleteTranslationWarning(Template, Manufacturable):
+class IncompleteTranslationWarning(Template, Integratable):
     """
     .. plugin:: content-builder:raspberry-mint-incomplete-translation-warning.
     """

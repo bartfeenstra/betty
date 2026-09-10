@@ -18,7 +18,7 @@ class TestColorStyleData(DataTestBase[ColorStyleData]):
         sut = ColorStyleData(
             ContentBuilderManufacturer("my-first-content"), style=ColorStyleOption.DARK
         )
-        assert sut.content[0].plugin_id == "my-first-content"
+        assert sut.content[0].id == "my-first-content"
 
     def test_style(self) -> None:
         style = ColorStyleOption.DARK_SECONDARY

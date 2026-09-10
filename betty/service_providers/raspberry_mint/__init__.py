@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
-from betty.collection.mapping import MutableResolvedMapping as MutableResolvedMapping
 from betty.collection.mapping import ResolvedMapping
 from betty.collections import _empty_frozen_mapping
 from betty.collections.mapping.adapter import (
@@ -37,7 +36,6 @@ from betty.datas.str import StrDefinition
 from betty.dirs import webpack_entry_point_directory
 from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException, reraise_with_indicator
-from betty.factory import DataManufacturable
 from betty.indicator.operator import Attr, Key
 from betty.jobs._generate_raspberry_mint_search_index import (
     _GenerateRaspberryMintSearchIndex,
@@ -45,6 +43,7 @@ from betty.jobs._generate_raspberry_mint_search_index import (
 from betty.jobs.generate_logo import GenerateLogo
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, do_you_mean
+from betty.plugin.cls import ConfigurableIntegratable, new
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.project.generate import Generator
@@ -181,13 +180,16 @@ class RaspberryMintData(Data, HasProps):
 @ServiceProviderDefinition(
     "raspberry-mint",
     label="Raspberry Mint",
+    configuration_cls=RaspberryMintData,
     requires={
         Project.asset_directories.require(raspberry_mint),
         Project.service_providers.require(Webpack),
     },
 )
 class RaspberryMint(
-    EntryPointProvider[Project], DataManufacturable[RaspberryMintData], Generator
+    EntryPointProvider[Project],
+    ConfigurableIntegratable[RaspberryMintData],
+    Generator,
 ):
     """
     .. plugin:: service-provider:raspberry-mint.
@@ -247,11 +249,6 @@ class RaspberryMint(
         """
         The tertiary color.
         """
-
-    @override
-    @classmethod
-    def new_data_cls(cls) -> type[RaspberryMintData]:
-        return RaspberryMintData
 
     @override
     @Project.require
@@ -320,7 +317,7 @@ class RaspberryMint(
                     await gather(*[
                         gather(
                             *map(
-                                self.services.factory.new,
+                                lambda manufacturer: new(manufacturer, self.services),
                                 map(ContentBuilderManufacturer.resolve, region_content),
                             )
                         )

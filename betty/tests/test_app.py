@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from json import dumps
-from typing import TYPE_CHECKING, Self, override
+from typing import TYPE_CHECKING
 
 from babel import Locale
 
 from betty.app import App, AppData
-from betty.factory import Manufacturable
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.user import StaticUser
 
@@ -16,17 +15,6 @@ if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
     from betty.test_utils.conftest import IsolatedAppFactory
-
-
-class _Manufacturable(Manufacturable):
-    def __init__(self, app: App, /):
-        self.app = app
-
-    @override
-    @App.require
-    @classmethod
-    async def new(cls, app: App, /) -> Self:
-        return cls(app)
 
 
 class TestApp:

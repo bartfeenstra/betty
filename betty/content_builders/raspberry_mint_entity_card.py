@@ -12,9 +12,9 @@ from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.entity_reference import EntityReference
 from betty.entity import ResolvableEntity, resolve
-from betty.factory import DataManufacturable
 from betty.image import is_supported_media_type
 from betty.localizables.gettext import _
+from betty.plugin.cls import ConfigurableIntegratable
 from betty.project import Project
 from betty.service_providers._theme import associated_file_references
 
@@ -29,9 +29,10 @@ if TYPE_CHECKING:
 @ContentBuilderDefinition(
     "raspberry-mint-entity-card",
     label=_("Entity card"),
+    configuration_cls=EntityReference,
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class EntityCard(Template, DataManufacturable[EntityReference]):
+class EntityCard(Template, ConfigurableIntegratable[EntityReference]):
     """
     A card featuring an entity.
 
@@ -44,11 +45,6 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
         super().__init__(jinja=jinja)
         self._entity = entity
         self._project = project
-
-    @override
-    @classmethod
-    def new_data_cls(cls) -> type[EntityReference]:
-        return EntityReference
 
     @override
     @Project.require

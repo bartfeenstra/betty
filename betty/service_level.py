@@ -4,8 +4,9 @@ Service levels.
 
 from __future__ import annotations
 
+from abc import ABCMeta, abstractmethod
 from importlib import metadata
-from typing import TYPE_CHECKING, Any, Final
+from typing import TYPE_CHECKING, Any, Final, Self
 
 from typing_extensions import disjoint_base
 
@@ -20,7 +21,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
     from betty.collections.plugin.discoverer import PluginDiscovererCollection
-    from betty.factory import Factory
     from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
 
@@ -41,13 +41,7 @@ class ServiceLevel(HasProps, ManagedLifeCycle):
     def __init__(
         self, *args: Any, plugins: Plugins = _empty_frozen_mapping, **kwargs: Any
     ):
-        from betty.factory import Factory
-
         super().__init__(*args, **kwargs)
-        self.factory: Final[Factory] = Factory(self)
-        """
-        The object factory.
-        """
         self._plugin_discovery = plugins
 
     @service
@@ -128,3 +122,16 @@ def resolve_service_level[ServiceLevelT: ServiceLevel = ServiceLevel](
     if isinstance(services, ServiceLevel):
         return services
     return services.services
+
+
+class Integratable(metaclass=ABCMeta):
+    """
+    A class that can be initialized asynchronously for a service level.
+    """
+
+    @classmethod
+    @abstractmethod
+    async def new(cls, services: ServiceLevel, /) -> Self:
+        """
+        Create a new instance.
+        """

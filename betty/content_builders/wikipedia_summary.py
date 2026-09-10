@@ -11,10 +11,11 @@ from betty.associations.has_links import HasLinks
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.factory import Manufacturable
 from betty.locale import negotiate_locale, resolve_locale
 from betty.localizables.gettext import _
+from betty.plugin.cls import new
 from betty.project import Project
+from betty.service_level import Integratable
 from betty.service_providers.wiki import Wiki as WikiExtension
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki.client import Client, ClientError, Summary
@@ -39,7 +40,7 @@ if TYPE_CHECKING:
         Project.service_providers.require(WikiExtension),
     },
 )
-class WikipediaSummary(Template, Manufacturable):
+class WikipediaSummary(Template, Integratable):
     """
     A Wikipedia summary.
 
@@ -67,12 +68,13 @@ class WikipediaSummary(Template, Manufacturable):
             client=await (await project.service_providers[WikiExtension]).client,
             jinja=await project.jinja,
             localizers=project.localizers,
-            copyright_notice=await project.factory.new(
+            copyright_notice=await new(
                 (
                     await project.plugins[CopyrightNoticeDefinition][
                         "wikipedia-contributors"
                     ]
-                ).cls
+                ).cls,
+                project,
             ),
         )
 

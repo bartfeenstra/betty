@@ -4,7 +4,7 @@ import pytest
 
 from betty.content_builder import ContentBuilder, ContentBuilderDefinition
 from betty.content_builders.static import Static
-from betty.plugin.factory import PluginManufacturer
+from betty.plugin.cls import PluginManufacturer
 from betty.test_utils.conftest import AssertTemplateString
 
 

@@ -12,7 +12,7 @@ class TestBoxData(DataTestBase[BoxData]):
 
     def test_content(self) -> None:
         sut = BoxData("my-first-content")
-        assert sut.content[0].plugin_id == "my-first-content"
+        assert sut.content[0].id == "my-first-content"
 
 
 class TestBox:

@@ -25,8 +25,8 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
-from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
+from betty.plugin.cls import ConfigurableIntegratable, new
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size
@@ -104,9 +104,10 @@ class SectionData(Data, HasProps):
 @ContentBuilderDefinition(
     "raspberry-mint-section",
     label=_("Section"),
+    configuration_cls=SectionData,
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Section(Template, DataManufacturable[SectionData]):
+class Section(Template, ConfigurableIntegratable[SectionData]):
     """
     .. plugin:: content-builder:raspberry-mint-section.
     """
@@ -127,18 +128,13 @@ class Section(Template, DataManufacturable[SectionData]):
         self._visually_hide_heading = bool(visually_hide_heading)
 
     @override
-    @classmethod
-    def new_data_cls(cls) -> type[SectionData]:
-        return SectionData
-
-    @override
     @Project.require
     @classmethod
     async def new(cls, project: Project, data: SectionData, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(
-                    project.factory.new,
+                    lambda manufacturer: new(manufacturer, project),
                     map(ContentBuilderManufacturer.resolve, data.content),
                 )
             ),

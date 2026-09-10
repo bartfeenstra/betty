@@ -21,7 +21,6 @@ from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
 from betty.exception import HumanFacingException
-from betty.factory import DataManufacturable, Manufacturable
 from betty.gramps import (
     DEFAULT_EVENT_TYPE_MAPPING,
     DEFAULT_PLACE_TYPE_MAPPING,
@@ -34,13 +33,19 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeManufacturer, ResolvablePlaceTypeManufacturer
-from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
+from betty.plugin.cls import (
+    ClassedPluginDefinition,
+    ConfigurableIntegratable,
+    Plugin,
+    PluginManufacturer,
+    ResolvablePluginManufacturer,
+)
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.prop import HasProps
 from betty.role import ResolvableRoleManufacturer, RoleManufacturer
 from betty.sample import Sample, Size
+from betty.service_level import Integratable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -53,7 +58,7 @@ if TYPE_CHECKING:
 
 
 def _new_plugin_mapping_attr[
-    PluginDefinitionT: PluginClsDefinition,
+    PluginDefinitionT: ClassedPluginDefinition,
     PluginManufacturerT: PluginManufacturer,
     PluginT: Plugin,
 ](
@@ -282,8 +287,9 @@ class GrampsData(Data, HasProps):
     "gramps",
     label="Gramps",
     description=_("Load Gramps family trees."),
+    configuration_cls=GrampsData,
 )
-class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
+class Gramps(ConfigurableIntegratable[GrampsData], Integratable, Loader):
     """
     .. plugin:: loader:gramps.
 
@@ -568,11 +574,6 @@ class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
         self._attribute_prefix_key = attribute_prefix_key
         self._executable = executable
         self._family_trees = tuple(family_trees)
-
-    @override
-    @classmethod
-    def new_data_cls(cls) -> type[GrampsData]:
-        return GrampsData
 
     @override
     @Project.require

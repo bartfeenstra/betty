@@ -11,9 +11,9 @@ from betty.attrs.media_type import new_media_type_attr
 from betty.content_builder import ContentBuilder, ContentBuilderDefinition
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
-from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.media_types.plain_text import PLAIN_TEXT
+from betty.plugin.cls import ConfigurableIntegratable
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size
@@ -54,8 +54,10 @@ class RenderData(Data, HasProps):
 
 
 @final
-@ContentBuilderDefinition("render", label=_("Rendered content"))
-class Render(DataManufacturable[RenderData], ContentBuilder):
+@ContentBuilderDefinition(
+    "render", label=_("Rendered content"), configuration_cls=RenderData
+)
+class Render(ConfigurableIntegratable[RenderData], ContentBuilder):
     """
     .. plugin:: content-builder:render.
     """
@@ -70,11 +72,6 @@ class Render(DataManufacturable[RenderData], ContentBuilder):
         self._content = content
         self._media_type = media_type
         self._renderer = renderer
-
-    @override
-    @classmethod
-    def new_data_cls(cls) -> type[RenderData]:
-        return RenderData
 
     @override
     @Project.require

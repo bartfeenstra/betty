@@ -23,7 +23,7 @@ class PluginDiscovererCollection(
     """
 
     @override
-    def __getitem__[PluginDefinitionT: PluginDefinition = PluginDefinition](
+    def __getitem__[PluginDefinitionT: PluginDefinition](
         self, key: type[PluginDefinitionT] | MachineName | str
     ) -> PluginDiscoverer[PluginDefinitionT]:
         return super().__getitem__(key)  # ty:ignore[invalid-return-type]

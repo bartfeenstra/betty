@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
-from betty.factory import Manufacturable
 from betty.localizables.gettext import _
+from betty.service_level import Integratable
 
 if TYPE_CHECKING:
     import argparse
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     label=_("Serve a generated site"),
     description=_("This will open your web browser."),
 )
-class Serve(Manufacturable, Command):
+class Serve(Integratable, Command):
     """
     .. plugin:: command:serve.
     """

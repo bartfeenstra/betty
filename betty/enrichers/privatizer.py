@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.enrichers.deriver import Deriver
-from betty.factory import Manufacturable
 from betty.jobs.derive_ancestry import DeriveAncestry
 from betty.jobs.privatize_ancestry import PrivatizeAncestry
 from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.service_level import Integratable
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
         "Determine if people can be proven to have died. If not, mark them and their associated entities private."
     ),
 )
-class Privatizer(Enricher, Manufacturable):
+class Privatizer(Enricher, Integratable):
     """
     .. plugin:: enricher:privatizer.
 

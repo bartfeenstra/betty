@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.importlib import fully_qualified_name
-from betty.plugin.cls import PluginClsDefinition
+from betty.plugin.cls import ClassedPluginDefinition
 from betty.service_level import ServiceLevel
 
 if TYPE_CHECKING:
@@ -66,7 +66,9 @@ class PluginDocumentationTestBase:
     def _test_plugin(self, plugin: PluginDefinition) -> None:
         if plugin.id.startswith("-"):
             return
-        if isinstance(plugin, PluginClsDefinition) and self._match_module(plugin.cls):
+        if isinstance(plugin, ClassedPluginDefinition) and self._match_module(
+            plugin.cls
+        ):
             docstring = plugin.cls.__doc__ or ""
             directive = f".. plugin:: {plugin.type().id}:{plugin.id}"
             assert directive in docstring, (

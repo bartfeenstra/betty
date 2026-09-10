@@ -12,10 +12,10 @@ from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.rich.user import RichUser
+from betty.service_level import Integratable
 
 if TYPE_CHECKING:
     import argparse
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 @CommandDefinition(
     "about", label=_("Output information about Betty, and optionally your project")
 )
-class About(Manufacturable, Command):
+class About(Integratable, Command):
     """
     .. plugin:: command:about.
     """

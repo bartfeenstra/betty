@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, Any, Final, Self, TypeGuard, final, override
 from urllib.parse import urlencode
 
 from betty.collections import _empty_frozen_mapping
-from betty.factory import Manufacturable
 from betty.locale import negotiate_locale, resolve_locale, to_language_tag
 from betty.project import Project
+from betty.service_level import Integratable
 from betty.url_generator import UrlGenerator
 
 if TYPE_CHECKING:
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @final
-class PathUrlGenerator(Manufacturable, UrlGenerator[str]):
+class PathUrlGenerator(Integratable, UrlGenerator[str]):
     """
     Generate URLs for URL paths.
     """
@@ -47,9 +47,6 @@ class PathUrlGenerator(Manufacturable, UrlGenerator[str]):
     @Project.require
     @classmethod
     async def new(cls, project: Project, /) -> Self:
-        """
-        Create a new instance using the given project.
-        """
         return cls(
             base_url=project.base_url,
             root_path=project.root_path,

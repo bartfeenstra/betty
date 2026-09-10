@@ -16,12 +16,12 @@ from betty.exception import HumanFacingException
 from betty.functools import Do
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.factory import (
+from betty.plugin.cls import (
     ManufacturablePlugin,
     PluginManufacturer,
     PluginManufacturerDefinition,
 )
-from betty.plugin.ordered import Order, OrderedPluginClsDefinition
+from betty.plugin.ordered import Order, OrderedClassedPluginDefinition
 from betty.user import Severity
 
 if TYPE_CHECKING:
@@ -129,7 +129,7 @@ class Server(metaclass=ABCMeta):
     label_plural=_("Servers"),
     label_countable=ngettext("{count} server", "{count} servers"),
 )
-class ServerDefinition(HumanFacingDefinition, OrderedPluginClsDefinition[Server]):
+class ServerDefinition(HumanFacingDefinition, OrderedClassedPluginDefinition[Server]):
     """
     .. plugin_type:: server.
 

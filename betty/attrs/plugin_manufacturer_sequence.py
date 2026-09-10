@@ -10,7 +10,7 @@ from betty.attrs.owner import CollectionOwnerAttr
 from betty.datas.plugin.manufacturer.sequence import (
     PluginManufacturerSequenceDefinition,
 )
-from betty.plugin.cls import PluginClsDefinition
+from betty.plugin.cls import ClassedPluginDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -18,12 +18,15 @@ if TYPE_CHECKING:
     from betty.attrs.common import CommonAttr
     from betty.collection.sequence import MutableResolvedSequence
     from betty.localizable import ResolvableLocalizable
-    from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
+    from betty.plugin.cls import (
+        PluginManufacturer,
+        ResolvablePluginManufacturer,
+    )
     from betty.prop import HasProps
 
 
 def new_plugin_manufacturer_sequence_attr[
-    PluginDefinitionT: PluginClsDefinition,
+    PluginDefinitionT: ClassedPluginDefinition,
     PluginManufacturerT: PluginManufacturer,
 ](
     manufacturer: type[PluginManufacturerT],

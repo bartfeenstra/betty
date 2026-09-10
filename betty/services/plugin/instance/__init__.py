@@ -9,8 +9,14 @@ from typing import TYPE_CHECKING, final, override
 from betty.asyncio import LazyReAwaitable, ReAwaitable
 from betty.life_cycle import Bootstrappable, Shutdownable
 from betty.localizables.gettext import _
-from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import ManufacturablePlugin, PluginManufacturer
+from betty.plugin.cls import (
+    AnyPluginFactory,
+    ClassedPluginDefinition,
+    ManufacturablePlugin,
+    Plugin,
+    PluginManufacturer,
+    new,
+)
 from betty.plugin.resolve import resolve_plugin_id
 from betty.requirements.service import UnmetServiceRequirement
 from betty.service_level import resolve_service_level
@@ -27,7 +33,7 @@ if TYPE_CHECKING:
 
 class PluginInstanceServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
-    PluginDefinitionT: PluginClsDefinition,
+    PluginDefinitionT: ClassedPluginDefinition,
     GetServiceT,
     PluginManufacturerT: PluginManufacturer,
     PluginT: Plugin,
@@ -58,8 +64,9 @@ class PluginInstanceServiceManager[
         )
 
         async def _get_plugin() -> PluginT:
-            plugin = await services.factory.new(
-                item.cls if isinstance(item, PluginClsDefinition) else item
+            plugin = await new(
+                item.cls if isinstance(item, ClassedPluginDefinition) else item,
+                services,
             )
             if isinstance(plugin, Bootstrappable | Shutdownable):
                 await owner.life_cycle.synchronize(plugin)
@@ -102,10 +109,8 @@ class PluginInstanceServiceManager[
 
     @override
     def resolve_init_plugin_id(
-        self,
-        plugin: ManufacturablePlugin[PluginDefinitionT, PluginManufacturerT, PluginT],
-        /,
+        self, plugin: AnyPluginFactory[PluginT, PluginManufacturerT], /
     ) -> MachineName:
         if isinstance(plugin, PluginManufacturer):
-            return plugin.plugin_id
+            return plugin.id
         return resolve_plugin_id(plugin)

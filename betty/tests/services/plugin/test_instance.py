@@ -2,7 +2,7 @@ from typing import override
 
 import pytest
 
-from betty.plugin.factory import ManufacturablePlugin
+from betty.plugin.cls import ManufacturablePlugin
 from betty.requirements.service import UnmetServiceRequirement
 from betty.service_level import HasServiceLevel, ServiceLevel
 from betty.services.plugin import (

@@ -13,7 +13,7 @@ class TestSectionData(DataTestBase[SectionData]):
 
     def test_content(self) -> None:
         sut = SectionData(ContentBuilderManufacturer("my-first-content"), heading="-")
-        assert sut.content[0].plugin_id == "my-first-content"
+        assert sut.content[0].id == "my-first-content"
 
     def test_heading(self) -> None:
         heading = Plain("My First Section")

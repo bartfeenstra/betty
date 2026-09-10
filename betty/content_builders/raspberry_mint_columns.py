@@ -33,8 +33,8 @@ from betty.datas.int import IntDefinition
 from betty.datas.plugin.manufacturer.sequence import (
     PluginManufacturerSequenceDefinition,
 )
-from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
+from betty.plugin.cls import ConfigurableIntegratable, new
 from betty.porters.callback import CallbackPorter
 from betty.project import Project
 from betty.prop import HasProps
@@ -207,9 +207,10 @@ class ColumnsData(Data, HasProps):
 @ContentBuilderDefinition(
     "raspberry-mint-columns",
     label=_("Columns"),
+    configuration_cls=ColumnsData,
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Columns(Template, DataManufacturable[ColumnsData]):
+class Columns(Template, ConfigurableIntegratable[ColumnsData]):
     """
     A container with one or more columns.
 
@@ -230,11 +231,6 @@ class Columns(Template, DataManufacturable[ColumnsData]):
         self._width = width
 
     @override
-    @classmethod
-    def new_data_cls(cls) -> type[ColumnsData]:
-        return ColumnsData
-
-    @override
     @Project.require
     @classmethod
     async def new(cls, project: Project, data: ColumnsData, /) -> Self:
@@ -242,7 +238,7 @@ class Columns(Template, DataManufacturable[ColumnsData]):
             gather(*[
                 gather(
                     *map(
-                        project.factory.new,
+                        lambda manufacturer: new(manufacturer, project),
                         map(ContentBuilderManufacturer.resolve, column_content),
                     )
                 )

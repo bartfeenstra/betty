@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import Self, final, override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.factory import Manufacturable
 from betty.localizable import (
     Localizable,
     ResolvableLocalizable,
@@ -15,11 +14,12 @@ from betty.localizable import (
 )
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.service_level import Integratable
 
 
 @final
 @CopyrightNoticeDefinition("project-author", label=_("Project author"))
-class ProjectAuthor(Manufacturable, CopyrightNotice):
+class ProjectAuthor(Integratable, CopyrightNotice):
     """
     .. plugin:: copyright-notice:project-author.
     """
