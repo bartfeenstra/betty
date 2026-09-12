@@ -6,9 +6,9 @@ from betty import gettext
 from betty.about import is_development
 from betty.app import App
 from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.requirement import UnmetRequirement
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     import argparse
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     "dev-update-translations",
     label=_("Update all existing translations for Betty itself"),
 )
-class DevUpdateTranslations(Manufacturable, Command):
+class DevUpdateTranslations(Integratable, Command):
     """
     .. plugin:: command:dev-update-translations.
     """

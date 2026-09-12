@@ -8,10 +8,10 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.entities.link import Link
-from betty.factory import Manufacturable
 from betty.jobs.populate_link import PopulateLink
 from betty.load import Enricher, EnricherDefinition
 from betty.project import Project
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 @final
 @EnricherDefinition("populate-links", label="Populate links", auto=True)
-class PopulateLinks(Enricher, Manufacturable):
+class PopulateLinks(Enricher, Integratable):
     """
     .. plugin:: enricher:populate-links.
     """

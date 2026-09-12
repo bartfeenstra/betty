@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from betty.datas.plugin.definition.event_type import EventTypeDefinitionData
+from betty.datas.plugin.definition.event_type import EventTypeDefinitionConfig
 from betty.localizables.plain import Plain
 from betty.machine_name import MachineName
 from betty.test_utils.locale.localizable import (
@@ -13,7 +13,7 @@ class TestEventTypeDefinitionData:
         plugin_id = "my-first-event-type"
         label = Plain("-")
         label_plural = Plain("-")
-        sut = EventTypeDefinitionData(
+        sut = EventTypeDefinitionConfig(
             id=plugin_id,
             label=label,
             label_plural=label_plural,
@@ -29,7 +29,7 @@ class TestEventTypeDefinitionData:
         description = Plain("-")
         before = MachineName("my-first-other-event-type")
         after = MachineName("my-second-other-event-type")
-        sut = EventTypeDefinitionData(
+        sut = EventTypeDefinitionConfig(
             id="my-first-event-type",
             label="-",
             label_plural="-",

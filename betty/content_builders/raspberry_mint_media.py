@@ -10,9 +10,9 @@ from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.entities.file import File
-from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     description=_("A single file in a media display"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Media(Template, Manufacturable):
+class Media(Template, Integratable):
     """
     A single file in a media display.
 

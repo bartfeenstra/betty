@@ -16,6 +16,7 @@ from betty.licenses.spdx import (
 )
 from betty.localizer import default_localizer
 from betty.plugin.discovery import ResolvableDiscovery, discover
+from betty.plugin.factory import new
 from betty.service_level import ServiceLevel
 from betty.stores.file import TransientBinaryFileStore
 from betty.test_utils.conftest import IsolatedAppFactory
@@ -165,7 +166,7 @@ class TestSpdxLicenseDiscoverer:
         assert (
             zero_bsd_type.label.localize(default_localizer) == "BSD Zero Clause License"
         )
-        zero_bsd = await services.factory.new(zero_bsd_type.cls)
+        zero_bsd = await new(zero_bsd_type.cls, services)
         assert zero_bsd.summary.localize(default_localizer) == "BSD Zero Clause License"
         assert (
             zero_bsd.text.localize(default_localizer)

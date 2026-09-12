@@ -1,253 +1,125 @@
-"""
-Plugin factories.
-"""
-
 from __future__ import annotations
 
-from json import dumps
-from typing import TYPE_CHECKING, Final, Self, final, override
+from abc import ABCMeta, abstractmethod
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Self, overload
 
-from typing_extensions import disjoint_base, sentinel
-
-from betty.assertions.if_else import assert_if_else
-from betty.assertions.mapping import assert_mapping
-from betty.assertions.record import Field, assert_record
-from betty.attrs.machine_name import new_machine_name_attr
-from betty.attrs.owner import OwnerAttr
-from betty.classtools import TypeABCMeta
-from betty.data import Data, DataDefinition
-from betty.datas.aggregate.record.object import ObjectDefinition
-from betty.exception import HumanFacingException
-from betty.factory import DataManufacturable, FactoryError
-from betty.freezer import Frozen
-from betty.functools import Pipeline
-from betty.localizables.gettext import _
-from betty.localizables.markup import Quote
-from betty.machine_name import MachineName
-from betty.plugin.cls import PluginClsDefinition
-from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.portable import (
-    KeyedPorter,
-    OptionalPortableData,
-    PortableData,
-)
-from betty.prop import HasProps
-from betty.sample import Samplable, Sample, Samples, Size
+from betty.data import Data
+from betty.factory import Manufacturable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
 
-    from betty.plugin import PluginDefinition
     from betty.service_level import ServiceLevel
 
 
-class PluginManufacturerError(HumanFacingException, FactoryError):
+class _Configurable[ConfigT: Data]:
     """
-    Raised when a plugin manufacturer could not create a new plugin instance.
+    A configurable plugin.
+
+    This internal base class exists only to ensure that multiple manufacturable base classes can be subclasses, but
+    only for the same configuration type.
     """
 
 
-NoPluginData = sentinel("NoPluginData")
-
-
-@disjoint_base
-class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
-    Samplable,
-    Data["PluginManufacturerDefinition"],
-    HasProps,
-    Frozen,
-    metaclass=TypeABCMeta,
+class ConfigurableManufacturable[ConfigT: Data](
+    _Configurable[ConfigT], metaclass=ABCMeta
 ):
     """
-    Configure a single plugin instance.
+    A plugin that can be initialized asynchronously from configuration data.
     """
 
-    plugin_id = new_machine_name_attr()
-    """
-    The plugin ID.
-    """
-
-    plugin_data = OwnerAttr(
-        DataDefinition[Data | OptionalPortableData](label=_("Data"))
-    )
-    """
-    Get the plugin's own data.
-    """
-
-    @final
-    def __init__(
-        self,
-        plugin: ResolvablePluginId[PluginDefinitionT],
-        data: Data | OptionalPortableData | NoPluginData = NoPluginData,
-        /,
-    ):
-        super().__init__()
-        self.plugin_id = resolve_plugin_id(plugin)
-        self.plugin_data = data
-
-    @final
-    def __hash__(self):
-        return hash((
-            self.data().plugin_type,
-            self.plugin_id,
-            NoPluginData
-            if self.plugin_data is NoPluginData
-            else dumps(PluginManufacturerPorter._dump_data(self.plugin_data)),
-        ))
-
-    @final
-    @override
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return hash(self) == hash(other)
-
-    @final
-    async def __call__(self, services: ServiceLevel, /) -> PluginT:
-        """
-        Create a new instance of the configured plugin.
-        """
-        plugin_cls = (
-            await services.plugins[self.data().plugin_type][self.plugin_id]
-        ).cls  # ty:ignore[unresolved-attribute]
-        if self.plugin_data is NoPluginData:
-            return await services.factory.new(plugin_cls)
-        if not issubclass(plugin_cls, DataManufacturable):
-            raise PluginManufacturerError(
-                _(
-                    "{plugin_type} {plugin} is not configurable, but configuration was given."
-                ).format(
-                    plugin_type=self.data().label,
-                    plugin=Quote(self.plugin_id),
-                )
-            )
-        plugin_data = self.plugin_data
-        if not isinstance(plugin_data, Data):
-            plugin_data = plugin_cls.new_data_cls().data().porter.load(plugin_data)
-        return await plugin_cls.new(services, plugin_data)
-
-    @final
     @classmethod
-    def resolve(
-        cls, manufacturer: ResolvablePluginManufacturer[PluginDefinitionT, Self]
-    ) -> Self:
+    @abstractmethod
+    async def new(cls, config: ConfigT, /) -> Self:
         """
-        Resolve a value to a plugin manufacturer.
+        Create a new instance.
         """
-        if isinstance(manufacturer, cls):
-            return manufacturer
-        return cls(resolve_plugin_id(manufacturer))
-
-    @final
-    @override
-    @classmethod
-    def samples(cls) -> Samples[Self]:
-        return Samples([
-            lambda: Sample(
-                cls("my-first-plugin-id"),
-                label="Minimal",
-                size=Size.MINIMAL,
-            ),
-            lambda: Sample(
-                cls(
-                    "my-first-plugin-id",
-                    {
-                        "configuration-key": "configuration-value",
-                    },
-                ),
-                label="Full",
-                size=Size.FULL,
-            ),
-        ])
 
 
-@final
-class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
-    KeyedPorter[PluginManufacturerT]
+class ConfigurableIntegratable[ConfigT: Data](
+    _Configurable[ConfigT], metaclass=ABCMeta
 ):
     """
-    Port :py:class:`betty.plugin.factory.PluginManufacturer` to portable data.
+    A plugin that can be initialized asynchronously for a service level from configuration data.
     """
-
-    def __init__(self, cls: type[PluginManufacturerT]):
-        self._cls = cls
-
-    _load = assert_if_else(
-        Pipeline(MachineName.data().porter.load)
-        | (lambda plugin_id: {"plugin": plugin_id}),
-        assert_record(
-            Field("plugin", MachineName.data().porter.load),
-            Field("data", optional=True),
-        ),
-    )
-
-    @override
-    def load(self, data: PortableData, /) -> PluginManufacturerT:
-        record = self._load(data)
-        return self._cls(record["plugin"], record.get("data", NoPluginData))
-
-    _load_keyed = assert_mapping()
-
-    @override
-    def load_keyed(self, key: str, data: PortableData, /) -> PluginManufacturerT:
-        return self.load({**self._load_keyed(data), "plugin": key})
 
     @classmethod
-    def _dump_data(cls, configuration: Data | PortableData) -> PortableData:
-        if isinstance(configuration, Data):
-            return configuration.data().porter.dump(configuration)
-        return configuration
-
-    @override
-    def dump(self, data: PluginManufacturerT, /) -> PortableData:
-        plugin_data = data.plugin_data
-        if plugin_data is NoPluginData:
-            return data.plugin_id
-        return {
-            "plugin": data.plugin_id,
-            "data": self._dump_data(plugin_data),
-        }
-
-    @override
-    def dump_keyed(self, data: PluginManufacturerT, /) -> tuple[str, PortableData]:
-        return (
-            data.plugin_id,
-            {}
-            if data.plugin_data is NoPluginData
-            else {"data": self._dump_data(data.plugin_data)},
-        )
+    @abstractmethod
+    async def new(cls, services: ServiceLevel, config: ConfigT, /) -> Self:
+        """
+        Create a new instance.
+        """
 
 
-@final
-class PluginManufacturerDefinition[PluginDefinitionT: PluginClsDefinition, PluginT](
-    ObjectDefinition[PluginManufacturer[PluginDefinitionT, PluginT]]
-):
-    """
-    Define a plugin manufacturer.
-    """
-
-    def __init__(
-        self,
-        plugin_type: type[
-            Intersection[PluginDefinitionT, PluginClsDefinition[PluginT]]
-        ],
-        /,
-    ):
-        super().__init__(
-            label=plugin_type.type().label,
-            porter=lambda definition: PluginManufacturerPorter(definition.cls),
-        )
-        self.plugin_type: Final[type[PluginDefinition]] = plugin_type
+type ManufacturablePlugin[PluginT] = (
+    Intersection[PluginT, Manufacturable] | Intersection[PluginT, Callable[[], PluginT]]
+)
 
 
-type ResolvablePluginManufacturer[
-    PluginDefinitionT: PluginClsDefinition,
-    PluginManufacturerT: PluginManufacturer,
-] = ResolvablePluginId[PluginDefinitionT] | PluginManufacturerT
+type IntegrablePlugin[PluginT] = (
+    Intersection[PluginT, Integratable] | ManufacturablePlugin[PluginT]
+)
 
+from __future__ import annotations
 
-type ManufacturablePlugin[
-    PluginDefinitionT: PluginClsDefinition,
-    PluginManufacturerT: PluginManufacturer,
+from abc import ABCMeta, abstractmethod
+from typing import TYPE_CHECKING
+
+type ConfigurablePlugin[PluginT, ConfigT: Data] = Intersection[
     PluginT,
-] = ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT] | PluginT
+    ConfigurableIntegratable[ConfigT] | ConfigurableManufacturable[ConfigT],
+]
+
+
+type PluginFactory[PluginT, NewPluginT: NewPlugin] = (
+    type[IntegrablePlugin[PluginT] | ManufacturablePlugin[PluginT]] | NewPluginT
+)
+
+
+type ConfigurablePluginFactory[
+    PluginT,
+    NewPluginT: NewPlugin,
+    ConfigT: Data,
+] = type[ConfigurablePlugin[PluginT, ConfigT]] | NewPluginT
+
+
+type AnyPluginFactory[PluginT, NewPluginT: NewPlugin] = (
+    ConfigurablePluginFactory[PluginT, NewPluginT, Data]
+    | PluginFactory[PluginT, NewPluginT]
+)
+
+
+@overload
+async def new[PluginT, NewPluginT: NewPlugin](
+    plugin: PluginFactory[PluginT, NewPluginT],
+    services: ServiceLevel,
+    /,
+) -> PluginT:
+    pass
+
+
+@overload
+async def new[PluginT, NewPluginT: NewPlugin, ConfigT: Data](
+    plugin: ConfigurablePluginFactory[PluginT, NewPluginT, ConfigT],
+    services: ServiceLevel,
+    config: ConfigT,
+    /,
+) -> PluginT:
+    pass
+
+
+async def new(factory, services, config=None, /):
+    """
+    Initialize a plugin.
+    """
+    if config is None:
+        if issubclass(factory, Integratable):
+            return await factory.new(services)
+        if issubclass(factory, Manufacturable):
+            return await factory.new()
+        return await factory()
+    if issubclass(factory, ConfigurableIntegratable):
+        return await factory.new(services, config)
+    return await factory.new(config)

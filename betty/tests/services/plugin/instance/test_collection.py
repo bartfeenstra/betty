@@ -14,9 +14,9 @@ from betty.services.plugin.instance.collection import (
 from betty.test_utils.plugin import (
     DummyPlugin,
     DummyPluginDefinition,
-    DummyPluginManufacturer,
     DummyPluginWithLifeCycle,
     ManufacturableDummyPlugin,
+    NewDummyPlugin,
 )
 from betty.tests.services.test_plugin import (
     PluginServiceManagerTestBase,
@@ -29,7 +29,7 @@ class _CollectionPluginInstanceServiceManagerTestSut(
         ResolvableServiceLevelHasPluginServices,
         DummyPluginDefinition,
         Sequence[DummyPlugin],
-        DummyPluginManufacturer,
+        NewDummyPlugin,
         DummyPlugin,
     ]
 ):
@@ -49,7 +49,7 @@ class TestCollectionPluginInstanceServiceManager(PluginServiceManagerTestBase):
         [
             DummyPluginWithLifeCycle,
             DummyPluginWithLifeCycle.plugin(),
-            DummyPluginManufacturer(DummyPluginWithLifeCycle),
+            NewDummyPlugin(DummyPluginWithLifeCycle),
         ],
     )
     async def test_new_service_item(

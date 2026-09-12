@@ -9,24 +9,27 @@ from typing import TYPE_CHECKING, final
 from betty.collection.sequence import MutableResolvedSequence
 from betty.collections.sequence.list import ResolvedList
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
-from betty.plugin.cls import PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
+from betty.plugin.cls import (
+    ClassedPluginDefinition,
+    NewPlugin,
+    ResolvablePluginManufacturer,
+)
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
 
 
 @final
-class PluginManufacturerSequenceDefinition[
-    PluginDefinitionT: PluginClsDefinition,
-    PluginManufacturerT: PluginManufacturer,
+class NewPluginSequenceDefinition[
+    PluginDefinitionT: ClassedPluginDefinition,
+    NewPluginT: NewPlugin,
 ](
     SequenceDefinition[
         MutableResolvedSequence[
-            PluginManufacturerT,
-            ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT],
+            NewPluginT,
+            ResolvablePluginManufacturer[PluginDefinitionT, NewPluginT],
         ],
-        PluginManufacturerT,
+        NewPluginT,
     ]
 ):
     """
@@ -35,7 +38,7 @@ class PluginManufacturerSequenceDefinition[
 
     def __init__(
         self,
-        manufacturer: type[PluginManufacturerT],
+        manufacturer: type[NewPluginT],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,

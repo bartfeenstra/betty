@@ -160,11 +160,11 @@ class App(RequirableServiceLevel, HasPluginServices):
         """
         Create a new application from the environment.
         """
-        if AppData.FILE.exists():
+        if AppConfig.FILE.exists():
             async with _AppBootstrapServiceLevel() as services:
-                data = AppData.data().porter.load(
+                data = AppConfig.data().porter.load(
                     assert_load_file(serializers=await gather(*services.serializers))(
-                        AppData.FILE
+                        AppConfig.FILE
                     ),
                 )
                 locale = data.locale
@@ -286,11 +286,11 @@ class App(RequirableServiceLevel, HasPluginServices):
 @ObjectDefinition(
     label=_("Application configuration"),
     samples=[
-        lambda: Sample(AppData(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(AppData(locale=default_locale), label="Full", size=Size.FULL),
+        lambda: Sample(AppConfig(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(AppConfig(locale=default_locale), label="Full", size=Size.FULL),
     ],
 )
-class AppData(Data, HasProps):
+class AppConfig(Data, HasProps):
     """
     Configuration for :py:class:`betty.app.App`.
 

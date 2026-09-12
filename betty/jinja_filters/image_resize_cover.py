@@ -17,7 +17,6 @@ from PIL.Image import DecompressionBombWarning
 
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
-from betty.factory import Manufacturable
 from betty.hashid import hashid_file_meta
 from betty.image import image_file_path_format, resize_cover
 from betty.jinja import context_document
@@ -25,7 +24,9 @@ from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.jinja_filters.file import File as FileFilter
 from betty.media_types.svg import SVG
 from betty.os import _link_or_copy
+from betty.plugin.factory import new
 from betty.project import Project
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -48,7 +49,7 @@ if TYPE_CHECKING:
     requires={Project.jinja_filters.require(FileFilter)},
     auto=True,
 )
-class ImageResizeCover(JinjaFilter, Manufacturable):
+class ImageResizeCover(JinjaFilter, Integratable):
     """
     Preprocess an image file for use in a page.
 
@@ -74,7 +75,7 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
     async def new(cls, project: Project, /) -> Self:
         return cls(
             binary_file_cache=project.binary_file_cache.with_scope("image"),
-            file_filter=await project.factory.new(FileFilter),
+            file_filter=await new(FileFilter, project),
             process_pool=project.upstream.process_pool,
             www_directory=project.www_directory,
         )

@@ -10,10 +10,10 @@ from betty.asset_directories.trees import trees
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.entities.person import Person
-from betty.factory import Manufacturable
 from betty.jinja_filters.webpack_entry_point_js import WebpackEntryPointJs
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.service_level.factory import Integratable
 from betty.service_providers.webpack import Webpack
 
 if TYPE_CHECKING:
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
         Project.jinja_filters.require(WebpackEntryPointJs),
     },
 )
-class Tree(Template, Manufacturable):
+class Tree(Template, Integratable):
     """
     An interactive family tree.
 

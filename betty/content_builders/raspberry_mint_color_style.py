@@ -8,14 +8,14 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
-from betty.attrs.owner import OwnerAttr
-from betty.attrs.plugin_manufacturer_sequence import (
-    new_plugin_manufacturer_sequence_attr,
+from betty.attrs.new_plugin_sequence import (
+    new_new_plugin_sequence_attr,
 )
+from betty.attrs.owner import OwnerAttr
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
-    ContentBuilderManufacturer,
+    NewContentBuilder,
     ResolvableContentBuilderManufacturer,
     build,
 )
@@ -23,8 +23,8 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.enum import EnumDefinition
-from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
+from betty.plugin.factory import ConfigurableIntegratable, new
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample
@@ -40,22 +40,20 @@ if TYPE_CHECKING:
     label=_("Color style configuration"),
     samples=[
         lambda: Sample(
-            ColorStyleData("my-first-content", style=RaspberryMintColorStyle.DARK),
+            ColorStyleConfig("my-first-content", style=RaspberryMintColorStyle.DARK),
             label="Default",
         )
     ],
-    manufacturer=lambda **fields: ColorStyleData(*fields.pop("content"), **fields),
+    manufacturer=lambda **fields: ColorStyleConfig(*fields.pop("content"), **fields),
 )
-class ColorStyleData(Data, HasProps):
+class ColorStyleConfig(Data, HasProps):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_color_style.ColorStyle`.
 
     .. data:: betty.content_builders.raspberry_mint_color_style:ColorStyleData
     """
 
-    content = new_plugin_manufacturer_sequence_attr(
-        ContentBuilderManufacturer, label=_("Content")
-    )
+    content = new_new_plugin_sequence_attr(NewContentBuilder, label=_("Content"))
     """
     The content within this color style.
     """
@@ -79,9 +77,10 @@ class ColorStyleData(Data, HasProps):
 @ContentBuilderDefinition(
     "raspberry-mint-color-style",
     label=_("Color style"),
+    config_cls=ColorStyleConfig,
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class ColorStyle(Template, DataManufacturable[ColorStyleData]):
+class ColorStyle(Template, ConfigurableIntegratable[ColorStyleConfig]):
     """
     Change the color style for all containing content.
 
@@ -100,24 +99,19 @@ class ColorStyle(Template, DataManufacturable[ColorStyleData]):
         self._style = style
 
     @override
-    @classmethod
-    def new_data_cls(cls) -> type[ColorStyleData]:
-        return ColorStyleData
-
-    @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: ColorStyleData, /) -> Self:
+    async def new(cls, project: Project, config: ColorStyleConfig, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(
-                    project.factory.new,
-                    data.content,
+                    lambda manufacturer: new(manufacturer, project),
+                    config.content,
                 )
             ),
             project.jinja,
         )
-        return cls(*content, jinja=jinja, style=data.style)
+        return cls(*content, jinja=jinja, style=config.style)
 
     @override
     async def build_template(self, document: Document) -> TemplateBuild:

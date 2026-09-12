@@ -9,12 +9,12 @@ from typing import TYPE_CHECKING, final
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.data import DataPlugin, DataPluginDefinition
-from betty.plugin.factory import (
-    PluginManufacturer,
-    PluginManufacturerDefinition,
+from betty.plugin.cls import (
+    NewPlugin,
     ResolvablePluginManufacturer,
 )
+from betty.plugin.data import DataPlugin, DataPluginDefinition
+from betty.plugin.factory import NewPluginDefinition
 
 if TYPE_CHECKING:
     from betty.localizable import CountableLocalizable, ResolvableLocalizable
@@ -66,13 +66,13 @@ class GenderDefinition(CountableHumanFacingDefinition, DataPluginDefinition[Gend
 
 
 @final
-@PluginManufacturerDefinition(GenderDefinition)
-class GenderManufacturer(PluginManufacturer[GenderDefinition, Gender]):
+@NewPluginDefinition(GenderDefinition)
+class NewGender(NewPlugin[GenderDefinition, Gender]):
     """
-    The gender manufacturer.
+    The gender factory.
     """
 
 
 type ResolvableGenderManufacturer = ResolvablePluginManufacturer[
-    GenderDefinition, GenderManufacturer
+    GenderDefinition, NewGender
 ]

@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.associations.has_notes import HasNotes
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
-from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 @final
 @ContentBuilderDefinition("notes", label=_("Notes"))
-class Notes(Template, Manufacturable):
+class Notes(Template, Integratable):
     """
     .. plugin:: content-builder:notes.
     """

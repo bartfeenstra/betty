@@ -10,9 +10,9 @@ from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.associations.has_file_references import HasFileReferences
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
-from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.service_level.factory import Integratable
 from betty.service_providers._theme import associated_file_references
 
 if TYPE_CHECKING:
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     description=_("Multiple files in a media gallery display"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class MediaGallery(Template, Manufacturable):
+class MediaGallery(Template, Integratable):
     """
     Multiple files in a media gallery display.
 

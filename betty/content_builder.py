@@ -12,16 +12,18 @@ from markupsafe import Markup
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import (
-    PluginManufacturer,
-    PluginManufacturerDefinition,
+from betty.plugin.cls import (
+    NewPlugin,
+    Plugin,
     ResolvablePluginManufacturer,
 )
+from betty.plugin.config import ConfigurablePluginDefinition
+from betty.plugin.factory import NewPluginDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from betty.data import Data
     from betty.document import Document
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
@@ -48,7 +50,7 @@ class ContentBuilder(Plugin["ContentBuilderDefinition"], metaclass=ABCMeta):
     label_countable=ngettext("{count} content builder", "{count} content builders"),
 )
 class ContentBuilderDefinition(
-    HumanFacingDefinition, PluginClsDefinition[ContentBuilder]
+    HumanFacingDefinition, ConfigurablePluginDefinition[ContentBuilder]
 ):
     """
     .. plugin_type:: content-builder.
@@ -59,6 +61,7 @@ class ContentBuilderDefinition(
         plugin_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
+        config_cls: type[Data] | None = None,
         auto: bool = False,
         description: ResolvableLocalizable | None = None,
         requires: Requires = (),
@@ -66,24 +69,23 @@ class ContentBuilderDefinition(
         super().__init__(
             plugin_id,
             auto=auto,
-            label=label,
+            config_cls=config_cls,
             description=description,
+            label=label,
             requires=requires,
         )
 
 
 @final
-@PluginManufacturerDefinition(ContentBuilderDefinition)
-class ContentBuilderManufacturer(
-    PluginManufacturer[ContentBuilderDefinition, ContentBuilder]
-):
+@NewPluginDefinition(ContentBuilderDefinition)
+class NewContentBuilder(NewPlugin[ContentBuilderDefinition, ContentBuilder]):
     """
-    The content builder manufacturer.
+    The content builder factory.
     """
 
 
 type ResolvableContentBuilderManufacturer = ResolvablePluginManufacturer[
-    ContentBuilderDefinition, ContentBuilderManufacturer
+    ContentBuilderDefinition, NewContentBuilder
 ]
 
 

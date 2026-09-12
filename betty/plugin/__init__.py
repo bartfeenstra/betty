@@ -10,7 +10,7 @@ from __future__ import annotations
 from functools import update_wrapper
 from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
-from betty.definition.cls import ClsDefinition
+from betty.definition.cls import ClassedDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.importlib import fully_qualified_name
 from betty.machine_name import MachineName, ResolvableMachineName
@@ -67,7 +67,7 @@ class PluginDefinition:
 
 @final
 class PluginTypeDefinition[PluginDefinitionT: PluginDefinition](
-    CountableHumanFacingDefinition, ClsDefinition[PluginDefinitionT]
+    CountableHumanFacingDefinition, ClassedDefinition[PluginDefinitionT]
 ):
     """
     A plugin type definition.

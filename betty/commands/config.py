@@ -3,14 +3,14 @@ from __future__ import annotations  # noqa: D100
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.app import App, AppData
+from betty.app import App, AppConfig
 from betty.argparse import assertion_to_argument_type
 from betty.assertions.locale import assert_locale
 from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.factory import Manufacturable
 from betty.locale import default_locale, to_language_tag
 from betty.localizables.gettext import _
 from betty.portable.file import assert_load_file, dump_file
+from betty.service_level.factory import Integratable
 from betty.user import Severity
 
 if TYPE_CHECKING:
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandDefinition("config", label=_("Configure Betty"))
-class Config(Manufacturable, Command):
+class Config(Integratable, Command):
     """
     .. plugin:: command:config.
     """
@@ -52,12 +52,12 @@ class Config(Manufacturable, Command):
     async def _command_function(self, *, locale: Locale) -> None:
         serializers = await gather(*self._app.serializers)
 
-        if AppData.FILE.exists():
-            updated_configuration = AppData.data().porter.load(
-                assert_load_file(serializers=serializers)(AppData.FILE)
+        if AppConfig.FILE.exists():
+            updated_configuration = AppConfig.data().porter.load(
+                assert_load_file(serializers=serializers)(AppConfig.FILE)
             )
         else:
-            updated_configuration = AppData()
+            updated_configuration = AppConfig()
         updated_configuration.locale = locale
         await self._app.user.message(
             _("Next time, Betty will talk to you in {locale}").format(
@@ -67,7 +67,7 @@ class Config(Manufacturable, Command):
         )
 
         await dump_file(
-            AppData.data().porter.dump(updated_configuration),
-            AppData.FILE,
+            AppConfig.data().porter.dump(updated_configuration),
+            AppConfig.FILE,
             serializers=serializers,
         )

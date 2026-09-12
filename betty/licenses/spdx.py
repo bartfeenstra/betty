@@ -17,12 +17,12 @@ from aiohttp import ClientError, ClientSession
 
 from betty.app import App
 from betty.exception import HumanFacingException
-from betty.factory import Manufacturable
 from betty.file import read
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
 from betty.localizables.plain import Plain
 from betty.machine_name import MachineName
+from betty.service_level.factory import Integratable
 from betty.user import Severity
 
 if TYPE_CHECKING:
@@ -48,7 +48,7 @@ def spdx_license_id_to_license_id(spdx_license_id: str, /) -> MachineName:
 
 
 @final
-class SpdxLicenseDiscoverer(Manufacturable):
+class SpdxLicenseDiscoverer(Integratable):
     """
     Discover licenses from the `SPDX License List <https://spdx.org/licenses/>`_.
     """

@@ -20,12 +20,11 @@ from betty.data import Data
 from betty.datas.aggregate.record import RecordDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.factory import DataManufacturable
 from betty.functools import Result
 from betty.importlib import import_any
 from betty.localizer import default_localizer
 from betty.machine_name import MachineName
-from betty.plugin.cls import PluginClsDefinition
+from betty.plugin.cls import ClassedPluginDefinition, ConfigurablePlugin
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.service_level import ServiceLevel
@@ -139,11 +138,11 @@ class _PluginDirective(SphinxDirective):
         return nodes.paragraph("", "", *summary_nodes)
 
     def _build_metadata(
-        self, plugin: PluginClsDefinition, plugins: _Plugins
+        self, plugin: ClassedPluginDefinition, plugins: _Plugins
     ) -> list[nodes.Node]:
         cls = plugin.cls
-        if issubclass(cls, DataManufacturable):
-            configuration_content = f":py:class:`{cls.new_data_cls().__name__} <{cls.new_data_cls().__module__}.{cls.new_data_cls().__qualname__}>`"
+        if issubclass(cls, ConfigurablePlugin.__value__):
+            configuration_content = f":py:class:`{cls.plugin().config_cls.__name__} <{cls.plugin().config_cls.__module__}.{cls.plugin().config_cls.__qualname__}>`"
         else:
             configuration_content = "*not configurable*"
         content = f"""
@@ -163,7 +162,7 @@ class _PluginDirective(SphinxDirective):
                 after_plugin
                 for plugin_id in filter(plugin.after, plugins[plugin.type().id])
                 if (after_plugin := plugins[plugin.type().id][plugin_id])
-                and isinstance(after_plugin, PluginClsDefinition)
+                and isinstance(after_plugin, ClassedPluginDefinition)
             ]):
                 content += f"""
    * - Comes after
@@ -173,7 +172,7 @@ class _PluginDirective(SphinxDirective):
                 before_plugin
                 for plugin_id in filter(plugin.before, plugins[plugin.type().id])
                 if (before_plugin := plugins[plugin.type().id][plugin_id])
-                and isinstance(before_plugin, PluginClsDefinition)
+                and isinstance(before_plugin, ClassedPluginDefinition)
             ]):
                 content += f"""
    * - Comes before
@@ -186,7 +185,7 @@ class _PluginDirective(SphinxDirective):
         )
 
     def _build_other_plugins_references(
-        self, plugins: Iterable[PluginClsDefinition]
+        self, plugins: Iterable[ClassedPluginDefinition]
     ) -> str:
         contents = [
             f":py:class:`{plugin.id} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`"
@@ -264,12 +263,12 @@ class _PluginTypeDirective(SphinxDirective):
                     plugins[plugin_type.type().id].values(),
                     key=lambda plugin: plugin.id,
                 )
-                if isinstance(plugin, PluginClsDefinition)
+                if isinstance(plugin, ClassedPluginDefinition)
             ]),
         ]
 
     def _build_builtin_plugin_definition(
-        self, plugin: PluginClsDefinition
+        self, plugin: ClassedPluginDefinition
     ) -> tuple[NodesLike, NodesLike]:
         term_nodes, _ = self.parse_inline(
             f"{plugin.id} (:py:class:`{plugin.cls.__name__} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`)"
@@ -331,7 +330,7 @@ Data
             for field_selector, field in sorted(
                 data.fields.items(),
                 key=lambda field: (
-                    isinstance(field[1].data, OptionalDefinition),
+                    isinstance(field[1].config, OptionalDefinition),
                     field[0].element,
                 ),
             ):

@@ -14,14 +14,15 @@ from betty.data import Data
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.entities.event import Event
-from betty.factory import DataManufacturable, Manufacturable
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
+from betty.plugin.factory import ConfigurableIntegratable
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.project import Project
 from betty.prop import HasProps
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -34,20 +35,20 @@ if TYPE_CHECKING:
 @ObjectDefinition(
     label=_("Presences configuration"),
     samples=[
-        lambda: Sample(PresencesData(), label="Minimal"),
+        lambda: Sample(PresencesConfig(), label="Minimal"),
         lambda: Sample(
-            PresencesData(include=["subject"]),
+            PresencesConfig(include=["subject"]),
             label="Includes",
             size=Size.FULL,
         ),
         lambda: Sample(
-            PresencesData(exclude=["subject"]),
+            PresencesConfig(exclude=["subject"]),
             label="Excludes",
             size=Size.FULL,
         ),
     ],
 )
-class PresencesData(Data, HasProps):
+class PresencesConfig(Data, HasProps):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_presences.Presences`.
 
@@ -81,9 +82,10 @@ class PresencesData(Data, HasProps):
 @ContentBuilderDefinition(
     "raspberry-mint-presences",
     label=_("Presences"),
+    config_cls=PresencesConfig,
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
+class Presences(Template, ConfigurableIntegratable[PresencesConfig], Integratable):
     """
     People's presences at an event.
 
@@ -102,25 +104,22 @@ class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
         )
 
     @override
-    @classmethod
-    def new_data_cls(cls) -> type[PresencesData]:
-        return PresencesData
-
-    @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: PresencesData | None = None, /) -> Self:
+    async def new(
+        cls, project: Project, config: PresencesConfig | None = None, /
+    ) -> Self:
 
-        if data is None:
+        if config is None:
             raise NotImplementedError
         include: Iterable[ResolvablePluginId[RoleDefinition]] | None
-        if data.include is not None:
-            include = data.include
+        if config.include is not None:
+            include = config.include
         else:
             roles = project.plugins[RoleDefinition]
             include = {role.id async for role in roles}
-            if data.exclude is not None:
-                include -= set(data.exclude)
+            if config.exclude is not None:
+                include -= set(config.exclude)
         return cls(include=include, jinja=await project.jinja)
 
     @override
