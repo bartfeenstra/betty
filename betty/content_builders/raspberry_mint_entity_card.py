@@ -14,7 +14,7 @@ from betty.datas.entity_reference import EntityReference
 from betty.entity import ResolvableEntity, resolve
 from betty.image import is_supported_media_type
 from betty.localizables.gettext import _
-from betty.plugin.cls import ConfigurableIntegratable
+from betty.plugin.factory import ConfigurableIntegratable
 from betty.project import Project
 from betty.service_providers._theme import associated_file_references
 

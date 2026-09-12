@@ -13,9 +13,9 @@ from betty.localizables.gettext import _, ngettext
 from betty.media_type import resolve_media_type
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
-    ConfigurablePluginDefinition,
     Plugin,
 )
+from betty.plugin.config import ConfigurablePluginDefinition
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable

@@ -11,7 +11,7 @@ from betty.argparse import add_yes_argument
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.localizables.gettext import _
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 from betty.user import Severity
 
 if TYPE_CHECKING:

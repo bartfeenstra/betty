@@ -13,7 +13,7 @@ from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.localizables.gettext import _
 from betty.media_types.plain_text import PLAIN_TEXT
-from betty.plugin.cls import ConfigurableIntegratable
+from betty.plugin.factory import ConfigurableIntegratable
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size

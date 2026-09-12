@@ -10,7 +10,7 @@ from betty.demo.project import create_project
 from betty.job import Context
 from betty.localizables.gettext import _
 from betty.servers import demo
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     import argparse

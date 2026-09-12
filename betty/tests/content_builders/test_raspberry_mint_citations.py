@@ -6,7 +6,7 @@ from betty.entities.citation import Citation
 from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entities.source import Source
-from betty.plugin.cls import new
+from betty.plugin.factory import new
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.entity.associations.has_citations import DummyHasCitations
 

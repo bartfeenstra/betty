@@ -11,10 +11,10 @@ from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     NewPlugin,
-    NewPluginDefinition,
     ResolvablePluginManufacturer,
 )
 from betty.plugin.data import DataPlugin, DataPluginDefinition
+from betty.plugin.factory import NewPluginDefinition
 
 if TYPE_CHECKING:
     from betty.localizable import CountableLocalizable, ResolvableLocalizable

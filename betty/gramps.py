@@ -114,8 +114,9 @@ from betty.place_types.street import Street
 from betty.place_types.town import Town
 from betty.place_types.unknown import UnknownPlaceType
 from betty.place_types.village import Village
-from betty.plugin.cls import ClassedPluginDefinition, new
+from betty.plugin.cls import ClassedPluginDefinition
 from betty.plugin.error import PluginNotFound
+from betty.plugin.factory import new
 from betty.role import NewRole, ResolvableRoleManufacturer
 from betty.roles.attendee import Attendee
 from betty.roles.celebrant import Celebrant

@@ -12,7 +12,7 @@ from betty.demo.generate import generate_with_cleanup
 from betty.demo.project import create_project
 from betty.job import Context
 from betty.requirement import UnmetRequirement
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 from betty.user import Severity
 
 if TYPE_CHECKING:

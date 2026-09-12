@@ -13,7 +13,7 @@ from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.os import link_or_copy
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from pathlib import Path

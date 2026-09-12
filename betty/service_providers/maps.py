@@ -10,7 +10,7 @@ from betty.jobs._generate_maps_place_previews import _GenerateMapsPlacePreviews
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.webpack.build import EntryPointProvider

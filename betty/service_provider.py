@@ -12,13 +12,13 @@ from betty.life_cycle.manage import ManagedLifeCycle
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
-    ConfigurablePluginDefinition,
     ManufacturablePlugin,
     NewPlugin,
-    NewPluginDefinition,
     Plugin,
     ResolvablePluginManufacturer,
 )
+from betty.plugin.config import ConfigurablePluginDefinition
+from betty.plugin.factory import NewPluginDefinition
 from betty.prop import HasProps
 from betty.service_level import HasServiceLevel, ServiceLevel
 

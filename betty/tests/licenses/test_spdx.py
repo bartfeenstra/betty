@@ -15,8 +15,8 @@ from betty.licenses.spdx import (
     spdx_license_id_to_license_id,
 )
 from betty.localizer import default_localizer
-from betty.plugin.cls import new
 from betty.plugin.discovery import ResolvableDiscovery, discover
+from betty.plugin.factory import new
 from betty.service_level import ServiceLevel
 from betty.stores.file import TransientBinaryFileStore
 from betty.test_utils.conftest import IsolatedAppFactory

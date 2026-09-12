@@ -16,13 +16,13 @@ from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.entities.event import Event
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
-from betty.plugin.cls import ConfigurableIntegratable
+from betty.plugin.factory import ConfigurableIntegratable
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.project import Project
 from betty.prop import HasProps
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

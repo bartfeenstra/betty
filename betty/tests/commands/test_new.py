@@ -6,7 +6,7 @@ from betty.data import Data
 from betty.loaders.gramps import Gramps, GrampsConfig
 from betty.locale import default_locale_tag, to_language_tag
 from betty.localizer import default_localizer
-from betty.plugin.cls import NoNewPluginConfig
+from betty.plugin.factory import NoNewPluginConfig
 from betty.portable.file import assert_load_file
 from betty.project import ProjectConfig
 from betty.serializers.json import Json

@@ -34,9 +34,9 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     ClassedPluginDefinition,
     NewPlugin,
-    NewPluginDefinition,
     Plugin,
 )
+from betty.plugin.factory import NewPluginDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.portable import PortableMapping
 

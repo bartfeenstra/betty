@@ -18,7 +18,7 @@ from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.project import ProjectConfig
 from betty.project.new import new
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 from betty.service_providers.http_api_doc import HttpApiDoc
 from betty.service_providers.maps import Maps
 from betty.service_providers.raspberry_mint import RaspberryMint

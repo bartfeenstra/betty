@@ -12,10 +12,10 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     ManufacturablePlugin,
     NewPlugin,
-    NewPluginDefinition,
     ResolvablePluginManufacturer,
 )
 from betty.plugin.data import DataPlugin, DataPluginDefinition
+from betty.plugin.factory import NewPluginDefinition
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable, ResolvableLocalizable

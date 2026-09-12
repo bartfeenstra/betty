@@ -16,7 +16,7 @@ from betty.dirs import builtin_asset_directory
 from betty.file import read
 from betty.locale import default_locale, to_language_tag
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping

@@ -10,7 +10,7 @@ from urllib.parse import urlencode
 from betty.collections import _empty_frozen_mapping
 from betty.locale import negotiate_locale, resolve_locale, to_language_tag
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 from betty.url_generator import UrlGenerator
 
 if TYPE_CHECKING:

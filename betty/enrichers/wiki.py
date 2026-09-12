@@ -12,11 +12,11 @@ from betty.enrichers.populate_links import PopulateLinks
 from betty.jobs.populate_wiki_entity import PopulateWikiEntity
 from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
-from betty.plugin.cls import ConfigurableIntegratable
+from betty.plugin.factory import ConfigurableIntegratable
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 from betty.service_providers.wiki import Wiki as WikiExtension
 
 if TYPE_CHECKING:

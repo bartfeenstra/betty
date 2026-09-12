@@ -11,7 +11,7 @@ from betty.entities.link import Link
 from betty.jobs.populate_link import PopulateLink
 from betty.load import Enricher, EnricherDefinition
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

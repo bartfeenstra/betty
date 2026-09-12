@@ -21,7 +21,7 @@ from betty.localizable import (
 )
 from betty.localizables.gettext import _
 from betty.localizables.static import StaticTranslations
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 
 def _copyright_url(language: str, page: str) -> str:

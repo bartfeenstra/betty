@@ -19,3 +19,8 @@ class Manufacturable(metaclass=ABCMeta):
         """
         Create a new instance.
         """
+
+
+# @todo Finish this
+def new():
+    raise NotImplementedError

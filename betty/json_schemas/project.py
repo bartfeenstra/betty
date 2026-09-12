@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.entity import EntityDefinition
 from betty.json_schema import Array, JsonSchemaReference, Schema, String
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:

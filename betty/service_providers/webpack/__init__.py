@@ -14,7 +14,7 @@ from betty.jobs._generate_webpack_assets import _GenerateWebpackAssets
 from betty.js_resources.webpack_entry_point_loader import WEBPACK_ENTRY_POINT_LOADER
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
 from betty.service_providers.webpack import build
 from betty.service_providers.webpack.build import EntryPointProvider

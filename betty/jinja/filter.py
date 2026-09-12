@@ -11,9 +11,9 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     ClassedPluginDefinition,
     NewPlugin,
-    NewPluginDefinition,
     Plugin,
 )
+from betty.plugin.factory import NewPluginDefinition
 
 if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName

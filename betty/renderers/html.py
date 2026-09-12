@@ -12,7 +12,7 @@ from betty.localizables.markup import JoinAnd
 from betty.media_types.html import HTML
 from betty.project import Project
 from betty.render import Renderer, RendererDefinition
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

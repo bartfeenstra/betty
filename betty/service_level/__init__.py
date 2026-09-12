@@ -4,9 +4,8 @@ Service levels.
 
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
 from importlib import metadata
-from typing import TYPE_CHECKING, Any, Final, Self
+from typing import TYPE_CHECKING, Any, Final
 
 from typing_extensions import disjoint_base
 
@@ -122,16 +121,3 @@ def resolve_service_level[ServiceLevelT: ServiceLevel = ServiceLevel](
     if isinstance(services, ServiceLevel):
         return services
     return services.services
-
-
-class Integratable(metaclass=ABCMeta):
-    """
-    A class that can be initialized asynchronously for a service level.
-    """
-
-    @classmethod
-    @abstractmethod
-    async def new(cls, services: ServiceLevel, /) -> Self:
-        """
-        Create a new instance.
-        """

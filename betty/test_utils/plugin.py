@@ -12,9 +12,9 @@ from betty.plugin.cls import (
     ClassedPluginDefinition,
     ManufacturablePlugin,
     NewPlugin,
-    NewPluginDefinition,
     Plugin,
 )
+from betty.plugin.factory import NewPluginDefinition
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 

@@ -22,7 +22,7 @@ from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
 from betty.localizables.plain import Plain
 from betty.machine_name import MachineName
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 from betty.user import Severity
 
 if TYPE_CHECKING:

@@ -5,11 +5,13 @@ import pytest
 from betty.exception import HumanFacingException
 from betty.plugin.cls import (
     ClassedPluginDefinition,
-    ConfigurableIntegratable,
     NewPlugin,
+    Plugin,
+)
+from betty.plugin.factory import (
+    ConfigurableIntegratable,
     NewPluginPorter,
     NoNewPluginConfig,
-    Plugin,
 )
 from betty.service_level import ServiceLevel
 from betty.test_utils.data import DummyData

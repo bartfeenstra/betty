@@ -13,7 +13,7 @@ from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.media_type import MediaType
 from betty.media_types.html import HTML
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from jinja2.runtime import Context

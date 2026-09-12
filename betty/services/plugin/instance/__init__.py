@@ -15,8 +15,8 @@ from betty.plugin.cls import (
     ManufacturablePlugin,
     NewPlugin,
     Plugin,
-    new,
 )
+from betty.plugin.factory import new
 from betty.plugin.resolve import resolve_plugin_id
 from betty.requirements.service import UnmetServiceRequirement
 from betty.service_level import resolve_service_level

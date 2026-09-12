@@ -11,9 +11,9 @@ from betty.jobs.load_demo_ancestry import LoadDemoAncestry
 from betty.license import LicenseDefinition
 from betty.licenses.spdx import spdx_license_id_to_license_id
 from betty.load import Loader, LoaderDefinition
-from betty.plugin.cls import new
+from betty.plugin.factory import new
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

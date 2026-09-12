@@ -16,7 +16,7 @@ from betty.entities.person import Person
 from betty.entities.presence import Presence
 from betty.event_type import EventTypeDefinition, ShouldExistEventType
 from betty.localizables.gettext import _
-from betty.plugin.cls import new
+from betty.plugin.factory import new
 from betty.roles.subject import Subject
 from betty.user import Severity
 

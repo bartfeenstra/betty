@@ -26,7 +26,7 @@ from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.localizables.gettext import _
-from betty.plugin.cls import ConfigurableIntegratable, new
+from betty.plugin.factory import ConfigurableIntegratable, new
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size

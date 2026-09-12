@@ -13,7 +13,7 @@ from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 from betty.service_providers._theme import person_timeline_events, place_timeline_events
 
 if TYPE_CHECKING:

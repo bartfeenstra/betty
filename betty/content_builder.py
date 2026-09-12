@@ -13,12 +13,12 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
-    ConfigurablePluginDefinition,
     NewPlugin,
-    NewPluginDefinition,
     Plugin,
     ResolvablePluginManufacturer,
 )
+from betty.plugin.config import ConfigurablePluginDefinition
+from betty.plugin.factory import NewPluginDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

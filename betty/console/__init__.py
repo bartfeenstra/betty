@@ -18,7 +18,7 @@ from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
-from betty.plugin.cls import new
+from betty.plugin.factory import new
 from betty.user import Severity, User, UserHandler
 
 if TYPE_CHECKING:

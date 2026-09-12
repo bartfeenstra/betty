@@ -14,7 +14,7 @@ from betty.localizable import (
 )
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 
 @final

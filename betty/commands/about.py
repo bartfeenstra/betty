@@ -15,7 +15,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.rich.user import RichUser
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     import argparse

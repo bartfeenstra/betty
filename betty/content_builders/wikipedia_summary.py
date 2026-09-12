@@ -13,9 +13,9 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.locale import negotiate_locale, resolve_locale
 from betty.localizables.gettext import _
-from betty.plugin.cls import new
+from betty.plugin.factory import new
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 from betty.service_providers.wiki import Wiki as WikiExtension
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki.client import Client, ClientError, Summary

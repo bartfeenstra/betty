@@ -34,7 +34,7 @@ from betty.datas.plugin.manufacturer.sequence import (
     NewPluginSequenceDefinition,
 )
 from betty.localizables.gettext import _
-from betty.plugin.cls import ConfigurableIntegratable, new
+from betty.plugin.factory import ConfigurableIntegratable, new
 from betty.porters.callback import CallbackPorter
 from betty.project import Project
 from betty.prop import HasProps

@@ -19,8 +19,8 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     ManufacturablePlugin,
     NewPlugin,
-    NewPluginDefinition,
 )
+from betty.plugin.factory import NewPluginDefinition
 from betty.plugin.ordered import Order, OrderedClassedPluginDefinition
 from betty.user import Severity
 

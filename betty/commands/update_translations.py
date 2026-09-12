@@ -10,7 +10,7 @@ from betty.asset import AssetDirectoryDefinition
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.localizables.gettext import _
 from betty.plugin.error import PluginNotFound
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     import argparse

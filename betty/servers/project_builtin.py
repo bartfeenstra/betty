@@ -12,7 +12,7 @@ from betty.plugin.cls import Plugin
 from betty.project import Project
 from betty.server import Server, ServerDefinition
 from betty.servers.builtin import BuiltinServer
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 
 @final

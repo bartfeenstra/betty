@@ -14,7 +14,7 @@ from betty.entities.source import Source
 from betty.functools import unique
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

@@ -9,7 +9,7 @@ from betty.console.project import add_project_argument
 from betty.job import Context
 from betty.localizables.gettext import _
 from betty.project import generate
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     import argparse

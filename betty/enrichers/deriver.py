@@ -10,7 +10,7 @@ from betty.jobs.derive_ancestry import DeriveAncestry
 from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

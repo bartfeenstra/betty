@@ -35,17 +35,17 @@ from betty.pathlib import resolve_path
 from betty.place_type import NewPlaceType, ResolvablePlaceTypeManufacturer
 from betty.plugin.cls import (
     ClassedPluginDefinition,
-    ConfigurableIntegratable,
     NewPlugin,
     Plugin,
     ResolvablePluginManufacturer,
 )
+from betty.plugin.factory import ConfigurableIntegratable
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.prop import HasProps
 from betty.role import NewRole, ResolvableRoleManufacturer
 from betty.sample import Sample, Size
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

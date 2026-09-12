@@ -6,9 +6,9 @@ from asyncio import gather
 from typing import Self, final, override
 
 from betty.copyright_notices.wikipedia_contributors import WikipediaContributors
-from betty.plugin.cls import new
+from betty.plugin.factory import new
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
 from betty.services.simple import service
 from betty.wiki import populator as populator_api

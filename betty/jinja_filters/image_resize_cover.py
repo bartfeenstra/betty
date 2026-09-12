@@ -24,9 +24,9 @@ from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.jinja_filters.file import File as FileFilter
 from betty.media_types.svg import SVG
 from betty.os import _link_or_copy
-from betty.plugin.cls import new
+from betty.plugin.factory import new
 from betty.project import Project
-from betty.service_level import Integratable
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from collections.abc import (
