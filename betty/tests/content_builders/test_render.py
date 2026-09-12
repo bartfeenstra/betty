@@ -1,6 +1,6 @@
 import pytest
 
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.render import Render, RenderConfig
 from betty.document import Document
 from betty.locale import default_locale, default_locale_tag
 from betty.localizable import ResolvableLocalizable
@@ -12,12 +12,12 @@ from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
-class TestRenderData(DataTestBase[RenderData]):
-    sut_cls = RenderData
+class TestRenderData(DataTestBase[RenderConfig]):
+    sut_cls = RenderConfig
 
     def test_content(self) -> None:
         content = DUMMY_LOCALIZABLE
-        sut = RenderData(content)
+        sut = RenderConfig(content)
         assert sut.content is content
 
 

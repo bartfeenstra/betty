@@ -101,7 +101,7 @@ class ConfigurableManufacturable[ConfigT: Data](
 
     @classmethod
     @abstractmethod
-    async def new(cls, configuration: ConfigT, /) -> Self:
+    async def new(cls, config: ConfigT, /) -> Self:
         """
         Create a new instance.
         """
@@ -116,7 +116,7 @@ class ConfigurableIntegratable[ConfigT: Data](
 
     @classmethod
     @abstractmethod
-    async def new(cls, services: ServiceLevel, configuration: ConfigT, /) -> Self:
+    async def new(cls, services: ServiceLevel, config: ConfigT, /) -> Self:
         """
         Create a new instance.
         """
@@ -166,20 +166,20 @@ class ConfigurablePluginDefinition[PluginT, ConfigT: Data](
     def __init__(
         self,
         *args: Any,
-        configuration_cls: type[ConfigT] | None = None,
+        config_cls: type[ConfigT] | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self.__configuration_cls = configuration_cls
+        self.__config_cls = config_cls
 
     @property
-    def configuration_cls(self) -> type[ConfigT]:
+    def config_cls(self) -> type[ConfigT]:
         """
         The plugin's configuration class, if it is configurable.
         """
-        if not self.__configuration_cls:
+        if not self.__config_cls:
             raise NotConfigurable
-        return self.__configuration_cls
+        return self.__config_cls
 
 
 @final
@@ -236,7 +236,7 @@ async def new(factory, services, configuration=None, /):
     return await factory.new(configuration)
 
 
-NoPluginConfig = sentinel("NoPluginConfig")
+NoNewPluginConfig = sentinel("NoNewPluginConfig")
 
 
 @disjoint_base
@@ -257,7 +257,9 @@ class NewPlugin[PluginDefinitionT: ClassedPluginDefinition, PluginT](
     """
 
     config = OwnerAttr(
-        DataDefinition[Data | PortableData | NoPluginConfig](label=_("Configuration"))
+        DataDefinition[Data | PortableData | NoNewPluginConfig](
+            label=_("Configuration")
+        )
     )
     """
     Get the plugin's own configuration.
@@ -290,7 +292,7 @@ class NewPlugin[PluginDefinitionT: ClassedPluginDefinition, PluginT](
         pass
 
     @final
-    def __init__(self, plugin_id, plugin_config=NoPluginConfig, /):
+    def __init__(self, plugin_id, plugin_config=NoNewPluginConfig, /):
         super().__init__()
         self.id = resolve_plugin_id(plugin_id)
         self.config = plugin_config
@@ -300,8 +302,8 @@ class NewPlugin[PluginDefinitionT: ClassedPluginDefinition, PluginT](
         return hash((
             self.data().plugin_type,
             self.id,
-            NoPluginConfig
-            if self.config is NoPluginConfig
+            NoNewPluginConfig
+            if self.config is NoNewPluginConfig
             else dumps(NewPluginPorter._dump_configuration(self.config)),
         ))
 
@@ -317,26 +319,20 @@ class NewPlugin[PluginDefinitionT: ClassedPluginDefinition, PluginT](
         """
         Create a new instance of the configured plugin.
         """
-        plugin_cls = (await services.plugins[self.data().plugin_type][self.id]).cls
-        args = (plugin_cls, services)
-        if self.config is not NoPluginConfig:
-            if not issubclass(plugin_cls, ConfigurablePlugin.__value__):
-                raise NotConfigurable(self.data().plugin_type, self.id)
-            configuration = self.config
-            if not isinstance(configuration, Data):
-                configuration = (
-                    plugin_cls.configuration_cls().data().porter.load(configuration)
-                )
-            args += configuration
+        definition = await services.plugins[self.data().plugin_type][self.id]
+        args = (definition.cls, services)
+        if self.config is not NoNewPluginConfig:
+            if not isinstance(definition, ConfigurablePluginDefinition):
+                # @todo Add args and such
+                raise NotConfigurable
+            if not isinstance(self.config, Data):
+                self.config = definition.config_cls.data().porter.load(self.config)
+            args += self.config
         return await new(*args)
 
     @final
     @classmethod
-    def resolve(
-        # @todo Any
-        cls,
-        factory: ConfigurablePluginFactory[PluginT, Self, Data],
-    ) -> Self:
+    def resolve(cls, factory: ConfigurablePluginFactory[PluginT, Self, Data]) -> Self:
         """
         Resolve a value to an instance of ``self``.
         """
@@ -388,7 +384,7 @@ class NewPluginPorter[NewPluginT: NewPlugin](KeyedPorter[NewPluginT]):
     @override
     def load(self, data: PortableData, /) -> NewPluginT:
         record = self._load(data)
-        return self._cls(record["id"], record.get("config", NoPluginConfig))
+        return self._cls(record["id"], record.get("config", NoNewPluginConfig))
 
     _load_keyed = assert_mapping()
 
@@ -397,15 +393,15 @@ class NewPluginPorter[NewPluginT: NewPlugin](KeyedPorter[NewPluginT]):
         return self.load({**self._load_keyed(data), "id": key})
 
     @classmethod
-    def _dump_configuration(cls, configuration: Data | PortableData) -> PortableData:
-        if isinstance(configuration, Data):
-            return configuration.data().porter.dump(configuration)
-        return configuration
+    def _dump_configuration(cls, config: Data | PortableData) -> PortableData:
+        if isinstance(config, Data):
+            return config.data().porter.dump(config)
+        return config
 
     @override
     def dump(self, data: NewPluginT, /) -> PortableData:
         configuration = data.config
-        if configuration is NoPluginConfig:
+        if configuration is NoNewPluginConfig:
             return data.id
         return {
             "id": data.id,
@@ -414,7 +410,7 @@ class NewPluginPorter[NewPluginT: NewPlugin](KeyedPorter[NewPluginT]):
 
     @override
     def dump_keyed(self, data: NewPluginT, /) -> tuple[str, PortableData]:
-        return data.id, {} if data.config is NoPluginConfig else {
+        return data.id, {} if data.config is NoNewPluginConfig else {
             "config": self._dump_configuration(data.config)
         }
 

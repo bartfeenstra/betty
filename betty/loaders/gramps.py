@@ -190,21 +190,21 @@ class FamilyTree(Data, HasProps):
 @ObjectDefinition(
     label=_("Gramps configuration"),
     samples=[
-        lambda: Sample(GrampsData(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(GrampsConfig(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
-            GrampsData(executable="gramps.exe"),
+            GrampsConfig(executable="gramps.exe"),
             label="A custom Gramps executable",
         ),
         lambda: Sample(
-            GrampsData(family_trees=[FamilyTree(file="./gramps.gpkg")]),
+            GrampsConfig(family_trees=[FamilyTree(file="./gramps.gpkg")]),
             label="Load a family tree from a file",
         ),
         lambda: Sample(
-            GrampsData(family_trees=[FamilyTree(name="my-family-tree")]),
+            GrampsConfig(family_trees=[FamilyTree(name="my-family-tree")]),
             label="Load a family tree by its name directly from Gramps",
         ),
         lambda: Sample(
-            GrampsData(
+            GrampsConfig(
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",
@@ -215,7 +215,7 @@ class FamilyTree(Data, HasProps):
             label="Map a Gramps event type to a Betty event type",
         ),
         lambda: Sample(
-            GrampsData(
+            GrampsConfig(
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",
@@ -226,7 +226,7 @@ class FamilyTree(Data, HasProps):
             label="Map a Gramps place type to a Betty place type",
         ),
         lambda: Sample(
-            GrampsData(
+            GrampsConfig(
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",
@@ -238,7 +238,7 @@ class FamilyTree(Data, HasProps):
         ),
     ],
 )
-class GrampsData(Data, HasProps):
+class GrampsConfig(Data, HasProps):
     """
     Configuration for the :py:class:`betty.loaders.gramps.Gramps` extension.
 
@@ -279,9 +279,9 @@ class GrampsData(Data, HasProps):
     "gramps",
     label="Gramps",
     description=_("Load Gramps family trees."),
-    configuration_cls=GrampsData,
+    config_cls=GrampsConfig,
 )
-class Gramps(ConfigurableIntegratable[GrampsData], Integratable, Loader):
+class Gramps(ConfigurableIntegratable[GrampsConfig], Integratable, Loader):
     """
     .. plugin:: loader:gramps.
 
@@ -570,11 +570,11 @@ class Gramps(ConfigurableIntegratable[GrampsData], Integratable, Loader):
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: GrampsData | None = None, /) -> Self:
+    async def new(cls, project: Project, config: GrampsConfig | None = None, /) -> Self:
         return cls(
             project=project,
-            executable=None if data is None else data.executable,
-            family_trees=() if data is None else data.family_trees,
+            executable=None if config is None else config.executable,
+            family_trees=() if config is None else config.family_trees,
         )
 
     @override

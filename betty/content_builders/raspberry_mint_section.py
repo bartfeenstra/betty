@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     label=_("Section configuration"),
     samples=[
         lambda: Sample(
-            SectionData(
+            SectionConfig(
                 NewContentBuilder("my-first-content"),
                 heading="-",
             ),
@@ -51,9 +51,9 @@ if TYPE_CHECKING:
             size=Size.MINIMAL,
         ),
     ],
-    manufacturer=lambda **fields: SectionData(*fields.pop("content"), **fields),
+    manufacturer=lambda **fields: SectionConfig(*fields.pop("content"), **fields),
 )
-class SectionData(Data, HasProps):
+class SectionConfig(Data, HasProps):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_section.Section`.
 
@@ -102,10 +102,10 @@ class SectionData(Data, HasProps):
 @ContentBuilderDefinition(
     "raspberry-mint-section",
     label=_("Section"),
-    configuration_cls=SectionData,
+    config_cls=SectionConfig,
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Section(Template, ConfigurableIntegratable[SectionData]):
+class Section(Template, ConfigurableIntegratable[SectionConfig]):
     """
     .. plugin:: content-builder:raspberry-mint-section.
     """
@@ -128,22 +128,22 @@ class Section(Template, ConfigurableIntegratable[SectionData]):
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: SectionData, /) -> Self:
+    async def new(cls, project: Project, config: SectionConfig, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(
                     lambda manufacturer: new(manufacturer, project),
-                    map(NewContentBuilder.resolve, data.content),
+                    map(NewContentBuilder.resolve, config.content),
                 )
             ),
             project.jinja,
         )
         return cls(
             *content,
-            heading=data.heading,
+            heading=config.heading,
             jinja=jinja,
-            name=data.name,
-            visually_hide_heading=data.visually_hide_heading,
+            name=config.name,
+            visually_hide_heading=config.visually_hide_heading,
         )
 
     @override

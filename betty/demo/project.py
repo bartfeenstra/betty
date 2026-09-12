@@ -10,13 +10,13 @@ from babel import Locale
 
 from betty import about, dirs
 from betty.content_builder import NewContentBuilder
-from betty.content_builders.raspberry_mint_columns import Columns, ColumnsData
+from betty.content_builders.raspberry_mint_columns import Columns, ColumnsConfig
 from betty.content_builders.raspberry_mint_entity_card import EntityCard
 from betty.content_builders.raspberry_mint_incomplete_translation_warning import (
     IncompleteTranslationWarning,
 )
-from betty.content_builders.raspberry_mint_section import Section, SectionData
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.raspberry_mint_section import Section, SectionConfig
+from betty.content_builders.render import Render, RenderConfig
 from betty.content_builders.wikipedia_summary import WikipediaSummary
 from betty.datas.entity_reference import EntityReference
 from betty.enrichers.deriver import Deriver
@@ -40,7 +40,7 @@ from betty.service_providers.maps import Maps
 from betty.service_providers.raspberry_mint import (
     Breakpoint,
     RaspberryMint,
-    RaspberryMintData,
+    RaspberryMintConfig,
     Region,
 )
 from betty.service_providers.spdx import Spdx
@@ -72,23 +72,23 @@ async def create_project(
             Spdx,
             NewServiceProvider(
                 RaspberryMint,
-                RaspberryMintData(
+                RaspberryMintConfig(
                     regional_content={
                         Region.FRONT_PAGE_CONTENT: [
                             NewContentBuilder(
                                 Columns,
-                                ColumnsData([IncompleteTranslationWarning]),
+                                ColumnsConfig([IncompleteTranslationWarning]),
                             ),
                             NewContentBuilder(
                                 Section,
-                                SectionData(
+                                SectionConfig(
                                     NewContentBuilder(
                                         Columns,
-                                        ColumnsData(
+                                        ColumnsConfig(
                                             [
                                                 NewContentBuilder(
                                                     Render,
-                                                    RenderData(
+                                                    RenderConfig(
                                                         Chain(
                                                             "<h2>",
                                                             _("Get started"),
@@ -107,7 +107,7 @@ async def create_project(
                                             [
                                                 NewContentBuilder(
                                                     Render,
-                                                    RenderData(
+                                                    RenderConfig(
                                                         Chain(
                                                             "<p>",
                                                             _(
@@ -134,10 +134,10 @@ async def create_project(
                             ),
                             NewContentBuilder(
                                 Section,
-                                SectionData(
+                                SectionConfig(
                                     NewContentBuilder(
                                         Columns,
-                                        ColumnsData(
+                                        ColumnsConfig(
                                             [
                                                 NewContentBuilder(
                                                     EntityCard,
@@ -179,7 +179,7 @@ async def create_project(
                         Region.FRONT_PAGE_SUMMARY: [
                             NewContentBuilder(
                                 Render,
-                                RenderData(
+                                RenderConfig(
                                     _(
                                         "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
                                     )

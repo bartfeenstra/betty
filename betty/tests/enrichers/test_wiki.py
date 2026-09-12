@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.enrichers.wiki import Wiki, WikiData
+from betty.enrichers.wiki import Wiki, WikiConfig
 from betty.entities.link import Link
 from betty.load import load
 from betty.test_utils.data import DataTestBase
@@ -29,5 +29,5 @@ class TestWiki:
             m_populate_ancestry.assert_awaited_once()
 
 
-class TestWikiData(DataTestBase[WikiData]):
-    sut_cls = WikiData
+class TestWikiData(DataTestBase[WikiConfig]):
+    sut_cls = WikiConfig

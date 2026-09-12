@@ -22,7 +22,7 @@ from betty.content_builder import (
     ResolvableContentBuilderManufacturer,
     build,
 )
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.render import Render, RenderConfig
 from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
 from betty.datas.aggregate.collection.dict import DictDefinition
@@ -56,39 +56,39 @@ type ResolvableColumnsWidth = (
     label=_("Columns configuration"),
     samples=[
         lambda: Sample(
-            ColumnsData([NewContentBuilder(Render, RenderData("Hello, world!"))]),
+            ColumnsConfig([NewContentBuilder(Render, RenderConfig("Hello, world!"))]),
             label="Minimal",
             size=Size.MINIMAL,
         ),
         lambda: Sample(
-            ColumnsData(
-                [NewContentBuilder(Render, RenderData("Hello, world!"))],
+            ColumnsConfig(
+                [NewContentBuilder(Render, RenderConfig("Hello, world!"))],
                 justify_content=JustifyContent.CENTER,
             ),
             label="Justify content",
         ),
         lambda: Sample(
-            ColumnsData(
-                [NewContentBuilder(Render, RenderData("Hello, world!"))],
+            ColumnsConfig(
+                [NewContentBuilder(Render, RenderConfig("Hello, world!"))],
                 width=6,
             ),
             label="A single column with a fixed, non-responsive width",
         ),
         lambda: Sample(
-            ColumnsData(
+            ColumnsConfig(
                 [
-                    NewContentBuilder(Render, RenderData("Hello, world!")),
+                    NewContentBuilder(Render, RenderConfig("Hello, world!")),
                 ],
                 [
-                    NewContentBuilder(Render, RenderData("How are you?")),
+                    NewContentBuilder(Render, RenderConfig("How are you?")),
                 ],
                 width=[6, 6],
             ),
             label="Multiple columns with fixed, non-responsive widths",
         ),
         lambda: Sample(
-            ColumnsData(
-                [NewContentBuilder(Render, RenderData("Hello, world!"))],
+            ColumnsConfig(
+                [NewContentBuilder(Render, RenderConfig("Hello, world!"))],
                 width={
                     Breakpoint.XS: 12,
                     Breakpoint.MD: 6,
@@ -97,12 +97,12 @@ type ResolvableColumnsWidth = (
             label="A single column with responsive widths",
         ),
         lambda: Sample(
-            ColumnsData(
+            ColumnsConfig(
                 [
-                    NewContentBuilder(Render, RenderData("Hello, world!")),
+                    NewContentBuilder(Render, RenderConfig("Hello, world!")),
                 ],
                 [
-                    NewContentBuilder(Render, RenderData("How are you?")),
+                    NewContentBuilder(Render, RenderConfig("How are you?")),
                 ],
                 width={
                     Breakpoint.XS: [12, 12],
@@ -112,9 +112,9 @@ type ResolvableColumnsWidth = (
             label="Multiple columns with responsive widths",
         ),
     ],
-    manufacturer=lambda **fields: ColumnsData(*fields.pop("content"), **fields),
+    manufacturer=lambda **fields: ColumnsConfig(*fields.pop("content"), **fields),
 )
-class ColumnsData(Data, HasProps):
+class ColumnsConfig(Data, HasProps):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_columns.Columns`.
 
@@ -172,7 +172,7 @@ class ColumnsData(Data, HasProps):
                 },
             ),
         )
-    ).default(lambda: ColumnsData._DEFAULT_WIDTH)
+    ).default(lambda: ColumnsConfig._DEFAULT_WIDTH)
     """
     The column widths.
     """
@@ -205,10 +205,10 @@ class ColumnsData(Data, HasProps):
 @ContentBuilderDefinition(
     "raspberry-mint-columns",
     label=_("Columns"),
-    configuration_cls=ColumnsData,
+    config_cls=ColumnsConfig,
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Columns(Template, ConfigurableIntegratable[ColumnsData]):
+class Columns(Template, ConfigurableIntegratable[ColumnsConfig]):
     """
     A container with one or more columns.
 
@@ -231,7 +231,7 @@ class Columns(Template, ConfigurableIntegratable[ColumnsData]):
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: ColumnsData, /) -> Self:
+    async def new(cls, project: Project, config: ColumnsConfig, /) -> Self:
         content, jinja = await gather(
             gather(*[
                 gather(
@@ -240,15 +240,15 @@ class Columns(Template, ConfigurableIntegratable[ColumnsData]):
                         map(NewContentBuilder.resolve, column_content),
                     )
                 )
-                for column_content in data.content
+                for column_content in config.content
             ]),
             project.jinja,
         )
         return cls(
             *content,
             jinja=jinja,
-            justify_content=data.justify_content,
-            width=data.width,
+            justify_content=config.justify_content,
+            width=config.width,
         )
 
     @override

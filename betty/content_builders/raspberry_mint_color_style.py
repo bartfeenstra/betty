@@ -40,13 +40,13 @@ if TYPE_CHECKING:
     label=_("Color style configuration"),
     samples=[
         lambda: Sample(
-            ColorStyleData("my-first-content", style=RaspberryMintColorStyle.DARK),
+            ColorStyleConfig("my-first-content", style=RaspberryMintColorStyle.DARK),
             label="Default",
         )
     ],
-    manufacturer=lambda **fields: ColorStyleData(*fields.pop("content"), **fields),
+    manufacturer=lambda **fields: ColorStyleConfig(*fields.pop("content"), **fields),
 )
-class ColorStyleData(Data, HasProps):
+class ColorStyleConfig(Data, HasProps):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_color_style.ColorStyle`.
 
@@ -77,10 +77,10 @@ class ColorStyleData(Data, HasProps):
 @ContentBuilderDefinition(
     "raspberry-mint-color-style",
     label=_("Color style"),
-    configuration_cls=ColorStyleData,
+    config_cls=ColorStyleConfig,
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class ColorStyle(Template, ConfigurableIntegratable[ColorStyleData]):
+class ColorStyle(Template, ConfigurableIntegratable[ColorStyleConfig]):
     """
     Change the color style for all containing content.
 
@@ -101,17 +101,17 @@ class ColorStyle(Template, ConfigurableIntegratable[ColorStyleData]):
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: ColorStyleData, /) -> Self:
+    async def new(cls, project: Project, config: ColorStyleConfig, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(
                     lambda manufacturer: new(manufacturer, project),
-                    data.content,
+                    config.content,
                 )
             ),
             project.jinja,
         )
-        return cls(*content, jinja=jinja, style=data.style)
+        return cls(*content, jinja=jinja, style=config.style)
 
     @override
     async def build_template(self, document: Document) -> TemplateBuild:

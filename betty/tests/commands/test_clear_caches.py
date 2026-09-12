@@ -8,7 +8,7 @@ from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.file import write
-from betty.project import Project, ProjectData
+from betty.project import Project, ProjectConfig
 from betty.stores.file import TransientPickledFileStore
 from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
 from betty.test_utils.console import run
@@ -89,8 +89,8 @@ class TestClearCaches:
             await write(
                 project_directory / "betty.json",
                 dumps(
-                    ProjectData.data().porter.dump(
-                        ProjectData(title="Betty", url="https://example.com")
+                    ProjectConfig.data().porter.dump(
+                        ProjectConfig(title="Betty", url="https://example.com")
                     )
                 ),
             )

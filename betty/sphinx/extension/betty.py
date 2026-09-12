@@ -142,7 +142,7 @@ class _PluginDirective(SphinxDirective):
     ) -> list[nodes.Node]:
         cls = plugin.cls
         if issubclass(cls, ConfigurablePlugin.__value__):
-            configuration_content = f":py:class:`{cls.configuration_cls().__name__} <{cls.configuration_cls().__module__}.{cls.configuration_cls().__qualname__}>`"
+            configuration_content = f":py:class:`{cls.plugin().config_cls.__name__} <{cls.plugin().config_cls.__module__}.{cls.plugin().config_cls.__qualname__}>`"
         else:
             configuration_content = "*not configurable*"
         content = f"""
@@ -330,7 +330,7 @@ Data
             for field_selector, field in sorted(
                 data.fields.items(),
                 key=lambda field: (
-                    isinstance(field[1].data, OptionalDefinition),
+                    isinstance(field[1].config, OptionalDefinition),
                     field[0].element,
                 ),
             ):

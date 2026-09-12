@@ -12,7 +12,7 @@ from betty.event_type import NewEventType
 from betty.event_types.birth import Birth
 from betty.gramps import machinify
 from betty.load import NewLoader, load
-from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
+from betty.loaders.gramps import FamilyTree, Gramps, GrampsConfig
 from betty.place_type import NewPlaceType
 from betty.place_types.borough import Borough
 from betty.place_types.city import City
@@ -53,7 +53,7 @@ class TestGramps:
             loaders=[
                 NewLoader(
                     Gramps.plugin(),
-                    GrampsData(
+                    GrampsConfig(
                         family_trees=[
                             FamilyTree(
                                 gramps_family_tree_path,
@@ -96,7 +96,7 @@ class TestGramps:
             loaders=[
                 NewLoader(
                     Gramps.plugin(),
-                    GrampsData(
+                    GrampsConfig(
                         family_trees=[
                             FamilyTree(
                                 gramps_family_tree_path,
@@ -147,7 +147,7 @@ class TestGramps:
             loaders=[
                 NewLoader(
                     Gramps.plugin(),
-                    GrampsData(
+                    GrampsConfig(
                         family_trees=[
                             FamilyTree(
                                 gramps_family_tree_path,
@@ -275,7 +275,7 @@ class TestGramps:
                 loaders=[
                     NewLoader(
                         Gramps.plugin(),
-                        GrampsData(
+                        GrampsConfig(
                             family_trees=[
                                 FamilyTree(gramps_family_tree_one),
                                 FamilyTree(gramps_family_tree_two),
@@ -350,27 +350,27 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
         assert sut.source == name
 
 
-class TestGrampsData(DataTestBase[GrampsData]):
-    sut_cls = GrampsData
+class TestGrampsData(DataTestBase[GrampsConfig]):
+    sut_cls = GrampsConfig
 
     async def test___init____with_family_trees(self) -> None:
         family_tree = FamilyTree(name="my-first-family-tree")
-        sut = GrampsData(family_trees=[family_tree])
+        sut = GrampsConfig(family_trees=[family_tree])
         assert sut.family_trees == [family_tree]
 
     async def test___init____with_executable(self) -> None:
         executable = Path("my-first-gramps")
-        sut = GrampsData(executable=executable)
+        sut = GrampsConfig(executable=executable)
         assert sut.executable is executable
 
     async def test_family_trees(self) -> None:
         family_trees = [FamilyTree(name="my-first-family-tree")]
-        sut = GrampsData()
+        sut = GrampsConfig()
         sut.family_trees = family_trees
         assert list(sut.family_trees) == family_trees
 
     async def test_executable(self) -> None:
         executable = Path("my-first-gramps")
-        sut = GrampsData()
+        sut = GrampsConfig()
         sut.executable = executable
         assert sut.executable is executable

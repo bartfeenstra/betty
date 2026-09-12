@@ -385,7 +385,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         self._cache_directory = self.directory / ".cache" / version_major
 
     @classmethod
-    async def new(cls, app: App, data: ProjectData, *, directory: StrPath) -> Self:
+    async def new(cls, app: App, data: ProjectConfig, *, directory: StrPath) -> Self:
         """
         Create a new instance.
         """
@@ -680,12 +680,12 @@ class ProjectLocale(Data[ObjectDefinition["ProjectLocale"]], HasProps, Frozen):
     label=_("Project configuration"),
     samples=[
         lambda: Sample(
-            ProjectData(title="Betty", url="https://example.com"),
+            ProjectConfig(title="Betty", url="https://example.com"),
             label="Minimal",
             size=Size.MINIMAL,
         ),
         lambda: Sample(
-            ProjectData(
+            ProjectConfig(
                 author="Bart Feenstra",
                 clean_urls=True,
                 copyright_notice=NewCopyrightNotice
@@ -722,7 +722,7 @@ class ProjectLocale(Data[ObjectDefinition["ProjectLocale"]], HasProps, Frozen):
         ),
     ],
 )
-class ProjectData(Data, HasProps):
+class ProjectConfig(Data, HasProps):
     """
     Configuration for a :py:class:`betty.project.Project`.
 

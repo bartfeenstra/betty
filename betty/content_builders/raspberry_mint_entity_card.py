@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 @ContentBuilderDefinition(
     "raspberry-mint-entity-card",
     label=_("Entity card"),
-    configuration_cls=EntityReference,
+    config_cls=EntityReference,
     requires={Project.asset_directories.require(raspberry_mint)},
 )
 class EntityCard(Template, ConfigurableIntegratable[EntityReference]):
@@ -49,8 +49,8 @@ class EntityCard(Template, ConfigurableIntegratable[EntityReference]):
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: EntityReference, /) -> Self:
-        return cls(entity=data, jinja=await project.jinja, project=project)
+    async def new(cls, project: Project, config: EntityReference, /) -> Self:
+        return cls(entity=config, jinja=await project.jinja, project=project)
 
     @override
     async def build_template(self, document: Document) -> TemplateBuild:

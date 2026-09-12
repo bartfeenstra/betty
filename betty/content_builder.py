@@ -61,7 +61,7 @@ class ContentBuilderDefinition(
         plugin_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
-        configuration_cls: type[Data] | None = None,
+        config_cls: type[Data] | None = None,
         auto: bool = False,
         description: ResolvableLocalizable | None = None,
         requires: Requires = (),
@@ -69,7 +69,7 @@ class ContentBuilderDefinition(
         super().__init__(
             plugin_id,
             auto=auto,
-            configuration_cls=configuration_cls,
+            config_cls=config_cls,
             description=description,
             label=label,
             requires=requires,

@@ -3,11 +3,11 @@ import pytest
 from betty.content_builder import NewContentBuilder
 from betty.content_builders.raspberry_mint_columns import (
     Columns,
-    ColumnsData,
+    ColumnsConfig,
     ColumnsWidth,
     ResolvableColumnsWidth,
 )
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.render import Render, RenderConfig
 from betty.document import Document
 from betty.service_providers.raspberry_mint import Breakpoint, JustifyContent
 from betty.test_utils.conftest import IsolatedProjectFactory
@@ -15,12 +15,12 @@ from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
-class TestColumnsData(DataTestBase[ColumnsData]):
-    sut_cls = ColumnsData
+class TestColumnsData(DataTestBase[ColumnsConfig]):
+    sut_cls = ColumnsConfig
 
     def test_content(self) -> None:
-        content = NewContentBuilder(Render, RenderData(DUMMY_LOCALIZABLE))
-        sut = ColumnsData([content])
+        content = NewContentBuilder(Render, RenderConfig(DUMMY_LOCALIZABLE))
+        sut = ColumnsConfig([content])
         assert list(map(list, sut.content)) == [[content]]
 
     @pytest.mark.parametrize(
@@ -34,8 +34,8 @@ class TestColumnsData(DataTestBase[ColumnsData]):
     )
     def test_width(self, expected: ColumnsWidth, width: ResolvableColumnsWidth) -> None:
         assert (
-            ColumnsData(
-                [NewContentBuilder(Render, RenderData(DUMMY_LOCALIZABLE))],
+            ColumnsConfig(
+                [NewContentBuilder(Render, RenderConfig(DUMMY_LOCALIZABLE))],
                 width=width,
             ).width
             == expected
@@ -43,8 +43,8 @@ class TestColumnsData(DataTestBase[ColumnsData]):
 
     def test_justify_content(self) -> None:
         justify_content = JustifyContent.CENTER
-        sut = ColumnsData(
-            [NewContentBuilder(Render, RenderData(DUMMY_LOCALIZABLE))],
+        sut = ColumnsConfig(
+            [NewContentBuilder(Render, RenderConfig(DUMMY_LOCALIZABLE))],
             justify_content=justify_content,
         )
         assert sut.justify_content == justify_content
@@ -57,7 +57,9 @@ class TestColumns:
         async with isolated_project_factory(supported_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
-                ColumnsData([NewContentBuilder(Render, RenderData(DUMMY_LOCALIZABLE))]),
+                ColumnsConfig([
+                    NewContentBuilder(Render, RenderConfig(DUMMY_LOCALIZABLE))
+                ]),
             )
             actual = await sut.build(document=Document())
         assert actual is not None
@@ -69,8 +71,8 @@ class TestColumns:
         async with isolated_project_factory(supported_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
-                ColumnsData(
-                    [NewContentBuilder(Render, RenderData(DUMMY_LOCALIZABLE))],
+                ColumnsConfig(
+                    [NewContentBuilder(Render, RenderConfig(DUMMY_LOCALIZABLE))],
                     width={Breakpoint.XS: 12, Breakpoint.LG: 6},
                 ),
             )
@@ -84,9 +86,9 @@ class TestColumns:
         async with isolated_project_factory(supported_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
-                ColumnsData(
-                    [NewContentBuilder(Render, RenderData(DUMMY_LOCALIZABLE))],
-                    [NewContentBuilder(Render, RenderData(DUMMY_LOCALIZABLE))],
+                ColumnsConfig(
+                    [NewContentBuilder(Render, RenderConfig(DUMMY_LOCALIZABLE))],
+                    [NewContentBuilder(Render, RenderConfig(DUMMY_LOCALIZABLE))],
                     width=[8, 4],
                 ),
             )
@@ -101,9 +103,9 @@ class TestColumns:
         async with isolated_project_factory(supported_plugins=[Columns]) as project:
             sut = await Columns.new(
                 project,
-                ColumnsData(
-                    [NewContentBuilder(Render, RenderData(DUMMY_LOCALIZABLE))],
-                    [NewContentBuilder(Render, RenderData(DUMMY_LOCALIZABLE))],
+                ColumnsConfig(
+                    [NewContentBuilder(Render, RenderConfig(DUMMY_LOCALIZABLE))],
+                    [NewContentBuilder(Render, RenderConfig(DUMMY_LOCALIZABLE))],
                     width={Breakpoint.XS: [8, 4], Breakpoint.LG: [7, 5]},
                 ),
             )

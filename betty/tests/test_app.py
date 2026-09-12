@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from babel import Locale
 
-from betty.app import App, AppData
+from betty.app import App, AppConfig
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.user import StaticUser
 
@@ -68,20 +68,20 @@ class TestApp:
         assert isolated_app.serializers is isolated_app.serializers
 
 
-class TestAppData(DataTestBase[AppData]):
-    sut_cls = AppData
+class TestAppData(DataTestBase[AppConfig]):
+    sut_cls = AppConfig
 
     def test___init____minimal_locale(self) -> None:
-        sut = AppData()
+        sut = AppConfig()
         assert sut.locale is None
 
     def test___init____with_locale(self) -> None:
         locale = Locale("nl", "NL")
-        sut = AppData(locale=locale)
+        sut = AppConfig(locale=locale)
         assert sut.locale is locale
 
     def test_locale(self) -> None:
-        sut = AppData()
+        sut = AppConfig()
         locale = Locale("nl", "NL")
         sut.locale = locale
         assert sut.locale is locale

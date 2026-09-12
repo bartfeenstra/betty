@@ -29,10 +29,12 @@ if TYPE_CHECKING:
 @ObjectDefinition(
     label=_("Rendered content configuration"),
     samples=[
-        lambda: Sample(RenderData("Hello, world!"), label="Minimal", size=Size.MINIMAL)
+        lambda: Sample(
+            RenderConfig("Hello, world!"), label="Minimal", size=Size.MINIMAL
+        )
     ],
 )
-class RenderData(Data, HasProps):
+class RenderConfig(Data, HasProps):
     """
     Configuration for :py:class:`betty.content_builders.render.Render`.
 
@@ -55,9 +57,9 @@ class RenderData(Data, HasProps):
 
 @final
 @ContentBuilderDefinition(
-    "render", label=_("Rendered content"), configuration_cls=RenderData
+    "render", label=_("Rendered content"), config_cls=RenderConfig
 )
-class Render(ConfigurableIntegratable[RenderData], ContentBuilder):
+class Render(ConfigurableIntegratable[RenderConfig], ContentBuilder):
     """
     .. plugin:: content-builder:render.
     """
@@ -76,10 +78,10 @@ class Render(ConfigurableIntegratable[RenderData], ContentBuilder):
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: RenderData, /) -> Self:
+    async def new(cls, project: Project, config: RenderConfig, /) -> Self:
         return cls(
-            content=data.content,
-            media_type=data.media_type,
+            content=config.content,
+            media_type=config.media_type,
             renderer=await project.renderer,
         )
 

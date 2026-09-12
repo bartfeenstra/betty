@@ -1,12 +1,12 @@
 import pytest
 
 from betty.content_builder import NewContentBuilder
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.render import Render, RenderConfig
 from betty.dirs import asset_directory
 from betty.service_provider import NewServiceProvider
 from betty.service_providers.raspberry_mint import (
     RaspberryMint,
-    RaspberryMintData,
+    RaspberryMintConfig,
     Region,
 )
 from betty.test_utils.conftest import IsolatedProjectFactory
@@ -28,12 +28,12 @@ async def test_regional_content_front_page_summary(
         service_providers=[
             NewServiceProvider(
                 RaspberryMint,
-                RaspberryMintData(
+                RaspberryMintConfig(
                     regional_content={
                         Region.FRONT_PAGE_SUMMARY: [
                             NewContentBuilder(
                                 Render,
-                                RenderData("Hello, world!"),
+                                RenderConfig("Hello, world!"),
                             ),
                         ]
                     }
@@ -55,12 +55,12 @@ async def test_regional_content_front_page_content(
         service_providers=[
             NewServiceProvider(
                 RaspberryMint,
-                RaspberryMintData(
+                RaspberryMintConfig(
                     regional_content={
                         Region.FRONT_PAGE_CONTENT: [
                             NewContentBuilder(
                                 Render,
-                                RenderData("Hello, world!"),
+                                RenderConfig("Hello, world!"),
                             ),
                         ]
                     }

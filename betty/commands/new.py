@@ -11,12 +11,12 @@ from betty.enrichers.deriver import Deriver
 from betty.enrichers.privatizer import Privatizer
 from betty.enrichers.wiki import Wiki as WikiEnricher
 from betty.load import NewLoader
-from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
+from betty.loaders.gramps import FamilyTree, Gramps, GrampsConfig
 from betty.locale import default_locale_tag, to_language_tag
 from betty.localizables.gettext import _
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
-from betty.project import ProjectData
+from betty.project import ProjectConfig
 from betty.project.new import new
 from betty.service_level import Integratable
 from betty.service_providers.http_api_doc import HttpApiDoc
@@ -119,7 +119,7 @@ class New(Integratable, Command):
             configuration.loaders.add(
                 NewLoader(
                     Gramps,
-                    GrampsData(
+                    GrampsConfig(
                         family_trees=[
                             FamilyTree(
                                 await self._app.user.ask_input(
@@ -148,8 +148,8 @@ async def _user_input_static_translations(
     })
 
 
-def _new_default_configuration() -> ProjectData:
-    return ProjectData(
+def _new_default_configuration() -> ProjectConfig:
+    return ProjectConfig(
         enrichers=[
             Deriver,
             Privatizer,

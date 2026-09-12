@@ -18,7 +18,7 @@ from betty.content_builder import (
     ResolvableContentBuilderManufacturer,
     build,
 )
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.render import Render, RenderConfig
 from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
@@ -38,10 +38,10 @@ if TYPE_CHECKING:
 @ObjectDefinition(
     label=_("Box configuration"),
     samples=[
-        lambda: Sample(BoxData(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(BoxConfig(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
-            BoxData(
-                NewContentBuilder(Render, RenderData("Hello, world!")),
+            BoxConfig(
+                NewContentBuilder(Render, RenderConfig("Hello, world!")),
                 min_height="100px",
                 max_height="1000px",
                 height="500px",
@@ -53,9 +53,9 @@ if TYPE_CHECKING:
             size=Size.FULL,
         ),
     ],
-    manufacturer=lambda **fields: BoxData(*fields.pop("content"), **fields),
+    manufacturer=lambda **fields: BoxConfig(*fields.pop("content"), **fields),
 )
-class BoxData(Data, HasProps):
+class BoxConfig(Data, HasProps):
     """
     Configuration for :py:class:`betty.content_builders.box.Box`.
 
@@ -95,8 +95,8 @@ class BoxData(Data, HasProps):
 
 
 @final
-@ContentBuilderDefinition("box", label=_("Box"), configuration_cls=BoxData)
-class Box(Template, ConfigurableIntegratable[BoxData]):
+@ContentBuilderDefinition("box", label=_("Box"), config_cls=BoxConfig)
+class Box(Template, ConfigurableIntegratable[BoxConfig]):
     """
     .. plugin:: content-builder:box.
     """
@@ -125,24 +125,24 @@ class Box(Template, ConfigurableIntegratable[BoxData]):
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: BoxData, /) -> Self:
+    async def new(cls, project: Project, config: BoxConfig, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(
                     lambda manufacturer: new(manufacturer, project),
-                    map(NewContentBuilder.resolve, data.content),
+                    map(NewContentBuilder.resolve, config.content),
                 )
             ),
             project.jinja,
         )
         return cls(
             *content,
-            min_height=data.min_height,
-            max_height=data.max_height,
-            height=data.height,
-            min_width=data.min_width,
-            max_width=data.max_width,
-            width=data.width,
+            min_height=config.min_height,
+            max_height=config.max_height,
+            height=config.height,
+            min_width=config.min_width,
+            max_width=config.max_width,
+            width=config.width,
             jinja=jinja,
         )
 

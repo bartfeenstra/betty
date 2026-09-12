@@ -61,14 +61,14 @@ class ServiceProviderDefinition(
         *,
         label: ResolvableLocalizable,
         auto: bool = False,
-        configuration_cls: type[Data] | None = None,
+        config_cls: type[Data] | None = None,
         description: ResolvableLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(
             plugin_id,
             auto=auto,
-            configuration_cls=configuration_cls,
+            config_cls=config_cls,
             description=description,
             label=label,
             requires=requires,

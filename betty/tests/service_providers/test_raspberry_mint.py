@@ -11,7 +11,7 @@ from betty.exception import HumanFacingException
 from betty.project.generate import generate
 from betty.service_providers.raspberry_mint import (
     RaspberryMint,
-    RaspberryMintData,
+    RaspberryMintConfig,
     Region,
 )
 from betty.test_utils.data import DataTestBase
@@ -129,13 +129,13 @@ class TestRegion:
         assert Region.resolve("my-first-region") == "my-first-region"
 
 
-class TestRaspberryMintData(DataTestBase[RaspberryMintData]):
-    sut_cls = RaspberryMintData
+class TestRaspberryMintData(DataTestBase[RaspberryMintConfig]):
+    sut_cls = RaspberryMintConfig
 
     async def test_validate__should_validate_featured_entities_configuration(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        sut = RaspberryMintData(regional_content={"unknown-region": []})
+        sut = RaspberryMintConfig(regional_content={"unknown-region": []})
         async with isolated_project_factory(
             service_providers=[RaspberryMint]
         ) as project:
@@ -145,22 +145,22 @@ class TestRaspberryMintData(DataTestBase[RaspberryMintData]):
 
     def test_primary_color__from___init__(self) -> None:
         color = "#000000"
-        sut = RaspberryMintData(primary_color=color)
+        sut = RaspberryMintConfig(primary_color=color)
         assert sut.primary_color == color
 
     def test_secondary_color__from___init__(self) -> None:
         color = "#000000"
-        sut = RaspberryMintData(secondary_color=color)
+        sut = RaspberryMintConfig(secondary_color=color)
         assert sut.secondary_color == color
 
     def test_tertiary_color__from___init__(self) -> None:
         color = "#000000"
-        sut = RaspberryMintData(tertiary_color=color)
+        sut = RaspberryMintConfig(tertiary_color=color)
         assert sut.tertiary_color == color
 
     def test_regional_content__from___init__(self) -> None:
         content = NewContentBuilder("my-first-plugin")
-        sut = RaspberryMintData(
+        sut = RaspberryMintConfig(
             regional_content={
                 Region.FRONT_PAGE_CONTENT: [content],
             }

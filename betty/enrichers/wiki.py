@@ -27,11 +27,11 @@ if TYPE_CHECKING:
 @ObjectDefinition(
     label=_("Wiki enricher configuration"),
     samples=[
-        lambda: Sample(WikiData(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(WikiData(populate_images=False), label="Full", size=Size.FULL),
+        lambda: Sample(WikiConfig(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(WikiConfig(populate_images=False), label="Full", size=Size.FULL),
     ],
 )
-class WikiData(Data, HasProps):
+class WikiConfig(Data, HasProps):
     """
     Configuration for the :py:class:`betty.enrichers.wiki.Wiki` enricher.
 
@@ -61,13 +61,13 @@ class WikiData(Data, HasProps):
     description=_(
         "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
     ),
-    configuration_cls=WikiData,
+    config_cls=WikiConfig,
     requires={
         Project.enrichers.require(PopulateLinks),
         Project.service_providers.require(WikiExtension),
     },
 )
-class Wiki(Enricher, ConfigurableIntegratable[WikiData], Integratable):
+class Wiki(Enricher, ConfigurableIntegratable[WikiConfig], Integratable):
     """
     .. plugin:: enricher:wiki.
 
@@ -92,9 +92,9 @@ class Wiki(Enricher, ConfigurableIntegratable[WikiData], Integratable):
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: WikiData | None = None, /) -> Self:
+    async def new(cls, project: Project, config: WikiConfig | None = None, /) -> Self:
         return cls(
-            populate_images=None if data is None else data.populate_images,
+            populate_images=None if config is None else config.populate_images,
             project=project,
         )
 

@@ -23,7 +23,7 @@ from betty.content_builder import (
     NewContentBuilder,
     ResolvableContentBuilderManufacturer,
 )
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.render import Render, RenderConfig
 from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MutableMappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -74,9 +74,9 @@ type ManufacturableRegionalContent = Mapping[
 @ObjectDefinition(
     label=_("Raspberry Mint configuration"),
     samples=[
-        lambda: Sample(RaspberryMintData(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(RaspberryMintConfig(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
-            RaspberryMintData(
+            RaspberryMintConfig(
                 primary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
                 secondary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
                 tertiary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
@@ -84,10 +84,10 @@ type ManufacturableRegionalContent = Mapping[
             label="Custom colors",
         ),
         lambda: Sample(
-            RaspberryMintData(
+            RaspberryMintConfig(
                 regional_content={
                     "front-page-content": [
-                        NewContentBuilder(Render, RenderData("Hello, world!")),
+                        NewContentBuilder(Render, RenderConfig("Hello, world!")),
                     ]
                 }
             ),
@@ -95,7 +95,7 @@ type ManufacturableRegionalContent = Mapping[
         ),
     ],
 )
-class RaspberryMintData(Data, HasProps):
+class RaspberryMintConfig(Data, HasProps):
     """
     Configuration for the :py:class:`betty.service_providers.raspberry_mint.RaspberryMint` extension.
 
@@ -180,7 +180,7 @@ class RaspberryMintData(Data, HasProps):
 @ServiceProviderDefinition(
     "raspberry-mint",
     label="Raspberry Mint",
-    configuration_cls=RaspberryMintData,
+    config_cls=RaspberryMintConfig,
     requires={
         Project.asset_directories.require(raspberry_mint),
         Project.service_providers.require(Webpack),
@@ -188,7 +188,7 @@ class RaspberryMintData(Data, HasProps):
 )
 class RaspberryMint(
     EntryPointProvider[Project],
-    ConfigurableIntegratable[RaspberryMintData],
+    ConfigurableIntegratable[RaspberryMintConfig],
     Generator,
 ):
     """
@@ -256,17 +256,17 @@ class RaspberryMint(
     async def new(
         cls,
         project: Project,
-        data: RaspberryMintData | None = None,
+        config: RaspberryMintConfig | None = None,
         /,
     ) -> Self:
-        if data is None:
+        if config is None:
             return cls(project=project)
         return cls(
-            primary_color=data.primary_color,
+            primary_color=config.primary_color,
             project=project,
-            regional_content=data.regional_content,
-            secondary_color=data.secondary_color,
-            tertiary_color=data.tertiary_color,
+            regional_content=config.regional_content,
+            secondary_color=config.secondary_color,
+            tertiary_color=config.tertiary_color,
         )
 
     @override
