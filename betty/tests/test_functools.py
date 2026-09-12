@@ -12,12 +12,12 @@ from betty.functools import (
     Pipeline,
     Result,
     ResultUnavailable,
+    Suppressed,
     map_suppress,
     passthrough,
     suppress,
     unique,
 )
-from betty.nothing import Nothing
 from betty.typing import Unreachable
 
 if TYPE_CHECKING:
@@ -210,7 +210,7 @@ def test_suppress__with_suppressed_raised_exception() -> None:
     def _target() -> Any:
         raise _Exception
 
-    assert suppress(_target, _Exception)() is Nothing
+    assert suppress(_target, _Exception)() is Suppressed
 
 
 def test_suppress__with_unsuppressed_raised_exception() -> None:

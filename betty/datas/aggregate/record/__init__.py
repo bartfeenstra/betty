@@ -26,9 +26,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.localizable import Localizable, ResolvableLocalizable
-    from betty.nothing import NothingType
-    from betty.portable import PortableData
-
+    from betty.portable import OptionalPortableData, PortableData
 
 type FieldOperator = Attr | Key
 
@@ -39,7 +37,7 @@ class FieldPorter[OwnerT, DataT, FieldPorterLoadDataT = Any](metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def dump(self, owner: OwnerT, data: DataT, /) -> PortableData | NothingType:
+    def dump(self, owner: OwnerT, data: DataT, /) -> OptionalPortableData:
         """
         Dump data to its portable form.
         """

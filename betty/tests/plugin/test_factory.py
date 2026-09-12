@@ -4,8 +4,8 @@ import pytest
 
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, UnsupportedManufacturer
-from betty.nothing import Nothing
 from betty.plugin.factory import (
+    NoPluginData,
     PluginManufacturer,
     PluginManufacturerError,
     PluginManufacturerPorter,
@@ -172,14 +172,14 @@ class TestPluginManufacturerPorter:
             "plugin": DummyPluginOne.plugin().id
         })
         assert sut.plugin_id == DummyPluginOne.plugin().id
-        assert sut.plugin_data is Nothing
+        assert sut.plugin_data is NoPluginData
 
     def test_load__minimal_compact(self) -> None:
         sut = PluginManufacturerPorter(DummyPluginManufacturer).load(
             DummyPluginOne.plugin().id
         )
         assert sut.plugin_id == DummyPluginOne.plugin().id
-        assert sut.plugin_data is Nothing
+        assert sut.plugin_data is NoPluginData
 
     def test_load__with_configuration(self) -> None:
         configuration: PortableData = {
@@ -197,7 +197,7 @@ class TestPluginManufacturerPorter:
             DummyPluginOne.plugin().id, {}
         )
         assert sut.plugin_id == DummyPluginOne.plugin().id
-        assert sut.plugin_data is Nothing
+        assert sut.plugin_data is NoPluginData
 
     def test_load_keyed__with_configuration(self) -> None:
         configuration: PortableData = {

@@ -2,8 +2,7 @@ from pytest_mock import MockerFixture
 
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
-from betty.nothing import Nothing
-from betty.portable import PortableData, Porter
+from betty.portable import NoPortableData, PortableData, Porter
 from betty.porters.omit_field import OmitFieldPorter
 
 
@@ -25,7 +24,7 @@ class TestOmitFieldPorter:
         sut = OmitFieldPorter(
             FieldDefinition(DataDefinition(label="-")), lambda _: True
         )
-        assert sut.dump(object(), object()) is Nothing
+        assert sut.dump(object(), object()) is NoPortableData
 
     def test_load(self, mocker: MockerFixture) -> None:
         loaded = object()
@@ -57,4 +56,4 @@ class TestOmitFieldPorter:
         sut = OmitFieldPorter.new(lambda _: True)(
             FieldDefinition(DataDefinition(label="-"))
         )
-        assert sut.dump(object(), object()) is Nothing
+        assert sut.dump(object(), object()) is NoPortableData

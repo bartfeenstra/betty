@@ -7,7 +7,7 @@ from __future__ import annotations
 from json import dumps
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from typing_extensions import disjoint_base
+from typing_extensions import disjoint_base, sentinel
 
 from betty.assertions.if_else import assert_if_else
 from betty.assertions.mapping import assert_mapping
@@ -24,10 +24,13 @@ from betty.functools import Pipeline
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.machine_name import MachineName
-from betty.nothing import Nothing, NothingType
 from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.portable import KeyedPorter, PortableData
+from betty.portable import (
+    KeyedPorter,
+    OptionalPortableData,
+    PortableData,
+)
 from betty.prop import HasProps
 from betty.sample import Samplable, Sample, Samples, Size
 
@@ -42,6 +45,9 @@ class PluginManufacturerError(HumanFacingException, FactoryError):
     """
     Raised when a plugin manufacturer could not create a new plugin instance.
     """
+
+
+NoPluginData = sentinel("NoPluginData")
 
 
 @disjoint_base
@@ -62,7 +68,7 @@ class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
     """
 
     plugin_data = OwnerAttr(
-        DataDefinition[Data | PortableData | NothingType](label=_("Data"))
+        DataDefinition[Data | OptionalPortableData](label=_("Data"))
     )
     """
     Get the plugin's own data.
@@ -72,7 +78,7 @@ class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
     def __init__(
         self,
         plugin: ResolvablePluginId[PluginDefinitionT],
-        data: Data | PortableData | NothingType = Nothing,
+        data: Data | OptionalPortableData | NoPluginData = NoPluginData,
         /,
     ):
         super().__init__()
@@ -84,8 +90,8 @@ class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
         return hash((
             self.data().plugin_type,
             self.plugin_id,
-            Nothing
-            if self.plugin_data is Nothing
+            NoPluginData
+            if self.plugin_data is NoPluginData
             else dumps(PluginManufacturerPorter._dump_data(self.plugin_data)),
         ))
 
@@ -104,7 +110,7 @@ class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
         plugin_cls = (
             await services.plugins[self.data().plugin_type][self.plugin_id]
         ).cls  # ty:ignore[unresolved-attribute]
-        if self.plugin_data is Nothing:
+        if self.plugin_data is NoPluginData:
             return await services.factory.new(plugin_cls)
         if not issubclass(plugin_cls, DataManufacturable):
             raise PluginManufacturerError(
@@ -178,7 +184,7 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
     @override
     def load(self, data: PortableData, /) -> PluginManufacturerT:
         record = self._load(data)
-        return self._cls(record["plugin"], record.get("data", Nothing))
+        return self._cls(record["plugin"], record.get("data", NoPluginData))
 
     _load_keyed = assert_mapping()
 
@@ -195,7 +201,7 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
     @override
     def dump(self, data: PluginManufacturerT, /) -> PortableData:
         plugin_data = data.plugin_data
-        if plugin_data is Nothing:
+        if plugin_data is NoPluginData:
             return data.plugin_id
         return {
             "plugin": data.plugin_id,
@@ -204,9 +210,12 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
 
     @override
     def dump_keyed(self, data: PluginManufacturerT, /) -> tuple[str, PortableData]:
-        return data.plugin_id, {} if data.plugin_data is Nothing else {
-            "data": self._dump_data(data.plugin_data)
-        }
+        return (
+            data.plugin_id,
+            {}
+            if data.plugin_data is NoPluginData
+            else {"data": self._dump_data(data.plugin_data)},
+        )
 
 
 @final

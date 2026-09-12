@@ -16,9 +16,10 @@ from contextlib import suppress
 from itertools import chain
 from typing import Any, overload, override
 
+from typing_extensions import sentinel
+
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
 from betty.functools import passthrough
-from betty.nothing import Nothing
 
 
 class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
@@ -66,6 +67,11 @@ class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
         with suppress(Exception):
             key = self._key_resolver(key)
         return key in self._proxied
+
+
+_NoMutableResolvedMappingAdapterDefault = sentinel(
+    "_NoMutableResolvedMappingAdapterDefault"
+)
 
 
 class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
@@ -138,10 +144,12 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
         pass
 
     @override
-    def setdefault(self, key, default=Nothing):
+    def setdefault(self, key, default=_NoMutableResolvedMappingAdapterDefault):
         return self._proxied.setdefault(
             self._key_resolver(key),
-            None if default is Nothing else self._value_resolver(default),
+            None
+            if default is _NoMutableResolvedMappingAdapterDefault
+            else self._value_resolver(default),
         )  # ty:ignore[no-matching-overload]
 
     @overload
@@ -159,9 +167,9 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
         pass
 
     @override
-    def pop(self, key, default=Nothing):
+    def pop(self, key, default=_NoMutableResolvedMappingAdapterDefault):
         key = self._key_resolver(key)
-        if default is Nothing:
+        if default is _NoMutableResolvedMappingAdapterDefault:
             return self._proxied.pop(key)
         return self._proxied.pop(key, default)
 

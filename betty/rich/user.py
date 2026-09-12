@@ -15,11 +15,10 @@ from rich.progress import Progress as _RichProgress
 from rich.prompt import Confirm, Prompt
 
 from betty.localizer import default_localizer
-from betty.nothing import Nothing, NothingType
 from betty.progresses.no_op import NoOpProgress
 from betty.progresses.rich import RichProgress
 from betty.rich import Theme
-from betty.user import Severity, User
+from betty.user import NoDefault, Severity, User
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Mapping
@@ -133,7 +132,7 @@ class RichUser(User):
         /,
         *,
         assertion: None = None,
-        default: str | NothingType = Nothing,
+        default: str | NoDefault = NoDefault,
         stdin: TextIO | None = None,
     ) -> str:
         pass
@@ -145,7 +144,7 @@ class RichUser(User):
         /,
         *,
         assertion: Pipe[str, T],
-        default: str | NothingType = Nothing,
+        default: str | NoDefault = NoDefault,
         stdin: TextIO | None = None,
     ) -> T:
         pass
@@ -157,11 +156,11 @@ class RichUser(User):
         /,
         *,
         assertion=None,
-        default=Nothing,
+        default=NoDefault,
         stdin: TextIO | None = None,
     ):
         ask_kwargs = {}
-        if default is not Nothing:
+        if default is not NoDefault:
             ask_kwargs["default"] = default
         value = cast(
             str,
