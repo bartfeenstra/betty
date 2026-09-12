@@ -9,6 +9,8 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from collections.abc import Mapping, Sequence
 
+from typing_extensions import sentinel
+
 type PortableData = (
     bool
     | int
@@ -23,6 +25,12 @@ Portable data.
 
 Data of this type is portable and can easily be persisted or transmitted.
 """
+
+
+NoPortableData = sentinel("NoPortableData")
+
+
+type OptionalPortableData[PortableDataT: PortableData] = PortableDataT | NoPortableData
 
 
 type PortableSequence = Sequence[PortableData]

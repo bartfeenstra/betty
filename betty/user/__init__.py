@@ -20,11 +20,11 @@ from typing import TYPE_CHECKING, Final, final, overload, override
 
 from babel import Locale
 from babel import default_locale as babel_default_locale
+from typing_extensions import sentinel
 
 from betty.functools import Result, ResultUnavailable, suppress
 from betty.life_cycle import LifeCycle
 from betty.locale import default_locale
-from betty.nothing import Nothing, NothingType
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -105,6 +105,9 @@ class UserTimeoutError(UserError):
     """
     The user did not respond within the given time, or at all.
     """
+
+
+NoDefault = sentinel("NoDefault")
 
 
 class User(metaclass=ABCMeta):
@@ -202,7 +205,7 @@ class User(metaclass=ABCMeta):
         /,
         *,
         assertion: None = None,
-        default: str | NothingType = Nothing,
+        default: str | NoDefault = NoDefault,
     ) -> str:
         pass
 
@@ -213,12 +216,12 @@ class User(metaclass=ABCMeta):
         /,
         *,
         assertion: Pipe[str, T],
-        default: str | NothingType = Nothing,
+        default: str | NoDefault = NoDefault,
     ) -> T:
         pass
 
     @abstractmethod
-    async def ask_input(self, question, /, *, assertion=None, default=Nothing):
+    async def ask_input(self, question, /, *, assertion=None, default=NoDefault):
         """
         Ask the user to input text.
 

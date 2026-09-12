@@ -17,7 +17,6 @@ from betty.locale import default_locale_tag, to_language_tag
 from betty.localizables.gettext import _
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
-from betty.nothing import Nothing
 from betty.project import ProjectData
 from betty.project.new import new
 from betty.service_providers.http_api_doc import HttpApiDoc
@@ -26,6 +25,7 @@ from betty.service_providers.raspberry_mint import RaspberryMint
 from betty.service_providers.trees import Trees
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.wiki import Wiki as WikiExtension
+from betty.user import NoDefault
 
 if TYPE_CHECKING:
     import argparse
@@ -102,7 +102,7 @@ class New(Manufacturable, Command):
                     await self._app.localizers.get(default_locale)
                 )
             )
-            or Nothing,
+            or NoDefault,
         )
 
         configuration.author = await _user_input_static_translations(

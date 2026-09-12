@@ -17,11 +17,12 @@ from typing import (
     override,
 )
 
+from typing_extensions import sentinel
+
 from betty.attr import Attr
 from betty.data import DataDefinition, ResolvableDataDefinition
 from betty.importlib import fully_qualified_name, import_any
 from betty.linked_data import LinkedDataDumper
-from betty.nothing import Nothing, NothingType
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
@@ -48,6 +49,9 @@ class HasAssociations(HasProps):
         for prop in cls.props():
             if isinstance(prop, Association):
                 yield prop
+
+
+_AssociateAttrNotYetInitialized = sentinel("_AssociateAttrNotYetInitialized")
 
 
 class Association[
@@ -87,8 +91,10 @@ class Association[
             if isinstance(associate_attr, str) or associate_attr is None
             else associate_attr.ownership.name
         )
-        self.__associate_attr: Association | None | NothingType = (
-            associate_attr if isinstance(associate_attr, Association) else Nothing
+        self.__associate_attr: Association | None | _AssociateAttrNotYetInitialized = (
+            associate_attr
+            if isinstance(associate_attr, Association)
+            else _AssociateAttrNotYetInitialized
         )
 
     @final
@@ -102,7 +108,7 @@ class Association[
         """
         Get the inverse association, if this association is bidirectional.
         """
-        if self.__associate_attr is Nothing:
+        if self.__associate_attr is _AssociateAttrNotYetInitialized:
             if self.associate_attr_name is None:
                 self.__associate_attr = self._bi_associate_attr()
             else:

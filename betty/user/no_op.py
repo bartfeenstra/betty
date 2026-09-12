@@ -8,9 +8,8 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Final, final, overload, override
 
 from betty.localizer import Localizer, default_localizer
-from betty.nothing import Nothing, NothingType
 from betty.progresses.no_op import NoOpProgress
-from betty.user import Severity, User, UserTimeoutError
+from betty.user import NoDefault, Severity, User, UserTimeoutError
 
 if TYPE_CHECKING:
     import logging
@@ -63,7 +62,7 @@ class NoOpUser(User):
         /,
         *,
         assertion: None = None,
-        default: str | NothingType = Nothing,
+        default: str | NoDefault = NoDefault,
     ) -> str:
         pass
 
@@ -74,10 +73,10 @@ class NoOpUser(User):
         /,
         *,
         assertion: Pipe[str, T],
-        default: str | NothingType = Nothing,
+        default: str | NoDefault = NoDefault,
     ) -> T:
         pass
 
     @override
-    async def ask_input(self, question, /, *, assertion=None, default=Nothing):
+    async def ask_input(self, question, /, *, assertion=None, default=NoDefault):
         raise UserTimeoutError

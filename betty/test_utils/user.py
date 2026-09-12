@@ -11,9 +11,8 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Final, final, overload, override
 
 from betty.localizer import Localizer, default_localizer
-from betty.nothing import Nothing, NothingType
 from betty.progresses.no_op import NoOpProgress
-from betty.user import Severity, User, UserTimeoutError
+from betty.user import NoDefault, Severity, User, UserTimeoutError
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -190,7 +189,7 @@ class StaticUser(User):
         /,
         *,
         assertion: None = None,
-        default: str | NothingType = Nothing,
+        default: str | NoDefault = NoDefault,
     ) -> str:
         pass
 
@@ -201,15 +200,15 @@ class StaticUser(User):
         /,
         *,
         assertion: Pipe[str, T],
-        default: str | NothingType = Nothing,
+        default: str | NoDefault = NoDefault,
     ) -> T:
         pass
 
     @override
-    async def ask_input(self, question, /, *, assertion=None, default=Nothing):
+    async def ask_input(self, question, /, *, assertion=None, default=NoDefault):
         value = next(self._inputs)
         if value is None:
-            if default is Nothing:
+            if default is NoDefault:
                 raise UserTimeoutError(
                     "Neither a predefined response nor a call default were provided."
                 )

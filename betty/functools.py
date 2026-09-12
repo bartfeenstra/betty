@@ -19,8 +19,9 @@ from typing import (
     runtime_checkable,
 )
 
+from typing_extensions import sentinel
+
 from betty.asyncio import resolve_await
-from betty.nothing import Nothing
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Iterator
@@ -120,17 +121,20 @@ def passthrough[T](value: T, /) -> T:
     return value
 
 
+Suppressed = sentinel("Suppressed")
+
+
 def suppress[**P, T](
     target: Callable[P, T], *exceptions: type[BaseException]
-) -> Callable[P, T | type[Nothing]]:
+) -> Callable[P, T | Suppressed]:
     """
     Return the value, but suppress any errors.
     """
 
-    def _suppress(*target_args: P.args, **target_kwargs: P.kwargs) -> T | type[Nothing]:
+    def _suppress(*target_args: P.args, **target_kwargs: P.kwargs) -> T | Suppressed:
         with contextlib.suppress(*exceptions):
             return target(*target_args, **target_kwargs)
-        return Nothing
+        return Suppressed
 
     return _suppress
 
