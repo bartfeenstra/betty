@@ -1,4 +1,4 @@
-from betty.content_builder import ContentBuilderManufacturer
+from betty.content_builder import NewContentBuilder
 from betty.content_builders.raspberry_mint_section import Section, SectionData
 from betty.content_builders.render import Render, RenderData
 from betty.content_builders.static import Static
@@ -12,19 +12,17 @@ class TestSectionData(DataTestBase[SectionData]):
     sut_cls = SectionData
 
     def test_content(self) -> None:
-        sut = SectionData(ContentBuilderManufacturer("my-first-content"), heading="-")
+        sut = SectionData(NewContentBuilder("my-first-content"), heading="-")
         assert sut.content[0].id == "my-first-content"
 
     def test_heading(self) -> None:
         heading = Plain("My First Section")
-        sut = SectionData(
-            ContentBuilderManufacturer("my-first-content"), heading=heading
-        )
+        sut = SectionData(NewContentBuilder("my-first-content"), heading=heading)
         assert sut.heading is heading
 
     def test_name(self) -> None:
         sut = SectionData(
-            ContentBuilderManufacturer("my-first-content"),
+            NewContentBuilder("my-first-content"),
             name="my-first-section",
             heading="-",
         )
@@ -32,7 +30,7 @@ class TestSectionData(DataTestBase[SectionData]):
 
     def test_visually_hide_heading(self) -> None:
         sut = SectionData(
-            ContentBuilderManufacturer("my-first-content"),
+            NewContentBuilder("my-first-content"),
             heading="-",
             visually_hide_heading=True,
         )
@@ -47,7 +45,7 @@ class TestSection:
             sut = await Section.new(
                 project,
                 SectionData(
-                    ContentBuilderManufacturer(Static),
+                    NewContentBuilder(Static),
                     heading="My First Section",
                 ),
             )
@@ -60,7 +58,7 @@ class TestSection:
             sut = await Section.new(
                 project,
                 SectionData(
-                    ContentBuilderManufacturer(
+                    NewContentBuilder(
                         Render,
                         RenderData("My First Content"),
                     ),
@@ -79,7 +77,7 @@ class TestSection:
             sut = await Section.new(
                 project,
                 SectionData(
-                    ContentBuilderManufacturer(
+                    NewContentBuilder(
                         Render,
                         RenderData("My First Content"),
                     ),
@@ -98,7 +96,7 @@ class TestSection:
             sut = await Section.new(
                 project,
                 SectionData(
-                    ContentBuilderManufacturer(
+                    NewContentBuilder(
                         Render,
                         RenderData("My First Content"),
                     ),

@@ -11,8 +11,8 @@ from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     ManufacturablePlugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
+    NewPlugin,
+    NewPluginDefinition,
     ResolvablePluginManufacturer,
 )
 from betty.plugin.data import DataPlugin, DataPluginDefinition
@@ -78,17 +78,17 @@ class LicenseDefinition(DataPluginDefinition[License]):
 
 
 @final
-@PluginManufacturerDefinition(LicenseDefinition)
-class LicenseManufacturer(PluginManufacturer[LicenseDefinition, License]):
+@NewPluginDefinition(LicenseDefinition)
+class NewLicense(NewPlugin[LicenseDefinition, License]):
     """
-    The license manufacturer.
+    The license factory.
     """
 
 
 type ResolvableLicenseManufacturer = ResolvablePluginManufacturer[
-    LicenseDefinition, LicenseManufacturer
+    LicenseDefinition, NewLicense
 ]
 
 type ManufacturableLicense = ManufacturablePlugin[
-    LicenseDefinition, LicenseManufacturer, License
+    LicenseDefinition, NewLicense, License
 ]

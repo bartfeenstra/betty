@@ -18,8 +18,8 @@ from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     ManufacturablePlugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
+    NewPlugin,
+    NewPluginDefinition,
 )
 from betty.plugin.ordered import Order, OrderedClassedPluginDefinition
 from betty.user import Severity
@@ -159,13 +159,11 @@ class ServerDefinition(HumanFacingDefinition, OrderedClassedPluginDefinition[Ser
 
 
 @final
-@PluginManufacturerDefinition(ServerDefinition)
-class ServerManufacturer(PluginManufacturer[ServerDefinition, Server]):
+@NewPluginDefinition(ServerDefinition)
+class NewServer(NewPlugin[ServerDefinition, Server]):
     """
-    The server manufacturer.
+    The server factory.
     """
 
 
-type ManufacturableServer = ManufacturablePlugin[
-    ServerDefinition, ServerManufacturer, Server
-]
+type ManufacturableServer = ManufacturablePlugin[ServerDefinition, NewServer, Server]

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from betty.attrs.owner import CollectionOwnerAttr
 from betty.datas.plugin.manufacturer.sequence import (
-    PluginManufacturerSequenceDefinition,
+    NewPluginSequenceDefinition,
 )
 from betty.plugin.cls import ClassedPluginDefinition
 
@@ -19,33 +19,33 @@ if TYPE_CHECKING:
     from betty.collection.sequence import MutableResolvedSequence
     from betty.localizable import ResolvableLocalizable
     from betty.plugin.cls import (
-        PluginManufacturer,
+        NewPlugin,
         ResolvablePluginManufacturer,
     )
     from betty.prop import HasProps
 
 
-def new_plugin_manufacturer_sequence_attr[
+def new_new_plugin_sequence_attr[
     PluginDefinitionT: ClassedPluginDefinition,
-    PluginManufacturerT: PluginManufacturer,
+    NewPluginT: NewPlugin,
 ](
-    manufacturer: type[PluginManufacturerT],
+    manufacturer: type[NewPluginT],
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
 ) -> CommonAttr[
     HasProps,
     MutableResolvedSequence[
-        PluginManufacturerT,
-        ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT],
+        NewPluginT,
+        ResolvablePluginManufacturer[PluginDefinitionT, NewPluginT],
     ],
-    Iterable[ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]],
+    Iterable[ResolvablePluginManufacturer[PluginDefinitionT, NewPluginT]],
 ]:
     """
-    Create an attribute containing a sequence of :py:class:`betty.plugin.factory.PluginManufacturer`.
+    Create an attribute containing a sequence of :py:class:`betty.plugin.cls.factory.NewPlugin`.
     """
     return CollectionOwnerAttr(
-        PluginManufacturerSequenceDefinition(
+        NewPluginSequenceDefinition(
             manufacturer,
             label=label,
             description=description,

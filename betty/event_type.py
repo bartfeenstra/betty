@@ -11,8 +11,8 @@ from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
-    PluginManufacturer,
-    PluginManufacturerDefinition,
+    NewPlugin,
+    NewPluginDefinition,
     ResolvablePluginManufacturer,
 )
 from betty.plugin.data import DataPlugin, DataPluginDefinition
@@ -89,13 +89,13 @@ class EventTypeDefinition(
 
 
 @final
-@PluginManufacturerDefinition(EventTypeDefinition)
-class EventTypeManufacturer(PluginManufacturer[EventTypeDefinition, EventType]):
+@NewPluginDefinition(EventTypeDefinition)
+class NewEventType(NewPlugin[EventTypeDefinition, EventType]):
     """
-    The event type manufacturer.
+    The event type factory.
     """
 
 
 type ResolvableEventTypeManufacturer = ResolvablePluginManufacturer[
-    EventTypeDefinition, EventTypeManufacturer
+    EventTypeDefinition, NewEventType
 ]

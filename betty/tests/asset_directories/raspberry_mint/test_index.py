@@ -1,9 +1,9 @@
 import pytest
 
-from betty.content_builder import ContentBuilderManufacturer
+from betty.content_builder import NewContentBuilder
 from betty.content_builders.render import Render, RenderData
 from betty.dirs import asset_directory
-from betty.service_provider import ServiceProviderManufacturer
+from betty.service_provider import NewServiceProvider
 from betty.service_providers.raspberry_mint import (
     RaspberryMint,
     RaspberryMintData,
@@ -26,12 +26,12 @@ async def test_regional_content_front_page_summary(
 ) -> None:
     async with isolated_project_factory(
         service_providers=[
-            ServiceProviderManufacturer(
+            NewServiceProvider(
                 RaspberryMint,
                 RaspberryMintData(
                     regional_content={
                         Region.FRONT_PAGE_SUMMARY: [
-                            ContentBuilderManufacturer(
+                            NewContentBuilder(
                                 Render,
                                 RenderData("Hello, world!"),
                             ),
@@ -53,12 +53,12 @@ async def test_regional_content_front_page_content(
 ) -> None:
     async with isolated_project_factory(
         service_providers=[
-            ServiceProviderManufacturer(
+            NewServiceProvider(
                 RaspberryMint,
                 RaspberryMintData(
                     regional_content={
                         Region.FRONT_PAGE_CONTENT: [
-                            ContentBuilderManufacturer(
+                            NewContentBuilder(
                                 Render,
                                 RenderData("Hello, world!"),
                             ),

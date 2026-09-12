@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.content_builder import (
-    ContentBuilderManufacturer,
+    NewContentBuilder,
     ResolvableContentBuilderManufacturer,
 )
 from betty.content_builders.box import Box, BoxData
@@ -77,10 +77,10 @@ class DefaultRegionalContent(Bootstrappable):
     ) -> AsyncIterable[ResolvableContentBuilderManufacturer]:
         yield Media
         if await check(self._project, *WikipediaSummary.plugin().requires):
-            yield ContentBuilderManufacturer(
+            yield NewContentBuilder(
                 Section,
                 SectionData(
-                    ContentBuilderManufacturer(
+                    NewContentBuilder(
                         Columns,
                         ColumnsData([WikipediaSummary], width=single_column_text_width),
                     ),
@@ -89,24 +89,24 @@ class DefaultRegionalContent(Bootstrappable):
                 ),
             )
         if await check(self._project, *Map.plugin().requires):
-            yield ContentBuilderManufacturer(
+            yield NewContentBuilder(
                 Box,
                 BoxData(Map, min_height="500px", height="75vh", max_height="1000px"),
             )
-            yield ContentBuilderManufacturer(
+            yield NewContentBuilder(
                 ColorStyle,
                 ColorStyleData(
-                    ContentBuilderManufacturer(Columns, ColumnsData([MapAttribution])),
+                    NewContentBuilder(Columns, ColumnsData([MapAttribution])),
                     style=ColorStyleOption.LIGHT_CONTRAST,
                 ),
             )
-        yield ContentBuilderManufacturer(
+        yield NewContentBuilder(
             Columns, ColumnsData([Enclosures], width=single_column_text_width)
         )
-        yield ContentBuilderManufacturer(
+        yield NewContentBuilder(
             Section,
             SectionData(
-                ContentBuilderManufacturer(
+                NewContentBuilder(
                     Columns,
                     ColumnsData([Notes], width=single_column_text_width),
                 ),
@@ -114,55 +114,53 @@ class DefaultRegionalContent(Bootstrappable):
                 name="notes",
             ),
         )
-        yield ContentBuilderManufacturer(
+        yield NewContentBuilder(
             Section,
             SectionData(
-                ContentBuilderManufacturer(Presences, PresencesData(include=[Subject])),
+                NewContentBuilder(Presences, PresencesData(include=[Subject])),
                 heading=self._make_dumpable(_("Subjects")),
                 name="attendees-subject",
             ),
         )
-        yield ContentBuilderManufacturer(
+        yield NewContentBuilder(
             Section,
             SectionData(
-                ContentBuilderManufacturer(Presences, PresencesData(include=[Witness])),
+                NewContentBuilder(Presences, PresencesData(include=[Witness])),
                 heading=self._make_dumpable(_("Witnesses")),
                 name="attendees-witness",
             ),
         )
-        yield ContentBuilderManufacturer(
+        yield NewContentBuilder(
             Section,
             SectionData(
-                ContentBuilderManufacturer(
-                    Presences, PresencesData(exclude=[Subject, Witness])
-                ),
+                NewContentBuilder(Presences, PresencesData(exclude=[Subject, Witness])),
                 heading=self._make_dumpable(_("Other attendees")),
                 name="attendees-other",
             ),
         )
-        yield ContentBuilderManufacturer(
+        yield NewContentBuilder(
             Section,
             SectionData(
                 Families, heading=self._make_dumpable(_("Family")), name="family"
             ),
         )
         if await check(self._project, *Tree.plugin().requires):
-            yield ContentBuilderManufacturer(
+            yield NewContentBuilder(
                 Box,
                 BoxData(Tree, min_height="500px", height="75vh", max_height="1000px"),
             )
-        yield ContentBuilderManufacturer(
+        yield NewContentBuilder(
             Section,
             SectionData(
-                ContentBuilderManufacturer(Columns, ColumnsData([Timeline])),
+                NewContentBuilder(Columns, ColumnsData([Timeline])),
                 heading=self._make_dumpable(_("Timeline")),
                 name="timeline",
             ),
         )
-        yield ContentBuilderManufacturer(
+        yield NewContentBuilder(
             Section,
             SectionData(
-                ContentBuilderManufacturer(
+                NewContentBuilder(
                     Columns,
                     ColumnsData([Facts], width=single_column_text_width),
                 ),
@@ -170,10 +168,10 @@ class DefaultRegionalContent(Bootstrappable):
                 name="facts",
             ),
         )
-        yield ContentBuilderManufacturer(
+        yield NewContentBuilder(
             ColorStyle,
             ColorStyleData(
-                ContentBuilderManufacturer(
+                NewContentBuilder(
                     Section,
                     SectionData(
                         MediaGallery,
@@ -184,10 +182,10 @@ class DefaultRegionalContent(Bootstrappable):
                 style=ColorStyleOption.DARK,
             ),
         )
-        yield ContentBuilderManufacturer(
+        yield NewContentBuilder(
             Section,
             SectionData(
-                ContentBuilderManufacturer(
+                NewContentBuilder(
                     Columns,
                     ColumnsData([FileReferees], width=single_column_text_width),
                 ),
@@ -195,10 +193,10 @@ class DefaultRegionalContent(Bootstrappable):
                 name="appearances",
             ),
         )
-        yield ContentBuilderManufacturer(
+        yield NewContentBuilder(
             Section,
             SectionData(
-                ContentBuilderManufacturer(
+                NewContentBuilder(
                     Columns,
                     ColumnsData([Citations], width=single_column_text_width),
                 ),
@@ -206,10 +204,10 @@ class DefaultRegionalContent(Bootstrappable):
                 name="citations",
             ),
         )
-        yield ContentBuilderManufacturer(
+        yield NewContentBuilder(
             Section,
             SectionData(
-                ContentBuilderManufacturer(
+                NewContentBuilder(
                     Columns,
                     ColumnsData([SeeAlso], width=single_column_text_width),
                 ),

@@ -10,8 +10,8 @@ from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
-    PluginManufacturer,
-    PluginManufacturerDefinition,
+    NewPlugin,
+    NewPluginDefinition,
     ResolvablePluginManufacturer,
 )
 from betty.plugin.data import DataPlugin, DataPluginDefinition
@@ -66,13 +66,13 @@ class GenderDefinition(CountableHumanFacingDefinition, DataPluginDefinition[Gend
 
 
 @final
-@PluginManufacturerDefinition(GenderDefinition)
-class GenderManufacturer(PluginManufacturer[GenderDefinition, Gender]):
+@NewPluginDefinition(GenderDefinition)
+class NewGender(NewPlugin[GenderDefinition, Gender]):
     """
-    The gender manufacturer.
+    The gender factory.
     """
 
 
 type ResolvableGenderManufacturer = ResolvablePluginManufacturer[
-    GenderDefinition, GenderManufacturer
+    GenderDefinition, NewGender
 ]

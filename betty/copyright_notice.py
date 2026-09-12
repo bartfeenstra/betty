@@ -11,8 +11,8 @@ from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     ManufacturablePlugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
+    NewPlugin,
+    NewPluginDefinition,
     ResolvablePluginManufacturer,
 )
 from betty.plugin.data import DataPlugin, DataPluginDefinition
@@ -78,19 +78,17 @@ class CopyrightNoticeDefinition(DataPluginDefinition[CopyrightNotice]):
 
 
 @final
-@PluginManufacturerDefinition(CopyrightNoticeDefinition)
-class CopyrightNoticeManufacturer(
-    PluginManufacturer[CopyrightNoticeDefinition, CopyrightNotice]
-):
+@NewPluginDefinition(CopyrightNoticeDefinition)
+class NewCopyrightNotice(NewPlugin[CopyrightNoticeDefinition, CopyrightNotice]):
     """
-    The copyright notice manufacturer.
+    The copyright notice factory.
     """
 
 
 type ResolvableCopyrightNoticeManufacturer = ResolvablePluginManufacturer[
-    CopyrightNoticeDefinition, CopyrightNoticeManufacturer
+    CopyrightNoticeDefinition, NewCopyrightNotice
 ]
 
 type ManufacturableCopyrightNotice = ManufacturablePlugin[
-    CopyrightNoticeDefinition, CopyrightNoticeManufacturer, CopyrightNotice
+    CopyrightNoticeDefinition, NewCopyrightNotice, CopyrightNotice
 ]

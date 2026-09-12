@@ -19,7 +19,7 @@ from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.str import StrDefinition
-from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
+from betty.event_type import NewEventType, ResolvableEventTypeManufacturer
 from betty.exception import HumanFacingException
 from betty.gramps import (
     DEFAULT_EVENT_TYPE_MAPPING,
@@ -32,18 +32,18 @@ from betty.load import Loader, LoaderDefinition
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.pathlib import resolve_path
-from betty.place_type import PlaceTypeManufacturer, ResolvablePlaceTypeManufacturer
+from betty.place_type import NewPlaceType, ResolvablePlaceTypeManufacturer
 from betty.plugin.cls import (
     ClassedPluginDefinition,
     ConfigurableIntegratable,
+    NewPlugin,
     Plugin,
-    PluginManufacturer,
     ResolvablePluginManufacturer,
 )
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.prop import HasProps
-from betty.role import ResolvableRoleManufacturer, RoleManufacturer
+from betty.role import NewRole, ResolvableRoleManufacturer
 from betty.sample import Sample, Size
 from betty.service_level import Integratable
 
@@ -59,25 +59,21 @@ if TYPE_CHECKING:
 
 def _new_plugin_mapping_attr[
     PluginDefinitionT: ClassedPluginDefinition,
-    PluginManufacturerT: PluginManufacturer,
+    NewPluginT: NewPlugin,
     PluginT: Plugin,
 ](
-    manufacturer: type[PluginManufacturerT],
+    manufacturer: type[NewPluginT],
     gramps_label: ResolvableLocalizable,
-    default: Mapping[
-        str, ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]
-    ],
+    default: Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, NewPluginT]],
 ) -> CommonAttr[
     HasProps,
-    MutableMapping[str, PluginManufacturerT],
-    Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]],
+    MutableMapping[str, NewPluginT],
+    Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, NewPluginT]],
 ]:
     return CollectionOwnerAttr[
         HasProps,
-        MutableMapping[str, PluginManufacturerT],
-        Mapping[
-            str, ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]
-        ],
+        MutableMapping[str, NewPluginT],
+        Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, NewPluginT]],
         MappingDefinition,
     ](
         FieldDefinition(
@@ -86,10 +82,8 @@ def _new_plugin_mapping_attr[
                 manufacturer=lambda values: MutableResolvedMappingAdapter[
                     str,
                     str,
-                    PluginManufacturerT,
-                    ResolvablePluginManufacturer[
-                        PluginDefinitionT, PluginManufacturerT
-                    ],
+                    NewPluginT,
+                    ResolvablePluginManufacturer[PluginDefinitionT, NewPluginT],
                 ](
                     {} if values is None else dict(values),
                     value_resolver=manufacturer.resolve,
@@ -122,7 +116,7 @@ class FamilyTree(Data, HasProps):
     """
 
     event_types = _new_plugin_mapping_attr(
-        EventTypeManufacturer, _("Gramps event type"), DEFAULT_EVENT_TYPE_MAPPING
+        NewEventType, _("Gramps event type"), DEFAULT_EVENT_TYPE_MAPPING
     )
     """
     How to map event types.
@@ -139,15 +133,13 @@ class FamilyTree(Data, HasProps):
     """
 
     place_types = _new_plugin_mapping_attr(
-        PlaceTypeManufacturer, _("Gramps place type"), DEFAULT_PLACE_TYPE_MAPPING
+        NewPlaceType, _("Gramps place type"), DEFAULT_PLACE_TYPE_MAPPING
     )
     """
     How to map place types.
     """
 
-    roles = _new_plugin_mapping_attr(
-        RoleManufacturer, _("Gramps role"), DEFAULT_ROLE_MAPPING
-    )
+    roles = _new_plugin_mapping_attr(NewRole, _("Gramps role"), DEFAULT_ROLE_MAPPING)
     """
     How to map presence roles.
     """

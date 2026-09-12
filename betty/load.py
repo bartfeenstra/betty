@@ -20,9 +20,9 @@ from betty.plugin.cls import (
     ClassedPluginDefinition,
     ConfigurablePluginDefinition,
     ConfigurablePluginFactory,
+    NewPlugin,
+    NewPluginDefinition,
     Plugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
 )
 
 if TYPE_CHECKING:
@@ -81,15 +81,15 @@ class LoaderDefinition(HumanFacingDefinition, ClassedPluginDefinition[Loader]):
 
 
 @final
-@PluginManufacturerDefinition(LoaderDefinition)
-class LoaderManufacturer(PluginManufacturer[LoaderDefinition, Loader]):
+@NewPluginDefinition(LoaderDefinition)
+class NewLoader(NewPlugin[LoaderDefinition, Loader]):
     """
-    The loader manufacturer.
+    The loader factory.
     """
 
 
-type LoaderFactory[PluginT: Loader, ConfigurationT: Data] = ConfigurablePluginFactory[
-    PluginT, LoaderManufacturer, ConfigurationT
+type LoaderFactory[PluginT: Loader, ConfigT: Data] = ConfigurablePluginFactory[
+    PluginT, NewLoader, ConfigT
 ]
 
 
@@ -138,16 +138,16 @@ class EnricherDefinition(HumanFacingDefinition, ConfigurablePluginDefinition[Enr
 
 
 @final
-@PluginManufacturerDefinition(EnricherDefinition)
-class EnricherManufacturer(PluginManufacturer[EnricherDefinition, Enricher]):
+@NewPluginDefinition(EnricherDefinition)
+class NewEnricher(NewPlugin[EnricherDefinition, Enricher]):
     """
-    The enricher manufacturer.
+    The enricher factory.
     """
 
 
-type EnricherFactory[PluginT: Enricher, ConfigurationT: Data] = (
-    ConfigurablePluginFactory[PluginT, EnricherManufacturer, ConfigurationT]
-)
+type EnricherFactory[PluginT: Enricher, ConfigT: Data] = ConfigurablePluginFactory[
+    PluginT, NewEnricher, ConfigT
+]
 
 
 async def load(project: Project, *, context: Context | None = None) -> None:

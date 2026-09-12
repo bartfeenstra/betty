@@ -13,11 +13,11 @@ from betty.services.plugin.instance import PluginInstanceServiceManager
 from betty.test_utils.plugin import (
     DummyPlugin,
     DummyPluginDefinition,
-    DummyPluginManufacturer,
     DummyPluginOne,
     DummyPluginThree,
     DummyPluginTwo,
     DummyPluginWithLifeCycle,
+    NewDummyPlugin,
 )
 from betty.tests.services.test_plugin import (
     PluginServiceManagerTestBase,
@@ -30,7 +30,7 @@ class _PluginInstanceServiceManagerTestSut(
         ResolvableServiceLevelHasPluginServices,
         DummyPluginDefinition,
         DummyPlugin,
-        DummyPluginManufacturer,
+        NewDummyPlugin,
         DummyPlugin,
     ]
 ):
@@ -52,7 +52,7 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
         [
             DummyPluginOne,
             DummyPluginOne.plugin(),
-            DummyPluginManufacturer(DummyPluginOne),
+            NewDummyPlugin(DummyPluginOne),
         ],
     )
     async def test_new_plugin_instance_service_item(
@@ -72,7 +72,7 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
         [
             DummyPluginWithLifeCycle,
             DummyPluginWithLifeCycle.plugin(),
-            DummyPluginManufacturer(DummyPluginWithLifeCycle),
+            NewDummyPlugin(DummyPluginWithLifeCycle),
         ],
     )
     async def test_new_plugin_instance_service_item__with_life_cycle(
@@ -90,9 +90,9 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
         assert plugin.shut_down
 
     async def test_prepare_plugins(self) -> None:
-        manufacturer_one = DummyPluginManufacturer(DummyPluginOne)
-        manufacturer_two = DummyPluginManufacturer(DummyPluginTwo)
-        manufacturer_three = DummyPluginManufacturer(DummyPluginThree)
+        manufacturer_one = NewDummyPlugin(DummyPluginOne)
+        manufacturer_two = NewDummyPlugin(DummyPluginTwo)
+        manufacturer_three = NewDummyPlugin(DummyPluginThree)
         assert list(
             await _PluginInstanceServiceManagerTestOwner.my_first_service.prepare_plugins(
                 _PluginInstanceServiceManagerTestOwner(services=ServiceLevel()),
@@ -111,15 +111,15 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
             await (
                 _PluginInstanceServiceManagerTestOwner.my_first_service.prepare_plugins(
                     _PluginInstanceServiceManagerTestOwner(services=ServiceLevel()),
-                    DummyPluginManufacturer(DummyPluginOne),
-                    DummyPluginManufacturer(DummyPluginOne),
+                    NewDummyPlugin(DummyPluginOne),
+                    NewDummyPlugin(DummyPluginOne),
                 )
             )
 
     def test_resolve_init_plugin_id__with_plugin_manufacturer(self) -> None:
         assert (
             _PluginInstanceServiceManagerTestSut().resolve_init_plugin_id(
-                DummyPluginManufacturer(DummyPluginOne)
+                NewDummyPlugin(DummyPluginOne)
             )
             == DummyPluginOne.plugin().id
         )

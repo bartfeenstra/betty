@@ -33,7 +33,7 @@ from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.attrs.privacy import HasPrivacy
 from betty.collections import _empty_frozen_mapping
-from betty.copyright_notice import CopyrightNoticeManufacturer
+from betty.copyright_notice import NewCopyrightNotice
 from betty.date import AnyDate, Date, DateRange
 from betty.entities.citation import Citation
 from betty.entities.enclosure import Enclosure
@@ -50,7 +50,7 @@ from betty.entities.presence import Presence
 from betty.entities.source import Source
 from betty.entity import Entity
 from betty.error import FileNotFound
-from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
+from betty.event_type import NewEventType, ResolvableEventTypeManufacturer
 from betty.event_types.adoption import Adoption
 from betty.event_types.baptism import Baptism
 from betty.event_types.bar_mitzvah import BarMitzvah
@@ -75,7 +75,7 @@ from betty.event_types.will import Will
 from betty.exception import HumanFacingException
 from betty.gender import (
     GenderDefinition,
-    GenderManufacturer,
+    NewGender,
     ResolvableGenderManufacturer,
 )
 from betty.genders.man import Man
@@ -83,7 +83,7 @@ from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import UnknownGender
 from betty.genders.woman import Woman
 from betty.hashid import hashid, hashid_sequence
-from betty.license import LicenseManufacturer
+from betty.license import NewLicense
 from betty.locale import from_language_tag
 from betty.locale.error import LocaleError
 from betty.localizables.gettext import _, pgettext
@@ -92,7 +92,7 @@ from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.media_type import InvalidMediaType, MediaType
 from betty.pathlib import resolve_path
-from betty.place_type import PlaceTypeManufacturer, ResolvablePlaceTypeManufacturer
+from betty.place_type import NewPlaceType, ResolvablePlaceTypeManufacturer
 from betty.place_types.borough import Borough
 from betty.place_types.building import Building
 from betty.place_types.city import City
@@ -116,7 +116,7 @@ from betty.place_types.unknown import UnknownPlaceType
 from betty.place_types.village import Village
 from betty.plugin.cls import ClassedPluginDefinition, new
 from betty.plugin.error import PluginNotFound
-from betty.role import ResolvableRoleManufacturer, RoleManufacturer
+from betty.role import NewRole, ResolvableRoleManufacturer
 from betty.roles.attendee import Attendee
 from betty.roles.celebrant import Celebrant
 from betty.roles.informant import Informant
@@ -145,7 +145,7 @@ if TYPE_CHECKING:
     from betty.pathlib import StrPath
     from betty.place_type import PlaceType
     from betty.plugin.cls import (
-        PluginManufacturer,
+        NewPlugin,
         ResolvablePluginManufacturer,
     )
     from betty.project import Project
@@ -312,13 +312,13 @@ _gramps_extensions: Final[Sequence[str]] = (
 def _resolve_plugin_manufacturer_mapping[
     T,
     PluginDefinitionT: ClassedPluginDefinition,
-    PluginManufacturerT: PluginManufacturer,
+    NewPluginT: NewPlugin,
 ](
-    manufacturer: type[PluginManufacturerT],
+    manufacturer: type[NewPluginT],
     resolvable_manufacturers: Mapping[
-        T, ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]
+        T, ResolvablePluginManufacturer[PluginDefinitionT, NewPluginT]
     ],
-) -> MutableMapping[T, PluginManufacturerT]:
+) -> MutableMapping[T, NewPluginT]:
     return {
         gramps_type: manufacturer.resolve(resolvable_manufacturer)
         for gramps_type, resolvable_manufacturer in resolvable_manufacturers.items()
@@ -373,17 +373,15 @@ class GrampsLoader:
         self._tree_xml_namespace: dict[str, str]
         self._loaded = False
         self._event_type_mapping = _resolve_plugin_manufacturer_mapping(
-            EventTypeManufacturer, event_type_mapping
+            NewEventType, event_type_mapping
         )
         self._gender_mapping = _resolve_plugin_manufacturer_mapping(
-            GenderManufacturer, DEFAULT_GENDER_MAPPING
+            NewGender, DEFAULT_GENDER_MAPPING
         )
         self._place_type_mapping = _resolve_plugin_manufacturer_mapping(
-            PlaceTypeManufacturer, place_type_mapping
+            NewPlaceType, place_type_mapping
         )
-        self._role_mapping = _resolve_plugin_manufacturer_mapping(
-            RoleManufacturer, role_mapping
-        )
+        self._role_mapping = _resolve_plugin_manufacturer_mapping(NewRole, role_mapping)
         self._gramps_executable = executable or _default_gramps_executable
 
     async def _run_gramps(self, runnee: Sequence[str]) -> Process:
@@ -827,9 +825,9 @@ class GrampsLoader:
         )
         if copyright_notice_id:
             try:
-                file.copyright_notice = await CopyrightNoticeManufacturer(
-                    copyright_notice_id
-                )(self._project)
+                file.copyright_notice = await NewCopyrightNotice(copyright_notice_id)(
+                    self._project
+                )
             except PluginNotFound:
                 await self._project.upstream.user.message(
                     _(
@@ -840,7 +838,7 @@ class GrampsLoader:
         license_id = self._load_attribute("license", element, "attribute")
         if license_id:
             try:
-                file.license = await LicenseManufacturer(license_id)(self._project)
+                file.license = await NewLicense(license_id)(self._project)
             except PluginNotFound:
                 await self._project.upstream.user.message(
                     _(

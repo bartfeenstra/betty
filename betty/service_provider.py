@@ -14,9 +14,9 @@ from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     ConfigurablePluginDefinition,
     ManufacturablePlugin,
+    NewPlugin,
+    NewPluginDefinition,
     Plugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
     ResolvablePluginManufacturer,
 )
 from betty.prop import HasProps
@@ -76,22 +76,20 @@ class ServiceProviderDefinition(
 
 
 @final
-@PluginManufacturerDefinition(ServiceProviderDefinition)
-class ServiceProviderManufacturer(
-    PluginManufacturer[ServiceProviderDefinition, ServiceProvider]
-):
+@NewPluginDefinition(ServiceProviderDefinition)
+class NewServiceProvider(NewPlugin[ServiceProviderDefinition, ServiceProvider]):
     """
-    The service provider manufacturer.
+    The service provider factory.
     """
 
 
 type ResolvableServiceProviderManufacturer = ResolvablePluginManufacturer[
-    ServiceProviderDefinition, ServiceProviderManufacturer
+    ServiceProviderDefinition, NewServiceProvider
 ]
 
 
 type ManufacturableServiceProvider[ServiceLevelT: ServiceLevel] = ManufacturablePlugin[
     ServiceProviderDefinition,
-    ServiceProviderManufacturer,
+    NewServiceProvider,
     ServiceProvider[ServiceLevelT],
 ]

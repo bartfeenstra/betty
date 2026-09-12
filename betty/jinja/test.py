@@ -11,9 +11,9 @@ from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     ClassedPluginDefinition,
+    NewPlugin,
+    NewPluginDefinition,
     Plugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
 )
 
 if TYPE_CHECKING:
@@ -52,8 +52,8 @@ class JinjaTestDefinition(ClassedPluginDefinition[JinjaTest]):
 
 
 @final
-@PluginManufacturerDefinition(JinjaTestDefinition)
-class JinjaTestManufacturer(PluginManufacturer[JinjaTestDefinition, JinjaTest]):
+@NewPluginDefinition(JinjaTestDefinition)
+class NewJinjaTest(NewPlugin[JinjaTestDefinition, JinjaTest]):
     """
-    The Jinja test manufacturer.
+    The Jinja test factory.
     """

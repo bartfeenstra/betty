@@ -10,8 +10,8 @@ from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
-    PluginManufacturer,
-    PluginManufacturerDefinition,
+    NewPlugin,
+    NewPluginDefinition,
     ResolvablePluginManufacturer,
 )
 from betty.plugin.data import DataPlugin, DataPluginDefinition
@@ -61,13 +61,11 @@ class RoleDefinition(CountableHumanFacingDefinition, DataPluginDefinition[Role])
 
 
 @final
-@PluginManufacturerDefinition(RoleDefinition)
-class RoleManufacturer(PluginManufacturer[RoleDefinition, Role]):
+@NewPluginDefinition(RoleDefinition)
+class NewRole(NewPlugin[RoleDefinition, Role]):
     """
-    The role manufacturer.
+    The role factory.
     """
 
 
-type ResolvableRoleManufacturer = ResolvablePluginManufacturer[
-    RoleDefinition, RoleManufacturer
-]
+type ResolvableRoleManufacturer = ResolvablePluginManufacturer[RoleDefinition, NewRole]

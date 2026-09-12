@@ -20,7 +20,7 @@ from betty.collections.mapping.adapter import (
 )
 from betty.content_builder import (
     ContentBuilder,
-    ContentBuilderManufacturer,
+    NewContentBuilder,
     ResolvableContentBuilderManufacturer,
 )
 from betty.content_builders.render import Render, RenderData
@@ -30,7 +30,7 @@ from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.color import ColorDefinition
 from betty.datas.plugin.manufacturer.sequence import (
-    PluginManufacturerSequenceDefinition,
+    NewPluginSequenceDefinition,
 )
 from betty.datas.str import StrDefinition
 from betty.dirs import webpack_entry_point_directory
@@ -87,7 +87,7 @@ type ManufacturableRegionalContent = Mapping[
             RaspberryMintData(
                 regional_content={
                     "front-page-content": [
-                        ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
+                        NewContentBuilder(Render, RenderData("Hello, world!")),
                     ]
                 }
             ),
@@ -125,8 +125,8 @@ class RaspberryMintData(Data, HasProps):
                 ),
                 label=_("Regions"),
                 key=StrDefinition(label=_("Region")),
-                value=PluginManufacturerSequenceDefinition(
-                    ContentBuilderManufacturer, label=_("Regional content")
+                value=NewPluginSequenceDefinition(
+                    NewContentBuilder, label=_("Regional content")
                 ),
             ),
             optional=True,
@@ -318,7 +318,7 @@ class RaspberryMint(
                         gather(
                             *map(
                                 lambda manufacturer: new(manufacturer, self.services),
-                                map(ContentBuilderManufacturer.resolve, region_content),
+                                map(NewContentBuilder.resolve, region_content),
                             )
                         )
                         for region_content in regional_content_manufacturers.values()

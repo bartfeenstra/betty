@@ -10,9 +10,9 @@ from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     ClassedPluginDefinition,
+    NewPlugin,
+    NewPluginDefinition,
     Plugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
 )
 
 if TYPE_CHECKING:
@@ -51,8 +51,8 @@ class JinjaFilterDefinition(ClassedPluginDefinition[JinjaFilter]):
 
 
 @final
-@PluginManufacturerDefinition(JinjaFilterDefinition)
-class JinjaFilterManufacturer(PluginManufacturer[JinjaFilterDefinition, JinjaFilter]):
+@NewPluginDefinition(JinjaFilterDefinition)
+class NewJinjaFilter(NewPlugin[JinjaFilterDefinition, JinjaFilter]):
     """
-    The Jinja filter manufacturer.
+    The Jinja filter factory.
     """

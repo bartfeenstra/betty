@@ -8,15 +8,15 @@ from betty.entities.note import Note
 from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entities.source import Source
-from betty.event_type import EventTypeManufacturer
+from betty.event_type import NewEventType
 from betty.event_types.birth import Birth
 from betty.gramps import machinify
-from betty.load import LoaderManufacturer, load
+from betty.load import NewLoader, load
 from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
-from betty.place_type import PlaceTypeManufacturer
+from betty.place_type import NewPlaceType
 from betty.place_types.borough import Borough
 from betty.place_types.city import City
-from betty.role import RoleManufacturer
+from betty.role import NewRole
 from betty.roles.attendee import Attendee
 from betty.roles.subject import Subject
 from betty.test_utils.conftest import IsolatedProjectFactory
@@ -51,13 +51,13 @@ class TestGramps:
 
         async with isolated_project_factory(
             loaders=[
-                LoaderManufacturer(
+                NewLoader(
                     Gramps.plugin(),
                     GrampsData(
                         family_trees=[
                             FamilyTree(
                                 gramps_family_tree_path,
-                                event_types={"Birth": EventTypeManufacturer("birth")},
+                                event_types={"Birth": NewEventType("birth")},
                             )
                         ]
                     ),
@@ -94,13 +94,13 @@ class TestGramps:
 
         async with isolated_project_factory(
             loaders=[
-                LoaderManufacturer(
+                NewLoader(
                     Gramps.plugin(),
                     GrampsData(
                         family_trees=[
                             FamilyTree(
                                 gramps_family_tree_path,
-                                place_types={"City": PlaceTypeManufacturer("city")},
+                                place_types={"City": NewPlaceType("city")},
                             )
                         ]
                     ),
@@ -145,13 +145,13 @@ class TestGramps:
 
         async with isolated_project_factory(
             loaders=[
-                LoaderManufacturer(
+                NewLoader(
                     Gramps.plugin(),
                     GrampsData(
                         family_trees=[
                             FamilyTree(
                                 gramps_family_tree_path,
-                                roles={"MyFirstRole": RoleManufacturer("subject")},
+                                roles={"MyFirstRole": NewRole("subject")},
                             )
                         ]
                     ),
@@ -273,7 +273,7 @@ class TestGramps:
 
             async with isolated_project_factory(
                 loaders=[
-                    LoaderManufacturer(
+                    NewLoader(
                         Gramps.plugin(),
                         GrampsData(
                             family_trees=[
@@ -319,7 +319,7 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
         plugin_id = "my-first-betty-plugin-id"
         sut = FamilyTree(
             name="my-first-family-tree",
-            event_types={gramps_type: EventTypeManufacturer(plugin_id)},
+            event_types={gramps_type: NewEventType(plugin_id)},
         )
         assert sut.event_types[gramps_type].id == plugin_id
         assert sut.event_types["Birth"].id == Birth.plugin().id
@@ -329,7 +329,7 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
         plugin_id = "my-first-betty-plugin-id"
         sut = FamilyTree(
             name="my-first-family-tree",
-            place_types={gramps_type: PlaceTypeManufacturer(plugin_id)},
+            place_types={gramps_type: NewPlaceType(plugin_id)},
         )
         assert sut.place_types[gramps_type].id == plugin_id
         assert sut.place_types["Borough"].id == Borough.plugin().id
@@ -339,7 +339,7 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
         plugin_id = "my-first-betty-plugin-id"
         sut = FamilyTree(
             name="my-first-family-tree",
-            roles={gramps_type: RoleManufacturer(plugin_id)},
+            roles={gramps_type: NewRole(plugin_id)},
         )
         assert sut.roles[gramps_type].id == plugin_id
         assert sut.roles["Aide"].id == Attendee.plugin().id

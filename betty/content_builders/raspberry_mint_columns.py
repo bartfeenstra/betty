@@ -18,7 +18,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
-    ContentBuilderManufacturer,
+    NewContentBuilder,
     ResolvableContentBuilderManufacturer,
     build,
 )
@@ -31,7 +31,7 @@ from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.enum import EnumDefinition
 from betty.datas.int import IntDefinition
 from betty.datas.plugin.manufacturer.sequence import (
-    PluginManufacturerSequenceDefinition,
+    NewPluginSequenceDefinition,
 )
 from betty.localizables.gettext import _
 from betty.plugin.cls import ConfigurableIntegratable, new
@@ -56,22 +56,20 @@ type ResolvableColumnsWidth = (
     label=_("Columns configuration"),
     samples=[
         lambda: Sample(
-            ColumnsData([
-                ContentBuilderManufacturer(Render, RenderData("Hello, world!"))
-            ]),
+            ColumnsData([NewContentBuilder(Render, RenderData("Hello, world!"))]),
             label="Minimal",
             size=Size.MINIMAL,
         ),
         lambda: Sample(
             ColumnsData(
-                [ContentBuilderManufacturer(Render, RenderData("Hello, world!"))],
+                [NewContentBuilder(Render, RenderData("Hello, world!"))],
                 justify_content=JustifyContent.CENTER,
             ),
             label="Justify content",
         ),
         lambda: Sample(
             ColumnsData(
-                [ContentBuilderManufacturer(Render, RenderData("Hello, world!"))],
+                [NewContentBuilder(Render, RenderData("Hello, world!"))],
                 width=6,
             ),
             label="A single column with a fixed, non-responsive width",
@@ -79,10 +77,10 @@ type ResolvableColumnsWidth = (
         lambda: Sample(
             ColumnsData(
                 [
-                    ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
+                    NewContentBuilder(Render, RenderData("Hello, world!")),
                 ],
                 [
-                    ContentBuilderManufacturer(Render, RenderData("How are you?")),
+                    NewContentBuilder(Render, RenderData("How are you?")),
                 ],
                 width=[6, 6],
             ),
@@ -90,7 +88,7 @@ type ResolvableColumnsWidth = (
         ),
         lambda: Sample(
             ColumnsData(
-                [ContentBuilderManufacturer(Render, RenderData("Hello, world!"))],
+                [NewContentBuilder(Render, RenderData("Hello, world!"))],
                 width={
                     Breakpoint.XS: 12,
                     Breakpoint.MD: 6,
@@ -101,10 +99,10 @@ type ResolvableColumnsWidth = (
         lambda: Sample(
             ColumnsData(
                 [
-                    ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
+                    NewContentBuilder(Render, RenderData("Hello, world!")),
                 ],
                 [
-                    ContentBuilderManufacturer(Render, RenderData("How are you?")),
+                    NewContentBuilder(Render, RenderData("How are you?")),
                 ],
                 width={
                     Breakpoint.XS: [12, 12],
@@ -128,8 +126,8 @@ class ColumnsData(Data, HasProps):
 
     content = OwnerAttr(
         ListDefinition(
-            value=PluginManufacturerSequenceDefinition(
-                ContentBuilderManufacturer, label=_("Column content")
+            value=NewPluginSequenceDefinition(
+                NewContentBuilder, label=_("Column content")
             ),
             label=_("Columns"),
         )
@@ -187,7 +185,7 @@ class ColumnsData(Data, HasProps):
     ):
         super().__init__()
         self.content = tuple(
-            tuple(map(ContentBuilderManufacturer.resolve, column_content))
+            tuple(map(NewContentBuilder.resolve, column_content))
             for column_content in content
         )
         if width is not None:
@@ -239,7 +237,7 @@ class Columns(Template, ConfigurableIntegratable[ColumnsData]):
                 gather(
                     *map(
                         lambda manufacturer: new(manufacturer, project),
-                        map(ContentBuilderManufacturer.resolve, column_content),
+                        map(NewContentBuilder.resolve, column_content),
                     )
                 )
                 for column_content in data.content

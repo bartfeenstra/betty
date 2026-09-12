@@ -7,14 +7,14 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.attrs.owner import OwnerAttr
-from betty.attrs.plugin_manufacturer_sequence import (
-    new_plugin_manufacturer_sequence_attr,
+from betty.attrs.new_plugin_sequence import (
+    new_new_plugin_sequence_attr,
 )
+from betty.attrs.owner import OwnerAttr
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
-    ContentBuilderManufacturer,
+    NewContentBuilder,
     ResolvableContentBuilderManufacturer,
     build,
 )
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
         lambda: Sample(BoxData(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
             BoxData(
-                ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
+                NewContentBuilder(Render, RenderData("Hello, world!")),
                 min_height="100px",
                 max_height="1000px",
                 height="500px",
@@ -62,9 +62,7 @@ class BoxData(Data, HasProps):
     .. data:: betty.content_builders.box:BoxData
     """
 
-    content = new_plugin_manufacturer_sequence_attr(
-        ContentBuilderManufacturer, label=_("Content")
-    )
+    content = new_new_plugin_sequence_attr(NewContentBuilder, label=_("Content"))
     """
     The content within this box.
     """
@@ -132,7 +130,7 @@ class Box(Template, ConfigurableIntegratable[BoxData]):
             gather(
                 *map(
                     lambda manufacturer: new(manufacturer, project),
-                    map(ContentBuilderManufacturer.resolve, data.content),
+                    map(NewContentBuilder.resolve, data.content),
                 )
             ),
             project.jinja,

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from babel import Locale
 
 from betty import about, dirs
-from betty.content_builder import ContentBuilderManufacturer
+from betty.content_builder import NewContentBuilder
 from betty.content_builders.raspberry_mint_columns import Columns, ColumnsData
 from betty.content_builders.raspberry_mint_entity_card import EntityCard
 from betty.content_builders.raspberry_mint_incomplete_translation_warning import (
@@ -25,7 +25,7 @@ from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entities.source import Source
-from betty.license import LicenseManufacturer
+from betty.license import NewLicense
 from betty.links.betty_documentation import BETTY_DOCUMENTATION
 from betty.links.betty_github import BETTY_GITHUB
 from betty.loaders.demo import Demo
@@ -34,7 +34,7 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import Chain
 from betty.media_types.html import HTML
 from betty.project import Project
-from betty.service_provider import ServiceProviderManufacturer
+from betty.service_provider import NewServiceProvider
 from betty.service_providers.http_api_doc import HttpApiDoc
 from betty.service_providers.maps import Maps
 from betty.service_providers.raspberry_mint import (
@@ -70,23 +70,23 @@ async def create_project(
             Maps,
             RaspberryMint,
             Spdx,
-            ServiceProviderManufacturer(
+            NewServiceProvider(
                 RaspberryMint,
                 RaspberryMintData(
                     regional_content={
                         Region.FRONT_PAGE_CONTENT: [
-                            ContentBuilderManufacturer(
+                            NewContentBuilder(
                                 Columns,
                                 ColumnsData([IncompleteTranslationWarning]),
                             ),
-                            ContentBuilderManufacturer(
+                            NewContentBuilder(
                                 Section,
                                 SectionData(
-                                    ContentBuilderManufacturer(
+                                    NewContentBuilder(
                                         Columns,
                                         ColumnsData(
                                             [
-                                                ContentBuilderManufacturer(
+                                                NewContentBuilder(
                                                     Render,
                                                     RenderData(
                                                         Chain(
@@ -105,7 +105,7 @@ async def create_project(
                                                 ),
                                             ],
                                             [
-                                                ContentBuilderManufacturer(
+                                                NewContentBuilder(
                                                     Render,
                                                     RenderData(
                                                         Chain(
@@ -132,14 +132,14 @@ async def create_project(
                                     visually_hide_heading=True,
                                 ),
                             ),
-                            ContentBuilderManufacturer(
+                            NewContentBuilder(
                                 Section,
                                 SectionData(
-                                    ContentBuilderManufacturer(
+                                    NewContentBuilder(
                                         Columns,
                                         ColumnsData(
                                             [
-                                                ContentBuilderManufacturer(
+                                                NewContentBuilder(
                                                     EntityCard,
                                                     EntityReference(
                                                         Place,
@@ -148,7 +148,7 @@ async def create_project(
                                                 )
                                             ],
                                             [
-                                                ContentBuilderManufacturer(
+                                                NewContentBuilder(
                                                     EntityCard,
                                                     EntityReference(
                                                         Person,
@@ -157,7 +157,7 @@ async def create_project(
                                                 )
                                             ],
                                             [
-                                                ContentBuilderManufacturer(
+                                                NewContentBuilder(
                                                     EntityCard,
                                                     EntityReference(
                                                         Place,
@@ -177,7 +177,7 @@ async def create_project(
                             ),
                         ],
                         Region.FRONT_PAGE_SUMMARY: [
-                            ContentBuilderManufacturer(
+                            NewContentBuilder(
                                 Render,
                                 RenderData(
                                     _(
@@ -197,7 +197,7 @@ async def create_project(
             Place,
             Source,
         ],
-        license=LicenseManufacturer("spdx-gpl-3-0-or-later"),
+        license=NewLicense("spdx-gpl-3-0-or-later"),
         links=[
             BETTY_DOCUMENTATION,
             BETTY_GITHUB,

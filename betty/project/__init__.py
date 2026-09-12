@@ -37,8 +37,8 @@ from betty.collections.keyed.adapter import (
 from betty.collections.sequence.list import ResolvedList
 from betty.copyright_notice import (
     CopyrightNoticeDefinition,
-    CopyrightNoticeManufacturer,
     ManufacturableCopyrightNotice,
+    NewCopyrightNotice,
     ResolvableCopyrightNoticeManufacturer,
 )
 from betty.data import Data
@@ -71,21 +71,21 @@ from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
 from betty.license import (
     LicenseDefinition,
-    LicenseManufacturer,
     ManufacturableLicense,
+    NewLicense,
     ResolvableLicenseManufacturer,
 )
 from betty.licenses.all_rights_reserved import AllRightsReserved
 from betty.link import LinkDefinition
 from betty.load import (
     EnricherDefinition,
-    EnricherManufacturer,
     EnrichterFactory,
     LoaderDefinition,
     LoaderFactory,
-    LoaderManufacturer,
     ManufacturableEnricher,
     ManufacturableLoader,
+    NewEnricher,
+    NewLoader,
 )
 from betty.locale import (
     ResolvableLocale,
@@ -121,9 +121,9 @@ from betty.service import (
 from betty.service_level import DownstreamServiceLevel, Plugins
 from betty.service_provider import (
     ManufacturableServiceProvider,
+    NewServiceProvider,
     ResolvableServiceProviderManufacturer,
     ServiceProviderDefinition,
-    ServiceProviderManufacturer,
 )
 from betty.services.asset import AssetRepositoryService
 from betty.services.plugin import HasPluginServices
@@ -688,7 +688,7 @@ class ProjectLocale(Data[ObjectDefinition["ProjectLocale"]], HasProps, Frozen):
             ProjectData(
                 author="Bart Feenstra",
                 clean_urls=True,
-                copyright_notice=CopyrightNoticeManufacturer
+                copyright_notice=NewCopyrightNotice
                 .data()
                 .samples.get(Size.FULL)
                 .subject,
@@ -705,7 +705,7 @@ class ProjectLocale(Data[ObjectDefinition["ProjectLocale"]], HasProps, Frozen):
                 / "public"
                 / "static"
                 / "betty-512x512.png",
-                license=LicenseManufacturer.data().samples.get(Size.FULL).subject,
+                license=NewLicense.data().samples.get(Size.FULL).subject,
                 licenses=[LicenseDefinitionData.data().samples.get(Size.FULL).subject],
                 lifetime_threshold=123,
                 locales=[ProjectLocale.data().samples.get(Size.FULL).subject],
@@ -748,18 +748,16 @@ class ProjectData(Data, HasProps):
     Whether to generate clean URLs.
     """
 
-    copyright_notice = OwnerAttr(CopyrightNoticeManufacturer).setter(
-        CopyrightNoticeManufacturer.resolve
-    )
+    copyright_notice = OwnerAttr(NewCopyrightNotice).setter(NewCopyrightNotice.resolve)
     """
     The project-wide copyright notice.
     """
 
     @copyright_notice.default
-    def copyright_notice(self) -> CopyrightNoticeManufacturer:  # noqa: D102
+    def copyright_notice(self) -> NewCopyrightNotice:  # noqa: D102
         from betty.copyright_notices.project_author import ProjectAuthor
 
-        return CopyrightNoticeManufacturer(ProjectAuthor)
+        return NewCopyrightNotice(ProjectAuthor)
 
     copyright_notices = new_plugin_definition_datas_attr(
         CopyrightNoticeDefinition, CopyrightNoticeDefinitionData
@@ -783,13 +781,13 @@ class ProjectData(Data, HasProps):
     enrichers = CollectionOwnerAttr(
         FieldDefinition(
             KeyedCollectionDefinition(
-                value=EnricherManufacturer,
+                value=NewEnricher,
                 label=EnricherDefinition.type().label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values),
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
-                    value_resolver=EnricherManufacturer.resolve,
+                    value_resolver=NewEnricher.resolve,
                 ),
             ),
             optional=True,
@@ -810,13 +808,13 @@ class ProjectData(Data, HasProps):
     service_providers = CollectionOwnerAttr(
         FieldDefinition(
             KeyedCollectionDefinition(
-                value=ServiceProviderManufacturer,
+                value=NewServiceProvider,
                 label=ServiceProviderDefinition.type().label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values),
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
-                    value_resolver=ServiceProviderManufacturer.resolve,
+                    value_resolver=NewServiceProvider.resolve,
                 ),
             ),
             optional=True,
@@ -852,14 +850,14 @@ class ProjectData(Data, HasProps):
     The :py:class:`betty.gender.Gender` plugins created by this project.
     """
 
-    license = OwnerAttr(LicenseManufacturer).setter(LicenseManufacturer.resolve)
+    license = OwnerAttr(NewLicense).setter(NewLicense.resolve)
     """
     The project-wide license.
     """
 
     @license.default  # noqa: A003
-    def license(self) -> LicenseManufacturer:  # noqa: D102
-        return LicenseManufacturer(AllRightsReserved)
+    def license(self) -> NewLicense:  # noqa: D102
+        return NewLicense(AllRightsReserved)
 
     licenses = new_plugin_definition_datas_attr(
         LicenseDefinition, LicenseDefinitionData
@@ -887,13 +885,13 @@ class ProjectData(Data, HasProps):
     loaders = CollectionOwnerAttr(
         FieldDefinition(
             KeyedCollectionDefinition(
-                value=LoaderManufacturer,
+                value=NewLoader,
                 label=LoaderDefinition.type().label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values),
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_plugin_id,
-                    value_resolver=LoaderManufacturer.resolve,
+                    value_resolver=NewLoader.resolve,
                 ),
             ),
             optional=True,

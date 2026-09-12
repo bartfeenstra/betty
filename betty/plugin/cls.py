@@ -83,7 +83,7 @@ class ClassedPluginDefinition[PluginT = Any](
 _plugins: Final[MutableMapping[type, ClassedPluginDefinition[Any]]] = {}
 
 
-class _Configurable[ConfigurationT: Data]:
+class _Configurable[ConfigT: Data]:
     """
     A configurable plugin.
 
@@ -92,8 +92,8 @@ class _Configurable[ConfigurationT: Data]:
     """
 
 
-class ConfigurableManufacturable[ConfigurationT: Data](
-    _Configurable[ConfigurationT], metaclass=ABCMeta
+class ConfigurableManufacturable[ConfigT: Data](
+    _Configurable[ConfigT], metaclass=ABCMeta
 ):
     """
     A plugin that can be initialized asynchronously from configuration data.
@@ -101,14 +101,14 @@ class ConfigurableManufacturable[ConfigurationT: Data](
 
     @classmethod
     @abstractmethod
-    async def new(cls, configuration: ConfigurationT, /) -> Self:
+    async def new(cls, configuration: ConfigT, /) -> Self:
         """
         Create a new instance.
         """
 
 
-class ConfigurableIntegratable[ConfigurationT: Data](
-    _Configurable[ConfigurationT], metaclass=ABCMeta
+class ConfigurableIntegratable[ConfigT: Data](
+    _Configurable[ConfigT], metaclass=ABCMeta
 ):
     """
     A plugin that can be initialized asynchronously for a service level from configuration data.
@@ -116,9 +116,7 @@ class ConfigurableIntegratable[ConfigurationT: Data](
 
     @classmethod
     @abstractmethod
-    async def new(
-        cls, services: ServiceLevel, configuration: ConfigurationT, /
-    ) -> Self:
+    async def new(cls, services: ServiceLevel, configuration: ConfigT, /) -> Self:
         """
         Create a new instance.
         """
@@ -134,34 +132,32 @@ type IntegrablePlugin[PluginT] = (
 )
 
 
-type ConfigurablePlugin[PluginT, ConfigurationT: Data] = Intersection[
+type ConfigurablePlugin[PluginT, ConfigT: Data] = Intersection[
     PluginT,
-    ConfigurableIntegratable[ConfigurationT]
-    | ConfigurableManufacturable[ConfigurationT],
+    ConfigurableIntegratable[ConfigT] | ConfigurableManufacturable[ConfigT],
 ]
 
 
-type PluginFactory[PluginT, PluginManufacturerT: PluginManufacturer] = (
-    type[IntegrablePlugin[PluginT] | ManufacturablePlugin[PluginT]]
-    | PluginManufacturerT
+type PluginFactory[PluginT, NewPluginT: NewPlugin] = (
+    type[IntegrablePlugin[PluginT] | ManufacturablePlugin[PluginT]] | NewPluginT
 )
 
 
 type ConfigurablePluginFactory[
     PluginT,
-    PluginManufacturerT: PluginManufacturer,
-    ConfigurationT: Data,
-] = type[ConfigurablePlugin[PluginT, ConfigurationT]] | PluginManufacturerT
+    NewPluginT: NewPlugin,
+    ConfigT: Data,
+] = type[ConfigurablePlugin[PluginT, ConfigT]] | NewPluginT
 
 
-type AnyPluginFactory[PluginT, PluginManufacturerT: PluginManufacturer] = (
-    ConfigurablePluginFactory[PluginT, PluginManufacturerT, Data]
-    | PluginFactory[PluginT, PluginManufacturerT]
+type AnyPluginFactory[PluginT, NewPluginT: NewPlugin] = (
+    ConfigurablePluginFactory[PluginT, NewPluginT, Data]
+    | PluginFactory[PluginT, NewPluginT]
 )
 
 
-class ConfigurablePluginDefinition[PluginT, ConfigurationT: Data](
-    ClassedPluginDefinition[ConfigurablePlugin[PluginT, ConfigurationT]]
+class ConfigurablePluginDefinition[PluginT, ConfigT: Data](
+    ClassedPluginDefinition[ConfigurablePlugin[PluginT, ConfigT]]
 ):
     """
     A configurable plugin definition.
@@ -170,14 +166,14 @@ class ConfigurablePluginDefinition[PluginT, ConfigurationT: Data](
     def __init__(
         self,
         *args: Any,
-        configuration_cls: type[ConfigurationT] | None = None,
+        configuration_cls: type[ConfigT] | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
         self.__configuration_cls = configuration_cls
 
     @property
-    def configuration_cls(self) -> type[ConfigurationT]:
+    def configuration_cls(self) -> type[ConfigT]:
         """
         The plugin's configuration class, if it is configurable.
         """
@@ -207,8 +203,8 @@ class NotConfigurable(HumanFacingException):
 
 
 @overload
-async def new[PluginT, PluginManufacturerT: PluginManufacturer](
-    plugin: PluginFactory[PluginT, PluginManufacturerT],
+async def new[PluginT, NewPluginT: NewPlugin](
+    plugin: PluginFactory[PluginT, NewPluginT],
     services: ServiceLevel,
     /,
 ) -> PluginT:
@@ -216,37 +212,37 @@ async def new[PluginT, PluginManufacturerT: PluginManufacturer](
 
 
 @overload
-async def new[PluginT, PluginManufacturerT: PluginManufacturer, ConfigurationT: Data](
-    plugin: ConfigurablePluginFactory[PluginT, PluginManufacturerT, ConfigurationT],
+async def new[PluginT, NewPluginT: NewPlugin, ConfigT: Data](
+    plugin: ConfigurablePluginFactory[PluginT, NewPluginT, ConfigT],
     services: ServiceLevel,
-    configuration: ConfigurationT,
+    configuration: ConfigT,
     /,
 ) -> PluginT:
     pass
 
 
-async def new(manufacturer, services, configuration=None, /):
+async def new(factory, services, configuration=None, /):
     """
     Initialize a plugin.
     """
     if configuration is None:
-        if issubclass(manufacturer, Integratable):
-            return await manufacturer.new(services)
-        if issubclass(manufacturer, Manufacturable):
-            return await manufacturer.new()
-        return await manufacturer()
-    if issubclass(manufacturer, ConfigurableIntegratable):
-        return await manufacturer.new(services, configuration)
-    return await manufacturer.new(configuration)
+        if issubclass(factory, Integratable):
+            return await factory.new(services)
+        if issubclass(factory, Manufacturable):
+            return await factory.new()
+        return await factory()
+    if issubclass(factory, ConfigurableIntegratable):
+        return await factory.new(services, configuration)
+    return await factory.new(configuration)
 
 
-NoPluginConfiguration = sentinel("NoPluginConfiguration")
+NoPluginConfig = sentinel("NoPluginConfig")
 
 
 @disjoint_base
-class PluginManufacturer[PluginDefinitionT: ClassedPluginDefinition, PluginT](
+class NewPlugin[PluginDefinitionT: ClassedPluginDefinition, PluginT](
     Samplable,
-    Data["PluginManufacturerDefinition[PluginDefinitionT, PluginT]"],
+    Data["NewPluginDefinition[PluginDefinitionT, PluginT]"],
     HasProps,
     Frozen,
     metaclass=TypeABCMeta,
@@ -260,10 +256,8 @@ class PluginManufacturer[PluginDefinitionT: ClassedPluginDefinition, PluginT](
     The plugin ID.
     """
 
-    configuration = OwnerAttr(
-        DataDefinition[Data | PortableData | NoPluginConfiguration](
-            label=_("Configuration")
-        )
+    config = OwnerAttr(
+        DataDefinition[Data | PortableData | NoPluginConfig](label=_("Configuration"))
     )
     """
     Get the plugin's own configuration.
@@ -274,43 +268,41 @@ class PluginManufacturer[PluginDefinitionT: ClassedPluginDefinition, PluginT](
         pass
 
     @overload
-    def __init__[ConfigurationT: Data](
+    def __init__[ConfigT: Data](
         self,
         plugin_id: ResolvablePluginDefinition[
             Intersection[
                 PluginDefinitionT,
                 ConfigurablePluginDefinition[
-                    ConfigurablePlugin[PluginT, ConfigurationT], ConfigurationT
+                    ConfigurablePlugin[PluginT, ConfigT], ConfigT
                 ],
             ]
         ],
-        plugin_configuration: ConfigurationT,
+        plugin_config: ConfigT,
         /,
     ):
         pass
 
     @overload
-    def __init__[ConfigurationT: Data](
-        self, plugin_id: ResolvableMachineName, plugin_configuration: PortableData, /
+    def __init__[ConfigT: Data](
+        self, plugin_id: ResolvableMachineName, plugin_config: PortableData, /
     ):
         pass
 
     @final
-    def __init__(self, plugin_id, plugin_configuration=NoPluginConfiguration, /):
+    def __init__(self, plugin_id, plugin_config=NoPluginConfig, /):
         super().__init__()
         self.id = resolve_plugin_id(plugin_id)
-        self.configuration = plugin_configuration
+        self.config = plugin_config
 
     @final
     def __hash__(self):
         return hash((
             self.data().plugin_type,
             self.id,
-            NoPluginConfiguration
-            if self.configuration is NoPluginConfiguration
-            else dumps(
-                PluginManufacturerPorter._dump_configuration(self.configuration)
-            ),
+            NoPluginConfig
+            if self.config is NoPluginConfig
+            else dumps(NewPluginPorter._dump_configuration(self.config)),
         ))
 
     @final
@@ -327,10 +319,10 @@ class PluginManufacturer[PluginDefinitionT: ClassedPluginDefinition, PluginT](
         """
         plugin_cls = (await services.plugins[self.data().plugin_type][self.id]).cls
         args = (plugin_cls, services)
-        if self.configuration is not NoPluginConfiguration:
+        if self.config is not NoPluginConfig:
             if not issubclass(plugin_cls, ConfigurablePlugin.__value__):
                 raise NotConfigurable(self.data().plugin_type, self.id)
-            configuration = self.configuration
+            configuration = self.config
             if not isinstance(configuration, Data):
                 configuration = (
                     plugin_cls.configuration_cls().data().porter.load(configuration)
@@ -343,14 +335,14 @@ class PluginManufacturer[PluginDefinitionT: ClassedPluginDefinition, PluginT](
     def resolve(
         # @todo Any
         cls,
-        manufacturer: ConfigurablePluginFactory[PluginT, Self, Data],
+        factory: ConfigurablePluginFactory[PluginT, Self, Data],
     ) -> Self:
         """
-        Resolve a value to a plugin manufacturer.
+        Resolve a value to an instance of ``self``.
         """
-        if isinstance(manufacturer, cls):
-            return manufacturer
-        return cls(resolve_plugin_id(manufacturer))
+        if isinstance(factory, cls):
+            return factory
+        return cls(resolve_plugin_id(factory))
 
     @final
     @override
@@ -376,14 +368,12 @@ class PluginManufacturer[PluginDefinitionT: ClassedPluginDefinition, PluginT](
 
 
 @final
-class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
-    KeyedPorter[PluginManufacturerT]
-):
+class NewPluginPorter[NewPluginT: NewPlugin](KeyedPorter[NewPluginT]):
     """
-    Port :py:class:`betty.plugin.factory.PluginManufacturer` to portable data.
+    Port :py:class:`betty.plugin.cls.factory.NewPlugin` to portable data.
     """
 
-    def __init__(self, cls: type[PluginManufacturerT]):
+    def __init__(self, cls: type[NewPluginT]):
         self._cls = cls
 
     _load = assert_if_else(
@@ -396,14 +386,14 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
     )
 
     @override
-    def load(self, data: PortableData, /) -> PluginManufacturerT:
+    def load(self, data: PortableData, /) -> NewPluginT:
         record = self._load(data)
-        return self._cls(record["id"], record.get("config", NoPluginConfiguration))
+        return self._cls(record["id"], record.get("config", NoPluginConfig))
 
     _load_keyed = assert_mapping()
 
     @override
-    def load_keyed(self, key: str, data: PortableData, /) -> PluginManufacturerT:
+    def load_keyed(self, key: str, data: PortableData, /) -> NewPluginT:
         return self.load({**self._load_keyed(data), "id": key})
 
     @classmethod
@@ -413,9 +403,9 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
         return configuration
 
     @override
-    def dump(self, data: PluginManufacturerT, /) -> PortableData:
-        configuration = data.configuration
-        if configuration is NoPluginConfiguration:
+    def dump(self, data: NewPluginT, /) -> PortableData:
+        configuration = data.config
+        if configuration is NoPluginConfig:
             return data.id
         return {
             "id": data.id,
@@ -423,18 +413,18 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
         }
 
     @override
-    def dump_keyed(self, data: PluginManufacturerT, /) -> tuple[str, PortableData]:
-        return data.id, {} if data.configuration is NoPluginConfiguration else {
-            "config": self._dump_configuration(data.configuration)
+    def dump_keyed(self, data: NewPluginT, /) -> tuple[str, PortableData]:
+        return data.id, {} if data.config is NoPluginConfig else {
+            "config": self._dump_configuration(data.config)
         }
 
 
 @final
-class PluginManufacturerDefinition[PluginDefinitionT: ClassedPluginDefinition, PluginT](
-    ObjectDefinition[PluginManufacturer[PluginDefinitionT, PluginT]]
+class NewPluginDefinition[PluginDefinitionT: ClassedPluginDefinition, PluginT](
+    ObjectDefinition[NewPlugin[PluginDefinitionT, PluginT]]
 ):
     """
-    Define a plugin manufacturer.
+    Define a plugin factory.
     """
 
     def __init__(
@@ -446,6 +436,6 @@ class PluginManufacturerDefinition[PluginDefinitionT: ClassedPluginDefinition, P
     ):
         super().__init__(
             label=plugin_type.type().label,
-            porter=lambda definition: PluginManufacturerPorter(definition.cls),
+            porter=lambda definition: NewPluginPorter(definition.cls),
         )
         self.plugin_type: Final[type[PluginDefinitionT]] = plugin_type

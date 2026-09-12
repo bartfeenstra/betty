@@ -14,9 +14,9 @@ from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     ConfigurablePluginDefinition,
+    NewPlugin,
+    NewPluginDefinition,
     Plugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
     ResolvablePluginManufacturer,
 )
 
@@ -77,17 +77,15 @@ class ContentBuilderDefinition(
 
 
 @final
-@PluginManufacturerDefinition(ContentBuilderDefinition)
-class ContentBuilderManufacturer(
-    PluginManufacturer[ContentBuilderDefinition, ContentBuilder]
-):
+@NewPluginDefinition(ContentBuilderDefinition)
+class NewContentBuilder(NewPlugin[ContentBuilderDefinition, ContentBuilder]):
     """
-    The content builder manufacturer.
+    The content builder factory.
     """
 
 
 type ResolvableContentBuilderManufacturer = ResolvablePluginManufacturer[
-    ContentBuilderDefinition, ContentBuilderManufacturer
+    ContentBuilderDefinition, NewContentBuilder
 ]
 
 

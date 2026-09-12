@@ -6,18 +6,18 @@ from betty.exception import HumanFacingException
 from betty.plugin.cls import (
     ClassedPluginDefinition,
     ConfigurableIntegratable,
-    NoPluginConfiguration,
+    NewPlugin,
+    NewPluginPorter,
+    NoPluginConfig,
     Plugin,
-    PluginManufacturer,
-    PluginManufacturerPorter,
 )
 from betty.service_level import ServiceLevel
 from betty.test_utils.data import DummyData
 from betty.test_utils.plugin import (
     DummyPlugin,
     DummyPluginDefinition,
-    DummyPluginManufacturer,
     DummyPluginOne,
+    NewDummyPlugin,
 )
 
 if TYPE_CHECKING:
@@ -61,7 +61,7 @@ class _RequiredDataManufacturableDummyPlugin(
         return cls(data=data)
 
 
-class TestPluginManufacturer:
+class TestNewPlugin:
     _SERVICES = ServiceLevel(
         plugins={
             DummyPluginDefinition: [
@@ -72,58 +72,56 @@ class TestPluginManufacturer:
     )
 
     def test_plugin_id(self) -> None:
-        sut = DummyPluginManufacturer(DummyPluginOne.plugin())
+        sut = NewDummyPlugin(DummyPluginOne.plugin())
         assert sut.id == DummyPluginOne.plugin().id
 
     def test_data(self) -> None:
-        DummyPluginManufacturer.data()
+        NewDummyPlugin.data()
 
     @pytest.mark.parametrize(
         ("expected", "one", "other"),
         [
             (
                 True,
-                DummyPluginManufacturer("my-first-plugin"),
-                DummyPluginManufacturer("my-first-plugin"),
+                NewDummyPlugin("my-first-plugin"),
+                NewDummyPlugin("my-first-plugin"),
             ),
             (
                 False,
-                DummyPluginManufacturer("my-first-plugin"),
-                DummyPluginManufacturer("my-second-plugin"),
+                NewDummyPlugin("my-first-plugin"),
+                NewDummyPlugin("my-second-plugin"),
             ),
             (
                 True,
-                DummyPluginManufacturer("my-first-plugin", {"data": "my-first-value"}),
-                DummyPluginManufacturer("my-first-plugin", {"data": "my-first-value"}),
+                NewDummyPlugin("my-first-plugin", {"data": "my-first-value"}),
+                NewDummyPlugin("my-first-plugin", {"data": "my-first-value"}),
             ),
             (
                 False,
-                DummyPluginManufacturer("my-first-plugin", {"data": "my-first-value"}),
-                DummyPluginManufacturer("my-first-plugin", {"data": "my-second-value"}),
+                NewDummyPlugin("my-first-plugin", {"data": "my-first-value"}),
+                NewDummyPlugin("my-first-plugin", {"data": "my-second-value"}),
             ),
             (
                 False,
-                DummyPluginManufacturer("my-first-plugin", {"data": "my-first-value"}),
-                DummyPluginManufacturer("my-second-plugin", {"data": "my-first-value"}),
+                NewDummyPlugin("my-first-plugin", {"data": "my-first-value"}),
+                NewDummyPlugin("my-second-plugin", {"data": "my-first-value"}),
             ),
         ],
     )
-    def test___eq__(
-        self, expected: bool, one: PluginManufacturer, other: PluginManufacturer
-    ) -> None:
+    def test___eq__(self, expected: bool, one: NewPlugin, other: NewPlugin) -> None:
         assert (one == other) is expected
 
     def test___eq____with_not_implemented(self) -> None:
-        assert DummyPluginManufacturer(DummyPluginOne) != object()
+        assert NewDummyPlugin(DummyPluginOne) != object()
 
     def test___hash__(self) -> None:
         new_suts = [
-            lambda: DummyPluginManufacturer("my-first-plugin"),
-            lambda: DummyPluginManufacturer("my-second-plugin"),
-            lambda: DummyPluginManufacturer("my-first-plugin", DummyData()),
-            lambda: DummyPluginManufacturer("my-second-plugin", DummyData()),
-            lambda: DummyPluginManufacturer("my-first-plugin", {"dummy": "data"}),
-            lambda: DummyPluginManufacturer("my-second-plugin", {"dummy": "data"}),
+            lambda: NewDummyPlugin("my-first-plugin"),
+            lambda: NewDummyPlugin("my-second-plugin"),
+            lambda: NewDummyPlugin("my-first-plugin", DummyData()),
+            lambda: NewDummyPlugin("my-second-plugin", DummyData()),
+            lambda: NewDummyPlugin("my-first-plugin", {"dummy": "data"}),
+            lambda: NewDummyPlugin("my-second-plugin", {"dummy": "data"}),
         ]
         for new_sut in new_suts:
             assert hash(new_sut()) == hash(new_sut())
@@ -133,18 +131,14 @@ class TestPluginManufacturer:
 
     def test_plugin_data__with_data(self) -> None:
         configuration = DummyData()
-        sut = DummyPluginManufacturer(
-            _RequiredDataManufacturableDummyPlugin, configuration
-        )
-        assert sut.configuration is configuration
+        sut = NewDummyPlugin(_RequiredDataManufacturableDummyPlugin, configuration)
+        assert sut.config is configuration
 
     def test_plugin_data__with_portable_data(self) -> None:
         configuration = DummyData.data().porter.dump(DummyData())
-        sut = DummyPluginManufacturer(
-            _RequiredDataManufacturableDummyPlugin, configuration
-        )
-        assert sut.configuration == sut.configuration
-        assert sut.configuration == configuration
+        sut = NewDummyPlugin(_RequiredDataManufacturableDummyPlugin, configuration)
+        assert sut.config == sut.config
+        assert sut.config == configuration
 
     async def test___call____without_data_manufacturable_with_data(self) -> None:
         # @todo
@@ -154,9 +148,7 @@ class TestPluginManufacturer:
 
     async def test___call____with_required_data_manufacturable_and_data(self) -> None:
         configuration = DummyData()
-        sut = DummyPluginManufacturer(
-            _RequiredDataManufacturableDummyPlugin, configuration
-        )
+        sut = NewDummyPlugin(_RequiredDataManufacturableDummyPlugin, configuration)
         plugin = await sut(self._SERVICES)
         assert isinstance(plugin, _RequiredDataManufacturableDummyPlugin)
         assert plugin.data is configuration
@@ -165,74 +157,63 @@ class TestPluginManufacturer:
         self,
     ) -> None:
         value = "Hello, world~"
-        sut = DummyPluginManufacturer(
-            _RequiredDataManufacturableDummyPlugin, {"value": value}
-        )
+        sut = NewDummyPlugin(_RequiredDataManufacturableDummyPlugin, {"value": value})
         instance = await sut(self._SERVICES)
         assert isinstance(instance, _RequiredDataManufacturableDummyPlugin)
         assert instance.data.value == value
 
 
-class TestPluginManufacturerPorter:
+class TestNewPluginPorter:
     def test_load__without_id(self) -> None:
         with pytest.raises(HumanFacingException):
-            PluginManufacturerPorter(DummyPluginManufacturer).load({})
+            NewPluginPorter(NewDummyPlugin).load({})
 
     def test_load__minimal(self) -> None:
-        sut = PluginManufacturerPorter(DummyPluginManufacturer).load({
+        sut = NewPluginPorter(NewDummyPlugin).load({
             "plugin": DummyPluginOne.plugin().id
         })
         assert sut.id == DummyPluginOne.plugin().id
-        assert sut.configuration is NoPluginConfiguration
+        assert sut.config is NoPluginConfig
 
     def test_load__minimal_compact(self) -> None:
-        sut = PluginManufacturerPorter(DummyPluginManufacturer).load(
-            DummyPluginOne.plugin().id
-        )
+        sut = NewPluginPorter(NewDummyPlugin).load(DummyPluginOne.plugin().id)
         assert sut.id == DummyPluginOne.plugin().id
-        assert sut.configuration is NoPluginConfiguration
+        assert sut.config is NoPluginConfig
 
     def test_load__with_configuration(self) -> None:
         configuration: PortableData = {
             "check": True,
         }
-        sut = PluginManufacturerPorter(DummyPluginManufacturer).load({
+        sut = NewPluginPorter(NewDummyPlugin).load({
             "plugin": _RequiredDataManufacturableDummyPlugin.plugin().id,
             "data": configuration,
         })
         assert sut.id == _RequiredDataManufacturableDummyPlugin.plugin().id
-        assert sut.configuration == configuration
+        assert sut.config == configuration
 
     def test_load_keyed(self) -> None:
-        sut = PluginManufacturerPorter(DummyPluginManufacturer).load_keyed(
-            DummyPluginOne.plugin().id, {}
-        )
+        sut = NewPluginPorter(NewDummyPlugin).load_keyed(DummyPluginOne.plugin().id, {})
         assert sut.id == DummyPluginOne.plugin().id
-        assert sut.configuration is NoPluginConfiguration
+        assert sut.config is NoPluginConfig
 
     def test_load_keyed__with_configuration(self) -> None:
         configuration: PortableData = {
             "check": True,
         }
-        sut = PluginManufacturerPorter(DummyPluginManufacturer).load_keyed(
+        sut = NewPluginPorter(NewDummyPlugin).load_keyed(
             _RequiredDataManufacturableDummyPlugin.plugin().id, {"data": configuration}
         )
         assert sut.id == _RequiredDataManufacturableDummyPlugin.plugin().id
-        assert sut.configuration == configuration
+        assert sut.config == configuration
 
     def test_dump__minimal(self) -> None:
-        data = DummyPluginManufacturer(DummyPluginOne.plugin())
-        assert (
-            PluginManufacturerPorter(DummyPluginManufacturer).dump(data)
-            == DummyPluginOne.plugin().id
-        )
+        data = NewDummyPlugin(DummyPluginOne.plugin())
+        assert NewPluginPorter(NewDummyPlugin).dump(data) == DummyPluginOne.plugin().id
 
     def test_dump__with_configuration(self) -> None:
         value = "Hello, world!"
-        sut = DummyPluginManufacturer(
-            _RequiredDataManufacturableDummyPlugin, DummyData(value)
-        )
-        assert PluginManufacturerPorter(DummyPluginManufacturer).dump(sut) == {
+        sut = NewDummyPlugin(_RequiredDataManufacturableDummyPlugin, DummyData(value))
+        assert NewPluginPorter(NewDummyPlugin).dump(sut) == {
             "plugin": _RequiredDataManufacturableDummyPlugin.plugin().id,
             "data": {
                 "value": value,
@@ -243,27 +224,25 @@ class TestPluginManufacturerPorter:
         portable_configuration: PortableData = {
             "value": "Hello, world!",
         }
-        data = DummyPluginManufacturer(
+        data = NewDummyPlugin(
             _RequiredDataManufacturableDummyPlugin, portable_configuration
         )
-        assert PluginManufacturerPorter(DummyPluginManufacturer).dump(data) == {
+        assert NewPluginPorter(NewDummyPlugin).dump(data) == {
             "plugin": _RequiredDataManufacturableDummyPlugin.plugin().id,
             "data": portable_configuration,
         }
 
     def test_dump_keyed__minimal(self) -> None:
-        data = DummyPluginManufacturer(DummyPluginOne.plugin())
-        assert PluginManufacturerPorter(DummyPluginManufacturer).dump_keyed(data) == (
+        data = NewDummyPlugin(DummyPluginOne.plugin())
+        assert NewPluginPorter(NewDummyPlugin).dump_keyed(data) == (
             DummyPluginOne.plugin().id,
             {},
         )
 
     def test_dump_keyed__with_configuration(self) -> None:
         value = "Hello, world!"
-        data = DummyPluginManufacturer(
-            _RequiredDataManufacturableDummyPlugin, DummyData(value)
-        )
-        assert PluginManufacturerPorter(DummyPluginManufacturer).dump_keyed(data) == (
+        data = NewDummyPlugin(_RequiredDataManufacturableDummyPlugin, DummyData(value))
+        assert NewPluginPorter(NewDummyPlugin).dump_keyed(data) == (
             _RequiredDataManufacturableDummyPlugin.plugin().id,
             {
                 "data": {
@@ -276,10 +255,10 @@ class TestPluginManufacturerPorter:
         portable_configuration: PortableData = {
             "value": "Hello, world!",
         }
-        data = DummyPluginManufacturer(
+        data = NewDummyPlugin(
             _RequiredDataManufacturableDummyPlugin, portable_configuration
         )
-        assert PluginManufacturerPorter(DummyPluginManufacturer).dump_keyed(data) == (
+        assert NewPluginPorter(NewDummyPlugin).dump_keyed(data) == (
             _RequiredDataManufacturableDummyPlugin.plugin().id,
             {"data": portable_configuration},
         )

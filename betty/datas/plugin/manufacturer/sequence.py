@@ -11,7 +11,7 @@ from betty.collections.sequence.list import ResolvedList
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.plugin.cls import (
     ClassedPluginDefinition,
-    PluginManufacturer,
+    NewPlugin,
     ResolvablePluginManufacturer,
 )
 
@@ -20,16 +20,16 @@ if TYPE_CHECKING:
 
 
 @final
-class PluginManufacturerSequenceDefinition[
+class NewPluginSequenceDefinition[
     PluginDefinitionT: ClassedPluginDefinition,
-    PluginManufacturerT: PluginManufacturer,
+    NewPluginT: NewPlugin,
 ](
     SequenceDefinition[
         MutableResolvedSequence[
-            PluginManufacturerT,
-            ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT],
+            NewPluginT,
+            ResolvablePluginManufacturer[PluginDefinitionT, NewPluginT],
         ],
-        PluginManufacturerT,
+        NewPluginT,
     ]
 ):
     """
@@ -38,7 +38,7 @@ class PluginManufacturerSequenceDefinition[
 
     def __init__(
         self,
-        manufacturer: type[PluginManufacturerT],
+        manufacturer: type[NewPluginT],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,

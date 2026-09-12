@@ -10,7 +10,7 @@ from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.enrichers.deriver import Deriver
 from betty.enrichers.privatizer import Privatizer
 from betty.enrichers.wiki import Wiki as WikiEnricher
-from betty.load import LoaderManufacturer
+from betty.load import NewLoader
 from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
 from betty.locale import default_locale_tag, to_language_tag
 from betty.localizables.gettext import _
@@ -117,7 +117,7 @@ class New(Integratable, Command):
             _("Do you want to load a Gramps family tree?")
         ):
             configuration.loaders.add(
-                LoaderManufacturer(
+                NewLoader(
                     Gramps,
                     GrampsData(
                         family_trees=[

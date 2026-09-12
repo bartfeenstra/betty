@@ -1,4 +1,4 @@
-from betty.content_builder import ContentBuilderManufacturer
+from betty.content_builder import NewContentBuilder
 from betty.content_builders.box import Box, BoxData
 from betty.content_builders.render import Render, RenderData
 from betty.document import Document
@@ -19,7 +19,7 @@ class TestBox:
     async def test_build_template__minimal(self, isolated_project: Project) -> None:
         sut = await Box.new(
             isolated_project,
-            BoxData(ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))),
+            BoxData(NewContentBuilder(Render, RenderData(DUMMY_LOCALIZABLE))),
         )
         actual = await sut.build(document=Document())
         assert actual is not None
@@ -29,7 +29,7 @@ class TestBox:
         sut = await Box.new(
             isolated_project,
             BoxData(
-                ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE)),
+                NewContentBuilder(Render, RenderData(DUMMY_LOCALIZABLE)),
                 min_height="MIN_HEIGHT",
                 max_height="MAX_HEIGHT",
                 height="HEIGHT",

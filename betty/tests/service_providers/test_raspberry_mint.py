@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.content_builder import ContentBuilderManufacturer
+from betty.content_builder import NewContentBuilder
 from betty.content_builders.static import Static
 from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException
@@ -93,9 +93,7 @@ class TestRaspberryMint:
     ) -> None:
         async with RaspberryMint(
             project=isolated_project,
-            regional_content={
-                Region.FRONT_PAGE_CONTENT: [ContentBuilderManufacturer(Static)]
-            },
+            regional_content={Region.FRONT_PAGE_CONTENT: [NewContentBuilder(Static)]},
         ) as sut:
             assert isinstance(
                 (await sut.regional_content)[Region.FRONT_PAGE_CONTENT.value][0], Static
@@ -161,7 +159,7 @@ class TestRaspberryMintData(DataTestBase[RaspberryMintData]):
         assert sut.tertiary_color == color
 
     def test_regional_content__from___init__(self) -> None:
-        content = ContentBuilderManufacturer("my-first-plugin")
+        content = NewContentBuilder("my-first-plugin")
         sut = RaspberryMintData(
             regional_content={
                 Region.FRONT_PAGE_CONTENT: [content],

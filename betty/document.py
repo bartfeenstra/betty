@@ -33,9 +33,9 @@ from betty.media_types.html import HTML
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.cls import (
     ClassedPluginDefinition,
+    NewPlugin,
+    NewPluginDefinition,
     Plugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
 )
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.portable import PortableMapping
@@ -212,12 +212,10 @@ class DocumentProviderDefinition(ClassedPluginDefinition[DocumentProvider]):
 
 
 @final
-@PluginManufacturerDefinition(DocumentProviderDefinition)
-class DocumentProviderManufacturer(
-    PluginManufacturer[DocumentProviderDefinition, DocumentProvider]
-):
+@NewPluginDefinition(DocumentProviderDefinition)
+class NewDocumentProvider(NewPlugin[DocumentProviderDefinition, DocumentProvider]):
     """
-    The document provider manufacturer.
+    The document provider factory.
     """
 
 

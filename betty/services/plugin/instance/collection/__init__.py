@@ -10,8 +10,8 @@ from betty.asyncio import ReAwaitable
 from betty.plugin.cls import (
     ClassedPluginDefinition,
     ManufacturablePlugin,
+    NewPlugin,
     Plugin,
-    PluginManufacturer,
 )
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
@@ -22,14 +22,14 @@ class CollectionPluginInstanceServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
     PluginDefinitionT: ClassedPluginDefinition,
     GetServiceT,
-    PluginManufacturerT: PluginManufacturer,
+    NewPluginT: NewPlugin,
     PluginT: Plugin,
 ](
     PluginInstanceServiceManager[
         OwnerT,
         PluginDefinitionT,
         GetServiceT,
-        PluginManufacturerT,
+        NewPluginT,
         PluginT,
     ],
     CollectionPluginServiceManager[
@@ -37,7 +37,7 @@ class CollectionPluginInstanceServiceManager[
         PluginDefinitionT,
         GetServiceT,
         ReAwaitable[PluginT],
-        ManufacturablePlugin[PluginDefinitionT, PluginManufacturerT, PluginT],
+        ManufacturablePlugin[PluginDefinitionT, NewPluginT, PluginT],
     ],
 ):
     """
@@ -49,7 +49,7 @@ class CollectionPluginInstanceServiceManager[
     def new_service_item(
         self,
         owner: OwnerT,
-        plugin: ManufacturablePlugin[PluginDefinitionT, PluginManufacturerT, PluginT],
+        plugin: ManufacturablePlugin[PluginDefinitionT, NewPluginT, PluginT],
         /,
     ) -> ReAwaitable[PluginT]:
         return self.new_plugin_instance_service_item(owner, plugin)

@@ -1,4 +1,4 @@
-from betty.content_builder import ContentBuilderManufacturer
+from betty.content_builder import NewContentBuilder
 from betty.content_builders.raspberry_mint_color_style import (
     ColorStyle,
     ColorStyleData,
@@ -16,15 +16,13 @@ class TestColorStyleData(DataTestBase[ColorStyleData]):
 
     def test_content(self) -> None:
         sut = ColorStyleData(
-            ContentBuilderManufacturer("my-first-content"), style=ColorStyleOption.DARK
+            NewContentBuilder("my-first-content"), style=ColorStyleOption.DARK
         )
         assert sut.content[0].id == "my-first-content"
 
     def test_style(self) -> None:
         style = ColorStyleOption.DARK_SECONDARY
-        sut = ColorStyleData(
-            ContentBuilderManufacturer("my-first-content"), style=style
-        )
+        sut = ColorStyleData(NewContentBuilder("my-first-content"), style=style)
         assert sut.style == style
 
 
@@ -36,7 +34,7 @@ class TestColorStyle:
             sut = await ColorStyle.new(
                 project,
                 ColorStyleData(
-                    ContentBuilderManufacturer(Static),
+                    NewContentBuilder(Static),
                     style=ColorStyleOption.DARK,
                 ),
             )
@@ -49,7 +47,7 @@ class TestColorStyle:
             sut = await ColorStyle.new(
                 project,
                 ColorStyleData(
-                    ContentBuilderManufacturer(Render, RenderData("My First Content")),
+                    NewContentBuilder(Render, RenderData("My First Content")),
                     style=ColorStyleOption.DARK,
                 ),
             )

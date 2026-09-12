@@ -10,8 +10,8 @@ from betty.asyncio import ReAwaitable
 from betty.plugin.cls import (
     ClassedPluginDefinition,
     ManufacturablePlugin,
+    NewPlugin,
     Plugin,
-    PluginManufacturer,
 )
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.instance import PluginInstanceServiceManager
@@ -21,21 +21,21 @@ from betty.services.plugin.single import SinglePluginServiceManager
 @final
 class PluginInstanceService[
     PluginDefinitionT: ClassedPluginDefinition,
-    PluginManufacturerT: PluginManufacturer,
+    NewPluginT: NewPlugin,
     PluginT: Plugin,
 ](
     PluginInstanceServiceManager[
         ResolvableServiceLevelHasPluginServices,
         PluginDefinitionT,
         ReAwaitable[PluginT],
-        PluginManufacturerT,
+        NewPluginT,
         PluginT,
     ],
     SinglePluginServiceManager[
         ResolvableServiceLevelHasPluginServices,
         PluginDefinitionT,
         ReAwaitable[PluginT],
-        ManufacturablePlugin[PluginDefinitionT, PluginManufacturerT, PluginT],
+        ManufacturablePlugin[PluginDefinitionT, NewPluginT, PluginT],
     ],
 ):
     """
