@@ -215,25 +215,25 @@ async def new[PluginT, NewPluginT: NewPlugin](
 async def new[PluginT, NewPluginT: NewPlugin, ConfigT: Data](
     plugin: ConfigurablePluginFactory[PluginT, NewPluginT, ConfigT],
     services: ServiceLevel,
-    configuration: ConfigT,
+    config: ConfigT,
     /,
 ) -> PluginT:
     pass
 
 
-async def new(factory, services, configuration=None, /):
+async def new(factory, services, config=None, /):
     """
     Initialize a plugin.
     """
-    if configuration is None:
+    if config is None:
         if issubclass(factory, Integratable):
             return await factory.new(services)
         if issubclass(factory, Manufacturable):
             return await factory.new()
         return await factory()
     if issubclass(factory, ConfigurableIntegratable):
-        return await factory.new(services, configuration)
-    return await factory.new(configuration)
+        return await factory.new(services, config)
+    return await factory.new(config)
 
 
 NoNewPluginConfig = sentinel("NoNewPluginConfig")
@@ -304,7 +304,7 @@ class NewPlugin[PluginDefinitionT: ClassedPluginDefinition, PluginT](
             self.id,
             NoNewPluginConfig
             if self.config is NoNewPluginConfig
-            else dumps(NewPluginPorter._dump_configuration(self.config)),
+            else dumps(NewPluginPorter._dump_config(self.config)),
         ))
 
     @final
@@ -393,25 +393,24 @@ class NewPluginPorter[NewPluginT: NewPlugin](KeyedPorter[NewPluginT]):
         return self.load({**self._load_keyed(data), "id": key})
 
     @classmethod
-    def _dump_configuration(cls, config: Data | PortableData) -> PortableData:
+    def _dump_config(cls, config: Data | PortableData) -> PortableData:
         if isinstance(config, Data):
             return config.data().porter.dump(config)
         return config
 
     @override
     def dump(self, data: NewPluginT, /) -> PortableData:
-        configuration = data.config
-        if configuration is NoNewPluginConfig:
+        if data.config is NoNewPluginConfig:
             return data.id
         return {
             "id": data.id,
-            "config": self._dump_configuration(configuration),
+            "config": self._dump_config(data.config),
         }
 
     @override
     def dump_keyed(self, data: NewPluginT, /) -> tuple[str, PortableData]:
         return data.id, {} if data.config is NoNewPluginConfig else {
-            "config": self._dump_configuration(data.config)
+            "config": self._dump_config(data.config)
         }
 
 
