@@ -68,7 +68,7 @@ class TestApp:
         assert isolated_app.serializers is isolated_app.serializers
 
 
-class TestAppData(DataTestBase[AppConfig]):
+class TestAppConfig(DataTestBase[AppConfig]):
     sut_cls = AppConfig
 
     def test___init____minimal_locale(self) -> None:

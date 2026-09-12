@@ -7,7 +7,7 @@ from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
-class TestBoxData(DataTestBase[BoxConfig]):
+class TestBoxConfig(DataTestBase[BoxConfig]):
     sut_cls = BoxConfig
 
     def test_content(self) -> None:

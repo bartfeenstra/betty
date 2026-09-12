@@ -17,7 +17,6 @@ from betty.datas.aggregate.collection import (
     MutableCollectionDefinition,
 )
 from betty.freezer import is_frozen
-from betty.plugin import factory
 from betty.prop import HasProps
 from betty.props.setter import SetterProp
 

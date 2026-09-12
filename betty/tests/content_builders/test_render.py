@@ -12,7 +12,7 @@ from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
-class TestRenderData(DataTestBase[RenderConfig]):
+class TestRenderConfig(DataTestBase[RenderConfig]):
     sut_cls = RenderConfig
 
     def test_content(self) -> None:

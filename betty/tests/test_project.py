@@ -364,7 +364,7 @@ class TestProjectLocale(DataTestBase[ProjectLocale]):
         assert sut.slug == alias
 
 
-class TestProjectData(DataTestBase[ProjectConfig]):
+class TestProjectConfig(DataTestBase[ProjectConfig]):
     sut_cls = ProjectConfig
 
     def test_lifetime_threshold(self) -> None:
