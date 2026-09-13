@@ -10,12 +10,7 @@ from typing import TYPE_CHECKING, final
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import (
-    NewPlugin,
-    ResolvablePluginManufacturer,
-)
 from betty.plugin.data import DataPlugin, DataPluginDefinition
-from betty.plugin.factory import NewPluginDefinition
 from betty.plugin.ordered import (
     Order,
     OrderedClassedPluginDefinition,
@@ -86,16 +81,3 @@ class EventTypeDefinition(
             before=before,
             requires=requires,
         )
-
-
-@final
-@NewPluginDefinition(EventTypeDefinition)
-class NewEventType(NewPlugin[EventTypeDefinition, EventType]):
-    """
-    The event type factory.
-    """
-
-
-type ResolvableEventTypeManufacturer = ResolvablePluginManufacturer[
-    EventTypeDefinition, NewEventType
-]

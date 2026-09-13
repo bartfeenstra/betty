@@ -9,13 +9,7 @@ from typing import TYPE_CHECKING, final
 
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import (
-    ManufacturablePlugin,
-    NewPlugin,
-    ResolvablePluginManufacturer,
-)
 from betty.plugin.data import DataPlugin, DataPluginDefinition
-from betty.plugin.factory import NewPluginDefinition
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable, ResolvableLocalizable
@@ -75,20 +69,3 @@ class LicenseDefinition(DataPluginDefinition[License]):
         super().__init__(
             plugin_id, label=label, description=description, requires=requires
         )
-
-
-@final
-@NewPluginDefinition(LicenseDefinition)
-class NewLicense(NewPlugin[LicenseDefinition, License]):
-    """
-    The license factory.
-    """
-
-
-type ResolvableLicenseManufacturer = ResolvablePluginManufacturer[
-    LicenseDefinition, NewLicense
-]
-
-type ManufacturableLicense = ManufacturablePlugin[
-    LicenseDefinition, NewLicense, License
-]
