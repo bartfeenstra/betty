@@ -33,7 +33,6 @@ from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.attrs.privacy import HasPrivacy
 from betty.collections import _empty_frozen_mapping
-from betty.copyright_notice import NewCopyrightNotice
 from betty.date import AnyDate, Date, DateRange
 from betty.entities.citation import Citation
 from betty.entities.enclosure import Enclosure
@@ -50,7 +49,6 @@ from betty.entities.presence import Presence
 from betty.entities.source import Source
 from betty.entity import Entity
 from betty.error import FileNotFound
-from betty.event_type import NewEventType, ResolvableEventTypeManufacturer
 from betty.event_types.adoption import Adoption
 from betty.event_types.baptism import Baptism
 from betty.event_types.bar_mitzvah import BarMitzvah
@@ -73,17 +71,12 @@ from betty.event_types.retirement import Retirement
 from betty.event_types.unknown import UnknownEventType
 from betty.event_types.will import Will
 from betty.exception import HumanFacingException
-from betty.gender import (
-    GenderDefinition,
-    NewGender,
-    ResolvableGenderManufacturer,
-)
+from betty.gender import GenderDefinition
 from betty.genders.man import Man
 from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import UnknownGender
 from betty.genders.woman import Woman
 from betty.hashid import hashid, hashid_sequence
-from betty.license import NewLicense
 from betty.locale import from_language_tag
 from betty.locale.error import LocaleError
 from betty.localizables.gettext import _, pgettext
@@ -92,7 +85,6 @@ from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.media_type import InvalidMediaType, MediaType
 from betty.pathlib import resolve_path
-from betty.place_type import NewPlaceType, ResolvablePlaceTypeManufacturer
 from betty.place_types.borough import Borough
 from betty.place_types.building import Building
 from betty.place_types.city import City
@@ -116,8 +108,6 @@ from betty.place_types.unknown import UnknownPlaceType
 from betty.place_types.village import Village
 from betty.plugin.cls import ClassedPluginDefinition
 from betty.plugin.error import PluginNotFound
-from betty.plugin.factory import new
-from betty.role import NewRole, ResolvableRoleManufacturer
 from betty.roles.attendee import Attendee
 from betty.roles.celebrant import Celebrant
 from betty.roles.informant import Informant
@@ -145,10 +135,6 @@ if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
     from betty.pathlib import StrPath
     from betty.place_type import PlaceType
-    from betty.plugin.cls import (
-        NewPlugin,
-        ResolvablePluginManufacturer,
-    )
     from betty.project import Project
     from betty.role import Role
 
