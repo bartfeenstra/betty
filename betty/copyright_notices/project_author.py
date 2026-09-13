@@ -4,35 +4,20 @@ The project author copyright notice.
 
 from __future__ import annotations
 
-from typing import Self, final, override
+from typing import TYPE_CHECKING, ClassVar, final, override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.localizable import (
-    Localizable,
-    ResolvableLocalizable,
-    resolve_localizable,
-)
 from betty.localizables.gettext import _
-from betty.project import Project
-from betty.service_level.factory import Integratable
+
+if TYPE_CHECKING:
+    from betty.localizable import Localizable
 
 
+# @todo Wrap this in discovery
 @final
 @CopyrightNoticeDefinition("project-author", label=_("Project author"))
-class ProjectAuthor(Integratable, CopyrightNotice):
-    """
-    .. plugin:: copyright-notice:project-author.
-    """
-
-    def __init__(self, author: ResolvableLocalizable | None):
-        super().__init__()
-        self._author = None if author is None else resolve_localizable(author)
-
-    @override
-    @Project.require
-    @classmethod
-    async def new(cls, project: Project, /) -> Self:
-        return cls(project.author)
+class ProjectAuthor(CopyrightNotice):
+    _author: ClassVar[Localizable | None] = project.author
 
     @property
     @override
