@@ -166,4 +166,4 @@ class NewServer(NewPlugin[ServerDefinition, Server]):
     """
 
 
-type ManufacturableServer = ManufacturablePlugin[ServerDefinition, NewServer, Server]
+type ServerFactory = ManufacturablePlugin[ServerDefinition, NewServer, Server]

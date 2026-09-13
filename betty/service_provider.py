@@ -11,14 +11,13 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import (
-    ManufacturablePlugin,
-    NewPlugin,
-    Plugin,
-    ResolvablePluginManufacturer,
-)
+from betty.plugin.cls import Plugin
 from betty.plugin.config import ConfigurablePluginDefinition
-from betty.plugin.factory import NewPluginDefinition
+from betty.plugin.config.factory import (
+    ConfigurablePluginFactory,
+    NewConfigurablePlugin,
+    NewConfigurablePluginDefinition,
+)
 from betty.prop import HasProps
 from betty.service_level import HasServiceLevel, ServiceLevel
 
@@ -76,20 +75,15 @@ class ServiceProviderDefinition(
 
 
 @final
-@NewPluginDefinition(ServiceProviderDefinition)
-class NewServiceProvider(NewPlugin[ServiceProviderDefinition, ServiceProvider]):
+@NewConfigurablePluginDefinition(ServiceProviderDefinition)
+class NewServiceProvider(
+    NewConfigurablePlugin[ServiceProviderDefinition, ServiceProvider]
+):
     """
     The service provider factory.
     """
 
 
-type ResolvableServiceProviderManufacturer = ResolvablePluginManufacturer[
-    ServiceProviderDefinition, NewServiceProvider
-]
-
-
-type ManufacturableServiceProvider[ServiceLevelT: ServiceLevel] = ManufacturablePlugin[
-    ServiceProviderDefinition,
-    NewServiceProvider,
-    ServiceProvider[ServiceLevelT],
-]
+type ServiceProviderFactory[PluginT: ServiceProvider, ConfigT: Data] = (
+    ConfigurablePluginFactory[PluginT, NewServiceProvider, ConfigT]
+)

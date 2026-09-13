@@ -16,14 +16,13 @@ from betty.job.executor.asyncio import AsyncExecutor
 from betty.job.scheduler.default import DefaultScheduler
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import (
-    ClassedPluginDefinition,
-    ConfigurablePluginFactory,
-    NewPlugin,
-    Plugin,
-)
+from betty.plugin.cls import Plugin
 from betty.plugin.config import ConfigurablePluginDefinition
-from betty.plugin.factory import NewPluginDefinition
+from betty.plugin.config.factory import (
+    ConfigurablePluginFactory,
+    NewConfigurablePlugin,
+    NewConfigurablePluginDefinition,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Collection
@@ -55,7 +54,7 @@ class Loader(Plugin["LoaderDefinition"], metaclass=ABCMeta):
     label_plural=_("Loaders"),
     label_countable=ngettext("{count} loader", "{count} loaders"),
 )
-class LoaderDefinition(HumanFacingDefinition, ClassedPluginDefinition[Loader]):
+class LoaderDefinition(HumanFacingDefinition, ConfigurablePluginDefinition[Loader]):
     """
     .. plugin_type:: loader.
     """
@@ -81,8 +80,8 @@ class LoaderDefinition(HumanFacingDefinition, ClassedPluginDefinition[Loader]):
 
 
 @final
-@NewPluginDefinition(LoaderDefinition)
-class NewLoader(NewPlugin[LoaderDefinition, Loader]):
+@NewConfigurablePluginDefinition(LoaderDefinition)
+class NewLoader(NewConfigurablePlugin[LoaderDefinition, Loader]):
     """
     The loader factory.
     """
@@ -138,8 +137,8 @@ class EnricherDefinition(HumanFacingDefinition, ConfigurablePluginDefinition[Enr
 
 
 @final
-@NewPluginDefinition(EnricherDefinition)
-class NewEnricher(NewPlugin[EnricherDefinition, Enricher]):
+@NewConfigurablePluginDefinition(EnricherDefinition)
+class NewEnricher(NewConfigurablePlugin[EnricherDefinition, Enricher]):
     """
     The enricher factory.
     """

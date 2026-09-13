@@ -209,11 +209,11 @@ class CollectionOwnerAttr[
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:
         super().pre_init_owner(owner)
-        self._storage.set(owner, factory.new())
+        self._storage.set(owner, self.field.data.new())
 
     @override
     def normalize(self, owner: OwnerT, value: SetT, /) -> GetT:
-        return factory.new(value)
+        return self.field.data.new(value)
 
     @override
     def get(self, owner: OwnerT, /) -> GetT:
@@ -225,4 +225,4 @@ class CollectionOwnerAttr[
         if isinstance(self.field.data, MutableCollectionDefinition):
             self.field.data.replace(self.get(owner), value)
         else:
-            self._storage.set(owner, factory.new(value))
+            self._storage.set(owner, self.field.data.new(value))

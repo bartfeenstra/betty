@@ -81,11 +81,9 @@ from betty.licenses.all_rights_reserved import AllRightsReserved
 from betty.link import LinkDefinition
 from betty.load import (
     EnricherDefinition,
-    EnrichterFactory,
+    EnricherFactory,
     LoaderDefinition,
     LoaderFactory,
-    ManufacturableEnricher,
-    ManufacturableLoader,
     NewEnricher,
     NewLoader,
 )
@@ -116,16 +114,15 @@ from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
 from betty.sample import Sample, Size
-from betty.server import ManufacturableServer, ServerDefinition
+from betty.server import ServerDefinition, ServerFactory
 from betty.service import (
     Service,
 )
 from betty.service_level import DownstreamServiceLevel, Plugins
 from betty.service_provider import (
-    ManufacturableServiceProvider,
     NewServiceProvider,
-    ResolvableServiceProviderManufacturer,
     ServiceProviderDefinition,
+    ServiceProviderFactory,
 )
 from betty.services.asset import AssetRepositoryService
 from betty.services.plugin import HasPluginServices
@@ -207,20 +204,20 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         clean_urls: bool = False,
         copyright_notice: ManufacturableCopyrightNotice | None = None,
         debug: bool = False,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
+        enrichers: Iterable[EnricherFactory] = (),
+        service_providers: Iterable[ServiceProviderFactory] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
         license: ManufacturableLicense | None = None,  # noqa: A002
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
+        loaders: Iterable[LoaderFactory] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         localizers: TypedSynchronousServiceOrFactory[Project, LocalizerRepository]
         | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Plugins = _empty_frozen_mapping,
-        servers: Iterable[ManufacturableServer] = (),
+        servers: Iterable[ServerFactory] = (),
         supported_plugins: SupportedPlugins = (),
         _plugin_discoveries: Iterable[PluginDefinition] = (),
     ):
@@ -434,19 +431,19 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         clean_urls: bool = False,
         debug: bool = False,
         directory: StrPath | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
+        enrichers: Iterable[EnricherFactory] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
+        service_providers: Iterable[ServiceProviderFactory] = (),
         lifetime_threshold: int | None = None,
         links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
+        loaders: Iterable[LoaderFactory] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         localizers: TypedSynchronousServiceOrFactory[Project, LocalizerRepository]
         | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
         plugins: Plugins = _empty_frozen_mapping,
-        servers: Iterable[ManufacturableServer] = (),
+        servers: Iterable[ServerFactory] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
@@ -983,9 +980,9 @@ class ProjectConfig(Data, HasProps):
         copyright_notice: ResolvableCopyrightNoticeManufacturer | None = None,
         copyright_notices: Iterable[CopyrightNoticeDefinitionConfig] = (),
         debug: bool = False,
-        enrichers: Iterable[EnrichterFactory] = (),
+        enrichers: Iterable[EnricherFactory] = (),
         event_types: Iterable[EventTypeDefinitionConfig] = (),
-        service_providers: Iterable[ResolvableServiceProviderManufacturer] = (),
+        service_providers: Iterable[ServiceProviderFactory] = (),
         generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
         genders: Iterable[GenderDefinitionConfig] = (),
         license: ResolvableLicenseManufacturer | None = None,  # noqa: A002

@@ -1,3 +1,7 @@
+"""
+Configurable plugins.
+"""
+
 from __future__ import annotations
 
 from typing import Any, final
@@ -8,6 +12,7 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.plugin import PluginDefinition
 from betty.plugin.cls import ClassedPluginDefinition
+from betty.plugin.config.factory import ConfigurablePlugin
 from betty.plugin.resolve import (
     ResolvablePluginId,
     ResolvablePluginTypeDefinition,
