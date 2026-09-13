@@ -6,7 +6,6 @@ from asyncio import gather
 from typing import Self, final, override
 
 from betty.copyright_notices.wikipedia_contributors import WikipediaContributors
-from betty.plugin.factory import new
 from betty.project import Project
 from betty.service_level.factory import Integratable
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
@@ -47,7 +46,7 @@ class Wiki(ServiceProvider[Project], Integratable):
         The ancestry populator.
         """
         copyright_notice, http_client = await gather(
-            new(WikipediaContributors, self.services), self.client
+            WikipediaContributors.new(self.services), self.client
         )
         return populator_api.Populator(
             self.services.ancestry,

@@ -24,7 +24,8 @@ from betty.functools import Result
 from betty.importlib import import_any
 from betty.localizer import default_localizer
 from betty.machine_name import MachineName
-from betty.plugin.cls import ClassedPluginDefinition, ConfigurablePlugin
+from betty.plugin.cls import ClassedPluginDefinition
+from betty.plugin.config import ConfigurablePlugin
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.service_level import ServiceLevel

@@ -21,7 +21,6 @@ from betty.localizable import (
 )
 from betty.localizables.gettext import _
 from betty.localizables.static import StaticTranslations
-from betty.service_level.factory import Integratable
 
 
 def _copyright_url(language: str, page: str) -> str:
@@ -30,7 +29,7 @@ def _copyright_url(language: str, page: str) -> str:
 
 @final
 @CopyrightNoticeDefinition("wikipedia-contributors", label=_("Wikipedia contributors"))
-class WikipediaContributors(Integratable, CopyrightNotice):
+class WikipediaContributors(CopyrightNotice):
     """
     .. plugin:: copyright-notice:wikipedia-contributors.
     """
@@ -39,10 +38,12 @@ class WikipediaContributors(Integratable, CopyrightNotice):
         super().__init__()
         self._url = resolve_localizable(url)
 
-    @override
     @App.require
     @classmethod
     async def new(cls, app: App, /) -> Self:
+        """
+        Create a new instance.
+        """
         http_client = await app.http_client
         urls: StaticTranslationsMapping = {
             default_locale: _copyright_url("en", "Wikipedia:Copyrights"),

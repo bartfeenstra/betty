@@ -1000,8 +1000,7 @@ class ProjectConfig(Data, HasProps):
         self.clean_urls = clean_urls
         if copyright_notice is not None:
             self.copyright_notice = copyright_notice
-        if copyright_notices is not None:
-            self.copyright_notices = copyright_notices
+        self.copyright_notices = copyright_notices
         self.debug = debug
         self.enrichers = enrichers
         self.event_types = event_types
