@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
-from betty.definition.cls import OptionalClsDefinition
+from betty.definition.cls import OptionalClassedDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.functools import LazyReCallable
 from betty.importlib import fully_qualified_name
@@ -27,7 +27,7 @@ type ResolvableDataPorter[DataDefinitionT: DataDefinition, DataT] = (
 )
 
 
-class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT]):
+class DataDefinition[DataT](HumanFacingDefinition, OptionalClassedDefinition[DataT]):
     """
     A data definition.
     """

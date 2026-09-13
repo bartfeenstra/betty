@@ -10,8 +10,8 @@ from betty.app import App
 from betty.argparse import add_yes_argument
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
-from betty.factory import Manufacturable
 from betty.localizables.gettext import _
+from betty.service_level.factory import Integratable
 from betty.user import Severity
 
 if TYPE_CHECKING:
@@ -31,7 +31,7 @@ async def _clear_legacy_cache() -> None:
 
 @final
 @CommandDefinition("clear-caches", label=_("Clear all caches"), aliases=["cc"])
-class ClearCaches(Manufacturable, Command):
+class ClearCaches(Integratable, Command):
     """
     .. plugin:: command:clear-caches.
     """

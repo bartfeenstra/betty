@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 
 from jinja2 import pass_context
 
-from betty.factory import Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.media_type import MediaType
 from betty.media_types.html import HTML
 from betty.project import Project
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from jinja2.runtime import Context
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 @final
 @JinjaFilterDefinition("url", auto=True)
-class Url(JinjaFilter, Manufacturable):
+class Url(JinjaFilter, Integratable):
     """
     Generate a URL for a resource.
 

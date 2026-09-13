@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 from betty.app import App
 from betty.console import SystemExitCode
 from betty.file import write
-from betty.project import ProjectData
+from betty.project import ProjectConfig
 from betty.servers.no_op import NoOpServer
 from betty.test_utils.console import run
 
@@ -21,7 +21,7 @@ class TestServe:
         )
         mocker.patch("betty.servers.project_builtin.ProjectBuiltinServer.show")
         mocker.patch("betty.servers.builtin.BuiltinServer", new=NoOpServer)
-        configuration = ProjectData(title="Betty", url="https://example.com")
+        configuration = ProjectConfig(title="Betty", url="https://example.com")
         await write(
             tmp_path / "betty.json",
             dumps(configuration.data().porter.dump(configuration)),
@@ -44,7 +44,7 @@ class TestServe:
         )
         mocker.patch("betty.servers.project_builtin.ProjectBuiltinServer.show")
         mocker.patch("betty.servers.builtin.BuiltinServer", new=NoOpServer)
-        configuration = ProjectData(title="Betty", url="https://example.com")
+        configuration = ProjectConfig(title="Betty", url="https://example.com")
         await write(
             tmp_path / "betty.json",
             dumps(configuration.data().porter.dump(configuration)),

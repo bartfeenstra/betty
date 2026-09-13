@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     LicenseDefinition,
     samples=[
         lambda: Sample(
-            LicenseDefinitionData(
+            LicenseDefinitionConfig(
                 id="my-first-license",
                 label="My First License",
                 summary="My First License is my first license",
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
         )
     ],
 )
-class LicenseDefinitionData(HumanFacingPluginDefinitionData[LicenseDefinition]):
+class LicenseDefinitionConfig(HumanFacingPluginDefinitionData[LicenseDefinition]):
     """
     Configure a :py:class:`betty.license.LicenseDefinition`.
 

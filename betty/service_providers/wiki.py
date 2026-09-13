@@ -7,6 +7,7 @@ from typing import Self, final, override
 
 from betty.copyright_notices.wikipedia_contributors import WikipediaContributors
 from betty.project import Project
+from betty.service_level.factory import Integratable
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
 from betty.services.simple import service
 from betty.wiki import populator as populator_api
@@ -15,7 +16,7 @@ from betty.wiki.client import Client
 
 @final
 @ServiceProviderDefinition("wiki", label="Wiki")
-class Wiki(ServiceProvider[Project]):
+class Wiki(ServiceProvider[Project], Integratable):
     """
     .. plugin:: service-provider:wiki.
     """
@@ -45,7 +46,7 @@ class Wiki(ServiceProvider[Project]):
         The ancestry populator.
         """
         copyright_notice, http_client = await gather(
-            self.services.factory.new(WikipediaContributors), self.client
+            WikipediaContributors.new(self.services), self.client
         )
         return populator_api.Populator(
             self.services.ancestry,

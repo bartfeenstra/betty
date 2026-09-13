@@ -7,8 +7,12 @@ from __future__ import annotations
 from typing import final
 
 from betty.asyncio import ReAwaitable
-from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import ManufacturablePlugin, PluginManufacturer
+from betty.plugin.cls import (
+    ClassedPluginDefinition,
+    ManufacturablePlugin,
+    NewPlugin,
+    Plugin,
+)
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection.keyed import (
     KeyedCollectionPluginServiceManager,
@@ -21,22 +25,22 @@ from betty.services.plugin.instance.collection import (
 
 @final
 class PluginInstancesService[
-    PluginDefinitionT: PluginClsDefinition,
-    PluginManufacturerT: PluginManufacturer,
+    PluginDefinitionT: ClassedPluginDefinition,
+    NewPluginT: NewPlugin,
     PluginT: Plugin,
 ](
     CollectionPluginInstanceServiceManager[
         ResolvableServiceLevelHasPluginServices,
         PluginDefinitionT,
         KeyedPluginCollectionService[PluginDefinitionT, ReAwaitable[PluginT]],
-        PluginManufacturerT,
+        NewPluginT,
         PluginT,
     ],
     KeyedCollectionPluginServiceManager[
         ResolvableServiceLevelHasPluginServices,
         PluginDefinitionT,
         ReAwaitable[PluginT],
-        ManufacturablePlugin[PluginDefinitionT, PluginManufacturerT, PluginT],
+        ManufacturablePlugin[PluginDefinitionT, NewPluginT, PluginT],
     ],
 ):
     """

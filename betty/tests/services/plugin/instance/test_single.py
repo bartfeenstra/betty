@@ -5,9 +5,9 @@ from betty.services.plugin import HasPluginServices
 from betty.services.plugin.instance.single import PluginInstanceService
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
-    DummyPluginManufacturer,
     DummyPluginWithLifeCycle,
     ManufacturableDummyPlugin,
+    NewDummyPlugin,
 )
 from betty.tests.services.test_plugin import (
     PluginServiceManagerTestBase,
@@ -27,7 +27,7 @@ class TestPluginInstanceService(PluginServiceManagerTestBase):
         [
             DummyPluginWithLifeCycle,
             DummyPluginWithLifeCycle.plugin(),
-            DummyPluginManufacturer(DummyPluginWithLifeCycle),
+            NewDummyPlugin(DummyPluginWithLifeCycle),
         ],
     )
     async def test_new_service(self, init_plugin: ManufacturableDummyPlugin) -> None:

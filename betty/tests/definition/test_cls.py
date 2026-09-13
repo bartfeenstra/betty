@@ -1,27 +1,27 @@
-from betty.definition.cls import ClsDefinition, OptionalClsDefinition
+from betty.definition.cls import ClassedDefinition, OptionalClassedDefinition
 
 
-class TestClsDefinition:
+class TestClassedDefinition:
     def test_cls(self) -> None:
-        sut = ClsDefinition(cls=object)
+        sut = ClassedDefinition(cls=object)
         assert sut.cls is object
 
     def test___call__(self) -> None:
-        sut = ClsDefinition[object]()
+        sut = ClassedDefinition[object]()
         sut(object)
         assert sut.cls is object
 
 
-class TestOptionalClsDefinition:
+class TestOptionalClassedDefinition:
     def test_cls__without_cls(self) -> None:
-        sut = OptionalClsDefinition()
+        sut = OptionalClassedDefinition()
         assert sut.cls is None
 
     def test_cls__with_cls(self) -> None:
-        sut = OptionalClsDefinition(cls=object)
+        sut = OptionalClassedDefinition(cls=object)
         assert sut.cls is object
 
     def test___call__(self) -> None:
-        sut = OptionalClsDefinition[object]()
+        sut = OptionalClassedDefinition[object]()
         sut(object)
         assert sut.cls is object

@@ -10,12 +10,6 @@ from typing import TYPE_CHECKING, final
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.data import DataPlugin, DataPluginDefinition
-from betty.plugin.factory import (
-    ManufacturablePlugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
-    ResolvablePluginManufacturer,
-)
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable, ResolvableLocalizable
@@ -75,22 +69,3 @@ class CopyrightNoticeDefinition(DataPluginDefinition[CopyrightNotice]):
         super().__init__(
             plugin_id, label=label, description=description, requires=requires
         )
-
-
-@final
-@PluginManufacturerDefinition(CopyrightNoticeDefinition)
-class CopyrightNoticeManufacturer(
-    PluginManufacturer[CopyrightNoticeDefinition, CopyrightNotice]
-):
-    """
-    The copyright notice manufacturer.
-    """
-
-
-type ResolvableCopyrightNoticeManufacturer = ResolvablePluginManufacturer[
-    CopyrightNoticeDefinition, CopyrightNoticeManufacturer
-]
-
-type ManufacturableCopyrightNotice = ManufacturablePlugin[
-    CopyrightNoticeDefinition, CopyrightNoticeManufacturer, CopyrightNotice
-]

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Never, overload
 
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin.cls import ClassedPluginDefinition, Plugin
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
@@ -19,7 +19,7 @@ type ResolvablePluginDefinition[
     PluginDefinitionT: PluginDefinition = PluginDefinition
 ] = (
     PluginDefinitionT
-    | type[Plugin[Intersection[PluginDefinitionT, PluginClsDefinition]]]
+    | type[Plugin[Intersection[PluginDefinitionT, ClassedPluginDefinition]]]
 )
 """
 Use :py:func:`betty.plugin.resolve_plugin_definition` to resolve this to a :py:class:`betty.plugin.PluginDefinition`

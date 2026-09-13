@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, final
 
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import PluginDefinition
-from betty.plugin.cls import PluginClsDefinition
+from betty.plugin.cls import ClassedPluginDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 
 if TYPE_CHECKING:
@@ -58,8 +58,8 @@ class OrderedPluginDefinition(PluginDefinition):
         return self.__before(other)
 
 
-class OrderedPluginClsDefinition[BaseClsT](
-    OrderedPluginDefinition, PluginClsDefinition[BaseClsT]
+class OrderedClassedPluginDefinition[BaseClsT](
+    OrderedPluginDefinition, ClassedPluginDefinition[BaseClsT]
 ):
     """
     A definition of a classed plugin that can declare its order with respect to other plugins.
@@ -69,8 +69,8 @@ class OrderedPluginClsDefinition[BaseClsT](
         self,
         plugin_id: ResolvableMachineName,
         *,
-        after: Order[OrderedPluginClsDefinition[BaseClsT]] = (),
-        before: Order[OrderedPluginClsDefinition[BaseClsT]] = (),
+        after: Order[OrderedClassedPluginDefinition[BaseClsT]] = (),
+        before: Order[OrderedClassedPluginDefinition[BaseClsT]] = (),
         requires: Requires = (),
         **kwargs: Any,
     ):

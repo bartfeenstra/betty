@@ -31,8 +31,12 @@ from betty.localizer import Localizer, default_localizer
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_types.html import HTML
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
+from betty.plugin.cls import (
+    ClassedPluginDefinition,
+    NewPlugin,
+    Plugin,
+)
+from betty.plugin.factory import NewPluginDefinition
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.portable import PortableMapping
 
@@ -192,7 +196,7 @@ class DocumentProvider(Plugin["DocumentProviderDefinition"]):
     label_plural=_("Document providers"),
     label_countable=ngettext("{count} document provider", "{count} document providers"),
 )
-class DocumentProviderDefinition(PluginClsDefinition[DocumentProvider]):
+class DocumentProviderDefinition(ClassedPluginDefinition[DocumentProvider]):
     """
     .. plugin_type:: document-provider.
     """
@@ -208,12 +212,10 @@ class DocumentProviderDefinition(PluginClsDefinition[DocumentProvider]):
 
 
 @final
-@PluginManufacturerDefinition(DocumentProviderDefinition)
-class DocumentProviderManufacturer(
-    PluginManufacturer[DocumentProviderDefinition, DocumentProvider]
-):
+@NewPluginDefinition(DocumentProviderDefinition)
+class NewDocumentProvider(NewPlugin[DocumentProviderDefinition, DocumentProvider]):
     """
-    The document provider manufacturer.
+    The document provider factory.
     """
 
 

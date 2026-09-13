@@ -10,14 +10,14 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.machine_name import new_machine_name_attr
-from betty.attrs.owner import OwnerAttr
-from betty.attrs.plugin_manufacturer_sequence import (
-    new_plugin_manufacturer_sequence_attr,
+from betty.attrs.new_plugin_sequence import (
+    new_new_plugin_sequence_attr,
 )
+from betty.attrs.owner import OwnerAttr
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
-    ContentBuilderManufacturer,
+    NewContentBuilder,
     ResolvableContentBuilderManufacturer,
     build,
 )
@@ -25,8 +25,8 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
-from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
+from betty.plugin.factory import ConfigurableIntegratable, new
 from betty.project import Project
 from betty.prop import HasProps
 from betty.sample import Sample, Size
@@ -43,26 +43,24 @@ if TYPE_CHECKING:
     label=_("Section configuration"),
     samples=[
         lambda: Sample(
-            SectionData(
-                ContentBuilderManufacturer("my-first-content"),
+            SectionConfig(
+                NewContentBuilder("my-first-content"),
                 heading="-",
             ),
             label="Minimal",
             size=Size.MINIMAL,
         ),
     ],
-    manufacturer=lambda **fields: SectionData(*fields.pop("content"), **fields),
+    manufacturer=lambda **fields: SectionConfig(*fields.pop("content"), **fields),
 )
-class SectionData(Data, HasProps):
+class SectionConfig(Data, HasProps):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_section.Section`.
 
     .. data:: betty.content_builders.raspberry_mint_section:SectionData
     """
 
-    content = new_plugin_manufacturer_sequence_attr(
-        ContentBuilderManufacturer, label=_("Content")
-    )
+    content = new_new_plugin_sequence_attr(NewContentBuilder, label=_("Content"))
     """
     The content within this section.
     """
@@ -104,9 +102,10 @@ class SectionData(Data, HasProps):
 @ContentBuilderDefinition(
     "raspberry-mint-section",
     label=_("Section"),
+    config_cls=SectionConfig,
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Section(Template, DataManufacturable[SectionData]):
+class Section(Template, ConfigurableIntegratable[SectionConfig]):
     """
     .. plugin:: content-builder:raspberry-mint-section.
     """
@@ -127,29 +126,24 @@ class Section(Template, DataManufacturable[SectionData]):
         self._visually_hide_heading = bool(visually_hide_heading)
 
     @override
-    @classmethod
-    def new_data_cls(cls) -> type[SectionData]:
-        return SectionData
-
-    @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: SectionData, /) -> Self:
+    async def new(cls, project: Project, config: SectionConfig, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(
-                    project.factory.new,
-                    map(ContentBuilderManufacturer.resolve, data.content),
+                    lambda manufacturer: new(manufacturer, project),
+                    map(NewContentBuilder.resolve, config.content),
                 )
             ),
             project.jinja,
         )
         return cls(
             *content,
-            heading=data.heading,
+            heading=config.heading,
             jinja=jinja,
-            name=data.name,
-            visually_hide_heading=data.visually_hide_heading,
+            name=config.name,
+            visually_hide_heading=config.visually_hide_heading,
         )
 
     @override

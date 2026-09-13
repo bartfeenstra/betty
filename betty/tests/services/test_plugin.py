@@ -16,11 +16,11 @@ from betty.services.plugin.definition.collection.keyed import (
 )
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
-    DummyPluginManufacturer,
     DummyPluginOne,
     DummyPluginThree,
     DummyPluginTwo,
     DummyPluginWithLifeCycle,
+    NewDummyPlugin,
 )
 from betty.typing import Unreachable
 
@@ -196,7 +196,7 @@ class _PluginServiceManagerTestSut(
         ResolvableServiceLevelHasPluginServices,
         DummyPluginDefinition,
         Sequence[MachineName],
-        ResolvablePluginDefinition[DummyPluginDefinition] | DummyPluginManufacturer,
+        ResolvablePluginDefinition[DummyPluginDefinition] | NewDummyPlugin,
     ]
 ):
     def __init__(self, *, auto: bool = True):

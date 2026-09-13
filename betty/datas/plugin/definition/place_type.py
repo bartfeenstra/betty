@@ -21,7 +21,7 @@ from betty.sample import Sample
     PlaceTypeDefinition,
     samples=[
         lambda: Sample(
-            PlaceTypeDefinitionData(
+            PlaceTypeDefinitionConfig(
                 id="moon",
                 label="Moon",
                 label_plural="Moons",
@@ -36,7 +36,7 @@ from betty.sample import Sample
         )
     ],
 )
-class PlaceTypeDefinitionData(
+class PlaceTypeDefinitionConfig(
     CountableHumanFacingPluginDefinitionData[PlaceTypeDefinition]
 ):
     """

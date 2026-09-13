@@ -30,13 +30,6 @@ class TestServiceLevel:
         sut = ServiceLevel(plugins={DummyPluginDefinition: [DummyPluginOne]})
         assert list(await sut.plugins[str(DummyPluginDefinition.type().id)].ids())
 
-    async def test_factory(self) -> None:
-        class _TargetType:
-            pass
-
-        sut = ServiceLevel()
-        assert isinstance(await sut.factory.new(_TargetType), _TargetType)
-
 
 class TestDownstreamServiceLevel:
     def test_upstream(self) -> None:

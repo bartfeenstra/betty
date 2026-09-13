@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
 
-class _ClsDefinition[BaseClsT = Any]:
+class _ClassedDefinition[BaseClsT = Any]:
     def __init__(self, *args: Any, cls: type[BaseClsT] | None = None, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._cls: type[BaseClsT] | None = None
@@ -37,7 +37,7 @@ class _ClsDefinition[BaseClsT = Any]:
         self._cls = cls
 
 
-class ClsDefinition[BaseClsT = Any](_ClsDefinition[BaseClsT]):
+class ClassedDefinition[BaseClsT = Any](_ClassedDefinition[BaseClsT]):
     """
     A definition with a Python class.
     """
@@ -55,7 +55,7 @@ class ClsDefinition[BaseClsT = Any](_ClsDefinition[BaseClsT]):
         return self._cls
 
 
-class OptionalClsDefinition[BaseClsT = Any](_ClsDefinition[BaseClsT]):
+class OptionalClassedDefinition[BaseClsT = Any](_ClassedDefinition[BaseClsT]):
     """
     A definition with an optional Python class.
     """

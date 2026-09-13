@@ -11,14 +11,9 @@ from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.data import DataPlugin, DataPluginDefinition
-from betty.plugin.factory import (
-    PluginManufacturer,
-    PluginManufacturerDefinition,
-    ResolvablePluginManufacturer,
-)
 from betty.plugin.ordered import (
     Order,
-    OrderedPluginClsDefinition,
+    OrderedClassedPluginDefinition,
 )
 
 if TYPE_CHECKING:
@@ -57,7 +52,7 @@ class ShouldExistEventType(EventType, metaclass=ABCMeta):
 )
 class EventTypeDefinition(
     CountableHumanFacingDefinition,
-    OrderedPluginClsDefinition[EventType],
+    OrderedClassedPluginDefinition[EventType],
     DataPluginDefinition[EventType],
 ):
     """
@@ -86,16 +81,3 @@ class EventTypeDefinition(
             before=before,
             requires=requires,
         )
-
-
-@final
-@PluginManufacturerDefinition(EventTypeDefinition)
-class EventTypeManufacturer(PluginManufacturer[EventTypeDefinition, EventType]):
-    """
-    The event type manufacturer.
-    """
-
-
-type ResolvableEventTypeManufacturer = ResolvablePluginManufacturer[
-    EventTypeDefinition, EventTypeManufacturer
-]

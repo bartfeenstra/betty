@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     CopyrightNoticeDefinition,
     samples=[
         lambda: Sample(
-            CopyrightNoticeDefinitionData(
+            CopyrightNoticeDefinitionConfig(
                 id="my-first-copyright-notice",
                 label="My First Copyright Notice",
                 summary="My First Copyright Notice is my first copyright notice",
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
         )
     ],
 )
-class CopyrightNoticeDefinitionData(
+class CopyrightNoticeDefinitionConfig(
     HumanFacingPluginDefinitionData[CopyrightNoticeDefinition]
 ):
     """

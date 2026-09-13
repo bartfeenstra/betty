@@ -4,25 +4,25 @@ The service provider API.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final
 
 from betty.classtools import TypeABCMeta
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.factory import Manufacturable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
-from betty.plugin.factory import (
-    ManufacturablePlugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
-    ResolvablePluginManufacturer,
+from betty.plugin.cls import Plugin
+from betty.plugin.config import ConfigurablePluginDefinition
+from betty.plugin.config.factory import (
+    ConfigurablePluginFactory,
+    NewConfigurablePlugin,
+    NewConfigurablePluginDefinition,
 )
 from betty.prop import HasProps
 from betty.service_level import HasServiceLevel, ServiceLevel
 
 if TYPE_CHECKING:
+    from betty.data import Data
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
@@ -31,7 +31,6 @@ if TYPE_CHECKING:
 class ServiceProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
     HasServiceLevel[ServiceLevelT],
     Plugin["ServiceProviderDefinition"],
-    Manufacturable,
     HasProps,
     ManagedLifeCycle,
     metaclass=TypeABCMeta,
@@ -39,11 +38,6 @@ class ServiceProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
     """
     Integrate custom services with a :py:class:`service level <betty.service_level.ServiceLevel>`.
     """
-
-    @override
-    @classmethod
-    async def new(cls, services: ServiceLevel, /) -> Self:
-        return cls(services=services)
 
 
 @final
@@ -54,7 +48,7 @@ class ServiceProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
     label_countable=ngettext("{count} service provider", "{count} service providers"),
 )
 class ServiceProviderDefinition(
-    HumanFacingDefinition, PluginClsDefinition[ServiceProvider]
+    HumanFacingDefinition, ConfigurablePluginDefinition[ServiceProvider]
 ):
     """
     .. plugin_type:: service-provider.
@@ -66,35 +60,30 @@ class ServiceProviderDefinition(
         *,
         label: ResolvableLocalizable,
         auto: bool = False,
+        config_cls: type[Data] | None = None,
         description: ResolvableLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(
             plugin_id,
             auto=auto,
-            label=label,
+            config_cls=config_cls,
             description=description,
+            label=label,
             requires=requires,
         )
 
 
 @final
-@PluginManufacturerDefinition(ServiceProviderDefinition)
-class ServiceProviderManufacturer(
-    PluginManufacturer[ServiceProviderDefinition, ServiceProvider]
+@NewConfigurablePluginDefinition(ServiceProviderDefinition)
+class NewServiceProvider(
+    NewConfigurablePlugin[ServiceProviderDefinition, ServiceProvider]
 ):
     """
-    The service provider manufacturer.
+    The service provider factory.
     """
 
 
-type ResolvableServiceProviderManufacturer = ResolvablePluginManufacturer[
-    ServiceProviderDefinition, ServiceProviderManufacturer
-]
-
-
-type ManufacturableServiceProvider[ServiceLevelT: ServiceLevel] = ManufacturablePlugin[
-    ServiceProviderDefinition,
-    ServiceProviderManufacturer,
-    ServiceProvider[ServiceLevelT],
-]
+type ServiceProviderFactory[PluginT: ServiceProvider, ConfigT: Data] = (
+    ConfigurablePluginFactory[PluginT, NewServiceProvider, ConfigT]
+)

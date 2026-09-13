@@ -13,7 +13,7 @@ from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import JoinOr, Quote
 from betty.localizables.plain import Plain
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin.cls import ClassedPluginDefinition, Plugin
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -65,7 +65,7 @@ class Serializer(Plugin["SerializerDefinition"], metaclass=ABCMeta):
     label_plural=_("Serializers"),
     label_countable=ngettext("{count} serializer", "{count} serializers"),
 )
-class SerializerDefinition(HumanFacingDefinition, PluginClsDefinition[Serializer]):
+class SerializerDefinition(HumanFacingDefinition, ClassedPluginDefinition[Serializer]):
     """
     .. plugin_type:: serializer.
     """
