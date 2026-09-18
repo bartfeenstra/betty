@@ -16,7 +16,7 @@ from betty.localizables.gettext import _
 from betty.media_types.plain_text import PLAIN_TEXT
 from betty.project import Project
 from betty.prop import HasProps
-from betty.sample import Sample, Size
+from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -28,9 +28,9 @@ if TYPE_CHECKING:
 @final
 @ObjectDefinition(
     label=_("Rendered content configuration"),
-    samples=[
+    samples=Samples(
         lambda: Sample(RenderData("Hello, world!"), label="Minimal", size=Size.MINIMAL)
-    ],
+    ),
 )
 class RenderData(Data, HasProps):
     """

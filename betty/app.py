@@ -33,7 +33,7 @@ from betty.portable.file import assert_load_file
 from betty.prop import HasProps
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.rich.user import RichUser
-from betty.sample import Sample, Size
+from betty.sample import Sample, Samples, Size
 from betty.serialize import SerializerDefinition
 from betty.service import Service
 from betty.service_level import ServiceLevel
@@ -285,10 +285,10 @@ class App(RequirableServiceLevel, HasPluginServices):
 @final
 @ObjectDefinition(
     label=_("Application configuration"),
-    samples=[
+    samples=Samples(
         lambda: Sample(AppData(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(AppData(locale=default_locale), label="Full", size=Size.FULL),
-    ],
+    ),
 )
 class AppData(Data, HasProps):
     """

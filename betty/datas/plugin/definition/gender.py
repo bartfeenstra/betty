@@ -13,13 +13,13 @@ from betty.datas.plugin.definition.human_facing import (
 from betty.gender import Gender, GenderDefinition
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
-from betty.sample import Sample
+from betty.sample import Sample, Samples
 
 
 @final
 @PluginDefinitionDefinition(
     GenderDefinition,
-    samples=[
+    samples=Samples(
         lambda: Sample(
             GenderDefinitionData(
                 id="genderqueer",
@@ -34,7 +34,7 @@ from betty.sample import Sample
             ),
             label="Default",
         )
-    ],
+    ),
 )
 class GenderDefinitionData(CountableHumanFacingPluginDefinitionData[GenderDefinition]):
     """

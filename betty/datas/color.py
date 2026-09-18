@@ -14,7 +14,7 @@ from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.porters.callback import CallbackPorter
-from betty.sample import Sample
+from betty.sample import Sample, Samples
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
@@ -45,6 +45,6 @@ class ColorDefinition(DataDefinition[str]):
             description=_("A hexadecimal color, such as {example_color}").format(
                 example_color=Quote(samples.color_hex)
             ),
-            samples=[lambda: Sample("#ff0000", label="Default")],
+            samples=Samples(lambda: Sample("#ff0000", label="Default")),
             porter=CallbackPorter[str](assert_str() | _assert_hex, str),
         )

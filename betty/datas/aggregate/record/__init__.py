@@ -12,8 +12,7 @@ from betty.data import (
     DataDefinition,
     ResolvableDataDefinition,
     ResolvableDataPorter,
-    Sample,
-    Samples,
+    ResolvableDataSamples,
     resolve_data_definition,
 )
 from betty.indicator.operator import Attr, Key
@@ -21,12 +20,14 @@ from betty.localizable import resolve_localizable
 from betty.portable.error import NotPortable
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Mapping, MutableMapping
+    from collections.abc import Callable, Mapping, MutableMapping
 
     from ty_extensions import Intersection
 
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.portable import OptionalPortableData, PortableData
+    from betty.sample import Sample as Sample
+    from betty.sample import Samples as Samples
 
 type FieldOperator = Attr | Key
 
@@ -168,9 +169,9 @@ class RecordDefinition[DataT, OperatorT: FieldOperator](DataDefinition[DataT]):
             OperatorT, ResolvableFieldDefinition[DataT, Any]
         ] = _empty_frozen_mapping,
         description: ResolvableLocalizable | None = None,
-        samples: Iterable[Callable[[], Sample[DataT]] | Samples] = (),
         manufacturer: RecordManufacturer[DataT] | None = None,
         porter: ResolvableDataPorter[Self, DataT] | None = None,
+        samples: ResolvableDataSamples[Self, DataT] | None = None,
         **kwargs: Any,
     ):
         from betty.porters.fields import FieldsPorter

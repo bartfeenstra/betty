@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, override
+from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.data import Sample
 from betty.localizables.plain import Plain
-from betty.sample import Samplable, SampleNotFound, Samples, Size
+from betty.sample import Sample, SampleNotFound, Samples, Size
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -38,35 +37,20 @@ class TestSample:
         assert sut.size is Size.MINIMAL
 
 
-class _Samplable(Samplable):
-    @override
-    @classmethod
-    def samples(cls) -> Samples[Self]:
-        return Samples([
-            lambda: _sample_full,
-            lambda: _sample_intermediate,
-            lambda: _sample_minimal,
-        ])
-
-
 class TestSamples:
     def test___iter__(self) -> None:
         assert list(
             iter(
-                Samples([
+                Samples(
                     lambda: _sample_minimal,
-                    Samples([lambda: _sample_intermediate]),
+                    Samples(lambda: _sample_intermediate),
                     lambda: _sample_full,
-                    _Samplable,
-                ])
+                )
             )
         ) == [
             _sample_minimal,
             _sample_intermediate,
             _sample_full,
-            _sample_full,
-            _sample_intermediate,
-            _sample_minimal,
         ]
 
     @pytest.mark.parametrize(
@@ -86,11 +70,11 @@ class TestSamples:
     def test_get__full(
         self, expected: Sample, samples: Iterable[Callable[[], Sample] | Samples]
     ) -> None:
-        assert Samples(samples).get(Size.FULL) is expected
+        assert Samples(*samples).get(Size.FULL) is expected
 
     def test_get__full_without_samples(self) -> None:
         with pytest.raises(SampleNotFound):
-            Samples([]).get(Size.FULL)
+            Samples().get(Size.FULL)
 
     @pytest.mark.parametrize(
         ("expected", "samples"),
@@ -109,8 +93,8 @@ class TestSamples:
     def test_get__minimal(
         self, expected: Sample, samples: Iterable[Callable[[], Sample] | Samples]
     ) -> None:
-        assert Samples(samples).get(Size.MINIMAL) is expected
+        assert Samples(*samples).get(Size.MINIMAL) is expected
 
     def test_get__minimal_without_samples(self) -> None:
         with pytest.raises(SampleNotFound):
-            Samples([]).get(Size.MINIMAL)
+            Samples().get(Size.MINIMAL)

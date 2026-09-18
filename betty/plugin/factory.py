@@ -32,7 +32,7 @@ from betty.portable import (
     PortableData,
 )
 from betty.prop import HasProps
-from betty.sample import Samplable, Sample, Samples, Size
+from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
@@ -52,11 +52,7 @@ NoPluginData = sentinel("NoPluginData")
 
 @disjoint_base
 class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
-    Samplable,
-    Data["PluginManufacturerDefinition"],
-    HasProps,
-    Frozen,
-    metaclass=TypeABCMeta,
+    Data["PluginManufacturerDefinition"], HasProps, Frozen, metaclass=TypeABCMeta
 ):
     """
     Configure a single plugin instance.
@@ -138,28 +134,6 @@ class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
             return manufacturer
         return cls(resolve_plugin_id(manufacturer))
 
-    @final
-    @override
-    @classmethod
-    def samples(cls) -> Samples[Self]:
-        return Samples([
-            lambda: Sample(
-                cls("my-first-plugin-id"),
-                label="Minimal",
-                size=Size.MINIMAL,
-            ),
-            lambda: Sample(
-                cls(
-                    "my-first-plugin-id",
-                    {
-                        "configuration-key": "configuration-value",
-                    },
-                ),
-                label="Full",
-                size=Size.FULL,
-            ),
-        ])
-
 
 @final
 class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
@@ -236,6 +210,23 @@ class PluginManufacturerDefinition[PluginDefinitionT: PluginClsDefinition, Plugi
         super().__init__(
             label=plugin_type.type().label,
             porter=lambda definition: PluginManufacturerPorter(definition.cls),
+            samples=lambda definition: Samples(
+                lambda: Sample(
+                    definition.cls("my-first-plugin-id"),
+                    label="Minimal",
+                    size=Size.MINIMAL,
+                ),
+                lambda: Sample(
+                    definition.cls(
+                        "my-first-plugin-id",
+                        {
+                            "configuration-key": "configuration-value",
+                        },
+                    ),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ),
         )
         self.plugin_type: Final[type[PluginDefinition]] = plugin_type
 

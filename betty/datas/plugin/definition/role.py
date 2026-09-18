@@ -13,13 +13,13 @@ from betty.datas.plugin.definition.human_facing import (
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
 from betty.role import Role, RoleDefinition
-from betty.sample import Sample
+from betty.sample import Sample, Samples
 
 
 @final
 @PluginDefinitionDefinition(
     RoleDefinition,
-    samples=[
+    samples=Samples(
         lambda: Sample(
             RoleDefinitionData(
                 id="astronaut",
@@ -34,7 +34,7 @@ from betty.sample import Sample
             ),
             label="Default",
         )
-    ],
+    ),
 )
 class RoleDefinitionData(CountableHumanFacingPluginDefinitionData[RoleDefinition]):
     """

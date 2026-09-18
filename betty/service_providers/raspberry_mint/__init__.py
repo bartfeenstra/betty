@@ -49,7 +49,7 @@ from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.project.generate import Generator
 from betty.prop import HasProps
-from betty.sample import Sample, Size
+from betty.sample import Sample, Samples, Size
 from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.webpack.build import EntryPointProvider
@@ -74,7 +74,7 @@ type ManufacturableRegionalContent = Mapping[
 @final
 @ObjectDefinition(
     label=_("Raspberry Mint configuration"),
-    samples=[
+    samples=Samples(
         lambda: Sample(RaspberryMintData(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
             RaspberryMintData(
@@ -94,7 +94,7 @@ type ManufacturableRegionalContent = Mapping[
             ),
             label="Regional content",
         ),
-    ],
+    ),
 )
 class RaspberryMintData(Data, HasProps):
     """

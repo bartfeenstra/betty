@@ -38,7 +38,7 @@ from betty.localizables.gettext import _
 from betty.porters.callback import CallbackPorter
 from betty.project import Project
 from betty.prop import HasProps
-from betty.sample import Sample, Size
+from betty.sample import Sample, Samples, Size
 from betty.service_providers.raspberry_mint import Breakpoint, JustifyContent
 
 if TYPE_CHECKING:
@@ -54,7 +54,7 @@ type ResolvableColumnsWidth = (
 @final
 @ObjectDefinition(
     label=_("Columns configuration"),
-    samples=[
+    samples=Samples(
         lambda: Sample(
             ColumnsData([
                 ContentBuilderManufacturer(Render, RenderData("Hello, world!"))
@@ -113,7 +113,7 @@ type ResolvableColumnsWidth = (
             ),
             label="Multiple columns with responsive widths",
         ),
-    ],
+    ),
     manufacturer=lambda **fields: ColumnsData(*fields.pop("content"), **fields),
 )
 class ColumnsData(Data, HasProps):

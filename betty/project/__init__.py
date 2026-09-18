@@ -113,7 +113,7 @@ from betty.prop import HasProps
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
-from betty.sample import Sample, Size
+from betty.sample import Sample, Samples, Size
 from betty.server import ManufacturableServer, ServerDefinition
 from betty.service import (
     Service,
@@ -635,7 +635,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
 @ObjectDefinition(
     label=_("Project locale"),
     porter=lambda definition: KeyedMappingPorter("locale", FieldsPorter(definition)),
-    samples=[
+    samples=Samples(
         lambda: Sample(
             ProjectLocale(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL
         ),
@@ -644,7 +644,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
             label="Full",
             size=Size.FULL,
         ),
-    ],
+    ),
 )
 class ProjectLocale(Data[ObjectDefinition["ProjectLocale"]], HasProps, Frozen):
     """
@@ -678,7 +678,7 @@ class ProjectLocale(Data[ObjectDefinition["ProjectLocale"]], HasProps, Frozen):
 @final
 @ObjectDefinition(
     label=_("Project configuration"),
-    samples=[
+    samples=Samples(
         lambda: Sample(
             ProjectData(title="Betty", url="https://example.com"),
             label="Minimal",
@@ -720,7 +720,7 @@ class ProjectLocale(Data[ObjectDefinition["ProjectLocale"]], HasProps, Frozen):
             label="Full",
             size=Size.FULL,
         ),
-    ],
+    ),
 )
 class ProjectData(Data, HasProps):
     """

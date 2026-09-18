@@ -14,13 +14,13 @@ from betty.datas.plugin.definition.ordered import OrderedPluginDefinitionData
 from betty.event_type import EventType, EventTypeDefinition
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
-from betty.sample import Sample
+from betty.sample import Sample, Samples
 
 
 @final
 @PluginDefinitionDefinition(
     EventTypeDefinition,
-    samples=[
+    samples=Samples(
         lambda: Sample(
             EventTypeDefinitionData(
                 id="moon-landing",
@@ -35,7 +35,7 @@ from betty.sample import Sample
             ),
             label="Default",
         )
-    ],
+    ),
 )
 class EventTypeDefinitionData(
     CountableHumanFacingPluginDefinitionData[EventTypeDefinition],

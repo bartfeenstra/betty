@@ -5,11 +5,11 @@ Reusable data for plugin definitions.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Self, final
 
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.classtools import TypeABCMeta
-from betty.data import Data
+from betty.data import Data, ResolvableDataSamples
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _
@@ -20,13 +20,10 @@ from betty.porters.keyed_mapping import KeyedMappingPorter
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
-
     from ty_extensions import Intersection
 
     from betty.machine_name import ResolvableMachineName
     from betty.plugin.resolve import ResolvablePluginTypeDefinition
-    from betty.sample import Sample, Samples
 
 
 @final
@@ -42,9 +39,8 @@ class PluginDefinitionDefinition[
         plugin_type: ResolvablePluginTypeDefinition[PluginDefinitionT],
         /,
         *,
-        samples: Iterable[
-            Callable[[], Sample[PluginDefinitionData[PluginDefinitionT]]] | Samples
-        ] = (),
+        samples: ResolvableDataSamples[Self, PluginDefinitionData[PluginDefinitionT]]
+        | None = None,
     ):
         plugin_type = resolve_plugin_type_definition(plugin_type)
         super().__init__(

@@ -12,18 +12,21 @@ from betty.functools import LazyReCallable
 from betty.importlib import fully_qualified_name
 from betty.portable import Porter
 from betty.portable.error import NotPortable
-from betty.sample import Samplable, Sample, Samples
+from betty.sample import Samples
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, MutableMapping
-
-    from ty_extensions import Intersection
+    from collections.abc import Callable, MutableMapping
 
     from betty.localizable import ResolvableLocalizable
 
 
 type ResolvableDataPorter[DataDefinitionT: DataDefinition, DataT] = (
     Porter[DataT] | Callable[[DataDefinitionT], Porter[DataT]]
+)
+
+
+type ResolvableDataSamples[DataDefinitionT: DataDefinition, DataT] = (
+    Samples[DataT] | Callable[[DataDefinitionT], Samples[DataT]]
 )
 
 
@@ -39,14 +42,10 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: ResolvableDataPorter[Self, DataT] | None = None,
-        samples: Iterable[
-            Callable[[], Sample[DataT]]
-            | Samples[DataT]
-            | type[Intersection[DataT, Samplable]]
-        ] = (),
+        samples: ResolvableDataSamples[Self, DataT] | None = None,
         **kwargs: Any,
     ):
-        self.__samples = tuple(samples)
+        self.__samples = samples or Samples()
         self.__porter = LazyReCallable[Porter[DataT]](
             lambda: (
                 porter(self) if porter and not isinstance(porter, Porter) else porter
@@ -93,11 +92,9 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         """
         Any samples for this data.
         """
-        if not self.__samples:
-            if self.cls and issubclass(self.cls, Samplable):
-                return Samples([self.cls])
-            return Samples(())
-        return Samples(self.__samples)
+        if isinstance(self.__samples, Samples):
+            return self.__samples
+        return self.__samples(self)
 
 
 _datas: Final[MutableMapping[type, DataDefinition]] = {}
