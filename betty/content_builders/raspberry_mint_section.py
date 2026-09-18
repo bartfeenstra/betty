@@ -29,7 +29,7 @@ from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.prop import HasProps
-from betty.sample import Sample, Size
+from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
 @final
 @ObjectDefinition(
     label=_("Section configuration"),
-    samples=[
+    samples=Samples(
         lambda: Sample(
             SectionData(
                 ContentBuilderManufacturer("my-first-content"),
@@ -50,7 +50,7 @@ if TYPE_CHECKING:
             label="Minimal",
             size=Size.MINIMAL,
         ),
-    ],
+    ),
     manufacturer=lambda **fields: SectionData(*fields.pop("content"), **fields),
 )
 class SectionData(Data, HasProps):

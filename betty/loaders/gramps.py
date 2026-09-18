@@ -40,7 +40,7 @@ from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.prop import HasProps
 from betty.role import ResolvableRoleManufacturer, RoleManufacturer
-from betty.sample import Sample, Size
+from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -103,11 +103,11 @@ def _new_plugin_mapping_attr[
 @final
 @ObjectDefinition(
     label=_("Family tree"),
-    samples=[
+    samples=Samples(
         lambda: Sample(
             FamilyTree(name="my-gramps-family-tree"), label="Minimal", size=Size.MINIMAL
         )
-    ],
+    ),
 )
 class FamilyTree(Data, HasProps):
     """
@@ -192,7 +192,7 @@ class FamilyTree(Data, HasProps):
 @final
 @ObjectDefinition(
     label=_("Gramps configuration"),
-    samples=[
+    samples=Samples(
         lambda: Sample(GrampsData(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
             GrampsData(executable="gramps.exe"),
@@ -239,7 +239,7 @@ class FamilyTree(Data, HasProps):
             ),
             label="Map a Gramps role to a Betty role",
         ),
-    ],
+    ),
 )
 class GrampsData(Data, HasProps):
     """

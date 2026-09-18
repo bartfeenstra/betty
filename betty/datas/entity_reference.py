@@ -16,7 +16,7 @@ from betty.freezer import Frozen
 from betty.localizables.gettext import _
 from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.prop import HasProps
-from betty.sample import Sample
+from betty.sample import Sample, Samples
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -25,9 +25,9 @@ if TYPE_CHECKING:
 @final
 @ObjectDefinition(
     label=_("Entity reference"),
-    samples=[
+    samples=Samples(
         lambda: Sample(EntityReference("person", "123"), label="Default"),
-    ],
+    ),
 )
 class EntityReference[EntityT: Entity = Entity](Data, HasProps, Frozen):
     """

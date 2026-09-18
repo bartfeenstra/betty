@@ -4,16 +4,13 @@ Samples are used to generate documentation about various parts of Betty.
 
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
 from enum import IntEnum, auto
-from typing import TYPE_CHECKING, Final, Generic, Self, TypeVar, final
+from typing import TYPE_CHECKING, Final, final
 
 from betty.localizable import resolve_localizable
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator
-
-    from ty_extensions import Intersection
+    from collections.abc import Callable, Iterator
 
     from betty.localizable import Localizable, ResolvableLocalizable
 
@@ -65,37 +62,23 @@ class Sample[T]:
         """
 
 
-_SampleT = TypeVar("_SampleT", covariant=True)
-
-
 @final
-class Samples(
-    Generic[_SampleT],  # noqa: UP046
-):
+class Samples[T]:
     """
     A set of samples.
     """
 
-    def __init__(
-        self,
-        samples: Iterable[
-            Callable[[], Sample[_SampleT]]
-            | Samples[_SampleT]
-            | type[Intersection[_SampleT, Samplable]]
-        ],
-    ):
-        self._samples = list(samples)
+    def __init__(self, *samples: Callable[[], Sample[T]] | Samples[T]):
+        self._samples = tuple(samples)
 
-    def __iter__(self) -> Iterator[Sample[_SampleT]]:
+    def __iter__(self) -> Iterator[Sample[T]]:
         for sample in self._samples:
             if isinstance(sample, Samples):
                 yield from sample
-            elif isinstance(sample, type) and issubclass(sample, Samplable):
-                yield from sample.samples()  # ty:ignore[invalid-yield]
             else:
                 yield sample()
 
-    def get(self, preferred_size: Size = Size.INTERMEDIATE, /) -> Sample[_SampleT]:
+    def get(self, preferred_size: Size = Size.INTERMEDIATE, /) -> Sample[T]:
         """
         Get a sample.
         """
@@ -103,19 +86,6 @@ class Samples(
         if samples:
             return samples[0]
         raise SampleNotFound
-
-
-class Samplable(metaclass=ABCMeta):
-    """
-    Allow a class to provide its own samples.
-    """
-
-    @classmethod
-    @abstractmethod
-    def samples(cls) -> Samples[Self]:
-        """
-        Get the samples.
-        """
 
 
 class SampleNotFound(Exception):

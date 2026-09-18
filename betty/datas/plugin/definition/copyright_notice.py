@@ -11,7 +11,7 @@ from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.datas.plugin.definition import PluginDefinitionDefinition
 from betty.datas.plugin.definition.human_facing import HumanFacingPluginDefinitionData
 from betty.localizables.gettext import _
-from betty.sample import Sample
+from betty.sample import Sample, Samples
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable, ResolvableLocalizable
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 @final
 @PluginDefinitionDefinition(
     CopyrightNoticeDefinition,
-    samples=[
+    samples=Samples(
         lambda: Sample(
             CopyrightNoticeDefinitionData(
                 id="my-first-copyright-notice",
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
             ),
             label="Default",
         )
-    ],
+    ),
 )
 class CopyrightNoticeDefinitionData(
     HumanFacingPluginDefinitionData[CopyrightNoticeDefinition]

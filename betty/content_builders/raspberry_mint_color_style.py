@@ -27,7 +27,7 @@ from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.prop import HasProps
-from betty.sample import Sample
+from betty.sample import Sample, Samples
 from betty.service_providers.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 
 if TYPE_CHECKING:
@@ -38,12 +38,12 @@ if TYPE_CHECKING:
 @final
 @ObjectDefinition(
     label=_("Color style configuration"),
-    samples=[
+    samples=Samples(
         lambda: Sample(
             ColorStyleData("my-first-content", style=RaspberryMintColorStyle.DARK),
             label="Default",
         )
-    ],
+    ),
     manufacturer=lambda **fields: ColorStyleData(*fields.pop("content"), **fields),
 )
 class ColorStyleData(Data, HasProps):

@@ -23,7 +23,7 @@ from betty.freezer import Frozen
 from betty.localizable import Localizable
 from betty.localizables.gettext import _
 from betty.prop import HasProps
-from betty.sample import Sample, Size
+from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
@@ -67,10 +67,10 @@ def _localize_date_parts(localizer: Localizer, date: Date | None, /) -> str:
 @final
 @ObjectDefinition(
     label=_("Date"),
-    samples=[
+    samples=Samples(
         lambda: Sample(Date(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(Date(1970, 1, 1, fuzzy=True), label="Full", size=Size.FULL),
-    ],
+    ),
 )
 class Date(Localizable, Data, HasProps, Frozen, metaclass=TypeABCMeta):
     """

@@ -27,7 +27,7 @@ from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.prop import HasProps
-from betty.sample import Sample, Size
+from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 @final
 @ObjectDefinition(
     label=_("Box configuration"),
-    samples=[
+    samples=Samples(
         lambda: Sample(BoxData(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
             BoxData(
@@ -52,7 +52,7 @@ if TYPE_CHECKING:
             label="Full",
             size=Size.FULL,
         ),
-    ],
+    ),
     manufacturer=lambda **fields: BoxData(*fields.pop("content"), **fields),
 )
 class BoxData(Data, HasProps):

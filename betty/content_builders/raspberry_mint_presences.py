@@ -21,7 +21,7 @@ from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.project import Project
 from betty.prop import HasProps
 from betty.role import RoleDefinition
-from betty.sample import Sample, Size
+from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 @final
 @ObjectDefinition(
     label=_("Presences configuration"),
-    samples=[
+    samples=Samples(
         lambda: Sample(PresencesData(), label="Minimal"),
         lambda: Sample(
             PresencesData(include=["subject"]),
@@ -45,7 +45,7 @@ if TYPE_CHECKING:
             label="Excludes",
             size=Size.FULL,
         ),
-    ],
+    ),
 )
 class PresencesData(Data, HasProps):
     """

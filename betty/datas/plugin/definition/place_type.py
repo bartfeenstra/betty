@@ -13,13 +13,13 @@ from betty.datas.plugin.definition.human_facing import (
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
 from betty.place_type import PlaceType, PlaceTypeDefinition
-from betty.sample import Sample
+from betty.sample import Sample, Samples
 
 
 @final
 @PluginDefinitionDefinition(
     PlaceTypeDefinition,
-    samples=[
+    samples=Samples(
         lambda: Sample(
             PlaceTypeDefinitionData(
                 id="moon",
@@ -34,7 +34,7 @@ from betty.sample import Sample
             ),
             label="Default",
         )
-    ],
+    ),
 )
 class PlaceTypeDefinitionData(
     CountableHumanFacingPluginDefinitionData[PlaceTypeDefinition]

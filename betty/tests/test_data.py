@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from typing import Self, override
-
 import pytest
 
-from betty.data import Data, DataDefinition, Sample, resolve_data_definition
+from betty.data import Data, DataDefinition, resolve_data_definition
 from betty.portable.error import NotPortable
 from betty.porters.callback import CallbackPorter
-from betty.sample import Samplable, Samples
+from betty.sample import Sample, Samples
 
 
 class TestDataDefinition:
@@ -36,19 +34,7 @@ class TestDataDefinition:
 
     def test_samples__with_samples(self) -> None:
         sample = Sample(object(), label="-")
-        sut = DataDefinition(label="-", samples=[lambda: sample])
-        assert list(sut.samples) == [sample]
-
-    def test_samples__with_samplable(self) -> None:
-        sample = Sample(object(), label="-")
-
-        class _Samplable(Samplable):
-            @override
-            @classmethod
-            def samples(cls) -> Samples[Self]:
-                return Samples([lambda: sample])
-
-        sut = DataDefinition(cls=_Samplable, label="-")
+        sut = DataDefinition(label="-", samples=Samples(lambda: sample))
         assert list(sut.samples) == [sample]
 
 

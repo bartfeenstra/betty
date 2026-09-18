@@ -15,7 +15,7 @@ from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.prop import HasProps
-from betty.sample import Sample, Size
+from betty.sample import Sample, Samples, Size
 from betty.service_providers.wiki import Wiki as WikiExtension
 
 if TYPE_CHECKING:
@@ -25,10 +25,10 @@ if TYPE_CHECKING:
 @final
 @ObjectDefinition(
     label=_("Wiki enricher configuration"),
-    samples=[
+    samples=Samples(
         lambda: Sample(WikiData(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(WikiData(populate_images=False), label="Full", size=Size.FULL),
-    ],
+    ),
 )
 class WikiData(Data, HasProps):
     """
