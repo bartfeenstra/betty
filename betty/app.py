@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from asyncio import gather, to_thread
+from asyncio import to_thread
 from concurrent import futures
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
@@ -35,8 +35,8 @@ from betty.requirements.service_level import RequirableServiceLevel
 from betty.rich.user import RichUser
 from betty.sample import Sample, Samples, Size
 from betty.serialize import SerializerDefinition
+from betty.serializers.json import Json
 from betty.service import Service
-from betty.service_level import ServiceLevel
 from betty.services.asset import AssetRepositoryService
 from betty.services.plugin import HasPluginServices
 from betty.services.plugin.definition.collection.keyed import PluginDefinitionsService
@@ -62,10 +62,6 @@ if TYPE_CHECKING:
     from betty.service_level import Plugins
     from betty.services.plugin import SupportedPlugins
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
-
-
-class _AppBootstrapServiceLevel(ServiceLevel, HasPluginServices):
-    serializers = PluginInstancesService(SerializerDefinition)
 
 
 @final
@@ -161,13 +157,10 @@ class App(RequirableServiceLevel, HasPluginServices):
         Create a new application from the environment.
         """
         if AppData.FILE.exists():
-            async with _AppBootstrapServiceLevel() as services:
-                data = AppData.data().porter.load(
-                    assert_load_file(serializers=await gather(*services.serializers))(
-                        AppData.FILE
-                    ),
-                )
-                locale = data.locale
+            data = AppData.data().porter.load(
+                assert_load_file(serializers=[Json()])(AppData.FILE),
+            )
+            locale = data.locale
         else:
             locale = None
         app_cache_directory = environ.get("BETTY_CACHE_DIRECTORY", cache_directory)
