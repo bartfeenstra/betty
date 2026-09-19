@@ -57,7 +57,7 @@ class AsynchronousServiceManager[OwnerT: ResolvableServiceLevelHasServices, Serv
             else:
                 service = await resolve_await(factory(owner))
             if isinstance(service, Bootstrappable | Shutdownable):
-                await owner.life_cycle.synchronize(service)
+                await owner.life_cycle.bind(service)
             return service
 
         return LazyReAwaitable(_factory)

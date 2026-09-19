@@ -79,9 +79,9 @@ class LifeCycleManager(LifeCycle):
                 resolve_await(shutdowner(wait=wait)) for shutdowner in shutdowners
             ])
 
-    async def synchronize(self, *life_cycles: Bootstrappable | Shutdownable) -> None:
+    async def bind(self, *life_cycles: Bootstrappable | Shutdownable) -> None:
         """
-        Attach a batch of other life cycles to this one, and ensure they are all synchronized.
+        Bind a batch of other life cycles to this one, and ensure they are all synchronized.
 
         The life cycles within the batch will be bootstrapped and shut down concurrently.
         """
