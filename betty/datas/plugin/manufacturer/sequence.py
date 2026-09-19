@@ -45,7 +45,7 @@ class PluginManufacturerSequenceDefinition[
             manufacturer=lambda values: ResolvedList(
                 values, value_resolver=manufacturer.resolve
             ),  # ty: ignore[invalid-argument-type]
-            value=manufacturer,  # ty: ignore[invalid-argument-type]
+            value=manufacturer,
             label=manufacturer.data().plugin_type.type().label_plural
             if label is None
             else label,

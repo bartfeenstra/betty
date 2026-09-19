@@ -5,7 +5,7 @@ Machine names.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Final, Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final
 from uuid import uuid4
 
 from betty.assertions.str import assert_str
@@ -56,8 +56,11 @@ class MachineName(str, Data):
 
     _persistent: bool
 
-    @override
-    def __new__(cls, machine_name: str | None = None, /):
+    def __new__(  # noqa: D102
+        cls,
+        machine_name: str | None = None,
+        /,
+    ):
         if machine_name is None:
             machine_name = str(uuid4())
             persistent = False

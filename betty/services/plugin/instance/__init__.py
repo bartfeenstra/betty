@@ -59,7 +59,7 @@ class PluginInstanceServiceManager[
 
         async def _get_plugin() -> PluginT:
             plugin = await services.factory.new(
-                item.cls if isinstance(item, PluginClsDefinition) else item
+                item.cls if isinstance(item, PluginClsDefinition) else item  # ty: ignore[invalid-argument-type]
             )
             if isinstance(plugin, Bootstrappable | Shutdownable):
                 await owner.life_cycle.bind(plugin)

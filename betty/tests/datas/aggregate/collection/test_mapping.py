@@ -80,7 +80,6 @@ class TestMutableMappingDefinition:
     def test_clear(self) -> None:
         data = {"foo": "FOO", "bar": "BAR"}
         MutableMappingDefinition[dict[str, str], str, str](
-            cls=list,
             key=StrDefinition(label="-"),
             value=DataDefinition(cls=str, label="-"),
             label="-",
@@ -103,7 +102,6 @@ class TestMutableMappingDefinition:
         self, expected: dict[str, str], data: dict[str, str], values: Mapping[str, str]
     ) -> None:
         MutableMappingDefinition[dict[str, str], str, str](
-            cls=list,
             key=StrDefinition(label="-"),
             value=DataDefinition(cls=str, label="-"),
             label="-",

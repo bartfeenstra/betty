@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import enum
 from collections.abc import MutableMapping, MutableSequence
-from typing import TYPE_CHECKING, Any, Final, override
+from typing import TYPE_CHECKING, Any, Final
 
 from jsonschema.validators import Draft202012Validator
 from referencing import Registry, Resource
@@ -376,8 +376,11 @@ class Def(str):
 
     __slots__ = ()
 
-    @override
-    def __new__(cls, def_name: str, /):
+    def __new__(  # noqa: D102
+        cls,
+        def_name: str,
+        /,
+    ):
         return super().__new__(cls, f"#/$defs/{def_name}")
 
 
