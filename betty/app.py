@@ -135,7 +135,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         elif isinstance(user, User):
             self._user = user
             if isinstance(user, Bootstrappable | Shutdownable):
-                self.life_cycle.on_bootstrap(lambda: self.life_cycle.synchronize(user))
+                self.life_cycle.on_bootstrap(lambda: self.life_cycle.bind(user))
         else:
             self.life_cycle.on_bootstrap(lambda: self._set_user(user))
 
@@ -145,7 +145,7 @@ class App(RequirableServiceLevel, HasPluginServices):
     async def _set_user(self, user: Callable[[App], ResolvableAwaitable[User]]) -> None:
         self._user = await resolve_await(user(self))
         if isinstance(user, Bootstrappable | Shutdownable):
-            await self.life_cycle.synchronize(self._user)
+            await self.life_cycle.bind(self._user)
 
     @property
     def user(self) -> User:

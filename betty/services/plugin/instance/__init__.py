@@ -62,7 +62,7 @@ class PluginInstanceServiceManager[
                 item.cls if isinstance(item, PluginClsDefinition) else item
             )
             if isinstance(plugin, Bootstrappable | Shutdownable):
-                await owner.life_cycle.synchronize(plugin)
+                await owner.life_cycle.bind(plugin)
             return plugin
 
         return LazyReAwaitable(_get_plugin)
