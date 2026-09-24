@@ -14,6 +14,7 @@ from betty.locale import default_locale, default_locale_tag
 from betty.localizables.plain import Plain
 from betty.localizer import default_localizer
 from betty.project import Project, ProjectData, ProjectLocale
+from betty.service_level import ServiceLevel
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.entity import DummyEntityOne
@@ -23,14 +24,10 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import IsolatedProjectFactory
 
 
-@ServiceProviderDefinition("dummy-a", label="-")
-class _DummyServiceProviderA(ServiceProvider):
-    pass
-
-
-@ServiceProviderDefinition("dummy-b", label="-")
-class _DummyServiceProviderB(ServiceProvider):
-    pass
+@ServiceProviderDefinition("dummy-service-provider", label="-")
+class _DummyServiceProvider(ServiceProvider):
+    def __init__(self):
+        super().__init__(services=ServiceLevel())
 
 
 class TestProject:
@@ -52,20 +49,20 @@ class TestProject:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory(
-            plugins={ServiceProviderDefinition: [_DummyServiceProviderA]},
-            service_providers=[_DummyServiceProviderA],
+            plugins={ServiceProviderDefinition: [_DummyServiceProvider]},
+            service_providers=[_DummyServiceProvider],
         ) as sut:
-            service_provider = await sut.service_providers[_DummyServiceProviderA]
+            service_provider = await sut.service_providers[_DummyServiceProvider]
             assert service_provider.bootstrapped
 
     async def test_service_providers(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         async with isolated_project_factory(
-            plugins={ServiceProviderDefinition: [_DummyServiceProviderA]},
-            service_providers=[_DummyServiceProviderA],
+            plugins={ServiceProviderDefinition: [_DummyServiceProvider]},
+            service_providers=[_DummyServiceProvider],
         ) as sut:
-            assert _DummyServiceProviderA in sut.service_providers
+            assert _DummyServiceProvider in sut.service_providers
 
     async def test_ancestry__with___init___ancestry(
         self, isolated_project_factory: IsolatedProjectFactory

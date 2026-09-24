@@ -4,13 +4,12 @@ The service provider API.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final
 
 from betty.classtools import TypeABCMeta
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.factory import Manufacturable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
@@ -31,7 +30,6 @@ if TYPE_CHECKING:
 
 class ServiceProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
     HasServiceLevel[ServiceLevelT],
-    Manufacturable,
     HasProps,
     ManagedLifeCycle,
     HasDefinition["ServiceProviderDefinition"],
@@ -40,11 +38,6 @@ class ServiceProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
     """
     Integrate custom services with a :py:class:`service level <betty.service_level.ServiceLevel>`.
     """
-
-    @override
-    @classmethod
-    async def new(cls, services: ServiceLevel, /) -> Self:
-        return cls(services=services)
 
 
 @final

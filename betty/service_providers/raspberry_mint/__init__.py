@@ -35,7 +35,7 @@ from betty.datas.str import StrDefinition
 from betty.dirs import webpack_entry_point_directory
 from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException, reraise_with_indicator
-from betty.factory import DataManufacturable
+from betty.factory import DataManufacturable, Manufacturable
 from betty.indicator.operator import Attr, Key
 from betty.jobs._generate_raspberry_mint_search_index import (
     _GenerateRaspberryMintSearchIndex,
@@ -184,7 +184,10 @@ class RaspberryMintData(Object):
     },
 )
 class RaspberryMint(
-    EntryPointProvider[Project], DataManufacturable[RaspberryMintData], Generator
+    EntryPointProvider[Project],
+    DataManufacturable[RaspberryMintData],
+    Manufacturable,
+    Generator,
 ):
     """
     .. plugin:: service-provider:raspberry-mint.
