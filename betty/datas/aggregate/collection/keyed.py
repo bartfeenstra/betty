@@ -62,10 +62,6 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
     def _load(self, portable: PortableData, /) -> KeyedCollectionT:
         if self._order_dump:
             values = assert_sequence(self._value_porter.load)(portable)
-            # @todo Riiiight, depending on mutability, the initial values have a different type.
-            # @todo
-            # @todo
-            # @todo
         else:
             values = [
                 self._value_porter.load_keyed(*x)
