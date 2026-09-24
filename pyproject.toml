@@ -357,7 +357,7 @@ test = [
     'requests ~= 2.32',
     'ruff ~= 0.16.0',
     'slotscheck ~= 0.21',
-    'ty == 0.0.83',
+    'ty == 0.0.84',
     'types-babel ~= 2.11',
     'types-docutils ~= 0.21',
     'types-jsonschema ~= 4.23',

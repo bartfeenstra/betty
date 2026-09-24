@@ -13,10 +13,10 @@ from betty.functools import Pipeline
 from betty.localizables.gettext import _
 
 
-def _assert_number[NumberT: float](
+def _assert_number(
     minimum: float | None = None, maximum: float | None = None
-) -> Pipeline[NumberT, NumberT]:
-    def __assert_number(value: NumberT) -> NumberT:
+) -> Pipeline[float, float]:
+    def __assert_number(value: float) -> float:
         if minimum is not None and value < minimum:
             raise _HumanFacingValueError(
                 _("This must be at least {minimum}.").format(minimum=str(minimum))

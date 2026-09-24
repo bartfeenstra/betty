@@ -6,6 +6,7 @@ from asyncio import gather
 from typing import Self, final, override
 
 from betty.copyright_notices.wikipedia_contributors import WikipediaContributors
+from betty.factory import Manufacturable
 from betty.project import Project
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
 from betty.services.simple import service
@@ -15,7 +16,7 @@ from betty.wiki.client import Client
 
 @final
 @ServiceProviderDefinition("wiki", label="Wiki")
-class Wiki(ServiceProvider[Project]):
+class Wiki(ServiceProvider[Project], Manufacturable):
     """
     .. plugin:: service-provider:wiki.
     """

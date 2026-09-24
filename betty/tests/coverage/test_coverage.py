@@ -593,6 +593,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/event_types/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/event_types/will.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/service_provider.py": {
+        "ServiceProvider": MissingReason.STATIC_CONTENT_ONLY,
         "ServiceProviderDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "ServiceProviderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
     },
