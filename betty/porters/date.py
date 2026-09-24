@@ -19,11 +19,11 @@ class AnyDatePorter(Porter[AnyDate]):
 
     load = override(
         assert_if_else(
-            Date.data().porter.load,
-            DateRange.data().porter.load,
+            Date.definition.porter.load,
+            DateRange.definition.porter.load,
         )
     )
 
     @override
     def dump(self, data: AnyDate, /) -> PortableData:
-        return data.data().porter.dump(data)
+        return data.definition.porter.dump(data)

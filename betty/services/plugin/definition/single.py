@@ -6,20 +6,24 @@ from __future__ import annotations
 
 from typing import final, override
 
+from betty.definition import ResolvableDefinition, resolve_definition
 from betty.plugin import PluginDefinition
-from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
+from betty.services.plugin.definition import PluginDefinitionServiceManager
 from betty.services.plugin.single import SinglePluginServiceManager
 
 
 @final
-class PluginDefinitionService[PluginDefinitionT: PluginDefinition](
+class PluginDefinitionService[DefinitionT: PluginDefinition](
+    PluginDefinitionServiceManager[
+        ResolvableServiceLevelHasPluginServices, DefinitionT, DefinitionT
+    ],
     SinglePluginServiceManager[
         ResolvableServiceLevelHasPluginServices,
-        PluginDefinitionT,
-        PluginDefinitionT,
-        ResolvablePluginDefinition[PluginDefinitionT],
-    ]
+        DefinitionT,
+        DefinitionT,
+        ResolvableDefinition[DefinitionT],
+    ],
 ):
     """
     A single plugin definition service.
@@ -28,5 +32,5 @@ class PluginDefinitionService[PluginDefinitionT: PluginDefinition](
     @override
     def new_service(
         self, owner: ResolvableServiceLevelHasPluginServices, /
-    ) -> PluginDefinitionT:
-        return resolve_plugin_definition(self.get_plugins(owner)[0])
+    ) -> DefinitionT:
+        return resolve_definition(self.get_plugins(owner)[0])

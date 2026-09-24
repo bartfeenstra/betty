@@ -40,7 +40,6 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
     def __init__(
         self,
         *,
-        cls: type[MutableKeyedCollection] | None = None,
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
         order_dump: bool = False,
         label: ResolvableLocalizable,
@@ -49,7 +48,6 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
         | None = None,
     ):
         super().__init__(
-            cls=cls,
             label=label,
             description=description,
             porter=CallbackPorter(self._load, self._dump),

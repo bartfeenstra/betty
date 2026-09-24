@@ -7,13 +7,14 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, final
 
+from betty.definition import HasDefinition
+from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import JoinOr, Quote
 from betty.localizables.plain import Plain
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -31,7 +32,7 @@ class SerializationError(HumanFacingException):
     """
 
 
-class Serializer(Plugin["SerializerDefinition"], metaclass=ABCMeta):
+class Serializer(HasDefinition["SerializerDefinition"], metaclass=ABCMeta):
     """
     A serializer.
     """
@@ -65,14 +66,16 @@ class Serializer(Plugin["SerializerDefinition"], metaclass=ABCMeta):
     label_plural=_("Serializers"),
     label_countable=ngettext("{count} serializer", "{count} serializers"),
 )
-class SerializerDefinition(HumanFacingDefinition, PluginClsDefinition[Serializer]):
+class SerializerDefinition(
+    HumanFacingDefinition, ClsDefinition[Serializer], PluginDefinition
+):
     """
     .. plugin_type:: serializer.
     """
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        serializer_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         auto: bool = True,
@@ -80,7 +83,7 @@ class SerializerDefinition(HumanFacingDefinition, PluginClsDefinition[Serializer
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            serializer_id,
             auto=auto,
             label=label,
             description=description,
@@ -103,7 +106,7 @@ def serializer_for(
             supported=JoinOr(*[
                 Plain("{extension} ({available_type})").format(
                     extension=extension,
-                    available_type=available_serializer.plugin().label,
+                    available_type=available_serializer.definition.label,
                 )
                 for available_serializer in available_serializers
                 for extension in available_serializer.media_type().extensions

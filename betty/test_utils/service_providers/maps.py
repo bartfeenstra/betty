@@ -32,7 +32,7 @@ from betty.tests.conftest import (
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable
 
-    from betty.plugin.resolve import ResolvablePluginId
+    from betty.definition.id import ResolvableId
     from betty.server import Server
 
 _place_id: Final[str] = "my-first-place"
@@ -46,7 +46,7 @@ class MapsTestBase:
 
     def get_other_extensions(
         self,
-    ) -> Iterable[ResolvablePluginId[ServiceProviderDefinition]]:
+    ) -> Iterable[ResolvableId[ServiceProviderDefinition]]:
         """
         Get the other extensions to enable while performing the tests.
 

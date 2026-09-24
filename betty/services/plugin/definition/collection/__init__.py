@@ -6,24 +6,26 @@ from __future__ import annotations
 
 from typing import final, override
 
+from betty.definition import ResolvableDefinition, resolve_definition
 from betty.plugin import PluginDefinition
-from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
+from betty.services.plugin.definition import PluginDefinitionServiceManager
 
 
 class CollectionPluginDefinitionServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
-    PluginDefinitionT: PluginDefinition,
+    DefinitionT: PluginDefinition,
     GetServiceT,
 ](
+    PluginDefinitionServiceManager[OwnerT, DefinitionT, GetServiceT],
     CollectionPluginServiceManager[
         OwnerT,
-        PluginDefinitionT,
+        DefinitionT,
         GetServiceT,
-        PluginDefinitionT,
-        ResolvablePluginDefinition[PluginDefinitionT],
-    ]
+        DefinitionT,
+        ResolvableDefinition[DefinitionT],
+    ],
 ):
     """
     A service of plugin definitions.
@@ -34,7 +36,7 @@ class CollectionPluginDefinitionServiceManager[
     def new_service_item(
         self,
         owner: OwnerT,
-        plugin: ResolvablePluginDefinition[PluginDefinitionT],
+        plugin: ResolvableDefinition[DefinitionT],
         /,
-    ) -> PluginDefinitionT:
-        return resolve_plugin_definition(plugin)
+    ) -> DefinitionT:
+        return resolve_definition(plugin)

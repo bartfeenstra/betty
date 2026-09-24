@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
-from betty.collection.mapping import MutableResolvedMapping as MutableResolvedMapping
 from betty.collection.mapping import ResolvedMapping
 from betty.collections import _empty_frozen_mapping
 from betty.collections.mapping.adapter import (
@@ -25,10 +24,9 @@ from betty.content_builder import (
     ResolvableContentBuilderManufacturer,
 )
 from betty.content_builders.render import Render, RenderData
-from betty.data import Data
 from betty.datas.aggregate.collection.mapping import MutableMappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.color import ColorDefinition
 from betty.datas.plugin.manufacturer.sequence import (
     PluginManufacturerSequenceDefinition,
@@ -48,7 +46,6 @@ from betty.localizables.markup import Paragraph, do_you_mean
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.prop import HasProps
 from betty.sample import Sample, Samples, Size
 from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.webpack import Webpack
@@ -96,7 +93,7 @@ type ManufacturableRegionalContent = Mapping[
         ),
     ),
 )
-class RaspberryMintData(Data, HasProps):
+class RaspberryMintData(Object):
     """
     Configuration for the :py:class:`betty.service_providers.raspberry_mint.RaspberryMint` extension.
 
@@ -287,7 +284,7 @@ class RaspberryMint(
     @override
     @classmethod
     def webpack_entry_point_directory(cls) -> StrPath:
-        return webpack_entry_point_directory / cls.plugin().id
+        return webpack_entry_point_directory / cls.definition.id
 
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:

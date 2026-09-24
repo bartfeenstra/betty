@@ -3,7 +3,9 @@ from typing import override
 
 import pytest
 
-from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
+from betty.definition import ResolvableDefinition, resolve_definition
+from betty.definition.id import resolve_id
+from betty.machine_name import MachineName
 from betty.requirements.service import UnmetServiceRequirement
 from betty.service_level import DownstreamServiceLevel, ServiceLevel
 from betty.services.plugin import (
@@ -35,18 +37,19 @@ class _PluginServiceRequirementTestPluginServiceManager(
     def new_service(
         self, owner: ResolvableServiceLevelHasPluginServices, /
     ) -> Sequence[DummyPluginDefinition]:
-        return tuple(
-            map(
-                resolve_plugin_definition,
-                self.get_init_plugins(owner),  # ty: ignore[invalid-argument-type]
-            )
-        )
+        return tuple(map(resolve_definition, self.get_init_plugins(owner)))
+
+    @override
+    def resolve_init_plugin_id(
+        self,
+        plugin: ResolvableDefinition[DummyPluginDefinition],
+        /,
+    ) -> MachineName:
+        return resolve_id(plugin)
 
 
 class _PluginServiceRequirementTestServices(ServiceLevel, HasPluginServices):
-    def __init__(
-        self, *my_first_plugins: ResolvablePluginDefinition[DummyPluginDefinition]
-    ):
+    def __init__(self, *my_first_plugins: ResolvableDefinition[DummyPluginDefinition]):
         super().__init__(
             plugins={
                 DummyPluginDefinition: (
@@ -92,9 +95,9 @@ class TestPluginServiceRequirement:
         sut = PluginServiceRequirement(
             _PluginServiceRequirementTestServices.my_first_plugins, DummyPluginOne
         )
-        services = _PluginServiceRequirementTestServices(DummyPluginOne.plugin())
+        services = _PluginServiceRequirementTestServices(DummyPluginOne.definition)
         async with services:
-            assert DummyPluginOne.plugin() in await sut(services)
+            assert DummyPluginOne.definition in await sut(services)
 
     async def test___call____with_upstream_required_service_without_required_plugin(
         self,
@@ -113,9 +116,9 @@ class TestPluginServiceRequirement:
         sut = PluginServiceRequirement(
             _PluginServiceRequirementTestServices.my_first_plugins, DummyPluginOne
         )
-        services = _PluginServiceRequirementTestServices(DummyPluginOne.plugin())
+        services = _PluginServiceRequirementTestServices(DummyPluginOne.definition)
         async with services:
-            assert DummyPluginOne.plugin() in await sut(
+            assert DummyPluginOne.definition in await sut(
                 DownstreamServiceLevel(upstream=services)
             )
 
@@ -126,7 +129,7 @@ class TestPluginServiceRequirement:
 
     def test_plugins__with_plugins(self) -> None:
         service = _PluginServiceRequirementTestPluginServiceManager()
-        plugins = [DummyPluginOne.plugin(), DummyPluginTwo.plugin()]
+        plugins = [DummyPluginOne.definition, DummyPluginTwo.definition]
         sut = PluginServiceRequirement(service, *plugins)
         assert list(sut.plugins) == plugins
 

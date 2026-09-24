@@ -23,15 +23,15 @@ class DefaultAttr[
     OwnerT: HasProps,
     GetT,
     SetT,
-    DataDefinitionT: DataDefinition = DataDefinition,
-](ProxyAttr[OwnerT, GetT, SetT, DataDefinitionT]):
+    DefinitionT: DataDefinition = DataDefinition,
+](ProxyAttr[OwnerT, GetT, SetT, DefinitionT]):
     """
     An attribute with a default value.
     """
 
     def __init__(
         self,
-        proxied: Attr[OwnerT, GetT, SetT, DataDefinitionT],
+        proxied: Attr[OwnerT, GetT, SetT, DefinitionT],
         default: Callable[[], SetT] | Callable[[OwnerT], SetT],
         /,
     ):

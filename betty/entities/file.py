@@ -121,7 +121,7 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
         schema.add_property(
             "copyrightNotice",
             PluginIdSchema(
-                CopyrightNoticeDefinition.type(),
+                CopyrightNoticeDefinition.definition,
                 [x async for x in project.plugins[CopyrightNoticeDefinition]],
             ),
             False,
@@ -129,7 +129,7 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
         schema.add_property(
             "license",
             PluginIdSchema(
-                LicenseDefinition.type(),
+                LicenseDefinition.definition,
                 [x async for x in project.plugins[LicenseDefinition]],
             ),
             False,
@@ -140,7 +140,7 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = dict(await super().dump_linked_data(project))
         if self.copyright_notice:
-            portable["copyrightNotice"] = self.copyright_notice.plugin().id
+            portable["copyrightNotice"] = self.copyright_notice.definition.id
         if self.license:
-            portable["license"] = self.license.plugin().id
+            portable["license"] = self.license.definition.id
         return portable

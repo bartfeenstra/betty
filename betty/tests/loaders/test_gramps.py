@@ -52,7 +52,7 @@ class TestGramps:
         async with isolated_project_factory(
             loaders=[
                 LoaderManufacturer(
-                    Gramps.plugin(),
+                    Gramps.definition,
                     GrampsData(
                         family_trees=[
                             FamilyTree(
@@ -95,7 +95,7 @@ class TestGramps:
         async with isolated_project_factory(
             loaders=[
                 LoaderManufacturer(
-                    Gramps.plugin(),
+                    Gramps.definition,
                     GrampsData(
                         family_trees=[
                             FamilyTree(
@@ -146,7 +146,7 @@ class TestGramps:
         async with isolated_project_factory(
             loaders=[
                 LoaderManufacturer(
-                    Gramps.plugin(),
+                    Gramps.definition,
                     GrampsData(
                         family_trees=[
                             FamilyTree(
@@ -274,7 +274,7 @@ class TestGramps:
             async with isolated_project_factory(
                 loaders=[
                     LoaderManufacturer(
-                        Gramps.plugin(),
+                        Gramps.definition,
                         GrampsData(
                             family_trees=[
                                 FamilyTree(gramps_family_tree_one),
@@ -322,7 +322,7 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
             event_types={gramps_type: EventTypeManufacturer(plugin_id)},
         )
         assert sut.event_types[gramps_type].plugin_id == plugin_id
-        assert sut.event_types["Birth"].plugin_id == Birth.plugin().id
+        assert sut.event_types["Birth"].plugin_id == Birth.definition.id
 
     def test___init____with_place_types(self) -> None:
         gramps_type = "my-first-gramps-type"
@@ -332,7 +332,7 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
             place_types={gramps_type: PlaceTypeManufacturer(plugin_id)},
         )
         assert sut.place_types[gramps_type].plugin_id == plugin_id
-        assert sut.place_types["Borough"].plugin_id == Borough.plugin().id
+        assert sut.place_types["Borough"].plugin_id == Borough.definition.id
 
     def test___init____with_roles(self) -> None:
         gramps_type = "my-first-gramps-type"
@@ -342,7 +342,7 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
             roles={gramps_type: RoleManufacturer(plugin_id)},
         )
         assert sut.roles[gramps_type].plugin_id == plugin_id
-        assert sut.roles["Aide"].plugin_id == Attendee.plugin().id
+        assert sut.roles["Aide"].plugin_id == Attendee.definition.id
 
     def test_source(self) -> None:
         name = "my-first-family-tree"

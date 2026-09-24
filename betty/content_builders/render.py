@@ -9,13 +9,11 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import new_media_type_attr
 from betty.content_builder import ContentBuilder, ContentBuilderDefinition
-from betty.data import Data
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.media_types.plain_text import PLAIN_TEXT
 from betty.project import Project
-from betty.prop import HasProps
 from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
@@ -32,7 +30,7 @@ if TYPE_CHECKING:
         lambda: Sample(RenderData("Hello, world!"), label="Minimal", size=Size.MINIMAL)
     ),
 )
-class RenderData(Data, HasProps):
+class RenderData(Object):
     """
     Configuration for :py:class:`betty.content_builders.render.Render`.
 

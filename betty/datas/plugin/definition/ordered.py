@@ -12,10 +12,10 @@ from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.plugin.definition import PluginDefinitionData
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.definition.id import resolve_id
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.porters.omit_field import OmitFieldPorter
 
 if TYPE_CHECKING:
@@ -23,10 +23,12 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
+    from betty.definition.id import ResolvableId
+
 
 class OrderedPluginDefinitionData[
-    PluginDefinitionT: Intersection[OrderedPluginDefinition, HumanFacingDefinition]
-](PluginDefinitionData[PluginDefinitionT]):
+    DefinitionT: Intersection[OrderedPluginDefinition, HumanFacingDefinition]
+](PluginDefinitionData[DefinitionT]):
     """
     Configure a :py:class:`betty.plugin.ordered.OrderedPluginDefinition`.
 
@@ -50,10 +52,10 @@ class OrderedPluginDefinitionData[
 
     def __init__(
         self,
-        after: Iterable[ResolvablePluginId] = (),
-        before: Iterable[ResolvablePluginId] = (),
+        after: Iterable[ResolvableId] = (),
+        before: Iterable[ResolvableId] = (),
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
-        self.after = map(resolve_plugin_id, after)
-        self.before = map(resolve_plugin_id, before)
+        self.after = map(resolve_id, after)
+        self.before = map(resolve_id, before)

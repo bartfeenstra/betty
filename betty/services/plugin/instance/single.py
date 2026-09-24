@@ -4,34 +4,38 @@ Single plugin instance services.
 
 from __future__ import annotations
 
-from typing import final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.asyncio import ReAwaitable
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.definition.cls import ClsDefinition
+from betty.plugin import PluginDefinition
 from betty.plugin.factory import ManufacturablePlugin, PluginManufacturer
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.instance import PluginInstanceServiceManager
 from betty.services.plugin.single import SinglePluginServiceManager
 
+if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
 
 @final
 class PluginInstanceService[
-    PluginDefinitionT: PluginClsDefinition,
+    DefinitionT: Intersection[PluginDefinition, ClsDefinition],
     PluginManufacturerT: PluginManufacturer,
-    PluginT: Plugin,
+    PluginT,
 ](
     PluginInstanceServiceManager[
         ResolvableServiceLevelHasPluginServices,
-        PluginDefinitionT,
+        DefinitionT,
         ReAwaitable[PluginT],
         PluginManufacturerT,
         PluginT,
     ],
     SinglePluginServiceManager[
         ResolvableServiceLevelHasPluginServices,
-        PluginDefinitionT,
+        DefinitionT,
         ReAwaitable[PluginT],
-        ManufacturablePlugin[PluginDefinitionT, PluginManufacturerT, PluginT],
+        ManufacturablePlugin[DefinitionT, PluginManufacturerT, PluginT],
     ],
 ):
     """

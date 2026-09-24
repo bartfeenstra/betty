@@ -15,8 +15,8 @@ if TYPE_CHECKING:
     from betty.datas.aggregate.record import ResolvableFieldDefinition
 
 
-class ProxyAttr[OwnerT: HasProps, GetT, SetT, DataDefinitionT: DataDefinition](
-    ProxyProp[OwnerT, GetT, SetT], Attr[OwnerT, GetT, SetT, DataDefinitionT]
+class ProxyAttr[OwnerT: HasProps, GetT, SetT, DefinitionT: DataDefinition](
+    ProxyProp[OwnerT, GetT, SetT], Attr[OwnerT, GetT, SetT, DefinitionT]
 ):
     """
     An attribute that proxies another attribute.
@@ -24,9 +24,9 @@ class ProxyAttr[OwnerT: HasProps, GetT, SetT, DataDefinitionT: DataDefinition](
 
     def __init__(
         self,
-        field: ResolvableFieldDefinition[OwnerT, GetT, DataDefinitionT] | None = None,
+        field: ResolvableFieldDefinition[OwnerT, GetT, DefinitionT] | None = None,
         *args: Any,
-        proxied: Attr[OwnerT, GetT, SetT, DataDefinitionT],
+        proxied: Attr[OwnerT, GetT, SetT, DefinitionT],
         **kwargs: Any,
     ):
         super().__init__(

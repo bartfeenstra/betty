@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import final
 
+from betty.definition import ResolvableDefinition
 from betty.plugin import PluginDefinition
-from betty.plugin.resolve import ResolvablePluginDefinition
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection.keyed import (
     KeyedCollectionPluginServiceManager,
@@ -19,17 +19,17 @@ from betty.services.plugin.definition.collection import (
 
 
 @final
-class PluginDefinitionsService[PluginDefinitionT: PluginDefinition](
+class PluginDefinitionsService[DefinitionT: PluginDefinition](
     CollectionPluginDefinitionServiceManager[
         ResolvableServiceLevelHasPluginServices,
-        PluginDefinitionT,
-        KeyedPluginCollectionService[PluginDefinitionT, PluginDefinitionT],
+        DefinitionT,
+        KeyedPluginCollectionService[DefinitionT, DefinitionT],
     ],
     KeyedCollectionPluginServiceManager[
         ResolvableServiceLevelHasPluginServices,
-        PluginDefinitionT,
-        PluginDefinitionT,
-        ResolvablePluginDefinition[PluginDefinitionT],
+        DefinitionT,
+        DefinitionT,
+        ResolvableDefinition[DefinitionT],
     ],
 ):
     """

@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from betty.definition import HasDefinition
 from betty.jinja.test import JinjaTest, JinjaTestDefinition
-from betty.plugin.cls import Plugin as PluginType
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -38,7 +38,7 @@ class Plugin(JinjaTest):
 
     @classmethod
     def _create(cls, plugin_type: type[PluginDefinition]) -> type[JinjaTest]:
-        plugin_id = f"{plugin_type.type().id}-plugin"
+        plugin_id = f"{plugin_type.definition.id}-plugin"
 
         @JinjaTestDefinition(plugin_id, auto=True)
         class _Plugin(Plugin):
@@ -54,8 +54,8 @@ class Plugin(JinjaTest):
         """
         :param plugin_id: If given, additionally ensure the value is an instance of this type.
         """
-        if not isinstance(value, PluginType):
+        if not isinstance(value, HasDefinition):
             return False
-        if not isinstance(value.plugin(), self._plugin_type):
+        if not isinstance(value.definition, self._plugin_type):
             return False
-        return not (plugin_id is not None and value.plugin().id != plugin_id)
+        return not (plugin_id is not None and value.definition.id != plugin_id)

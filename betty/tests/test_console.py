@@ -42,7 +42,7 @@ def _create_raising_command(exception: BaseException) -> CommandDefinition:
         async def _invoke(self) -> None:
             raise exception
 
-    return _RaisingCommand.plugin()
+    return _RaisingCommand.definition
 
 
 async def test_main__without_arguments(isolated_app: App) -> None:
@@ -68,7 +68,7 @@ async def test_main__with_unknown_command(isolated_app: App) -> None:
 @pytest.mark.parametrize(
     ("expected", "command"),
     [
-        (SystemExitCode.OK, _NoOpCommand.plugin()),
+        (SystemExitCode.OK, _NoOpCommand.definition),
         (
             SystemExitCode.ERROR_UNEXPECTED,
             _create_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
@@ -90,7 +90,7 @@ async def test_main__with_user_facing_exception(
 @pytest.mark.parametrize(
     ("expected", "command"),
     [
-        (SystemExitCode.OK, _NoOpCommand.plugin()),
+        (SystemExitCode.OK, _NoOpCommand.definition),
         (
             SystemExitCode.ERROR_UNEXPECTED,
             _create_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),

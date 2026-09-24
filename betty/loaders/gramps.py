@@ -10,15 +10,14 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
-from betty.collection.mapping import MutableResolvedMapping
 from betty.collections import _empty_frozen_mapping
 from betty.collections.mapping.adapter import MutableResolvedMappingAdapter
-from betty.data import Data
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
+from betty.definition.cls import ClsDefinition
 from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, Manufacturable
@@ -34,7 +33,7 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeManufacturer, ResolvablePlaceTypeManufacturer
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin import PluginDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
@@ -46,6 +45,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
+    from ty_extensions import Intersection
+
     from betty.attrs.common import CommonAttr
     from betty.job.scheduler import Scheduler
     from betty.localizable import ResolvableLocalizable
@@ -53,45 +54,40 @@ if TYPE_CHECKING:
 
 
 def _new_plugin_mapping_attr[
-    PluginDefinitionT: PluginClsDefinition,
+    DefinitionT: Intersection[PluginDefinition, ClsDefinition],
     PluginManufacturerT: PluginManufacturer,
-    PluginT: Plugin,
+    PluginT,
 ](
     manufacturer: type[PluginManufacturerT],
     gramps_label: ResolvableLocalizable,
     default: Mapping[
-        str, ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]
+        str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]
     ],
 ) -> CommonAttr[
     HasProps,
     MutableMapping[str, PluginManufacturerT],
-    Mapping[str, ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]],
+    Mapping[str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]],
 ]:
     return CollectionOwnerAttr[
         HasProps,
         MutableMapping[str, PluginManufacturerT],
-        Mapping[
-            str, ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]
-        ],
+        Mapping[str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]],
         MappingDefinition,
     ](
         FieldDefinition(
             MappingDefinition(
-                cls=MutableResolvedMapping,
                 manufacturer=lambda values: MutableResolvedMappingAdapter[
                     str,
                     str,
                     PluginManufacturerT,
-                    ResolvablePluginManufacturer[
-                        PluginDefinitionT, PluginManufacturerT
-                    ],
+                    ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],
                 ](
                     {} if values is None else dict(values),
                     value_resolver=manufacturer.resolve,
                 ),
                 key=StrDefinition(label=gramps_label),
                 value=manufacturer,
-                label=manufacturer.data().plugin_type.type().label_plural,
+                label=manufacturer.definition.plugin_type.definition.label_plural,
             ),
             optional=True,
         )  # ty: ignore[invalid-argument-type]
@@ -109,7 +105,7 @@ def _new_plugin_mapping_attr[
         )
     ),
 )
-class FamilyTree(Data, HasProps):
+class FamilyTree(Object):
     """
     A Gramps family tree.
 
@@ -241,7 +237,7 @@ class FamilyTree(Data, HasProps):
         ),
     ),
 )
-class GrampsData(Data, HasProps):
+class GrampsData(Object):
     """
     Configuration for the :py:class:`betty.loaders.gramps.Gramps` extension.
 

@@ -6,34 +6,38 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final
 
-from betty.importlib import fully_qualified_name
+from betty.definition import Definition, DefinitionClassVar, HasDefinition
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
 
 
-class _ClsDefinition[BaseClsT = Any]:
+class _ClsDefinition[BaseClsT = Any](Definition):
     def __init__(self, *args: Any, cls: type[BaseClsT] | None = None, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._cls: type[BaseClsT] | None = None
-        if cls is not None:
+        if cls:
             self._set_cls(cls)
 
     @final
-    def __call__[ClsT](self, cls: type[Intersection[ClsT, BaseClsT]]) -> type[ClsT]:
+    def __call__[ClsT](
+        self, cls: type[Intersection[ClsT, BaseClsT]]
+    ) -> type[Intersection[ClsT]]:
         """
         Decorate a class and set it on this definition.
-
-        :raises ValueError: Raised if the definition was already used to decorate a class.
         """
         self._set_cls(cls)
         return cls
 
     def _set_cls(self, cls: type[BaseClsT], /) -> None:
         if self._cls is not None:
-            raise ValueError(
-                f"This definition already has a class: {fully_qualified_name(self._cls)}."
-            )
+            raise ValueError(f"This definition already decorates {self._cls!r}.")
+        if issubclass(cls, HasDefinition):
+            if hasattr(cls, "definition"):
+                raise ValueError(
+                    f"{self._cls!r} has already been decorated with {cls.definition}."
+                )
+            cls.definition = DefinitionClassVar(self)
         self._cls = cls
 
 

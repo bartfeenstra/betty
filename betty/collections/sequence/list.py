@@ -22,7 +22,7 @@ class ResolvedList[ValueT, ResolvableValueT](
 
     def __init__(
         self,
-        values: Iterable[ValueT] | None = None,
+        values: Iterable[ValueT | ResolvableValueT] | None = None,
         *,
         value_resolver: Callable[[ValueT | ResolvableValueT], ValueT],
     ):

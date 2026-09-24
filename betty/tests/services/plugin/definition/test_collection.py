@@ -3,7 +3,7 @@ from typing import override
 
 import pytest
 
-from betty.plugin.resolve import ResolvablePluginDefinition
+from betty.definition import ResolvableDefinition
 from betty.service_level import HasServiceLevel
 from betty.services.plugin import (
     HasPluginServices,
@@ -46,15 +46,15 @@ class TestCollectionPluginDefinitionServiceManager(PluginServiceManagerTestBase)
         "init_plugin",
         [
             DummyPluginWithLifeCycle,
-            DummyPluginWithLifeCycle.plugin(),
+            DummyPluginWithLifeCycle.definition,
         ],
     )
     async def test_new_service_item(
-        self, init_plugin: ResolvablePluginDefinition[DummyPluginDefinition]
+        self, init_plugin: ResolvableDefinition[DummyPluginDefinition]
     ) -> None:
         owner = self._Owner(services=self._SERVICES)
         async with owner:
             assert (
                 self._Owner.my_first_service.new_service_item(owner, init_plugin)
-                is DummyPluginWithLifeCycle.plugin()
+                is DummyPluginWithLifeCycle.definition
             )

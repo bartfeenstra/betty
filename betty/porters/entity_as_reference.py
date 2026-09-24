@@ -21,7 +21,7 @@ class EntityAsReferencePorter[AssociateT: Entity](
 
     @override
     def load(self, data: PortableData, /) -> EntityReference[AssociateT]:
-        return EntityReference.data().porter.load(data)
+        return EntityReference.definition.porter.load(data)
 
     @override
     @classmethod
@@ -29,9 +29,6 @@ class EntityAsReferencePorter[AssociateT: Entity](
         assert isinstance(data, Entity), (
             "Entity resolvers must be resolved before they can be ported."
         )
-        return EntityReference.data().porter.dump(
-            EntityReference[AssociateT](
-                data.plugin(),  # ty:ignore[invalid-argument-type]
-                data.id,
-            )
+        return EntityReference.definition.porter.dump(
+            EntityReference[AssociateT](data.definition, data.id)
         )

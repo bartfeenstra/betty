@@ -25,7 +25,6 @@ class TestTypedMappingDefinition:
             pass
 
         sut = TypedMappingDefinition[dict[str, str]](
-            cls=dict,
             label="-",
             fields={
                 Key(field_name): FieldDefinition(StrDefinition(label="-")),
@@ -37,7 +36,6 @@ class TestTypedMappingDefinition:
     def test_dump(self) -> None:
         field_name = "my_first_element"
         sut = TypedMappingDefinition[dict[str, str]](
-            cls=dict,
             label="-",
             fields={
                 Key(field_name): FieldDefinition(StrDefinition(label="-")),

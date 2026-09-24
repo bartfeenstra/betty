@@ -73,4 +73,4 @@ class LicenseDefinitionData(HumanFacingPluginDefinitionData[LicenseDefinition]):
             def text(self) -> Localizable:
                 return configuration.text
 
-        return _LicenseDefinitionDataLicense.plugin()
+        return _LicenseDefinitionDataLicense.definition

@@ -8,41 +8,39 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, Self, final
 
 from betty.attrs.machine_name import new_machine_name_attr
-from betty.classtools import TypeABCMeta
-from betty.data import Data, ResolvableDataSamples
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
+from betty.definition import resolve_definition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _
-from betty.plugin import PluginDefinition
-from betty.plugin.resolve import resolve_plugin_type_definition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter
-from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
 
+    from betty.data import ResolvableDataSamples
+    from betty.definition import ResolvableDefinition
     from betty.machine_name import ResolvableMachineName
-    from betty.plugin.resolve import ResolvablePluginTypeDefinition
 
 
 @final
 class PluginDefinitionDefinition[
-    PluginDefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
-](ObjectDefinition["PluginDefinitionData[PluginDefinitionT]"]):
+    DefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
+](ObjectDefinition["PluginDefinitionData[DefinitionT]"]):
     """
     Define a plugin definition.
     """
 
     def __init__(
         self,
-        plugin_type: ResolvablePluginTypeDefinition[PluginDefinitionT],
+        plugin_type: ResolvableDefinition[PluginTypeDefinition[DefinitionT]],
         /,
         *,
-        samples: ResolvableDataSamples[Self, PluginDefinitionData[PluginDefinitionT]]
+        samples: ResolvableDataSamples[Self, PluginDefinitionData[DefinitionT]]
         | None = None,
     ):
-        plugin_type = resolve_plugin_type_definition(plugin_type)
+        plugin_type = resolve_definition(plugin_type)
         super().__init__(
             label=_("{plugin_type} configuration").format(
                 plugin_type=plugin_type.label
@@ -55,8 +53,8 @@ class PluginDefinitionDefinition[
 
 
 class PluginDefinitionData[
-    PluginDefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
-](Data[PluginDefinitionDefinition[PluginDefinitionT]], HasProps, metaclass=TypeABCMeta):
+    DefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
+](Object[PluginDefinitionDefinition[DefinitionT]]):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.
 
@@ -77,7 +75,7 @@ class PluginDefinitionData[
         self.id = id
 
     @abstractmethod
-    def new_plugin(self) -> PluginDefinitionT:
+    def new_plugin(self) -> DefinitionT:
         """
         Create a new plugin from this configuration.
         """

@@ -16,15 +16,15 @@ if TYPE_CHECKING:
 
 
 @final
-class PluginIdSchema[PluginDefinitionT: PluginDefinition = PluginDefinition](Enum):
+class PluginIdSchema[DefinitionT: PluginDefinition = PluginDefinition](Enum):
     """
     The JSON schema for the IDs of the plugins in this repository.
     """
 
     def __init__(
         self,
-        plugin_type: PluginTypeDefinition[PluginDefinitionT],
-        plugins: Iterable[PluginDefinitionT],
+        plugin_type: PluginTypeDefinition[DefinitionT],
+        plugins: Iterable[DefinitionT],
         /,
     ):
         label = plugin_type.label.localize(default_localizer)

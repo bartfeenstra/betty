@@ -25,18 +25,20 @@ from typing import (
     override,
 )
 
+from betty.definition import HasDefinition
+from betty.definition.cls import ClsDefinition
+from betty.definition.id import resolve_id
 from betty.linked_data import LinkedDataDumpable
 from betty.localizables.gettext import _, ngettext
 from betty.localizer import Localizer, default_localizer
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_types.html import HTML
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
-from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
+    from betty.definition.id import ResolvableId
     from betty.entities.citation import Citation
     from betty.entity import Entity
     from betty.job import Context
@@ -171,7 +173,7 @@ class Document:
         )
 
 
-class DocumentProvider(Plugin["DocumentProviderDefinition"]):
+class DocumentProvider(HasDefinition["DocumentProviderDefinition"]):
     """
     Provide new documents.
     """
@@ -192,19 +194,19 @@ class DocumentProvider(Plugin["DocumentProviderDefinition"]):
     label_plural=_("Document providers"),
     label_countable=ngettext("{count} document provider", "{count} document providers"),
 )
-class DocumentProviderDefinition(PluginClsDefinition[DocumentProvider]):
+class DocumentProviderDefinition(ClsDefinition[DocumentProvider], PluginDefinition):
     """
     .. plugin_type:: document-provider.
     """
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        document_provider_id: ResolvableMachineName,
         *,
         auto: bool = False,
         requires: Requires = (),
     ):
-        super().__init__(plugin_id, auto=auto, requires=requires)
+        super().__init__(document_provider_id, auto=auto, requires=requires)
 
 
 @final
@@ -335,10 +337,10 @@ class EntityContexts:
             lambda: None
         )
         for entity in entities:
-            self._contexts[entity.plugin().id] = entity
+            self._contexts[entity.definition.id] = entity
 
-    def __getitem__(self, entity_type: ResolvablePluginId) -> Entity | None:
-        return self._contexts[resolve_plugin_id(entity_type)]
+    def __getitem__(self, entity_type: ResolvableId) -> Entity | None:
+        return self._contexts[resolve_id(entity_type)]
 
     def __call__(self, *entities: Entity) -> EntityContexts:
         """
@@ -348,5 +350,5 @@ class EntityContexts:
             *(entity for entity in self._contexts.values() if entity is not None)
         )
         for entity in entities:
-            updated_contexts._contexts[entity.plugin().id] = entity
+            updated_contexts._contexts[entity.definition.id] = entity
         return updated_contexts

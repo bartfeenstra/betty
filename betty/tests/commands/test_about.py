@@ -21,7 +21,7 @@ class TestAbout:
             configuration = ProjectData(title="Betty", url="https://example.com")
             await write(
                 tmp_path / "betty.json",
-                dumps(configuration.data().porter.dump(configuration)),
+                dumps(configuration.definition.porter.dump(configuration)),
             )
             result = await run(app, "about", "--project", str(tmp_path / "betty.json"))
             assert "Betty" in result.stdout

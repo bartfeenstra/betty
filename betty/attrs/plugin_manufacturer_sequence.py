@@ -10,10 +10,13 @@ from betty.attrs.owner import CollectionOwnerAttr
 from betty.datas.plugin.manufacturer.sequence import (
     PluginManufacturerSequenceDefinition,
 )
-from betty.plugin.cls import PluginClsDefinition
+from betty.definition.cls import ClsDefinition
+from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from ty_extensions import Intersection
 
     from betty.attrs.common import CommonAttr
     from betty.collection.sequence import MutableResolvedSequence
@@ -23,7 +26,7 @@ if TYPE_CHECKING:
 
 
 def new_plugin_manufacturer_sequence_attr[
-    PluginDefinitionT: PluginClsDefinition,
+    DefinitionT: Intersection[PluginDefinition, ClsDefinition],
     PluginManufacturerT: PluginManufacturer,
 ](
     manufacturer: type[PluginManufacturerT],
@@ -34,9 +37,9 @@ def new_plugin_manufacturer_sequence_attr[
     HasProps,
     MutableResolvedSequence[
         PluginManufacturerT,
-        ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT],
+        ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],
     ],
-    Iterable[ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]],
+    Iterable[ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]],
 ]:
     """
     Create an attribute containing a sequence of :py:class:`betty.plugin.factory.PluginManufacturer`.

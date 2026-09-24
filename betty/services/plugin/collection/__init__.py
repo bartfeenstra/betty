@@ -21,16 +21,16 @@ from betty.services.plugin import (
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.plugin.resolve import ResolvablePluginDefinition
+    from betty.definition import ResolvableDefinition
 
 
 class CollectionPluginServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
-    PluginDefinitionT: PluginDefinition,
+    DefinitionT: PluginDefinition,
     GetServiceT,
     GetServiceItemT,
     InitT,
-](PluginServiceManager[OwnerT, PluginDefinitionT, GetServiceT, InitT]):
+](PluginServiceManager[OwnerT, DefinitionT, GetServiceT, InitT]):
     """
     A service containing a collection of plugin items.
     """
@@ -40,8 +40,8 @@ class CollectionPluginServiceManager[
         self,
         owner: OwnerT,
         /,
-        *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
-    ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
+        *plugins: InitT | ResolvableDefinition[DefinitionT],
+    ) -> Iterable[InitT | ResolvableDefinition[DefinitionT]]:
         plugins_by_id = {
             self.resolve_init_plugin_id(plugin): plugin
             for plugin in await super().prepare_plugins(owner, *plugins)
@@ -59,9 +59,7 @@ class CollectionPluginServiceManager[
         )
 
     @final
-    def __sort_plugins(
-        self, plugins: Iterable[PluginDefinitionT]
-    ) -> Iterable[MachineName]:
+    def __sort_plugins(self, plugins: Iterable[DefinitionT]) -> Iterable[MachineName]:
         plugins = sorted(plugins, key=lambda plugin: plugin.id)
         if issubclass(self.plugin_type, OrderedPluginDefinition):
             plugin_ids = {plugin.id for plugin in plugins}
@@ -81,7 +79,7 @@ class CollectionPluginServiceManager[
     def new_service_item(
         self,
         owner: OwnerT,
-        plugin: InitT | ResolvablePluginDefinition[PluginDefinitionT],
+        plugin: InitT | ResolvableDefinition[DefinitionT],
         /,
     ) -> GetServiceItemT:
         """

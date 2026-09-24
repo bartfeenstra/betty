@@ -4,7 +4,7 @@ HTTP client rate limiting.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final, final
+from typing import TYPE_CHECKING, Final, Self, final
 
 from betty.concurrent import RateLimiter, ThreadSafeLock
 from betty.localizables.gettext import _, ngettext
@@ -86,17 +86,17 @@ class RateLimitDefinition(OrderedPluginDefinition):
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        rate_limit_id: ResolvableMachineName,
         *,
         limit: tuple[int, int],
         match: str | re.Pattern,
         auto: bool = True,
-        after: Order[RateLimitDefinition] = (),
-        before: Order[RateLimitDefinition] = (),
+        after: Order[Self] = (),
+        before: Order[Self] = (),
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id, after=after, auto=auto, before=before, requires=requires
+            rate_limit_id, after=after, auto=auto, before=before, requires=requires
         )
         self.limit: Final[tuple[int, int]] = limit
         """

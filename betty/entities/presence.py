@@ -99,7 +99,7 @@ class Presence(Entity):
         schema.add_property(
             "role",
             PluginIdSchema(
-                RoleDefinition.type(),
+                RoleDefinition.definition,
                 [x async for x in project.plugins[RoleDefinition]],
             ),
             False,
@@ -110,5 +110,5 @@ class Presence(Entity):
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = dict(await super().dump_linked_data(project))
         if self.public:
-            portable["role"] = self.role.plugin().id
+            portable["role"] = self.role.definition.id
         return portable

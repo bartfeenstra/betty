@@ -37,7 +37,7 @@ class MultipleTypesEntityCollection[TargetT: Entity = Entity](
         if isinstance(entity_type, EntityDefinition):
             entity_type = entity_type.id
         if isinstance(entity_type, type):
-            entity_type = entity_type.plugin().id
+            entity_type = entity_type.definition.id
         return cast(SingleTypeEntityCollection[EntityT], self._collections[entity_type])
 
     def __getitem__[EntityT: Entity](

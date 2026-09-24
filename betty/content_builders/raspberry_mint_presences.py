@@ -10,22 +10,21 @@ from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import OwnerAttr
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
-from betty.data import Data
 from betty.datas.aggregate.collection.list import ListDefinition
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
+from betty.definition.id import resolve_id
 from betty.entities.event import Event
 from betty.factory import DataManufacturable, Manufacturable
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
-from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.project import Project
-from betty.prop import HasProps
 from betty.role import RoleDefinition
 from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from betty.definition.id import ResolvableId
     from betty.document import Document
     from betty.jinja import Environment
 
@@ -47,7 +46,7 @@ if TYPE_CHECKING:
         ),
     ),
 )
-class PresencesData(Data, HasProps):
+class PresencesData(Object):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_presences.Presences`.
 
@@ -67,14 +66,14 @@ class PresencesData(Data, HasProps):
     def __init__(
         self,
         *,
-        include: Iterable[ResolvablePluginId[RoleDefinition]] | None = None,
-        exclude: Iterable[ResolvablePluginId[RoleDefinition]] | None = None,
+        include: Iterable[ResolvableId[RoleDefinition]] | None = None,
+        exclude: Iterable[ResolvableId[RoleDefinition]] | None = None,
     ):
         super().__init__()
         if include is not None:
-            self.include = list(map(resolve_plugin_id, include))
+            self.include = list(map(resolve_id, include))
         if exclude is not None:
-            self.exclude = list(map(resolve_plugin_id, exclude))
+            self.exclude = list(map(resolve_id, exclude))
 
 
 @final
@@ -93,13 +92,11 @@ class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
     def __init__(
         self,
         *,
-        include: Iterable[ResolvablePluginId[RoleDefinition]] | None = None,
+        include: Iterable[ResolvableId[RoleDefinition]] | None = None,
         jinja: Environment,
     ):
         super().__init__(jinja=jinja)
-        self._include = (
-            None if include is None else tuple(map(resolve_plugin_id, include))
-        )
+        self._include = None if include is None else tuple(map(resolve_id, include))
 
     @override
     @classmethod
@@ -113,7 +110,7 @@ class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
 
         if data is None:
             raise NotImplementedError
-        include: Iterable[ResolvablePluginId[RoleDefinition]] | None
+        include: Iterable[ResolvableId[RoleDefinition]] | None
         if data.include is not None:
             include = data.include
         else:
@@ -131,7 +128,7 @@ class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
                 presences = tuple(
                     presence
                     for presence in presences
-                    if presence.role.plugin().id in self._include
+                    if presence.role.definition.id in self._include
                 )
             if not presences:
                 return None

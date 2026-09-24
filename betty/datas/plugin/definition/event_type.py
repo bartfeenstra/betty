@@ -61,4 +61,4 @@ class EventTypeDefinitionData(
         class _EventTypeDefinitionDataEventType(EventType):
             pass
 
-        return _EventTypeDefinitionDataEventType.plugin()
+        return _EventTypeDefinitionDataEventType.definition

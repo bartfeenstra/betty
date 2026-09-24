@@ -7,12 +7,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.classtools import TypeABCMeta
+from betty.definition import HasDefinition
+from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import Manufacturable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
     ManufacturablePlugin,
     PluginManufacturer,
@@ -30,10 +31,10 @@ if TYPE_CHECKING:
 
 class ServiceProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
     HasServiceLevel[ServiceLevelT],
-    Plugin["ServiceProviderDefinition"],
     Manufacturable,
     HasProps,
     ManagedLifeCycle,
+    HasDefinition["ServiceProviderDefinition"],
     metaclass=TypeABCMeta,
 ):
     """
@@ -54,7 +55,7 @@ class ServiceProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
     label_countable=ngettext("{count} service provider", "{count} service providers"),
 )
 class ServiceProviderDefinition(
-    HumanFacingDefinition, PluginClsDefinition[ServiceProvider]
+    HumanFacingDefinition, ClsDefinition[ServiceProvider], PluginDefinition
 ):
     """
     .. plugin_type:: service-provider.
@@ -62,7 +63,7 @@ class ServiceProviderDefinition(
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        service_provider_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         auto: bool = False,
@@ -70,7 +71,7 @@ class ServiceProviderDefinition(
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            service_provider_id,
             auto=auto,
             label=label,
             description=description,

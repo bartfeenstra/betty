@@ -4,7 +4,7 @@ CSS resources for HTML pages.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final, final
+from typing import TYPE_CHECKING, Any, Final, Self, final
 
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
@@ -29,16 +29,16 @@ class CssResourceDefinition(OrderedPluginDefinition):
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        css_resource_id: ResolvableMachineName,
         *,
-        after: Order[CssResourceDefinition] = (),
+        after: Order[Self] = (),
         resource: Any,
         auto: bool = False,
-        before: Order[CssResourceDefinition] = (),
+        before: Order[Self] = (),
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            css_resource_id,
             after=after,
             auto=auto,
             before=before,

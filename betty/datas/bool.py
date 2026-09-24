@@ -28,7 +28,6 @@ class BoolDefinition(DataDefinition[bool]):
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            cls=bool,
             label=label,
             description=description,
             porter=CallbackPorter(assert_bool, passthrough),

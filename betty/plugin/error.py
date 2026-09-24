@@ -6,15 +6,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty.definition.id import resolve_id
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, Quote, do_you_mean
 from betty.plugin import PluginDefinition
-from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from betty.definition.id import ResolvableId
     from betty.machine_name import ResolvableMachineName
 
 
@@ -53,21 +54,21 @@ class PluginNotFound(PluginError, HumanFacingException):
     Raised when a plugin cannot be found.
     """
 
-    def __init__[PluginDefinitionT: PluginDefinition](
+    def __init__[DefinitionT: PluginDefinition](
         self,
-        plugin_type: type[PluginDefinitionT],
+        plugin_type: type[DefinitionT],
         plugin_not_found: ResolvableMachineName,
-        available_plugins: Iterable[ResolvablePluginId[PluginDefinitionT]],
+        available_plugins: Iterable[ResolvableId[DefinitionT]],
         /,
     ):
         super().__init__(
             Paragraph(
                 _("Cannot find the {plugin_id} {plugin_type} plugin.").format(
-                    plugin_type=plugin_type.type().label,
+                    plugin_type=plugin_type.definition.label,
                     plugin_id=Quote(plugin_not_found),
                 ),
                 do_you_mean(*[
-                    f'"{resolve_plugin_id(available_plugin)}"'
+                    f'"{resolve_id(available_plugin)}"'
                     for available_plugin in available_plugins
                 ]),
             )

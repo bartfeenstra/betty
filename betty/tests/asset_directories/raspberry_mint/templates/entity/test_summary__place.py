@@ -29,7 +29,7 @@ async def test_with_non_unknown_place_type(
         assets={raspberry_mint},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
-        assert Country.plugin().label.localize(default_localizer) in actual
+        assert Country.definition.label.localize(default_localizer) in actual
 
 
 async def test_with_enclosed_by(assert_template_file: AssertTemplateFile) -> None:

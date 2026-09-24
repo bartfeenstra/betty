@@ -12,14 +12,10 @@ from typing import TYPE_CHECKING, Final, cast, final
 
 from betty.asyncio import ResolvableAwaitable, resolve_await
 from betty.concurrent import ThreadSafeLock
+from betty.definition import ResolvableDefinition, resolve_definition
+from betty.definition.id import ResolvableId, resolve_id
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
-from betty.plugin.resolve import (
-    ResolvablePluginDefinition,
-    ResolvablePluginId,
-    resolve_plugin_definition,
-    resolve_plugin_id,
-)
 from betty.requirement import UnmetRequirement
 from betty.service_level import ServiceLevel
 from betty.string import kebab_case_to_snake_case
@@ -30,18 +26,18 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
 
 
-type ResolvableDiscovery[PluginDefinitionT: PluginDefinition = PluginDefinition] = (
-    ResolvablePluginDefinition[PluginDefinitionT]
+type ResolvableDiscovery[DefinitionT: PluginDefinition = PluginDefinition] = (
+    ResolvableDefinition[DefinitionT]
     | Callable[
         [ServiceLevel],
-        ResolvableAwaitable[Iterable[ResolvableDiscovery[PluginDefinitionT]]],
+        ResolvableAwaitable[Iterable[ResolvableDiscovery[DefinitionT]]],
     ]
 )
 
 
-async def discover[PluginDefinitionT: PluginDefinition](
-    services: ServiceLevel, *discoveries: ResolvableDiscovery[PluginDefinitionT]
-) -> Iterable[PluginDefinitionT]:
+async def discover[DefinitionT: PluginDefinition](
+    services: ServiceLevel, *discoveries: ResolvableDiscovery[DefinitionT]
+) -> Iterable[DefinitionT]:
     """
     Discover plugins definitions.
     """
@@ -54,11 +50,11 @@ async def discover[PluginDefinitionT: PluginDefinition](
     ]
 
 
-async def _discover[PluginDefinitionT: PluginDefinition](
-    discovery: ResolvableDiscovery[PluginDefinitionT], services: ServiceLevel
-) -> Iterable[PluginDefinitionT]:
+async def _discover[DefinitionT: PluginDefinition](
+    discovery: ResolvableDiscovery[DefinitionT], services: ServiceLevel
+) -> Iterable[DefinitionT]:
     with suppress(ValueError):
-        return [resolve_plugin_definition(discovery)]
+        return [resolve_definition(discovery)]
     try:
         return await discover(
             services,
@@ -73,7 +69,7 @@ async def _discover[PluginDefinitionT: PluginDefinition](
 
 
 @final
-class PluginDiscoverer[PluginDefinitionT: PluginDefinition = PluginDefinition]:
+class PluginDiscoverer[DefinitionT: PluginDefinition = PluginDefinition]:
     """
     Discover plugin definitions of a specific plugin type.
     """
@@ -81,12 +77,12 @@ class PluginDiscoverer[PluginDefinitionT: PluginDefinition = PluginDefinition]:
     def __init__(
         self,
         services: ServiceLevel,
-        plugin_type: builtins.type[PluginDefinitionT],
+        plugin_type: builtins.type[DefinitionT],
         plugin_overrides: Iterable[ResolvableDiscovery[PluginDefinition]] | None = None,
         /,
     ):
         self._services = services
-        self.type: Final[type[PluginDefinitionT]] = plugin_type
+        self.type: Final[type[DefinitionT]] = plugin_type
         """
         The plugin type.
         """
@@ -94,17 +90,17 @@ class PluginDiscoverer[PluginDefinitionT: PluginDefinition = PluginDefinition]:
         self._discovery = (
             [self._discover] if plugin_overrides is None else plugin_overrides
         )
-        self.__plugins: Mapping[MachineName, PluginDefinitionT] | None = None
+        self.__plugins: Mapping[MachineName, DefinitionT] | None = None
 
     def _discover(
         self, services: ServiceLevel
-    ) -> Iterable[ResolvableDiscovery[PluginDefinitionT]]:
+    ) -> Iterable[ResolvableDiscovery[DefinitionT]]:
         for entry_point in metadata.entry_points(
-            group=f"betty.{kebab_case_to_snake_case(self.type.type().id)}"
+            group=f"betty.{kebab_case_to_snake_case(self.type.definition.id)}"
         ):
-            yield cast(ResolvableDiscovery[PluginDefinitionT], entry_point.load())
+            yield cast(ResolvableDiscovery[DefinitionT], entry_point.load())
 
-    async def _plugins(self) -> Mapping[MachineName, PluginDefinitionT]:
+    async def _plugins(self) -> Mapping[MachineName, DefinitionT]:
         if self.__plugins is not None:
             return self.__plugins
         async with self._lock:
@@ -116,21 +112,21 @@ class PluginDiscoverer[PluginDefinitionT: PluginDefinition = PluginDefinition]:
             }
             return self.__plugins
 
-    async def __aiter__(self) -> AsyncIterator[PluginDefinitionT]:
+    async def __aiter__(self) -> AsyncIterator[DefinitionT]:
         for plugin in (await self._plugins()).values():
             yield plugin
 
-    async def get(self, key: ResolvablePluginId) -> PluginDefinitionT:
+    async def get(self, key: ResolvableId) -> DefinitionT:
         """
         Get a plugin by its ID.
         """
-        key = resolve_plugin_id(key)
+        key = resolve_id(key)
         try:
             return (await self._plugins())[key]
         except KeyError:
             raise PluginNotFound(self.type, key, await self.ids()) from None
 
-    def __getitem__(self, key: ResolvablePluginId) -> Awaitable[PluginDefinitionT]:
+    def __getitem__(self, key: ResolvableId) -> Awaitable[DefinitionT]:
         return self.get(key)
 
     async def ids(self) -> Iterable[MachineName]:

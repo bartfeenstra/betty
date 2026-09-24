@@ -55,4 +55,4 @@ class RoleDefinitionData(CountableHumanFacingPluginDefinitionData[RoleDefinition
         class _RoleDefinitionDataRole(Role):
             pass
 
-        return _RoleDefinitionDataRole.plugin()
+        return _RoleDefinitionDataRole.definition

@@ -16,8 +16,6 @@ from betty.datas.aggregate.collection import (
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
-    from ty_extensions import Intersection
-
     from betty.data import DataDefinition, ResolvableDataDefinition
     from betty.localizable import ResolvableLocalizable
     from betty.portable import PortableData
@@ -33,14 +31,12 @@ class SequenceDefinition[SequenceT: Sequence[Any], ValueT](
     def __init__(
         self,
         *,
-        cls: type[Intersection[SequenceT, Sequence[ValueT]]] | None = None,
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         manufacturer: CollectionManufacturer[SequenceT, Iterable[ValueT]] | None = None,
     ):
         super().__init__(
-            cls=cls,
             item=value,
             label=label,
             description=description,

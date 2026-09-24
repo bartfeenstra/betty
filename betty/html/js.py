@@ -4,7 +4,7 @@ JavaScript resources for HTML pages.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final, final
+from typing import TYPE_CHECKING, Any, Final, Self, final
 
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
@@ -31,16 +31,16 @@ class JsResourceDefinition(OrderedPluginDefinition):
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        js_resource_id: ResolvableMachineName,
         *,
-        after: Order[JsResourceDefinition] = (),
+        after: Order[Self] = (),
         resource: Any,
         auto: bool = False,
-        before: Order[JsResourceDefinition] = (),
+        before: Order[Self] = (),
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            js_resource_id,
             after=after,
             auto=auto,
             before=before,

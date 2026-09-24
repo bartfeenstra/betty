@@ -27,7 +27,6 @@ class IntDefinition(DataDefinition[int]):
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            cls=int,
             label=label,
             description=description,
             porter=CallbackPorter[int](assert_int(), int),

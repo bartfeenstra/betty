@@ -9,7 +9,6 @@ site from the entire project.
 from __future__ import annotations
 
 from asyncio import gather, to_thread
-from collections.abc import MutableSequence
 from contextlib import AsyncExitStack, asynccontextmanager
 from operator import not_
 from shutil import rmtree
@@ -29,6 +28,7 @@ from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
+from betty.collection.sequence import MutableResolvedSequence
 from betty.collections import _empty_frozen_mapping
 from betty.collections.keyed.adapter import (
     KeyedCollectionAdapter,
@@ -41,11 +41,10 @@ from betty.copyright_notice import (
     ManufacturableCopyrightNotice,
     ResolvableCopyrightNoticeManufacturer,
 )
-from betty.data import Data
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.collection.sequence import MutableSequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.int import IntDefinition
 from betty.datas.plugin.definition.copyright_notice import CopyrightNoticeDefinitionData
@@ -55,6 +54,7 @@ from betty.datas.plugin.definition.license import LicenseDefinitionData
 from betty.datas.plugin.definition.place_type import PlaceTypeDefinitionData
 from betty.datas.plugin.definition.role import RoleDefinitionData
 from betty.datas.str import StrDefinition
+from betty.definition.id import ResolvableId, resolve_id
 from betty.dirs import builtin_asset_directory
 from betty.document import Document, DocumentProviderDefinition
 from betty.entity import EntityDefinition
@@ -100,16 +100,10 @@ from betty.localizer import Localizer, LocalizerRepository
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeDefinition
-from betty.plugin.resolve import (
-    ResolvablePluginDefinition,
-    ResolvablePluginId,
-    resolve_plugin_id,
-)
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter
 from betty.porters.omit_field import OmitFieldPorter
 from betty.privacy.privatizer import Privatizer
-from betty.prop import HasProps
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
@@ -141,6 +135,7 @@ if TYPE_CHECKING:
 
     from betty.asset import AssetDirectoryDefinition
     from betty.collection.keyed import KeyedCollection
+    from betty.definition import ResolvableDefinition
     from betty.jinja import Environment
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.media_type import ResolvableMediaType
@@ -198,7 +193,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         title: ResolvableLocalizable,
         url: str,
         ancestry: EntityPool | None = None,
-        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
+        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
         cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None = None,
@@ -207,10 +202,10 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         debug: bool = False,
         enrichers: Iterable[ManufacturableEnricher] = (),
         service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
+        generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
         license: ManufacturableLicense | None = None,  # noqa: A002
         lifetime_threshold: int | None = None,
-        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
+        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
         loaders: Iterable[ManufacturableLoader] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         localizers: TypedSynchronousServiceOrFactory[Project, LocalizerRepository]
@@ -299,7 +294,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         self._generate_entity_list_html = (
             ()
             if generate_entity_list_html is None
-            else tuple(map(resolve_plugin_id, generate_entity_list_html))
+            else tuple(map(resolve_id, generate_entity_list_html))
         )
         self.lifetime_threshold: Final[int] = (
             lifetime_threshold or default_lifetime_threshold
@@ -424,7 +419,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         *,
         ancestry: EntityPool | None = None,
         app: App | None = None,
-        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
+        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
         cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None
@@ -433,10 +428,10 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         debug: bool = False,
         directory: StrPath | None = None,
         enrichers: Iterable[ManufacturableEnricher] = (),
-        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
+        generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
         service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
         lifetime_threshold: int | None = None,
-        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
+        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
         loaders: Iterable[ManufacturableLoader] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         localizers: TypedSynchronousServiceOrFactory[Project, LocalizerRepository]
@@ -501,9 +496,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
     @service
     async def generate_entity_list_html(
         self,
-    ) -> KeyedCollection[
-        MachineName, ResolvablePluginId[EntityDefinition], EntityDefinition
-    ]:
+    ) -> KeyedCollection[MachineName, ResolvableId[EntityDefinition], EntityDefinition]:
         """
         Which entity types to generate list HTML pages for.
         """
@@ -521,7 +514,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
             )
         return KeyedCollectionAdapter(
             {entity_type.id: entity_type for entity_type in entity_types},
-            key_resolver=resolve_plugin_id,
+            key_resolver=resolve_id,
         )
 
     @service
@@ -646,7 +639,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         ),
     ),
 )
-class ProjectLocale(Data[ObjectDefinition["ProjectLocale"]], HasProps, Frozen):
+class ProjectLocale(Object, Frozen):
     """
     A locale to use for a project.
 
@@ -688,32 +681,37 @@ class ProjectLocale(Data[ObjectDefinition["ProjectLocale"]], HasProps, Frozen):
             ProjectData(
                 author="Bart Feenstra",
                 clean_urls=True,
-                copyright_notice=CopyrightNoticeManufacturer
-                .data()
-                .samples.get(Size.FULL)
-                .subject,
+                copyright_notice=CopyrightNoticeManufacturer.definition.samples.get(
+                    Size.FULL
+                ).subject,
                 copyright_notices=[
-                    CopyrightNoticeDefinitionData.data().samples.get(Size.FULL).subject
+                    CopyrightNoticeDefinitionData.definition.samples.get(
+                        Size.FULL
+                    ).subject
                 ],
                 debug=True,
                 generate_entity_list_html=["person", "place"],
                 event_types=[
-                    EventTypeDefinitionData.data().samples.get(Size.FULL).subject
+                    EventTypeDefinitionData.definition.samples.get(Size.FULL).subject
                 ],
-                genders=[GenderDefinitionData.data().samples.get(Size.FULL).subject],
+                genders=[
+                    GenderDefinitionData.definition.samples.get(Size.FULL).subject
+                ],
                 logo=builtin_asset_directory
                 / "public"
                 / "static"
                 / "betty-512x512.png",
-                license=LicenseManufacturer.data().samples.get(Size.FULL).subject,
-                licenses=[LicenseDefinitionData.data().samples.get(Size.FULL).subject],
+                license=LicenseManufacturer.definition.samples.get(Size.FULL).subject,
+                licenses=[
+                    LicenseDefinitionData.definition.samples.get(Size.FULL).subject
+                ],
                 lifetime_threshold=123,
-                locales=[ProjectLocale.data().samples.get(Size.FULL).subject],
+                locales=[ProjectLocale.definition.samples.get(Size.FULL).subject],
                 name="betty-ancestry",
                 place_types=[
-                    PlaceTypeDefinitionData.data().samples.get(Size.FULL).subject
+                    PlaceTypeDefinitionData.definition.samples.get(Size.FULL).subject
                 ],
-                roles=[RoleDefinitionData.data().samples.get(Size.FULL).subject],
+                roles=[RoleDefinitionData.definition.samples.get(Size.FULL).subject],
                 title="Betty's ancestry",
                 url="https://ancestry.example.com/betty",
             ),
@@ -722,7 +720,7 @@ class ProjectLocale(Data[ObjectDefinition["ProjectLocale"]], HasProps, Frozen):
         ),
     ),
 )
-class ProjectData(Data, HasProps):
+class ProjectData(Object):
     """
     Configuration for a :py:class:`betty.project.Project`.
 
@@ -784,11 +782,11 @@ class ProjectData(Data, HasProps):
         FieldDefinition(
             KeyedCollectionDefinition(
                 value=EnricherManufacturer,
-                label=EnricherDefinition.type().label_plural,
+                label=EnricherDefinition.definition.label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values),
                     key=lambda data: data.plugin_id,
-                    key_resolver=resolve_plugin_id,
+                    key_resolver=resolve_id,
                     value_resolver=EnricherManufacturer.resolve,
                 ),
             ),
@@ -811,11 +809,11 @@ class ProjectData(Data, HasProps):
         FieldDefinition(
             KeyedCollectionDefinition(
                 value=ServiceProviderManufacturer,
-                label=ServiceProviderDefinition.type().label_plural,
+                label=ServiceProviderDefinition.definition.label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values),
                     key=lambda data: data.plugin_id,
-                    key_resolver=resolve_plugin_id,
+                    key_resolver=resolve_id,
                     value_resolver=ServiceProviderManufacturer.resolve,
                 ),
             ),
@@ -830,14 +828,14 @@ class ProjectData(Data, HasProps):
     generate_entity_list_html = CollectionOwnerAttr(
         FieldDefinition(
             MutableSequenceDefinition[
-                MutableSequence[ResolvablePluginId[EntityDefinition]],
-                ResolvablePluginId[EntityDefinition],
+                MutableResolvedSequence[MachineName, ResolvableId[EntityDefinition]],
+                MachineName,
             ](
                 label=_("Entity types to generate list HTML pages for"),
                 value=MachineName,
                 manufacturer=lambda values: ResolvedList[
-                    MachineName, ResolvablePluginId[EntityDefinition]
-                ](values, value_resolver=resolve_plugin_id),  # ty:ignore[invalid-argument-type]
+                    MachineName, ResolvableId[EntityDefinition]
+                ](values, value_resolver=resolve_id),
             ),
             optional=True,
             porter=OmitFieldPorter.new(not_),
@@ -888,11 +886,11 @@ class ProjectData(Data, HasProps):
         FieldDefinition(
             KeyedCollectionDefinition(
                 value=LoaderManufacturer,
-                label=LoaderDefinition.type().label_plural,
+                label=LoaderDefinition.definition.label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values),
                     key=lambda data: data.plugin_id,
-                    key_resolver=resolve_plugin_id,
+                    key_resolver=resolve_id,
                     value_resolver=LoaderManufacturer.resolve,
                 ),
             ),
@@ -981,7 +979,7 @@ class ProjectData(Data, HasProps):
         enrichers: Iterable[ResolvableEnricherManufacturer] = (),
         event_types: Iterable[EventTypeDefinitionData] = (),
         service_providers: Iterable[ResolvableServiceProviderManufacturer] = (),
-        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
+        generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
         genders: Iterable[GenderDefinitionData] = (),
         license: ResolvableLicenseManufacturer | None = None,  # noqa: A002
         licenses: Iterable[LicenseDefinitionData] = (),

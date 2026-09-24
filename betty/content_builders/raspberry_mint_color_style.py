@@ -20,13 +20,11 @@ from betty.content_builder import (
     build,
 )
 from betty.content_builders.template import Template, TemplateBuild
-from betty.data import Data
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.enum import EnumDefinition
 from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.prop import HasProps
 from betty.sample import Sample, Samples
 from betty.service_providers.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 
@@ -46,7 +44,7 @@ if TYPE_CHECKING:
     ),
     manufacturer=lambda **fields: ColorStyleData(*fields.pop("content"), **fields),
 )
-class ColorStyleData(Data, HasProps):
+class ColorStyleData(Object):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_color_style.ColorStyle`.
 
@@ -60,7 +58,7 @@ class ColorStyleData(Data, HasProps):
     The content within this color style.
     """
 
-    style = OwnerAttr(EnumDefinition(cls=RaspberryMintColorStyle, label=_("Style")))
+    style = OwnerAttr(EnumDefinition(RaspberryMintColorStyle, label=_("Style")))
     """
     The style.
     """

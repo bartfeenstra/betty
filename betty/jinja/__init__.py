@@ -120,12 +120,12 @@ async def new_environment(project: Project, /) -> Environment:
         "today": Date(today.year, today.month, today.day),
     })  # ty:ignore[no-matching-overload]
     environment.filters.update({
-        kebab_case_to_snake_case(filter.plugin().id): filter.__call__
+        kebab_case_to_snake_case(filter.definition.id): filter.__call__
         for awaitable_filter in project.jinja_filters
         if (filter := await awaitable_filter)  # noqa: A001
     })
     environment.tests.update({
-        kebab_case_to_snake_case(test.plugin().id): test.__call__
+        kebab_case_to_snake_case(test.definition.id): test.__call__
         for awaitable_test in project.jinja_tests
         if (test := await awaitable_test)
     })

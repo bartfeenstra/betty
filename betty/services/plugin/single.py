@@ -18,20 +18,20 @@ from betty.services.plugin import (
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.plugin.resolve import ResolvablePluginDefinition
+    from betty.definition import ResolvableDefinition
 
 
 class SinglePluginServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
-    PluginDefinitionT: PluginDefinition,
+    DefinitionT: PluginDefinition,
     GetServiceT,
     InitT,
-](PluginServiceManager[OwnerT, PluginDefinitionT, GetServiceT, InitT]):
+](PluginServiceManager[OwnerT, DefinitionT, GetServiceT, InitT]):
     """
     A service containing a single plugin item.
     """
 
-    def __init__(self, plugin_type: type[PluginDefinitionT], /):
+    def __init__(self, plugin_type: type[DefinitionT], /):
         super().__init__(plugin_type, auto=False)
 
     @final
@@ -40,8 +40,8 @@ class SinglePluginServiceManager[
         self,
         owner: OwnerT,
         /,
-        *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
-    ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
+        *plugins: InitT | ResolvableDefinition[DefinitionT],
+    ) -> Iterable[InitT | ResolvableDefinition[DefinitionT]]:
         plugins = tuple(await super().prepare_plugins(owner, *plugins))
         # Ensure there is exactly one unique init plugin.
         if len(plugins) != 1:
@@ -51,7 +51,7 @@ class SinglePluginServiceManager[
                     "The {service} service must have exactly one {plugin_type} plugin, but {actual} were given."
                 ).format(
                     service=self.ownership.fully_qualified_name,
-                    plugin_type=self.plugin_type.type().label,
+                    plugin_type=self.plugin_type.definition.label,
                     actual=JoinAnd(*map(self.resolve_init_plugin_id, plugins))
                     if plugins
                     else "0",

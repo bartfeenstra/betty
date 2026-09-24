@@ -78,7 +78,7 @@ class GenerateSitemap(Job):
             for entity in self._project.ancestry:
                 if not entity.id.persistent:
                     continue
-                if not entity.plugin().public_facing:
+                if not entity.definition.public_facing:
                     continue
 
                 sitemap_batch_urls.append(

@@ -10,11 +10,11 @@ from betty.test_utils.plugin import (
 class TestPluginIdSchema:
     def test(self) -> None:
         sut = PluginIdSchema(
-            DummyPluginDefinition.type(),
+            DummyPluginDefinition.definition,
             [
-                DummyPluginOne.plugin(),
-                DummyPluginTwo.plugin(),
-                DummyPluginThree.plugin(),
+                DummyPluginOne.definition,
+                DummyPluginTwo.definition,
+                DummyPluginThree.definition,
             ],
         )
         assert sut.schema["enum"] == [

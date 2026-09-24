@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from betty.definition.cls import ClsDefinition
 from betty.importlib import fully_qualified_name
-from betty.plugin.cls import PluginClsDefinition
 from betty.service_level import ServiceLevel
 
 if TYPE_CHECKING:
@@ -55,10 +55,10 @@ class PluginDocumentationTestBase:
     def _test_plugin_type(self, plugin_type: type[PluginDefinition]) -> None:
         if not self._match_module(plugin_type):
             return
-        if plugin_type.type().id.startswith("-"):
+        if plugin_type.definition.id.startswith("-"):
             return
         docstring = plugin_type.__doc__ or ""
-        directive = f".. plugin_type:: {plugin_type.type().id}"
+        directive = f".. plugin_type:: {plugin_type.definition.id}"
         assert directive in docstring, (
             f'Failed to find the "{directive}" directive in the docstring for {fully_qualified_name(plugin_type)}'
         )
@@ -66,9 +66,9 @@ class PluginDocumentationTestBase:
     def _test_plugin(self, plugin: PluginDefinition) -> None:
         if plugin.id.startswith("-"):
             return
-        if isinstance(plugin, PluginClsDefinition) and self._match_module(plugin.cls):
+        if isinstance(plugin, ClsDefinition) and self._match_module(plugin.cls):
             docstring = plugin.cls.__doc__ or ""
-            directive = f".. plugin:: {plugin.type().id}:{plugin.id}"
+            directive = f".. plugin:: {plugin.definition.id}:{plugin.id}"
             assert directive in docstring, (
                 f'Failed to find the "{directive}" directive in the docstring for {fully_qualified_name(plugin.cls)}'
             )

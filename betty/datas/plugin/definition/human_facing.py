@@ -24,8 +24,8 @@ if TYPE_CHECKING:
 
 
 class HumanFacingPluginDefinitionData[
-    PluginDefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
-](PluginDefinitionData[PluginDefinitionT]):
+    DefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
+](PluginDefinitionData[DefinitionT]):
     """
     Configure a :py:class:`betty.definition.human_facing.HumanFacingDefinition`.
 
@@ -48,8 +48,8 @@ class HumanFacingPluginDefinitionData[
 
 
 class CountableHumanFacingPluginDefinitionData[
-    PluginDefinitionT: Intersection[PluginDefinition, CountableHumanFacingDefinition]
-](HumanFacingPluginDefinitionData[PluginDefinitionT]):
+    DefinitionT: Intersection[PluginDefinition, CountableHumanFacingDefinition]
+](HumanFacingPluginDefinitionData[DefinitionT]):
     """
     Configure a :py:class:`betty.definition.human_facing.CountableHumanFacingDefinition`.
 

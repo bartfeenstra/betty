@@ -20,13 +20,11 @@ from betty.content_builder import (
 )
 from betty.content_builders.render import Render, RenderData
 from betty.content_builders.template import Template, TemplateBuild
-from betty.data import Data
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.prop import HasProps
 from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
@@ -55,7 +53,7 @@ if TYPE_CHECKING:
     ),
     manufacturer=lambda **fields: BoxData(*fields.pop("content"), **fields),
 )
-class BoxData(Data, HasProps):
+class BoxData(Object):
     """
     Configuration for :py:class:`betty.content_builders.box.Box`.
 

@@ -15,7 +15,7 @@ class TestEntityTypeUrlGenerator:
         ("expected", "resource"),
         [
             (True, DummyEntityOne),
-            (True, DummyEntityOne.plugin()),
+            (True, DummyEntityOne.definition),
             (False, EntityDefinition),
             (False, "/"),
             (False, object()),
@@ -38,7 +38,7 @@ class TestEntityTypeUrlGenerator:
         ("expected", "entity_type"),
         [
             ("/dummy-one", DummyEntityOne),
-            ("/dummy-one", DummyEntityOne.plugin()),
+            ("/dummy-one", DummyEntityOne.definition),
         ],
     )
     def test_generate(

@@ -37,11 +37,7 @@ class LocalizableDefinition(DataDefinition[Localizable], Singleton):
     """
 
     def __init__(self):
-        super().__init__(
-            cls=Localizable,
-            label=_("A localizable string"),
-            porter=_LocalizablePorter(),
-        )
+        super().__init__(label=_("A localizable string"), porter=_LocalizablePorter())
 
 
 class _LocalizablePorter(Porter[Localizable]):
@@ -84,7 +80,6 @@ class CountableLocalizableDefinition(DataDefinition[CountableLocalizable], Singl
 
     def __init__(self):
         super().__init__(
-            cls=CountableLocalizable,
             label=_("A countable localizable string"),
             porter=_CountableLocalizablePorter(),
         )

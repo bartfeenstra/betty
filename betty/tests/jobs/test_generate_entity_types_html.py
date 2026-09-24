@@ -31,7 +31,7 @@ class TestGenerateEntityTypesHtml:
         ) as project:
             await do(GenerateEntityTypesHtml(project=project))
 
-            await assert_betty_html(project, f"/{entity_type.plugin().id}/index.html")
+            await assert_betty_html(project, f"/{entity_type.definition.id}/index.html")
 
     async def test_do__with_pager(
         self, isolated_project_factory: IsolatedProjectFactory

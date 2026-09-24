@@ -76,7 +76,7 @@ class TestPresence(EntityTestBase):
             "event": "/event/my-first-event/index.json",
             "person": "/person/my-first-person/index.json",
             "privacy": False,
-            "role": role.plugin().id,
+            "role": role.definition.id,
         }
         actual = await assert_dumps_linked_data(sut)
         assert actual == expected

@@ -79,14 +79,14 @@ class TestBuilder:
                 webpack_entry_loader_js = f.read()
             assert f"{root_path}/js/webpack/runtime.js" in webpack_entry_loader_js
             assert (
-                f"{root_path}/js/webpack/{DummyEntryPointProviderServiceProvider.plugin().id}.js"
+                f"{root_path}/js/webpack/{DummyEntryPointProviderServiceProvider.definition.id}.js"
                 in webpack_entry_loader_js
             )
             assert (
                 webpack_build_directory
                 / "js"
                 / "webpack"
-                / f"{DummyEntryPointProviderServiceProvider.plugin().id}.js"
+                / f"{DummyEntryPointProviderServiceProvider.definition.id}.js"
             ).exists()
 
     async def test_build_with_npm_unavailable(

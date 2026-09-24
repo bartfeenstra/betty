@@ -17,16 +17,16 @@ if TYPE_CHECKING:
     from collections.abc import Collection
 
 
-def assert_plugin[PluginDefinitionT: PluginDefinition](
-    available_plugins: Collection[PluginDefinitionT],
-) -> Pipeline[Any, PluginDefinitionT]:
+def assert_plugin[DefinitionT: PluginDefinition](
+    available_plugins: Collection[DefinitionT],
+) -> Pipeline[Any, DefinitionT]:
     """
     Assert that a value is a plugin ID.
     """
 
     def _assert(
         value: Any,
-    ) -> PluginDefinitionT:
+    ) -> DefinitionT:
         plugin_id = assert_str()(value)
         for plugin in available_plugins:
             if plugin.id == plugin_id:

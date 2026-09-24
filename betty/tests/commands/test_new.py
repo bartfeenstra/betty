@@ -16,7 +16,7 @@ from betty.test_utils.user import StaticUser
 
 
 def _assert_new(configuration_file: Path) -> ProjectData:
-    return ProjectData.data().porter.load(
+    return ProjectData.definition.porter.load(
         assert_load_file(serializers=[Json()])(configuration_file)
     )
 
@@ -193,7 +193,7 @@ class TestNew:
             portable_gramps_configuration = configuration.loaders[Gramps].plugin_data
             assert portable_gramps_configuration is not NoPluginData
             assert not isinstance(portable_gramps_configuration, Data)
-            gramps_configuration = GrampsData.data().porter.load(
+            gramps_configuration = GrampsData.definition.porter.load(
                 portable_gramps_configuration
             )
             assert (

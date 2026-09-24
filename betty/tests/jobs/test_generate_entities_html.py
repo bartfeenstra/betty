@@ -38,7 +38,7 @@ class TestGenerateEntitiesHtml:
         await do(GenerateEntitiesHtml(project=isolated_project))
 
         await assert_betty_html(
-            isolated_project, f"/{entity.plugin().id}/{entity.id}/index.html"
+            isolated_project, f"/{entity.definition.id}/{entity.id}/index.html"
         )
 
     @pytest.mark.parametrize(
@@ -71,7 +71,7 @@ class TestGenerateEntitiesHtml:
 
         assert not (
             isolated_project.www_directory
-            / entity.plugin().id
+            / entity.definition.id
             / entity.id
             / "index.html"
         ).exists()

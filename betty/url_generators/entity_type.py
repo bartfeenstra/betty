@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, TypeGuard, final, override
 
+from betty.definition import resolve_definition
 from betty.entity import Entity, EntityDefinition
-from betty.plugin.resolve import resolve_plugin_definition
 from betty.string import camel_case_to_kebab_case
 from betty.url_generators._entity import _EntityUrlGenerator
 
@@ -40,7 +40,5 @@ class EntityTypeUrlGenerator(_EntityUrlGenerator[EntityDefinition | type[Entity]
         self, entity_type: EntityDefinition | type[Entity], /
     ) -> Mapping[str, str]:
         return {
-            "entity_type": camel_case_to_kebab_case(
-                resolve_plugin_definition(entity_type).id
-            ),
+            "entity_type": camel_case_to_kebab_case(resolve_definition(entity_type).id),
         }

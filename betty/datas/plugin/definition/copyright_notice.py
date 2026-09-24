@@ -75,4 +75,4 @@ class CopyrightNoticeDefinitionData(
             def text(self) -> Localizable:
                 return configuration.text
 
-        return _CopyrightNoticeDefinitionDataCopyrightNotice.plugin()
+        return _CopyrightNoticeDefinitionDataCopyrightNotice.definition

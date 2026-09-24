@@ -23,7 +23,7 @@ class TestConfig:
             "--locale",
             locale,
         )
-        configuration = AppData.data().porter.load(
+        configuration = AppData.definition.porter.load(
             assert_load_file(serializers=[Json()])(configuration_file)
         )
         assert configuration.locale == Locale(locale)

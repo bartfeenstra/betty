@@ -37,7 +37,6 @@ class LocaleDefinition(DataDefinition[Locale]):
         if description:
             _description = Paragraph(description, _description)
         super().__init__(
-            cls=Locale,
             label=label or _("Locale"),
             description=_description,
             porter=CallbackPorter[Locale](assert_locale, to_language_tag),

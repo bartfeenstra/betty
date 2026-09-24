@@ -19,9 +19,9 @@ class TestEntityUrlUrlGenerator:
             (False, "betty-entity"),
             (False, "betty-entity://"),
             (False, "betty-entity://["),
-            (False, f"betty-entity://{DummyEntityOne.plugin().id}"),
-            (False, f"betty-entity://{DummyEntityOne.plugin().id}/"),
-            (True, f"betty-entity://{DummyEntityOne.plugin().id}/my-first-entity"),
+            (False, f"betty-entity://{DummyEntityOne.definition.id}"),
+            (False, f"betty-entity://{DummyEntityOne.definition.id}/"),
+            (True, f"betty-entity://{DummyEntityOne.definition.id}/my-first-entity"),
             (False, "/"),
         ],
     )
@@ -64,7 +64,7 @@ class TestEntityUrlUrlGenerator:
         )
         assert (
             sut.generate(
-                f"betty-entity://{DummyEntityOne.plugin().id}/{entity.id}",
+                f"betty-entity://{DummyEntityOne.definition.id}/{entity.id}",
                 absolute=True,
                 fragment=fragment,
                 locale=locale,

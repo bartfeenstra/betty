@@ -58,10 +58,10 @@ class Association[
     AssociateT: Entity = Entity,
     GetT = Any,
     SetT = Any,
-    DataDefinitionT: DataDefinition = DataDefinition,
+    DefinitionT: DataDefinition = DataDefinition,
 ](
     LinkedDataDumper[HasAssociations],
-    Attr[HasAssociations, GetT, SetT, DataDefinitionT],
+    Attr[HasAssociations, GetT, SetT, DefinitionT],
 ):
     """
     An entity association.
@@ -69,8 +69,8 @@ class Association[
 
     def __init__(
         self,
-        field: FieldDefinition[HasAssociations, GetT, DataDefinitionT]
-        | ResolvableDataDefinition[DataDefinitionT],
+        field: FieldDefinition[HasAssociations, GetT, DefinitionT]
+        | ResolvableDataDefinition[DefinitionT],
         associate: type[AssociateT] | str,
         associate_attr: Association | str | None = None,
         /,

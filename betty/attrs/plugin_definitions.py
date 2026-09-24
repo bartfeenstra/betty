@@ -14,9 +14,9 @@ from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.plugin.definition import PluginDefinitionData
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.definition.id import ResolvableId
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
-from betty.plugin.resolve import ResolvablePluginId
 from betty.porters.omit_field import OmitFieldPorter
 
 if TYPE_CHECKING:
@@ -30,10 +30,10 @@ if TYPE_CHECKING:
 
 
 def new_plugin_definition_datas_attr[
-    PluginDefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
+    DefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
 ](
-    plugin_type: type[PluginDefinitionT],
-    item: type[PluginDefinitionData[PluginDefinitionT]],
+    plugin_type: type[DefinitionT],
+    item: type[PluginDefinitionData[DefinitionT]],
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
@@ -41,11 +41,11 @@ def new_plugin_definition_datas_attr[
     HasProps,
     MutableKeyedCollection[
         MachineName,
-        ResolvablePluginId[PluginDefinitionT],
-        PluginDefinitionData[PluginDefinitionT],
-        PluginDefinitionData[PluginDefinitionT],
+        ResolvableId[DefinitionT],
+        PluginDefinitionData[DefinitionT],
+        PluginDefinitionData[DefinitionT],
     ],
-    Iterable[PluginDefinitionData[PluginDefinitionT]],
+    Iterable[PluginDefinitionData[DefinitionT]],
 ]:
     """
     Create attribute containing a :py:class:`betty.collection.keyed.KeyedCollection` of :py:class:`betty.datas.plugin.definition.PluginDefinitionData`.
@@ -55,14 +55,14 @@ def new_plugin_definition_datas_attr[
             KeyedCollectionDefinition[
                 MutableKeyedCollection[
                     MachineName,
-                    ResolvablePluginId[PluginDefinitionT],
-                    PluginDefinitionData[PluginDefinitionT],
-                    PluginDefinitionData[PluginDefinitionT],
+                    ResolvableId[DefinitionT],
+                    PluginDefinitionData[DefinitionT],
+                    PluginDefinitionData[DefinitionT],
                 ],
-                PluginDefinitionData[PluginDefinitionT],
+                PluginDefinitionData[DefinitionT],
             ](
                 value=item,
-                label=plugin_type.type().label_plural,
+                label=plugin_type.definition.label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values), key=lambda item: item.id
                 ),

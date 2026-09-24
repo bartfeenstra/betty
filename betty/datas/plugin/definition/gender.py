@@ -55,4 +55,4 @@ class GenderDefinitionData(CountableHumanFacingPluginDefinitionData[GenderDefini
         class _GenderDefinitionDataGender(Gender):
             pass
 
-        return _GenderDefinitionDataGender.plugin()
+        return _GenderDefinitionDataGender.definition

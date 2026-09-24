@@ -3,7 +3,7 @@ from typing import override
 
 import pytest
 
-from betty.plugin.resolve import ResolvablePluginId
+from betty.definition.id import ResolvableId
 from betty.project.generate import generate
 from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.maps import Maps
@@ -27,18 +27,18 @@ class TestMaps:
                 encoding="utf-8",
             ) as f:
                 betty_js = f.read()
-            assert Maps.plugin().id in betty_js
+            assert Maps.definition.id in betty_js
             with open(
                 project.www_directory / "css" / "webpack" / "main.css",
                 encoding="utf-8",
             ) as f:
                 betty_css = f.read()
-            assert Maps.plugin().id in betty_css
+            assert Maps.definition.id in betty_css
 
 
 class TestMapsMaps(MapsTestBase):
     @override
     def get_other_extensions(
         self,
-    ) -> Iterable[ResolvablePluginId[ServiceProviderDefinition]]:
+    ) -> Iterable[ResolvableId[ServiceProviderDefinition]]:
         return ()

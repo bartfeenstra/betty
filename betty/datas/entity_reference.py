@@ -8,17 +8,16 @@ from typing import TYPE_CHECKING, final
 
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import OwnerAttr
-from betty.data import Data
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
+from betty.definition.id import resolve_id
 from betty.entity import Entity, EntityDefinition
 from betty.freezer import Frozen
 from betty.localizables.gettext import _
-from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.prop import HasProps
 from betty.sample import Sample, Samples
 
 if TYPE_CHECKING:
+    from betty.definition.id import ResolvableId
     from betty.project import Project
 
 
@@ -29,7 +28,7 @@ if TYPE_CHECKING:
         lambda: Sample(EntityReference("person", "123"), label="Default"),
     ),
 )
-class EntityReference[EntityT: Entity = Entity](Data, HasProps, Frozen):
+class EntityReference[EntityT: Entity = Entity](Object, Frozen):
     """
     A reference to an entity of any type.
 
@@ -49,11 +48,11 @@ class EntityReference[EntityT: Entity = Entity](Data, HasProps, Frozen):
     def __init__(
         self,
         /,
-        type: ResolvablePluginId[EntityDefinition[EntityT]],  # noqa: A002
+        type: ResolvableId[EntityDefinition[EntityT]],  # noqa: A002
         id: str,  # noqa: A002
     ):
         super().__init__()
-        self.type = resolve_plugin_id(type)
+        self.type = resolve_id(type)
         self.id = id
 
     def __call__(self, project: Project, /) -> EntityT:

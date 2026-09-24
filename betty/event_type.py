@@ -5,12 +5,13 @@ Provide Betty's ancestry event types.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Self, final
 
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
+from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.data import DataPlugin, DataPluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
     PluginManufacturer,
     PluginManufacturerDefinition,
@@ -18,7 +19,7 @@ from betty.plugin.factory import (
 )
 from betty.plugin.ordered import (
     Order,
-    OrderedPluginClsDefinition,
+    OrderedPluginDefinition,
 )
 
 if TYPE_CHECKING:
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class EventType(DataPlugin["EventTypeDefinition"]):
+class EventType(Object["EventTypeDefinition"]):
     """
     Define an :py:class:`betty.entities.event.Event` type.
     """
@@ -57,8 +58,10 @@ class ShouldExistEventType(EventType, metaclass=ABCMeta):
 )
 class EventTypeDefinition(
     CountableHumanFacingDefinition,
-    OrderedPluginClsDefinition[EventType],
-    DataPluginDefinition[EventType],
+    OrderedPluginDefinition,
+    ClsDefinition[EventType],
+    PluginDefinition,
+    ObjectDefinition[EventType],
 ):
     """
     .. plugin_type:: event-type.
@@ -66,18 +69,18 @@ class EventTypeDefinition(
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        event_type_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         label_plural: ResolvableLocalizable,
         label_countable: CountableLocalizable,
         description: ResolvableLocalizable | None = None,
-        after: Order[EventTypeDefinition] = (),
-        before: Order[EventTypeDefinition] = (),
+        after: Order[Self] = (),
+        before: Order[Self] = (),
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            event_type_id,
             label=label,
             label_plural=label_plural,
             label_countable=label_countable,

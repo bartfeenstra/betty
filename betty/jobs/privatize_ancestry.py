@@ -52,25 +52,25 @@ class PrivatizeAncestry(Job):
             if isinstance(entity, HasPrivacy):
                 entities.append(entity)
                 if entity.private:
-                    newly_privatized[entity.plugin().id] -= 1
+                    newly_privatized[entity.definition.id] -= 1
 
         for entity in entities:
             await self._project.privatizer.privatize(entity)
 
         for entity in entities:
             if entity.private:
-                newly_privatized[entity.plugin().id] += 1
+                newly_privatized[entity.definition.id] += 1
 
-        if newly_privatized[Person.plugin().id] > 0:
+        if newly_privatized[Person.definition.id] > 0:
             await user.message(
                 _(
                     "Privatized {count} people because they are likely still alive."
                 ).format(
-                    count=str(newly_privatized[Person.plugin().id]),
+                    count=str(newly_privatized[Person.definition.id]),
                 ),
                 Severity.INFO,
             )
-        for entity_type_id in set(newly_privatized) - {Person.plugin().id}:
+        for entity_type_id in set(newly_privatized) - {Person.definition.id}:
             if newly_privatized[entity_type_id] > 0:
                 await user.message(
                     ngettext(

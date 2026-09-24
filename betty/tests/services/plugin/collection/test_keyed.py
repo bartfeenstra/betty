@@ -1,6 +1,8 @@
 from typing import override
 
-from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
+from betty.definition import ResolvableDefinition, resolve_definition
+from betty.definition.id import resolve_id
+from betty.machine_name import MachineName
 from betty.service_level import HasServiceLevel
 from betty.services.plugin import (
     HasPluginServices,
@@ -25,7 +27,7 @@ class _KeyedCollectionPluginServiceManagerTestSut(
         ResolvableServiceLevelHasPluginServices,
         DummyPluginDefinition,
         DummyPluginDefinition,
-        ResolvablePluginDefinition[DummyPluginDefinition],
+        ResolvableDefinition[DummyPluginDefinition],
     ]
 ):
     def __init__(self):
@@ -35,17 +37,25 @@ class _KeyedCollectionPluginServiceManagerTestSut(
     def new_service_item(
         self,
         owner: HasPluginServices,
-        plugin: ResolvablePluginDefinition[DummyPluginDefinition],
+        plugin: ResolvableDefinition[DummyPluginDefinition],
         /,
     ) -> DummyPluginDefinition:
-        return resolve_plugin_definition(plugin)
+        return resolve_definition(plugin)
+
+    @override
+    def resolve_init_plugin_id(
+        self,
+        plugin: ResolvableDefinition[DummyPluginDefinition],
+        /,
+    ) -> MachineName:
+        return resolve_id(plugin)
 
 
 class TestKeyedCollectionPluginServiceManager(PluginServiceManagerTestBase):
     async def test_new_service(self) -> None:
         owner = _KeyedCollectionPluginServiceManagerTestOwner()
         async with owner:
-            assert owner.my_first_service[DummyPluginOne] is DummyPluginOne.plugin()
+            assert owner.my_first_service[DummyPluginOne] is DummyPluginOne.definition
 
 
 class _KeyedCollectionPluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):
