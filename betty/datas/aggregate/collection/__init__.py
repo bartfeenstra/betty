@@ -28,14 +28,13 @@ class CollectionDefinition[CollectionT: Collection, ItemT, NewT: Iterable](
     def __init__(
         self,
         *,
-        cls: type[CollectionT] | None = None,
         item: ResolvableDataDefinition[DataDefinition[ItemT]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         porter: Porter[CollectionT] | None = None,
         manufacturer: CollectionManufacturer[CollectionT, NewT] | None = None,
     ):
-        super().__init__(cls=cls, label=label, description=description, porter=porter)
+        super().__init__(label=label, description=description, porter=porter)
         self.item: Final[DataDefinition[ItemT]] = resolve_data_definition(item)
         """
         The definition of the items contained by this collection.

@@ -19,13 +19,13 @@ from betty.app import App
 from betty.data import Data
 from betty.datas.aggregate.record import RecordDefinition
 from betty.datas.optional import OptionalDefinition
+from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import DataManufacturable
 from betty.functools import Result
 from betty.importlib import import_any
 from betty.localizer import default_localizer
 from betty.machine_name import MachineName
-from betty.plugin.cls import PluginClsDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.service_level import ServiceLevel
@@ -33,6 +33,7 @@ from betty.service_level import ServiceLevel
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
+    from ty_extensions import Intersection
 
     from betty.plugin import PluginDefinition
     from betty.serialize import Serializer
@@ -63,11 +64,11 @@ async def _get_plugins() -> _Plugins:
 
 
 def _cmp_formats(left: Serializer, right: Serializer) -> int:
-    if left.plugin().id == "yaml":
+    if left.definition.id == "yaml":
         return -1
-    if right.plugin().id == "yaml":
+    if right.definition.id == "yaml":
         return 1
-    return -1 if left.plugin().id < right.plugin().id else 1
+    return -1 if left.definition.id < right.definition.id else 1
 
 
 async def _get_serializers() -> Sequence[Serializer]:
@@ -127,7 +128,7 @@ class _PluginDirective(SphinxDirective):
 
     def _build_summary(self, plugin: PluginDefinition) -> nodes.Node:
         summary_nodes, _ = self.parse_inline(
-            f"The ``{plugin.id}`` :py:class:`{plugin.type().label.localize(default_localizer).lower()} <{type(plugin).__module__}.{type(plugin).__qualname__}>` plugin."
+            f"The ``{plugin.id}`` :py:class:`{plugin.definition.label.localize(default_localizer).lower()} <{type(plugin).__module__}.{type(plugin).__qualname__}>` plugin."
         )
         if isinstance(plugin, HumanFacingDefinition):
             description = plugin.description
@@ -139,7 +140,7 @@ class _PluginDirective(SphinxDirective):
         return nodes.paragraph("", "", *summary_nodes)
 
     def _build_metadata(
-        self, plugin: PluginClsDefinition, plugins: _Plugins
+        self, plugin: Intersection[PluginDefinition, ClsDefinition], plugins: _Plugins
     ) -> list[nodes.Node]:
         cls = plugin.cls
         if issubclass(cls, DataManufacturable):
@@ -161,9 +162,9 @@ class _PluginDirective(SphinxDirective):
         if isinstance(plugin, OrderedPluginDefinition):
             if after_content := self._build_other_plugins_references([
                 after_plugin
-                for plugin_id in filter(plugin.after, plugins[plugin.type().id])
-                if (after_plugin := plugins[plugin.type().id][plugin_id])
-                and isinstance(after_plugin, PluginClsDefinition)
+                for plugin_id in filter(plugin.after, plugins[plugin.definition.id])
+                if (after_plugin := plugins[plugin.definition.id][plugin_id])
+                and isinstance(after_plugin, ClsDefinition)
             ]):
                 content += f"""
    * - Comes after
@@ -171,9 +172,9 @@ class _PluginDirective(SphinxDirective):
 """
             if before_content := self._build_other_plugins_references([
                 before_plugin
-                for plugin_id in filter(plugin.before, plugins[plugin.type().id])
-                if (before_plugin := plugins[plugin.type().id][plugin_id])
-                and isinstance(before_plugin, PluginClsDefinition)
+                for plugin_id in filter(plugin.before, plugins[plugin.definition.id])
+                if (before_plugin := plugins[plugin.definition.id][plugin_id])
+                and isinstance(before_plugin, ClsDefinition)
             ]):
                 content += f"""
    * - Comes before
@@ -186,7 +187,7 @@ class _PluginDirective(SphinxDirective):
         )
 
     def _build_other_plugins_references(
-        self, plugins: Iterable[PluginClsDefinition]
+        self, plugins: Iterable[Intersection[PluginDefinition, ClsDefinition]]
     ) -> str:
         contents = [
             f":py:class:`{plugin.id} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`"
@@ -222,10 +223,10 @@ class _PluginTypeDirective(SphinxDirective):
             "",
             "",
             nodes.Text(
-                f"The {plugin_type.type().label.localize(default_localizer).lower()} plugin type."
+                f"The {plugin_type.definition.label.localize(default_localizer).lower()} plugin type."
             ),
         )
-        description = plugin_type.type().description
+        description = plugin_type.definition.description
         if description:
             summary_node.append(nodes.Text(" "))
             summary_node.append(nodes.Text(description.localize(default_localizer)))
@@ -240,7 +241,7 @@ class _PluginTypeDirective(SphinxDirective):
    :header-rows: 0
 
    * - Plugin type ID
-     - ``{plugin_type.type().id}``
+     - ``{plugin_type.definition.id}``
    * - Definition
      - :py:class:`@{plugin_type.__name__}(...) <{plugin_type.__module__}.{plugin_type.__qualname__}>`
 """,
@@ -255,21 +256,21 @@ class _PluginTypeDirective(SphinxDirective):
                 "",
                 "",
                 nodes.Text(
-                    f"Built-in {plugin_type.type().label_plural.localize(default_localizer).lower()}:"
+                    f"Built-in {plugin_type.definition.label_plural.localize(default_localizer).lower()}:"
                 ),
             ),
             _build_definition_list([
                 self._build_builtin_plugin_definition(plugin)
                 for plugin in sorted(
-                    plugins[plugin_type.type().id].values(),
+                    plugins[plugin_type.definition.id].values(),
                     key=lambda plugin: plugin.id,
                 )
-                if isinstance(plugin, PluginClsDefinition)
+                if isinstance(plugin, ClsDefinition)
             ]),
         ]
 
     def _build_builtin_plugin_definition(
-        self, plugin: PluginClsDefinition
+        self, plugin: Intersection[PluginDefinition, ClsDefinition]
     ) -> tuple[NodesLike, NodesLike]:
         term_nodes, _ = self.parse_inline(
             f"{plugin.id} (:py:class:`{plugin.cls.__name__} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`)"
@@ -292,7 +293,7 @@ class _PluginTypesDirective(SphinxDirective):
                 self._build_builtin_plugin_type_definition(plugin_type.type)
                 for plugin_type in sorted(
                     ServiceLevel().plugins,
-                    key=lambda plugin_type: plugin_type.type.type().label.localize(
+                    key=lambda plugin_type: plugin_type.type.definition.label.localize(
                         default_localizer
                     ),
                 )
@@ -303,9 +304,9 @@ class _PluginTypesDirective(SphinxDirective):
         self, plugin_type: type[PluginDefinition]
     ) -> tuple[NodesLike, NodesLike]:
         term_nodes, _ = self.parse_inline(
-            f":py:class:`{plugin_type.type().label.localize(default_localizer)} <{plugin_type.__module__}.{plugin_type.__qualname__}>` (``{plugin_type.type().id}``)"
+            f":py:class:`{plugin_type.definition.label.localize(default_localizer)} <{plugin_type.__module__}.{plugin_type.__qualname__}>` (``{plugin_type.definition.id}``)"
         )
-        description = plugin_type.type().description
+        description = plugin_type.definition.description
         if description:
             return term_nodes, nodes.Text(description.localize(default_localizer))
         return term_nodes, None
@@ -320,7 +321,7 @@ class _DataDirective(SphinxDirective):
         cls_name = self.arguments[0].rstrip(".")
         cls = import_any(cls_name)
         assert issubclass(cls, Data)
-        data = cls.data()
+        data = cls.definition
         content = ""
 
         if isinstance(data, RecordDefinition) and data.fields:
@@ -393,9 +394,9 @@ Data
                 for serializer in serializers:
                     serialized = serializer.dump(portable)
                     example_content += f"""
-   .. tab-item:: {serializer.plugin().label.localize(default_localizer)}
+   .. tab-item:: {serializer.definition.label.localize(default_localizer)}
 
-      .. code-block:: {serializer.plugin().id}
+      .. code-block:: {serializer.definition.id}
 
 {indent(serialized, " " * 10)}
 """

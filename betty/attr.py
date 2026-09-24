@@ -19,7 +19,7 @@ class Attr[
     OwnerT: HasProps,
     GetT,
     SetT: Any = Never,
-    DataDefinitionT: DataDefinition = DataDefinition,
+    DefinitionT: DataDefinition = DataDefinition,
 ](Prop[OwnerT, GetT, SetT]):
     """
     An object attribute with a data definition.
@@ -27,12 +27,12 @@ class Attr[
 
     def __init__(
         self,
-        field: ResolvableFieldDefinition[OwnerT, GetT, DataDefinitionT],
+        field: ResolvableFieldDefinition[OwnerT, GetT, DefinitionT],
         *args: Any,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self.field: Final[FieldDefinition[OwnerT, GetT, DataDefinitionT]] = (
+        self.field: Final[FieldDefinition[OwnerT, GetT, DefinitionT]] = (
             resolve_field_definition(field)
         )
         """

@@ -66,7 +66,7 @@ class TestObjectDefinition:
         class _Object(Data[ObjectDefinition]):
             pass
 
-        data_object = _Object.data()
+        data_object = _Object.definition
         assert isinstance(data_object, ObjectDefinition)
         assert not data_object.fields
 

@@ -21,10 +21,10 @@ class TestTrees:
                 encoding="utf-8",
             ) as f:
                 betty_js = f.read()
-            assert Trees.plugin().id in betty_js
+            assert Trees.definition.id in betty_js
             with open(
                 project.www_directory / "css" / "webpack" / "main.css",
                 encoding="utf-8",
             ) as f:
                 betty_css = f.read()
-            assert Trees.plugin().id in betty_css
+            assert Trees.definition.id in betty_css

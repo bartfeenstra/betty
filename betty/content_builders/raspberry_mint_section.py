@@ -22,13 +22,11 @@ from betty.content_builder import (
     build,
 )
 from betty.content_builders.template import Template, TemplateBuild
-from betty.data import Data
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.prop import HasProps
 from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
@@ -53,7 +51,7 @@ if TYPE_CHECKING:
     ),
     manufacturer=lambda **fields: SectionData(*fields.pop("content"), **fields),
 )
-class SectionData(Data, HasProps):
+class SectionData(Object):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_section.Section`.
 

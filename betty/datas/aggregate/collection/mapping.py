@@ -17,8 +17,6 @@ from betty.datas.aggregate.collection import (
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
-    from ty_extensions import Intersection
-
     from betty.localizable import ResolvableLocalizable
     from betty.portable import PortableData, Porter
 
@@ -36,7 +34,6 @@ class MappingDefinition[MappingT: Mapping[Any, Any], KeyT, ValueT](
     def __init__(
         self,
         *,
-        cls: type[Intersection[MappingT, Mapping[KeyT, ValueT]]] | None = None,
         key: ResolvableDataDefinition[DataDefinition[KeyT]],
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
         label: ResolvableLocalizable,
@@ -46,7 +43,6 @@ class MappingDefinition[MappingT: Mapping[Any, Any], KeyT, ValueT](
         porter: Porter[MappingT] | None = None,
     ):
         super().__init__(
-            cls=cls,
             item=key,
             label=label,
             description=description,

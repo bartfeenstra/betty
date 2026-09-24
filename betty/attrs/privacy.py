@@ -30,9 +30,7 @@ class PrivacyAttr(
     """
 
     def __init__(self):
-        super().__init__(
-            proxied=OwnerAttr(EnumDefinition(cls=Privacy, label=_("Privacy")))
-        )
+        super().__init__(proxied=OwnerAttr(EnumDefinition(Privacy, label=_("Privacy"))))
 
     @override
     async def linked_data_schema_for(self, project: Project, /) -> PrivacySchema:

@@ -2,8 +2,8 @@
 {% set page_title = document.resource.label | localize %}
 {% set document = document.copy(entity_contexts=document.entity_contexts(document.resource)) %}
 {% do document.breadcrumbs.append(
-    document.resource.plugin().label_plural | localize,
-    document.resource.plugin() if document.resource.plugin().id in project.generate_entity_list_html else none
+    document.resource.definition.label_plural | localize,
+    document.resource.definition if document.resource.definition.id in project.generate_entity_list_html else none
 ) %}
 {% do document.breadcrumbs.append(
     page_title,

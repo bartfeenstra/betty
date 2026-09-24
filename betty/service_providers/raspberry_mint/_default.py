@@ -76,7 +76,7 @@ class DefaultRegionalContent(Bootstrappable):
         self,
     ) -> AsyncIterable[ResolvableContentBuilderManufacturer]:
         yield Media
-        if await check(self._project, *WikipediaSummary.plugin().requires):
+        if await check(self._project, *WikipediaSummary.definition.requires):
             yield ContentBuilderManufacturer(
                 Section,
                 SectionData(
@@ -88,7 +88,7 @@ class DefaultRegionalContent(Bootstrappable):
                     name="wikipedia",
                 ),
             )
-        if await check(self._project, *Map.plugin().requires):
+        if await check(self._project, *Map.definition.requires):
             yield ContentBuilderManufacturer(
                 Box,
                 BoxData(Map, min_height="500px", height="75vh", max_height="1000px"),
@@ -146,7 +146,7 @@ class DefaultRegionalContent(Bootstrappable):
                 Families, heading=self._make_dumpable(_("Family")), name="family"
             ),
         )
-        if await check(self._project, *Tree.plugin().requires):
+        if await check(self._project, *Tree.definition.requires):
             yield ContentBuilderManufacturer(
                 Box,
                 BoxData(Tree, min_height="500px", height="75vh", max_height="1000px"),

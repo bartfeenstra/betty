@@ -20,8 +20,8 @@ class CommonAttr[
     OwnerT: HasProps,
     GetT,
     SetT,
-    DataDefinitionT: DataDefinition = DataDefinition,
-](Attr[OwnerT, GetT, SetT, DataDefinitionT]):
+    DefinitionT: DataDefinition = DataDefinition,
+](Attr[OwnerT, GetT, SetT, DefinitionT]):
     """
     An attribute that supports common configuration operations.
 
@@ -31,7 +31,7 @@ class CommonAttr[
     @abstractmethod
     def default(
         self, default: Callable[[], SetT] | Callable[[OwnerT], SetT], /
-    ) -> CommonAttr[OwnerT, GetT, SetT, DataDefinitionT]:
+    ) -> CommonAttr[OwnerT, GetT, SetT, DefinitionT]:
         """
         Create a new attribute that proxies this one, and sets a default value.
         """
@@ -41,7 +41,7 @@ class CommonAttr[
         self,
         setter: Callable[[SetterSetT], SetT] | Callable[[OwnerT, SetterSetT], SetT],
         /,
-    ) -> CommonAttr[OwnerT, GetT, SetterSetT, DataDefinitionT]:
+    ) -> CommonAttr[OwnerT, GetT, SetterSetT, DefinitionT]:
         """
         Return a new attribute like this one, but with the given setter.
         """
@@ -51,10 +51,10 @@ class OptionableCommonAttr[
     OwnerT: HasProps,
     GetT,
     SetT,
-    DataDefinitionT: DataDefinition = DataDefinition,
+    DefinitionT: DataDefinition = DataDefinition,
 ](
-    OptionableAttr[OwnerT, GetT, SetT, DataDefinitionT],
-    CommonAttr[OwnerT, GetT, SetT, DataDefinitionT],
+    OptionableAttr[OwnerT, GetT, SetT, DefinitionT],
+    CommonAttr[OwnerT, GetT, SetT, DefinitionT],
 ):
     """
     An attribute that supports common configuration operations and can be made optional.

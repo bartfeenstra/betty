@@ -5,8 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.owner import OwnerAttr
-from betty.data import Data
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.enrichers.populate_links import PopulateLinks
 from betty.factory import DataManufacturable, Manufacturable
@@ -14,7 +13,6 @@ from betty.jobs.populate_wiki_entity import PopulateWikiEntity
 from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.prop import HasProps
 from betty.sample import Sample, Samples, Size
 from betty.service_providers.wiki import Wiki as WikiExtension
 
@@ -30,7 +28,7 @@ if TYPE_CHECKING:
         lambda: Sample(WikiData(populate_images=False), label="Full", size=Size.FULL),
     ),
 )
-class WikiData(Data, HasProps):
+class WikiData(Object):
     """
     Configuration for the :py:class:`betty.enrichers.wiki.Wiki` enricher.
 

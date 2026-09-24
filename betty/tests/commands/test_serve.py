@@ -24,7 +24,7 @@ class TestServe:
         configuration = ProjectData(title="Betty", url="https://example.com")
         await write(
             tmp_path / "betty.json",
-            dumps(configuration.data().porter.dump(configuration)),
+            dumps(configuration.definition.porter.dump(configuration)),
         )
 
         await run(
@@ -47,7 +47,7 @@ class TestServe:
         configuration = ProjectData(title="Betty", url="https://example.com")
         await write(
             tmp_path / "betty.json",
-            dumps(configuration.data().porter.dump(configuration)),
+            dumps(configuration.definition.porter.dump(configuration)),
         )
 
         await run(

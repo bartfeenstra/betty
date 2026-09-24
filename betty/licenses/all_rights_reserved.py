@@ -23,7 +23,7 @@ class AllRightsReserved(License):
     @property
     @override
     def summary(self) -> Localizable:
-        return self.plugin().label
+        return self.definition.label
 
     @property
     @override

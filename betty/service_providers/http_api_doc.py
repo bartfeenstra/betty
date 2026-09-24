@@ -42,7 +42,7 @@ class HttpApiDoc(EntryPointProvider[Project]):
     @override
     @classmethod
     def webpack_entry_point_directory(cls) -> StrPath:
-        return webpack_entry_point_directory / cls.plugin().id
+        return webpack_entry_point_directory / cls.definition.id
 
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:

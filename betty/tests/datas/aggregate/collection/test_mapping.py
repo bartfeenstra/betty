@@ -41,7 +41,7 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str], str, str](
             manufacturer=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
-            value=DataDefinition(cls=str, label="-"),
+            value=DataDefinition(label="-"),
             label="-",
         )
         with pytest.raises(NotPortable):
@@ -69,7 +69,7 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str], str, str](
             manufacturer=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
-            value=DataDefinition(cls=str, label="-"),
+            value=DataDefinition(label="-"),
             label="-",
         )
         with pytest.raises(NotPortable):
@@ -81,7 +81,7 @@ class TestMutableMappingDefinition:
         data = {"foo": "FOO", "bar": "BAR"}
         MutableMappingDefinition[dict[str, str], str, str](
             key=StrDefinition(label="-"),
-            value=DataDefinition(cls=str, label="-"),
+            value=DataDefinition(label="-"),
             label="-",
         ).clear(data)
         assert not data
@@ -103,7 +103,7 @@ class TestMutableMappingDefinition:
     ) -> None:
         MutableMappingDefinition[dict[str, str], str, str](
             key=StrDefinition(label="-"),
-            value=DataDefinition(cls=str, label="-"),
+            value=DataDefinition(label="-"),
             label="-",
         ).replace(data, values)
         assert data == expected

@@ -6,10 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
+from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.data import DataPlugin, DataPluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
     PluginManufacturer,
     PluginManufacturerDefinition,
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class PlaceType(DataPlugin["PlaceTypeDefinition"]):
+class PlaceType(Object["PlaceTypeDefinition"]):
     """
     Define a :py:class:`betty.entities.place.Place` type.
     """
@@ -36,7 +37,10 @@ class PlaceType(DataPlugin["PlaceTypeDefinition"]):
     label_countable=ngettext("{count} place type", "{count} place types"),
 )
 class PlaceTypeDefinition(
-    CountableHumanFacingDefinition, DataPluginDefinition[PlaceType]
+    CountableHumanFacingDefinition,
+    ClsDefinition[PlaceType],
+    PluginDefinition,
+    ObjectDefinition[PlaceType],
 ):
     """
     .. plugin_type:: place-type.
@@ -44,7 +48,7 @@ class PlaceTypeDefinition(
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        place_type_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         label_plural: ResolvableLocalizable,
@@ -53,7 +57,7 @@ class PlaceTypeDefinition(
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            place_type_id,
             label=label,
             label_plural=label_plural,
             label_countable=label_countable,

@@ -57,4 +57,4 @@ class PlaceTypeDefinitionData(
         class _PlaceTypeDefinitionDataPlaceType(PlaceType):
             pass
 
-        return _PlaceTypeDefinitionDataPlaceType.plugin()
+        return _PlaceTypeDefinitionDataPlaceType.definition

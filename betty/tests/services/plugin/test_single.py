@@ -2,7 +2,9 @@ from typing import override
 
 import pytest
 
-from betty.plugin.resolve import ResolvablePluginDefinition
+from betty.definition import ResolvableDefinition
+from betty.definition.id import resolve_id
+from betty.machine_name import MachineName
 from betty.requirements.service import UnmetServiceRequirement
 from betty.service_level import HasServiceLevel, ServiceLevel
 from betty.services.plugin import (
@@ -23,7 +25,7 @@ class _SinglePluginServiceManagerTestSut(
         ResolvableServiceLevelHasPluginServices,
         DummyPluginDefinition,
         DummyPluginDefinition,
-        ResolvablePluginDefinition[DummyPluginDefinition],
+        ResolvableDefinition[DummyPluginDefinition],
     ]
 ):
     def __init__(self):
@@ -32,6 +34,14 @@ class _SinglePluginServiceManagerTestSut(
     @override
     def new_service(self, owner: HasPluginServices, /) -> DummyPluginDefinition:
         raise Unreachable
+
+    @override
+    def resolve_init_plugin_id(
+        self,
+        plugin: ResolvableDefinition[DummyPluginDefinition],
+        /,
+    ) -> MachineName:
+        return resolve_id(plugin)
 
 
 class _SinglePluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):
@@ -58,9 +68,9 @@ class TestSinglePluginServiceManager:
             await _SinglePluginServiceManagerTestOwner.my_first_service.prepare_plugins(
                 _SinglePluginServiceManagerTestOwner(services=ServiceLevel()),
                 DummyPluginOne,
-                DummyPluginOne.plugin(),
+                DummyPluginOne.definition,
             )
-        ) == [DummyPluginOne.plugin()]
+        ) == [DummyPluginOne.definition]
 
     async def test_prepare_plugins__with_multiple_plugins(self) -> None:
         with pytest.raises(UnmetServiceRequirement):

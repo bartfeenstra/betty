@@ -6,15 +6,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, final
 
+from betty.definition import resolve_definition
 from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition
-from betty.plugin.resolve import ResolvablePluginDefinition, resolve_plugin_definition
 from betty.requirements.service import UnmetServiceRequirement
 from betty.service_level import DownstreamServiceLevel, ServiceLevel
 
 if TYPE_CHECKING:
     from collections.abc import Collection
 
+    from betty.definition import ResolvableDefinition
     from betty.services.plugin import (
         PluginServiceManager,
         ResolvableServiceLevelHasPluginServices,
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @final
-class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]:
+class PluginServiceRequirement[DefinitionT: PluginDefinition, GetServiceT]:
     """
     A requirement on a plugin service.
     """
@@ -31,15 +32,15 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
     def __init__(
         self,
         service: PluginServiceManager[
-            ResolvableServiceLevelHasPluginServices, PluginDefinitionT, GetServiceT, Any
+            ResolvableServiceLevelHasPluginServices, DefinitionT, GetServiceT, Any
         ],
         /,
-        *plugins: ResolvablePluginDefinition[PluginDefinitionT],
+        *plugins: ResolvableDefinition[DefinitionT],
     ):
         self.service: Final[
             PluginServiceManager[
                 ResolvableServiceLevelHasPluginServices,
-                PluginDefinitionT,
+                DefinitionT,
                 GetServiceT,
                 Any,
             ]
@@ -47,8 +48,8 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
         """
         The service for which the plugin is required.
         """
-        self.plugins: Final[Collection[PluginDefinitionT]] = tuple(
-            map(resolve_plugin_definition, plugins)
+        self.plugins: Final[Collection[DefinitionT]] = tuple(
+            map(resolve_definition, plugins)
         )
         """
         The definitions of the required service plugins.
@@ -73,7 +74,7 @@ class PluginServiceRequirement[PluginDefinitionT: PluginDefinition, GetServiceT]
                             "The {plugin} {plugin_type} plugin is required from the {service} service."
                         ).format(
                             plugin=plugin.id,
-                            plugin_type=self.service.plugin_type.type().label,
+                            plugin_type=self.service.plugin_type.definition.label,
                             service=self.service.ownership.fully_qualified_name,
                         ),
                     )

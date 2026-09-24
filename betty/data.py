@@ -4,29 +4,29 @@ Describe, access, and manipulate arbitrary data.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final, Self, final, override
+from typing import TYPE_CHECKING, Any, Self, final
 
+from betty.definition import HasDefinition
 from betty.definition.cls import OptionalClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.functools import LazyReCallable
-from betty.importlib import fully_qualified_name
 from betty.portable import Porter
 from betty.portable.error import NotPortable
 from betty.sample import Samples
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, MutableMapping
+    from collections.abc import Callable
 
     from betty.localizable import ResolvableLocalizable
 
 
-type ResolvableDataPorter[DataDefinitionT: DataDefinition, DataT] = (
-    Porter[DataT] | Callable[[DataDefinitionT], Porter[DataT]]
+type ResolvableDataPorter[DefinitionT: DataDefinition, DataT] = (
+    Porter[DataT] | Callable[[DefinitionT], Porter[DataT]]
 )
 
 
-type ResolvableDataSamples[DataDefinitionT: DataDefinition, DataT] = (
-    Samples[DataT] | Callable[[DataDefinitionT], Samples[DataT]]
+type ResolvableDataSamples[DefinitionT: DataDefinition, DataT] = (
+    Samples[DataT] | Callable[[DefinitionT], Samples[DataT]]
 )
 
 
@@ -51,13 +51,7 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
                 porter(self) if porter and not isinstance(porter, Porter) else porter
             )  # ty:ignore[invalid-argument-type]
         )
-        super().__init__(
-            *args,
-            cls=cls,
-            label=label,
-            description=description,
-            **kwargs,
-        )
+        super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
 
     @final
     @property
@@ -77,15 +71,6 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         """
         return self.__porter()
 
-    @override
-    def _set_cls(self, cls: type[DataT], /) -> None:
-        if issubclass(cls, Data):
-            assert cls not in _datas, (
-                f"Found an existing data definition {_datas[cls]} when adding {self} for {cls}"
-            )
-            _datas[cls] = self
-        super()._set_cls(cls)
-
     @final
     @property
     def samples(self) -> Samples:
@@ -97,51 +82,35 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         return self.__samples(self)
 
 
-_datas: Final[MutableMapping[type, DataDefinition]] = {}
-
-
-class Data[DataDefinitionT: DataDefinition = DataDefinition]:
+class Data[DefinitionT: DataDefinition = DataDefinition](HasDefinition[DefinitionT]):
     """
     A class that defines data for its instances.
     """
 
     __slots__ = ()
 
-    @final
-    @classmethod
-    def data(cls) -> DataDefinitionT:
-        """
-        Define the data for instances of this class.
-        """
-        try:
-            return _datas[cls]  # ty:ignore[invalid-return-type]
-        except KeyError:  # pragma: no cover
-            raise NotImplementedError(
-                f"{fully_qualified_name(cls)} was not decorated with {fully_qualified_name(DataDefinition)} or any subclass."
-            ) from None
-
     def __eq__(self, other: object, /) -> bool:
         if self is other:
             return True
         if type(self) is not type(other):
             return NotImplemented
-        porter = type(self).data().porter
+        porter = self.definition.try_porter
         if porter is None:
             return NotImplemented
         return porter.dump(self) == porter.dump(other)
 
 
-type ResolvableDataDefinition[DataDefinitionT: DataDefinition = DataDefinition] = (
-    DataDefinitionT | type[Data[DataDefinitionT]]
+type ResolvableDataDefinition[DefinitionT: DataDefinition = DataDefinition] = (
+    DefinitionT | type[Data[DefinitionT]]
 )
 
 
-def resolve_data_definition[DataDefinitionT: DataDefinition](
-    definition: ResolvableDataDefinition[DataDefinitionT],
-) -> DataDefinitionT:
+def resolve_data_definition[DefinitionT: DataDefinition](
+    definition: ResolvableDataDefinition[DefinitionT],
+) -> DefinitionT:
     """
     Resolve a value to a data definition.
     """
     if isinstance(definition, DataDefinition):
-        return definition  # ty:ignore[invalid-return-type]
-    return definition.data()
+        return definition
+    return definition.definition

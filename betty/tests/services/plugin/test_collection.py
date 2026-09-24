@@ -1,9 +1,11 @@
 from collections.abc import Sequence
 from typing import override
 
+from betty.definition import ResolvableDefinition
+from betty.definition.id import resolve_id
+from betty.machine_name import MachineName
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.plugin.resolve import ResolvablePluginDefinition
 from betty.service_level import HasServiceLevel, ServiceLevel
 from betty.services.plugin import (
     HasPluginServices,
@@ -33,7 +35,7 @@ class _CollectionPluginServiceManagerTestSut(
         _DummyOrderedPluginDefinition,
         Sequence[_DummyOrderedPluginDefinition],
         _DummyOrderedPluginDefinition,
-        ResolvablePluginDefinition[_DummyOrderedPluginDefinition],
+        ResolvableDefinition[_DummyOrderedPluginDefinition],
     ]
 ):
     def __init__(self):
@@ -49,10 +51,18 @@ class _CollectionPluginServiceManagerTestSut(
     def new_service_item(
         self,
         owner: HasPluginServices,
-        plugin: ResolvablePluginDefinition[_DummyOrderedPluginDefinition],
+        plugin: ResolvableDefinition[_DummyOrderedPluginDefinition],
         /,
     ) -> _DummyOrderedPluginDefinition:
         raise Unreachable
+
+    @override
+    def resolve_init_plugin_id(
+        self,
+        plugin: ResolvableDefinition[_DummyOrderedPluginDefinition],
+        /,
+    ) -> MachineName:
+        return resolve_id(plugin)
 
 
 class _CollectionPluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):

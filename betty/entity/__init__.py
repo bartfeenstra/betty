@@ -9,6 +9,9 @@ from betty.association import HasAssociations
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.privacy import HasPrivacy
 from betty.classtools import TypeABCMeta
+from betty.data import Data
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.json_schema import JsonSchemaReference, String
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
@@ -16,8 +19,7 @@ from betty.localizables.gettext import _, ngettext
 from betty.localizer import default_localizer
 from betty.machine_name import MachineName
 from betty.media_types.json_ld import JSON_LD
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.data import DataPlugin, DataPluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.privacy import Privacy
 from betty.string import kebab_case_to_lower_camel_case
 
@@ -37,7 +39,7 @@ if TYPE_CHECKING:
 
 class Entity(
     LinkedDataDumpableWithSchemaJsonLdObject,
-    DataPlugin["EntityDefinition"],
+    Data["EntityDefinition"],
     HasPrivacy,
     HasAssociations,
     metaclass=TypeABCMeta,
@@ -81,7 +83,7 @@ class Entity(
         The entity's human-readable label.
         """
         return _("{entity_type} {entity_id}").format(
-            entity_type=self.plugin().label, entity_id=self.id
+            entity_type=self.definition.label, entity_id=self.id
         )
 
     @override
@@ -99,8 +101,8 @@ class Entity(
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema._def_name = f"{kebab_case_to_lower_camel_case(cls.plugin().id)}Entity"
-        schema.title = cls.plugin().label.localize(default_localizer)
+        schema._def_name = f"{kebab_case_to_lower_camel_case(cls.definition.id)}Entity"
+        schema.title = cls.definition.label.localize(default_localizer)
         schema.add_property("$schema", JsonSchemaReference())
         schema.add_property("id", String(title="Entity ID"), False)
         schema.add_property("public_id", String(title="Public entity ID"), False)
@@ -120,7 +122,9 @@ class Entity(
 )
 class EntityDefinition[EntityT: Entity = Entity](
     CountableHumanFacingDefinition,
-    DataPluginDefinition[EntityT],
+    ClsDefinition[EntityT],
+    PluginDefinition,
+    ObjectDefinition[EntityT],
 ):
     """
     .. plugin_type:: entity.
@@ -128,7 +132,7 @@ class EntityDefinition[EntityT: Entity = Entity](
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        entity_type_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         label_plural: ResolvableLocalizable,
@@ -139,7 +143,7 @@ class EntityDefinition[EntityT: Entity = Entity](
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            entity_type_id,
             auto=auto,
             label=label,
             label_plural=label_plural,

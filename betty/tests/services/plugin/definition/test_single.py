@@ -18,4 +18,4 @@ class TestPluginDefinitionService(PluginServiceManagerTestBase):
     async def test_new_service(self) -> None:
         owner = self._Owner()
         async with owner:
-            assert owner.my_first_service is DummyPluginOne.plugin()
+            assert owner.my_first_service is DummyPluginOne.definition

@@ -5,12 +5,11 @@ Plugins that can declare their order.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any, Self, final
 
+from betty.definition.id import ResolvableId, resolve_id
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.plugin import PluginDefinition
-from betty.plugin.cls import PluginClsDefinition
-from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -27,9 +26,9 @@ class OrderedPluginDefinition(PluginDefinition):
         self,
         plugin_id: ResolvableMachineName,
         *,
-        after: Order[OrderedPluginDefinition] = (),
+        after: Order[Self] = (),
         auto: bool = False,
-        before: Order[OrderedPluginDefinition] = (),
+        before: Order[Self] = (),
         requires: Requires = (),
         **kwargs: Any,
     ):
@@ -40,7 +39,7 @@ class OrderedPluginDefinition(PluginDefinition):
     def __resolve_order(self, order: Order) -> Callable[[MachineName], bool]:
         if callable(order):
             return order  # ty:ignore[invalid-return-type]
-        order = {resolve_plugin_id(plugin) for plugin in order}
+        order = {resolve_id(plugin) for plugin in order}
         return lambda other: other in order
 
     @final
@@ -58,30 +57,6 @@ class OrderedPluginDefinition(PluginDefinition):
         return self.__before(other)
 
 
-class OrderedPluginClsDefinition[BaseClsT](
-    OrderedPluginDefinition, PluginClsDefinition[BaseClsT]
-):
-    """
-    A definition of a classed plugin that can declare its order with respect to other plugins.
-    """
-
-    def __init__(
-        self,
-        plugin_id: ResolvableMachineName,
-        *,
-        after: Order[OrderedPluginClsDefinition[BaseClsT]] = (),
-        before: Order[OrderedPluginClsDefinition[BaseClsT]] = (),
-        requires: Requires = (),
-        **kwargs: Any,
-    ):
-        super().__init__(
-            plugin_id, after=after, before=before, requires=requires, **kwargs
-        )
-
-
-type Order[
-    OrderedPluginDefinitionT: OrderedPluginDefinition = OrderedPluginDefinition
-] = (
-    Callable[[MachineName], bool]
-    | Iterable[ResolvablePluginId[OrderedPluginDefinitionT]]
+type Order[OrderedDefinitionT: OrderedPluginDefinition = OrderedPluginDefinition] = (
+    Callable[[MachineName], bool] | Iterable[ResolvableId[OrderedDefinitionT]]
 )

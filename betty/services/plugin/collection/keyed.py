@@ -9,15 +9,15 @@ from typing import final, override
 from betty.collection.keyed import KeyedCollection
 from betty.collections.keyed.adapter import KeyedCollectionAdapter
 from betty.collections.keyed.error import ErroringKeyedCollection
+from betty.definition.id import ResolvableId, resolve_id
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
-from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
 
-type KeyedPluginCollectionService[PluginDefinitionT: PluginDefinition, ItemT] = (
-    KeyedCollection[MachineName, ResolvablePluginId[PluginDefinitionT], ItemT]
+type KeyedPluginCollectionService[DefinitionT: PluginDefinition, ItemT] = (
+    KeyedCollection[MachineName, ResolvableId[DefinitionT], ItemT]
 )
 
 
@@ -27,14 +27,14 @@ class _PluginNotFound(PluginNotFound, KeyError):
 
 class KeyedCollectionPluginServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
-    PluginDefinitionT: PluginDefinition,
+    DefinitionT: PluginDefinition,
     GetServiceItemT,
     InitT,
 ](
     CollectionPluginServiceManager[
         OwnerT,
-        PluginDefinitionT,
-        KeyedPluginCollectionService[PluginDefinitionT, GetServiceItemT],
+        DefinitionT,
+        KeyedPluginCollectionService[DefinitionT, GetServiceItemT],
         GetServiceItemT,
         InitT,
     ]
@@ -47,12 +47,12 @@ class KeyedCollectionPluginServiceManager[
     @override
     def new_service(
         self, owner: OwnerT, /
-    ) -> KeyedPluginCollectionService[PluginDefinitionT, GetServiceItemT]:
+    ) -> KeyedPluginCollectionService[DefinitionT, GetServiceItemT]:
         return ErroringKeyedCollection[
-            MachineName, ResolvablePluginId[PluginDefinitionT], GetServiceItemT
+            MachineName, ResolvableId[DefinitionT], GetServiceItemT
         ](
             KeyedCollectionAdapter[
-                MachineName, ResolvablePluginId[PluginDefinitionT], GetServiceItemT
+                MachineName, ResolvableId[DefinitionT], GetServiceItemT
             ](
                 {
                     self.resolve_init_plugin_id(plugin): self.new_service_item(
@@ -60,11 +60,11 @@ class KeyedCollectionPluginServiceManager[
                     )
                     for plugin in self.get_plugins(owner)
                 },
-                key_resolver=resolve_plugin_id,
+                key_resolver=resolve_id,
             ),
             lambda error, key: _PluginNotFound(
                 self.plugin_type,
-                resolve_plugin_id(key),
+                resolve_id(key),
                 map(self.resolve_init_plugin_id, self.get_plugins(owner)),
             ),
         )

@@ -11,14 +11,11 @@ from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final, override
 
+from betty.definition import ResolvableDefinition, resolve_definition
+from betty.definition.id import resolve_id as resolve_id
 from betty.functools import LazyReCallable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.plugin import PluginDefinition
-from betty.plugin.resolve import (
-    ResolvablePluginDefinition,
-    resolve_plugin_definition,
-    resolve_plugin_id,
-)
 from betty.prop import HasProps
 from betty.requirements.plugin_service import PluginServiceRequirement
 from betty.service import Service, ServiceManager
@@ -33,37 +30,37 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
 
-type SupportedPlugins = Iterable[ResolvablePluginDefinition]
+type SupportedPlugins = Iterable[ResolvableDefinition[PluginDefinition]]
 
 
 class _PluginServiceRequirementPlugins[
-    PluginDefinitionT: PluginDefinition,
+    DefinitionT: PluginDefinition,
     GetServiceT,
 ](Protocol):
     def __call__(
-        self, *plugins: ResolvablePluginDefinition[PluginDefinitionT]
-    ) -> PluginServiceRequirement[PluginDefinitionT, GetServiceT]:
+        self, *plugins: ResolvableDefinition[DefinitionT]
+    ) -> PluginServiceRequirement[DefinitionT, GetServiceT]:
         raise Unreachable
 
 
 @final
 class _PluginServiceRequirementGetter:
-    def __get__[PluginDefinitionT: PluginDefinition, GetServiceT](
+    def __get__[DefinitionT: PluginDefinition, GetServiceT](
         self,
         instance: PluginServiceManager[
             ResolvableServiceLevelHasPluginServices,
-            PluginDefinitionT,
+            DefinitionT,
             GetServiceT,
             Any,
         ],
         owner: Any,
-    ) -> _PluginServiceRequirementPlugins[PluginDefinitionT, GetServiceT]:
+    ) -> _PluginServiceRequirementPlugins[DefinitionT, GetServiceT]:
         return partial(PluginServiceRequirement, instance)
 
 
 class PluginServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
-    PluginDefinitionT: PluginDefinition,
+    DefinitionT: PluginDefinition,
     GetServiceT,
     InitT,
 ](
@@ -81,9 +78,9 @@ class PluginServiceManager[
 
     require: Final[_PluginServiceRequirementGetter] = _PluginServiceRequirementGetter()
 
-    def __init__(self, plugin_type: type[PluginDefinitionT], /, *, auto: bool = True):
+    def __init__(self, plugin_type: type[DefinitionT], /, *, auto: bool = True):
         super().__init__(self.new_service)
-        self.plugin_type: Final[type[PluginDefinitionT]] = plugin_type
+        self.plugin_type: Final[type[DefinitionT]] = plugin_type
         """
         The type of service plugin.
         """
@@ -116,13 +113,13 @@ class PluginServiceManager[
     @final
     def __get_init_plugins(
         self, owner: OwnerT, /
-    ) -> MutableSequence[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
+    ) -> MutableSequence[InitT | ResolvableDefinition[DefinitionT]]:
         return getattr(owner, f"_plugin_service_init_plugins_{self.ownership.name}")
 
     @final
     def get_init_plugins(
         self, owner: OwnerT, /
-    ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
+    ) -> Iterable[InitT | ResolvableDefinition[DefinitionT]]:
         """
         Get the initial plugins for the given service provider.
         """
@@ -133,7 +130,7 @@ class PluginServiceManager[
         self,
         owner: OwnerT,
         /,
-        *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
+        *plugins: InitT | ResolvableDefinition[DefinitionT],
     ) -> None:
         """
         Add one or more plugins to initialize.
@@ -146,7 +143,7 @@ class PluginServiceManager[
         self,
         owner: OwnerT,
         /,
-        *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
+        *plugins: InitT | ResolvableDefinition[DefinitionT],
     ) -> None:
         """
         Initialize the plugins.
@@ -161,8 +158,8 @@ class PluginServiceManager[
         self,
         owner: OwnerT,
         /,
-        *plugins: InitT | ResolvablePluginDefinition[PluginDefinitionT],
-    ) -> Iterable[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
+        *plugins: InitT | ResolvableDefinition[DefinitionT],
+    ) -> Iterable[InitT | ResolvableDefinition[DefinitionT]]:
         """
         Prepare the init plugins before the service is initialized.
 
@@ -176,7 +173,7 @@ class PluginServiceManager[
     @final
     def get_plugins(
         self, owner: OwnerT, /
-    ) -> Sequence[InitT | ResolvablePluginDefinition[PluginDefinitionT]]:
+    ) -> Sequence[InitT | ResolvableDefinition[DefinitionT]]:
         """
         Get the initialized plugins.
         """
@@ -189,13 +186,13 @@ class PluginServiceManager[
         Create the new service value for the given service provider.
         """
 
+    @abstractmethod
     def resolve_init_plugin_id(
-        self, plugin: InitT | ResolvablePluginDefinition[PluginDefinitionT], /
+        self, plugin: InitT | ResolvableDefinition[DefinitionT], /
     ) -> MachineName:
         """
         Resolve a service plugin definition to its plugin ID.
         """
-        return resolve_plugin_id(plugin)
 
 
 class HasPluginServices(HasProps, ManagedLifeCycle):
@@ -212,10 +209,7 @@ class HasPluginServices(HasProps, ManagedLifeCycle):
         super().__init__(*args, **kwargs)
         self._services = resolve_service_level(self)
         self._supported_plugins: Sequence[PluginDefinition] = tuple(
-            map(
-                resolve_plugin_definition,
-                supported_plugins,  # ty:ignore[invalid-argument-type]
-            )
+            map(resolve_definition, supported_plugins)
         )
         self._plugin_services: Sequence[
             PluginServiceManager[

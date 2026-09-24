@@ -39,7 +39,7 @@ class TestSequenceDefinition:
     def test_porter__load__with_item_without_porter(self) -> None:
         sut = SequenceDefinition[Sequence[str], str](
             manufacturer=lambda values: list(values) if values else [],
-            value=DataDefinition(cls=str, label="-"),
+            value=DataDefinition(label="-"),
             label="-",
         )
         with pytest.raises(NotPortable):
@@ -64,7 +64,7 @@ class TestSequenceDefinition:
     def test_porter__dump__with_item_without_porter(self) -> None:
         sut = SequenceDefinition[Sequence[str], str](
             manufacturer=lambda values: list(values) if values else [],
-            value=DataDefinition(cls=str, label="-"),
+            value=DataDefinition(label="-"),
             label="-",
         )
         with pytest.raises(NotPortable):
@@ -75,7 +75,7 @@ class TestMutableSequenceDefinition:
     def test_clear(self) -> None:
         data = ["foo", "bar"]
         MutableSequenceDefinition[MutableSequence[str], str](
-            value=DataDefinition(cls=str, label="-"), label="-"
+            value=DataDefinition(label="-"), label="-"
         ).clear(data)
         assert not data
 
@@ -94,6 +94,6 @@ class TestMutableSequenceDefinition:
         values: Iterable[str],
     ) -> None:
         MutableSequenceDefinition[MutableSequence[str], str](
-            value=DataDefinition(cls=str, label="-"), label="-"
+            value=DataDefinition(label="-"), label="-"
         ).replace(data, values)
         assert data == expected

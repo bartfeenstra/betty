@@ -69,8 +69,12 @@ async def test_private(assert_template_file: AssertTemplateFile) -> None:
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert individual_name not in actual
-        assert birth.event_type.plugin().label.localize(default_localizer) not in actual
-        assert death.event_type.plugin().label.localize(default_localizer) not in actual
+        assert (
+            birth.event_type.definition.label.localize(default_localizer) not in actual
+        )
+        assert (
+            death.event_type.definition.label.localize(default_localizer) not in actual
+        )
         assert "#reference" not in actual
 
 
@@ -133,7 +137,7 @@ async def test_with_birh_indicator(assert_template_file: AssertTemplateFile) -> 
         assets={raspberry_mint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
-        assert birth.event_type.plugin().label.localize(default_localizer) in actual
+        assert birth.event_type.definition.label.localize(default_localizer) in actual
         assert "#reference" in actual
 
 
@@ -149,7 +153,7 @@ async def test_with_death_indicator(assert_template_file: AssertTemplateFile) ->
         assets={raspberry_mint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
-        assert death.event_type.plugin().label.localize(default_localizer) in actual
+        assert death.event_type.definition.label.localize(default_localizer) in actual
         assert "#reference" in actual
 
 
@@ -162,4 +166,4 @@ async def test_with_gender(assert_template_file: AssertTemplateFile) -> None:
         assets={raspberry_mint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
-        assert NonBinary.plugin().label.localize(default_localizer) in actual
+        assert NonBinary.definition.label.localize(default_localizer) in actual

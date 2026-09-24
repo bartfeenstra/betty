@@ -184,7 +184,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
                 @override
                 @property
                 def summary(self) -> Localizable:
-                    return self.plugin().label
+                    return self.definition.label
 
                 @override
                 @property
@@ -196,7 +196,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
                 def url(self) -> Localizable | None:
                     return Plain(url)
 
-            return _SpdxLicense.plugin()
+            return _SpdxLicense.definition
 
     @classmethod
     def _extract_licenses(

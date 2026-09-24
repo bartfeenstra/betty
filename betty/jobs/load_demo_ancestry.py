@@ -77,7 +77,9 @@ class LoadDemoAncestry(Job):
                 return
 
             try:
-                streetmix_files = streetmix_files_per_gender[person.gender.plugin().id]
+                streetmix_files = streetmix_files_per_gender[
+                    person.gender.definition.id
+                ]
             except KeyError:
                 streetmix_files = fallback_streetmix_files
             streetmix_file = choice(streetmix_files)
@@ -538,6 +540,6 @@ class LoadDemoAncestry(Job):
             self._project.ancestry.add(file)
 
         return {
-            Woman.plugin().id: feminine + androgynous,
-            Man.plugin().id: masculine + androgynous,
+            Woman.definition.id: feminine + androgynous,
+            Man.definition.id: masculine + androgynous,
         }, androgynous

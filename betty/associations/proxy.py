@@ -24,10 +24,10 @@ class ProxyAssociation[
     AssociateT: Entity,
     GetT = Any,
     SetT = Any,
-    DataDefinitionT: DataDefinition = DataDefinition,
+    DefinitionT: DataDefinition = DataDefinition,
 ](
-    ProxyAttr[HasAssociations, GetT, SetT, DataDefinitionT],
-    Association[AssociateT, GetT, SetT, DataDefinitionT],
+    ProxyAttr[HasAssociations, GetT, SetT, DefinitionT],
+    Association[AssociateT, GetT, SetT, DefinitionT],
 ):
     """
     An association that proxies to another association.
@@ -35,11 +35,11 @@ class ProxyAssociation[
 
     def __init__(
         self,
-        field: FieldDefinition[HasAssociations, GetT, DataDefinitionT]
-        | ResolvableDataDefinition[DataDefinitionT]
+        field: FieldDefinition[HasAssociations, GetT, DefinitionT]
+        | ResolvableDataDefinition[DefinitionT]
         | None = None,
         *args: Any,
-        proxied: Association[AssociateT, GetT, SetT, DataDefinitionT],
+        proxied: Association[AssociateT, GetT, SetT, DefinitionT],
         **kwargs: Any,
     ):
         super().__init__(

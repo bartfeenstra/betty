@@ -5,7 +5,7 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 from __future__ import annotations
 
 from email.message import EmailMessage
-from typing import TYPE_CHECKING, Final, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
@@ -186,17 +186,17 @@ class MediaTypeDefinition(HumanFacingDefinition, OrderedPluginDefinition):
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        media_type_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         media_type: MediaType,
-        after: Order[MediaTypeDefinition] = (),
+        after: Order[Self] = (),
         auto: bool = True,
-        before: Order[MediaTypeDefinition] = (),
+        before: Order[Self] = (),
     ):
         super().__init__(
-            plugin_id,
+            media_type_id,
             after=after,
             auto=auto,
             before=before,

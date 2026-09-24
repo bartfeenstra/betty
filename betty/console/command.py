@@ -8,10 +8,11 @@ from abc import abstractmethod
 from collections.abc import Awaitable, Callable, Iterable, Sequence
 from typing import TYPE_CHECKING, Final, final
 
+from betty.definition import HasDefinition
+from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
     import argparse
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
 type CommandFunction = Callable[..., Awaitable[None]]
 
 
-class Command(Plugin["CommandDefinition"]):
+class Command(HasDefinition["CommandDefinition"]):
     """
     A console command plugin.
     """
@@ -45,14 +46,16 @@ class Command(Plugin["CommandDefinition"]):
     label_plural=_("Commands"),
     label_countable=ngettext("{count} command", "{count} commands"),
 )
-class CommandDefinition(HumanFacingDefinition, PluginClsDefinition[Command]):
+class CommandDefinition(
+    HumanFacingDefinition, ClsDefinition[Command], PluginDefinition
+):
     """
     .. plugin_type:: command.
     """
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        command_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         aliases: Iterable[str] = (),
@@ -60,7 +63,7 @@ class CommandDefinition(HumanFacingDefinition, PluginClsDefinition[Command]):
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id, label=label, description=description, requires=requires
+            command_id, label=label, description=description, requires=requires
         )
         self.aliases: Final[Sequence[str]] = tuple(aliases)
         """

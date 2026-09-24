@@ -9,14 +9,14 @@ class EnumDefinitionTestEnum(Enum):
 
 class TestEnumDefinition:
     def test_load(self) -> None:
-        sut = EnumDefinition(cls=EnumDefinitionTestEnum, label="-")
+        sut = EnumDefinition(EnumDefinitionTestEnum, label="-")
         assert (
             sut.porter.load(EnumDefinitionTestEnum.HELLO_WORLD.value)
             is EnumDefinitionTestEnum.HELLO_WORLD
         )
 
     def test_dump(self) -> None:
-        sut = EnumDefinition(cls=EnumDefinitionTestEnum, label="-")
+        sut = EnumDefinition(EnumDefinitionTestEnum, label="-")
         assert (
             sut.porter.dump(EnumDefinitionTestEnum.HELLO_WORLD)
             == EnumDefinitionTestEnum.HELLO_WORLD.value

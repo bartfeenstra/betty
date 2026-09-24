@@ -23,12 +23,12 @@ class Streetmix(CopyrightNotice):
     @override
     @property
     def summary(self) -> Localizable:
-        return self.plugin().label
+        return self.definition.label
 
     @override
     @property
     def text(self) -> Localizable:
-        return self.plugin().label
+        return self.definition.label
 
     @override
     @property

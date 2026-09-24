@@ -93,7 +93,7 @@ class About(Manufacturable, Command):
         about_plugins.add_column(user.localizer.translate._("Label"))
         for plugin_manager in sorted(
             services.plugins,
-            key=lambda plugin_type: plugin_type.type.type().label.localize(
+            key=lambda plugin_type: plugin_type.type.definition.label.localize(
                 user.localizer
             ),
         ):
@@ -101,7 +101,7 @@ class About(Manufacturable, Command):
                 sorted([x async for x in plugin_manager], key=lambda plugin: plugin.id)
             ):
                 first_column = (
-                    plugin_manager.type.type().label.localize(user.localizer)
+                    plugin_manager.type.definition.label.localize(user.localizer)
                     if index == 0
                     else ""
                 )

@@ -2,8 +2,9 @@ from collections.abc import Iterable, Sequence
 from typing import ClassVar, override
 
 from betty.app import App
+from betty.definition import ResolvableDefinition
+from betty.definition.id import resolve_id
 from betty.machine_name import MachineName
-from betty.plugin.resolve import ResolvablePluginDefinition
 from betty.service import Service
 from betty.service_level import HasServiceLevel, ServiceLevel
 from betty.services.plugin import (
@@ -139,8 +140,8 @@ class TestHasPluginServices:
 
             def __init__(
                 self,
-                plugins: Iterable[ResolvablePluginDefinition[DummyPluginDefinition]],
-                init_plugin: ResolvablePluginDefinition[DummyPluginDefinition],
+                plugins: Iterable[ResolvableDefinition[DummyPluginDefinition]],
+                init_plugin: ResolvableDefinition[DummyPluginDefinition],
             ):
                 super().__init__(
                     services=ServiceLevel(plugins={DummyPluginDefinition: plugins})
@@ -196,7 +197,7 @@ class _PluginServiceManagerTestSut(
         ResolvableServiceLevelHasPluginServices,
         DummyPluginDefinition,
         Sequence[MachineName],
-        ResolvablePluginDefinition[DummyPluginDefinition] | DummyPluginManufacturer,
+        ResolvableDefinition[DummyPluginDefinition] | DummyPluginManufacturer,
     ]
 ):
     def __init__(self, *, auto: bool = True):
@@ -208,11 +209,21 @@ class _PluginServiceManagerTestSut(
     ) -> Sequence[MachineName]:
         raise Unreachable
 
+    @override
+    def resolve_init_plugin_id(
+        self,
+        plugin: ResolvableDefinition[DummyPluginDefinition] | DummyPluginManufacturer,
+        /,
+    ) -> MachineName:
+        if isinstance(plugin, DummyPluginManufacturer):
+            return plugin.plugin_id
+        return resolve_id(plugin)
+
 
 class _PluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):
     my_first_service = _PluginServiceManagerTestSut()
 
-    def __init__(self, *plugins: ResolvablePluginDefinition[DummyPluginDefinition]):
+    def __init__(self, *plugins: ResolvableDefinition[DummyPluginDefinition]):
         super().__init__(services=ServiceLevel())
         type(self).my_first_service.add_init_plugins(self, *plugins)
 
@@ -220,12 +231,15 @@ class _PluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):
 class TestPluginServiceManager:
     def test_add_init_plugins(self) -> None:
         owner = _PluginServiceManagerTestOwner(
-            DummyPluginOne.plugin(), DummyPluginTwo.plugin()
+            DummyPluginOne.definition, DummyPluginTwo.definition
         )
         init_plugins = _PluginServiceManagerTestOwner.my_first_service.get_init_plugins(
             owner
         )
-        assert tuple(init_plugins) == (DummyPluginOne.plugin(), DummyPluginTwo.plugin())
+        assert tuple(init_plugins) == (
+            DummyPluginOne.definition,
+            DummyPluginTwo.definition,
+        )
 
     def test_auto__without_auto(self) -> None:
         sut = _PluginServiceManagerTestSut(auto=False)
@@ -299,22 +313,22 @@ class TestPluginServiceManager:
             await _PluginServiceManagerTestSut().prepare_plugins(
                 _PluginServiceManagerTestOwner(),
                 DummyPluginOne,
-                DummyPluginOne.plugin(),
-                DummyPluginTwo.plugin(),
+                DummyPluginOne.definition,
+                DummyPluginTwo.definition,
                 DummyPluginOne,
             )
-        ) == [DummyPluginOne, DummyPluginTwo.plugin()]
+        ) == [DummyPluginOne, DummyPluginTwo.definition]
 
     def test_resolve_init_plugin_id__with_plugin_class(self) -> None:
         assert (
             _PluginServiceManagerTestSut().resolve_init_plugin_id(DummyPluginOne)
-            == DummyPluginOne.plugin().id
+            == DummyPluginOne.definition.id
         )
 
     def test_resolve_init_plugin_id__with_plugin_definition(self) -> None:
         assert (
             _PluginServiceManagerTestSut().resolve_init_plugin_id(
-                DummyPluginOne.plugin()
+                DummyPluginOne.definition
             )
-            == DummyPluginOne.plugin().id
+            == DummyPluginOne.definition.id
         )

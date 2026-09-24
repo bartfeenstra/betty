@@ -35,6 +35,6 @@ class EntityUrlGenerator(_EntityUrlGenerator[Entity]):
     @override
     def _pattern_data(self, entity: Entity, /) -> Mapping[str, str]:
         return {
-            "entity_type": camel_case_to_kebab_case(entity.plugin().id),
+            "entity_type": camel_case_to_kebab_case(entity.definition.id),
             "entity_id": entity.id,
         }

@@ -38,7 +38,7 @@ class PopulateWikiEntity(Job):
         """
         Get the job ID.
         """
-        return f"wiki:populate:{entity.plugin().id}:{entity.id}"
+        return f"wiki:populate:{entity.definition.id}:{entity.id}"
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:

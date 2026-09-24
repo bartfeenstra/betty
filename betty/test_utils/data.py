@@ -10,12 +10,11 @@ import pytest
 
 from betty.attrs.owner import OwnerAttr
 from betty.data import Data
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.importlib import fully_qualified_name
 from betty.localizables.plain import Plain
 from betty.localizer import default_localizer
-from betty.prop import HasProps
 
 
 class DataTestBase[DataT: Data]:
@@ -27,12 +26,6 @@ class DataTestBase[DataT: Data]:
     """
     The system under test.
     """
-
-    def test_data(self) -> None:
-        """
-        Tests :py:meth:`betty.data.Data.data` implementations.
-        """
-        self.sut_cls.data()
 
     def test_cls_docstring(self) -> None:
         """
@@ -49,7 +42,7 @@ class DataTestBase[DataT: Data]:
         """
         Tests that the data definition provides at least one sample.
         """
-        assert list(self.sut_cls.data().samples), (
+        assert list(self.sut_cls.definition.samples), (
             "Failed asserting that at least one sample is provided"
         )
 
@@ -57,11 +50,11 @@ class DataTestBase[DataT: Data]:
         """
         Tests that the data definition can consistently dump and load its samples.
         """
-        samples = list(self.sut_cls.data().samples)
-        porter = self.sut_cls.data().porter
+        samples = list(self.sut_cls.definition.samples)
+        porter = self.sut_cls.definition.porter
         for sample in samples:
             with subtests.test(str(sample.label.localize(default_localizer))):
-                portable = self.sut_cls.data().porter.dump(sample.subject)
+                portable = self.sut_cls.definition.porter.dump(sample.subject)
                 loaded = porter.load(portable)
                 dumped = porter.dump(loaded)
                 assert porter.dump(loaded) == dumped, (
@@ -94,7 +87,7 @@ class DataTestBase[DataT: Data]:
         """
         Tests :py:meth:`object.__eq__` implementations with values that do not subclass :py:class:`betty.data.Data`.
         """
-        samples = list(self.sut_cls.data().samples)
+        samples = list(self.sut_cls.definition.samples)
         for sample in samples:
             with subtests.test(str(sample.label.localize(default_localizer))):
                 assert sample.subject != other
@@ -103,7 +96,7 @@ class DataTestBase[DataT: Data]:
         """
         Tests :py:meth:`object.__eq__` implementations with the data definition's samples.
         """
-        samples = list(self.sut_cls.data().samples)
+        samples = list(self.sut_cls.definition.samples)
         for sample in samples:
             with subtests.test(str(sample.label.localize(default_localizer))):
                 assert sample.subject == sample.subject, (
@@ -118,7 +111,7 @@ class DataTestBase[DataT: Data]:
 
 
 @ObjectDefinition(label=Plain("Dummy data"))
-class DummyData(Data, HasProps):
+class DummyData(Object):
     """
     A dummy :py:class:`betty.data.Data` implementation.
     """

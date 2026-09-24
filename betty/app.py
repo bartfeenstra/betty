@@ -17,8 +17,7 @@ from betty import about
 from betty.asyncio import ResolvableAwaitable, resolve_await
 from betty.attrs.locale import new_locale_attr
 from betty.collections import _empty_frozen_mapping
-from betty.data import Data
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
 from betty.gettext import TranslationsRepository
 from betty.http_client import ClientErrorToUserMessageMiddleware
@@ -30,7 +29,6 @@ from betty.localizer import LocalizerRepository
 from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
-from betty.prop import HasProps
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.rich.user import RichUser
 from betty.sample import Sample, Samples, Size
@@ -57,8 +55,8 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.asset import AssetDirectoryDefinition
+    from betty.definition import ResolvableDefinition
     from betty.pathlib import StrPath
-    from betty.plugin.resolve import ResolvablePluginDefinition
     from betty.service_level import Plugins
     from betty.services.plugin import SupportedPlugins
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
@@ -91,14 +89,14 @@ class App(RequirableServiceLevel, HasPluginServices):
         binary_file_cache: TypedSynchronousServiceOrFactory[
             App, TransientBinaryFileStore
         ],
-        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
+        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
-        media_types: Iterable[ResolvablePluginDefinition[MediaTypeDefinition]] = (),
+        media_types: Iterable[ResolvableDefinition[MediaTypeDefinition]] = (),
         plugins: Plugins = _empty_frozen_mapping,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         rate_limits: Iterable[RateLimitDefinition] = (),
-        serializers: Iterable[ResolvablePluginDefinition[SerializerDefinition]] = (),
+        serializers: Iterable[ResolvableDefinition[SerializerDefinition]] = (),
         supported_plugins: SupportedPlugins = (),
         user: User | Callable[[App], ResolvableAwaitable[User]] | None = None,
     ):
@@ -157,7 +155,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         Create a new application from the environment.
         """
         if AppData.FILE.exists():
-            data = AppData.data().porter.load(
+            data = AppData.definition.porter.load(
                 assert_load_file(serializers=[Json()])(AppData.FILE),
             )
             locale = data.locale
@@ -283,7 +281,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         lambda: Sample(AppData(locale=default_locale), label="Full", size=Size.FULL),
     ),
 )
-class AppData(Data, HasProps):
+class AppData(Object):
     """
     Configuration for :py:class:`betty.app.App`.
 

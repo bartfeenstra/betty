@@ -23,13 +23,13 @@ class EnumDefinition[EnumT: Enum](DataDefinition[EnumT]):
 
     def __init__(
         self,
-        *,
         cls: type[EnumT],
+        /,
+        *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            cls=cls,
             label=label,
             description=description,
             porter=CallbackPorter(assert_enum(cls), lambda enum: enum.value),

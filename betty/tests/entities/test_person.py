@@ -202,7 +202,7 @@ class TestPerson(EntityTestBase):
             "@type": "https://schema.org/Person",
             "id": "my-first-person",
             "privacy": False,
-            "gender": UnknownGender.plugin().id,
+            "gender": UnknownGender.definition.id,
             "names": [],
             "parents": [],
             "children": [],
@@ -274,7 +274,7 @@ class TestPerson(EntityTestBase):
             "@type": "https://schema.org/Person",
             "id": "my-first-person",
             "privacy": False,
-            "gender": NonBinary.plugin().id,
+            "gender": NonBinary.definition.id,
             "names": [
                 "/person-name/my-first-person-name/index.json",
             ],

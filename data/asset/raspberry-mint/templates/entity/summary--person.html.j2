@@ -5,8 +5,8 @@
     {%- if entity.private -%}
         <p>{%- trans -%}This information is unavailable to protect people's privacy.{%- endtrans -%}</p>
     {%- else -%}
-        {% if entity.gender.plugin().id != 'unknown' %}
-            <p class="m-0">{{ entity.gender.plugin().label | localize | html_lang }}</p>
+        {% if entity.gender.definition.id != 'unknown' %}
+            <p class="m-0">{{ entity.gender.definition.label | localize | html_lang }}</p>
         {% endif %}
         {% set alternative_names = (entity.names | selectattr('public') | list)[1:] %}
         {%- if alternative_names -%}
@@ -21,7 +21,7 @@
         {% set events = entity.presences | selectattr('role', 'role_plugin', 'subject') | map(attribute='event') | reject('none') | selectattr('public') | list %}
         {% set ns = namespace(birth_indicators=[]) %}
         {% for event in events %}
-            {% if event.event_type.plugin().id == 'birth' %}
+            {% if event.event_type.definition.id == 'birth' %}
                 {% do ns.birth_indicators.append(event) %}
             {% endif %}
         {% endfor %}
@@ -35,7 +35,7 @@
         {%- endif -%}
         {% set ns = namespace(death_indicators=[]) %}
         {% for event in events %}
-            {% if event.event_type.plugin().id == 'death' %}
+            {% if event.event_type.definition.id == 'death' %}
                 {% do ns.death_indicators.append(event) %}
             {% endif %}
         {% endfor %}
@@ -60,7 +60,7 @@
                 {%- if formatted_start is defined and formatted_start -%}
                     <div class="d-table-row">
                         <dt class="d-table-cell pe-2">
-                            {{ birth_indicator.event_type.plugin().label | localize | html_lang }}
+                            {{ birth_indicator.event_type.definition.label | localize | html_lang }}
                         </dt>
                         <dd class="d-table-cell">
                             {{ formatted_start }}
@@ -70,7 +70,7 @@
                 {%- if formatted_end is defined and formatted_end -%}
                     <div class="d-table-row">
                         <dt class="d-table-cell pe-2">
-                            {{ death_indicator.event_type.plugin().label | localize | html_lang }}
+                            {{ death_indicator.event_type.definition.label | localize | html_lang }}
                         </dt>
                         <dd class="d-table-cell">
                             {{ formatted_end }}

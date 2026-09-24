@@ -15,8 +15,8 @@ from betty.data import (
     ResolvableDataSamples,
     resolve_data_definition,
 )
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.indicator.operator import Attr, Key
-from betty.localizable import resolve_localizable
 from betty.portable.error import NotPortable
 
 if TYPE_CHECKING:
@@ -24,10 +24,8 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
-    from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.portable import OptionalPortableData, PortableData
-    from betty.sample import Sample as Sample
-    from betty.sample import Samples as Samples
 
 type FieldOperator = Attr | Key
 
@@ -56,7 +54,9 @@ type ResolvableFieldPorter[OwnerT, DataT] = (
 
 
 @final
-class FieldDefinition[OwnerT, DataT, DataDefinitionT: DataDefinition = DataDefinition]:
+class FieldDefinition[OwnerT, DataT, DefinitionT: DataDefinition = DataDefinition](
+    HumanFacingDefinition
+):
     """
     A record field definition.
     """
@@ -64,7 +64,7 @@ class FieldDefinition[OwnerT, DataT, DataDefinitionT: DataDefinition = DataDefin
     def __init__(
         self,
         data: ResolvableDataDefinition[
-            Intersection[DataDefinitionT, DataDefinition[DataT]]
+            Intersection[DefinitionT, DataDefinition[DataT]]
         ],
         *,
         label: ResolvableLocalizable | None = None,
@@ -74,26 +74,15 @@ class FieldDefinition[OwnerT, DataT, DataDefinitionT: DataDefinition = DataDefin
     ):
         from betty.porters.porter_field import PorterFieldPorter
 
-        self.data: Final[DataDefinitionT] = resolve_data_definition(data)
+        self.data: Final[DefinitionT] = resolve_data_definition(data)
         """
         The field's data definition.
         """
 
-        self.label: Final[Localizable] = (
-            self.data.label if label is None else resolve_localizable(label)
+        super().__init__(
+            label=label or self.data.label,
+            description=description or self.data.description,
         )
-        """
-        The human-readable field label.
-        """
-
-        self.description: Final[Localizable | None] = (
-            self.data.description
-            if description is None
-            else resolve_localizable(description)
-        )
-        """
-        The human-readable long field description.
-        """
 
         self.optional: Final[bool] = optional
         """
@@ -127,16 +116,13 @@ class FieldDefinition[OwnerT, DataT, DataDefinitionT: DataDefinition = DataDefin
 type ResolvableFieldDefinition[
     OwnerT,
     DataT,
-    DataDefinitionT: DataDefinition = DataDefinition,
-] = (
-    FieldDefinition[OwnerT, DataT, DataDefinitionT]
-    | ResolvableDataDefinition[DataDefinitionT]
-)
+    DefinitionT: DataDefinition = DataDefinition,
+] = FieldDefinition[OwnerT, DataT, DefinitionT] | ResolvableDataDefinition[DefinitionT]
 
 
-def resolve_field_definition[OwnerT, DataT, DataDefinitionT: DataDefinition](
-    field: ResolvableFieldDefinition[OwnerT, DataT, DataDefinitionT],
-) -> FieldDefinition[OwnerT, DataT, DataDefinitionT]:
+def resolve_field_definition[OwnerT, DataT, DefinitionT: DataDefinition](
+    field: ResolvableFieldDefinition[OwnerT, DataT, DefinitionT],
+) -> FieldDefinition[OwnerT, DataT, DefinitionT]:
     """
     Resolve a value to a field definition.
     """
@@ -163,7 +149,6 @@ class RecordDefinition[DataT, OperatorT: FieldOperator](DataDefinition[DataT]):
     def __init__(
         self,
         *args: Any,
-        cls: type[DataT] | None = None,
         label: ResolvableLocalizable,
         fields: Mapping[
             OperatorT, ResolvableFieldDefinition[DataT, Any]
@@ -184,7 +169,6 @@ class RecordDefinition[DataT, OperatorT: FieldOperator](DataDefinition[DataT]):
 
         super().__init__(
             *args,
-            cls=cls,
             label=label,
             description=description,
             samples=samples,
@@ -197,7 +181,7 @@ class RecordDefinition[DataT, OperatorT: FieldOperator](DataDefinition[DataT]):
         """
         Create a new record.
         """
-        manufacturer = self.__manufacturer or self.cls
+        manufacturer = self.__manufacturer or self._cls
         if not manufacturer:
             raise TypeError(
                 "This definition does not have a manufacturer. Either set a data class, or provide a manufacturer when initializing the definition."

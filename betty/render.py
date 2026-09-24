@@ -7,12 +7,13 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, final
 
+from betty.definition import HasDefinition
+from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.html import plain_text_to_html
 from betty.localizables.gettext import _, ngettext
 from betty.media_type import resolve_media_type
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class Renderer(Plugin["RendererDefinition"], metaclass=ABCMeta):
+class Renderer(HasDefinition["RendererDefinition"], metaclass=ABCMeta):
     """
     Render content in a different media type to HTML.
     """
@@ -47,14 +48,16 @@ class Renderer(Plugin["RendererDefinition"], metaclass=ABCMeta):
     label_plural=_("Renderers"),
     label_countable=ngettext("{count} renderer", "{count} renderers"),
 )
-class RendererDefinition(HumanFacingDefinition, PluginClsDefinition[Renderer]):
+class RendererDefinition(
+    HumanFacingDefinition, ClsDefinition[Renderer], PluginDefinition
+):
     """
     .. plugin_type:: renderer.
     """
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        renderer_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         auto: bool = True,
@@ -62,7 +65,7 @@ class RendererDefinition(HumanFacingDefinition, PluginClsDefinition[Renderer]):
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            renderer_id,
             auto=auto,
             label=label,
             description=description,

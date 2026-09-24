@@ -13,7 +13,7 @@ class TestEntityCard:
             entity = Person(id="my-first-entity")
             project.ancestry.add(entity)
             sut = await EntityCard.new(
-                project, EntityReference(entity.plugin(), entity.id)
+                project, EntityReference(entity.definition, entity.id)
             )
 
             provided_content = await sut.build(document=Document())

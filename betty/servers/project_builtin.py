@@ -9,7 +9,6 @@ from typing import Self, final, override
 
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
-from betty.plugin.cls import Plugin
 from betty.project import Project
 from betty.server import Server, ServerDefinition
 from betty.servers.builtin import BuiltinServer
@@ -26,7 +25,7 @@ from betty.servers.builtin import BuiltinServer
     after=lambda _: True,
     requires=[Project.require],
 )
-class ProjectBuiltinServer(Server, Manufacturable, Plugin[ServerDefinition]):
+class ProjectBuiltinServer(Server, Manufacturable):
     """
     .. plugin:: server:builtin.
     """

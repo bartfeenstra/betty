@@ -186,13 +186,13 @@ class Builder:
                     )
                 )
         await gather(*copies)
-        npm_project_package_json_dependencies[entry_point_provider.plugin().id] = (
+        npm_project_package_json_dependencies[entry_point_provider.definition.id] = (
             # Ensure a relative path inside the npm project directory, or else npm
             # will not install our entry points' dependencies.
             f"file:{entry_point_provider_working_directory.relative_to(npm_project_directory)}"
         )
         # Webpack requires relative paths to start with a leading dot and use forward slashes.
-        webpack_entry[entry_point_provider.plugin().id] = "/".join((
+        webpack_entry[entry_point_provider.definition.id] = "/".join((
             ".",
             *(entry_point_provider_working_directory / "main.ts")
             .relative_to(npm_project_directory)

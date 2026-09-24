@@ -150,7 +150,8 @@ class Deriver:
             if list(
                 filter(
                     lambda presence: (
-                        presence.event.event_type.plugin().id == derivable_event_type.id
+                        presence.event.event_type.definition.id
+                        == derivable_event_type.id
                     ),
                     person.presences,
                 )
@@ -217,7 +218,7 @@ class _DateDeriver(metaclass=ABCMeta):
             return False
 
         reference_events = _get_reference_events(
-            person, reference_event_types, derivable_event.event_type.plugin()
+            person, reference_event_types, derivable_event.event_type.definition
         )
         reference_events_dates: Iterable[tuple[Event, Date]] = filter(
             lambda x: x[1].comparable, cls._get_events_dates(reference_events)
@@ -354,7 +355,7 @@ def _get_derivable_events(
         event = presence.event
 
         # Ignore events of the wrong type.
-        if event.event_type.plugin().id != derivable_event_type.id:
+        if event.event_type.definition.id != derivable_event_type.id:
             continue
 
         # Ignore events with enough date information that nothing more can be derived.
@@ -382,7 +383,7 @@ def _get_reference_events(
             continue
 
         if isinstance(reference_event.date, DateRange):
-            if derivable_event_type.before(reference_event.event_type.plugin().id):
+            if derivable_event_type.before(reference_event.event_type.definition.id):
                 reference_date = reference_event.date.start
             else:
                 reference_date = reference_event.date.end
@@ -392,7 +393,7 @@ def _get_reference_events(
                 continue
 
         # Ignore reference events of the wrong type.
-        if reference_event.event_type.plugin().id not in reference_event_types:
+        if reference_event.event_type.definition.id not in reference_event_types:
             continue
 
         yield reference_event

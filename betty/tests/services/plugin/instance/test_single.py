@@ -26,7 +26,7 @@ class TestPluginInstanceService(PluginServiceManagerTestBase):
         "init_plugin",
         [
             DummyPluginWithLifeCycle,
-            DummyPluginWithLifeCycle.plugin(),
+            DummyPluginWithLifeCycle.definition,
             DummyPluginManufacturer(DummyPluginWithLifeCycle),
         ],
     )

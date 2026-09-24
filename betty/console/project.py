@@ -132,4 +132,4 @@ async def _read_project_configuration_file(
             ),
             Severity.INFO,
         )
-        return ProjectData.data().porter.load(portable), configuration_file
+        return ProjectData.definition.porter.load(portable), configuration_file

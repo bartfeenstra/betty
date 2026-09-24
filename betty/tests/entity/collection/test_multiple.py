@@ -39,7 +39,7 @@ class TestMultipleTypesEntityCollection(EntityCollectionTestBase[DummyEntityOne]
         sut_entities: Sequence[DummyEntityOne],
     ) -> None:
         sut.add(*sut_entities)
-        assert list(sut[DummyEntityOne.plugin().id]) == list(sut_entities)
+        assert list(sut[DummyEntityOne.definition.id]) == list(sut_entities)
 
     def test___delitem__(
         self,

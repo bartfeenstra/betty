@@ -24,7 +24,7 @@ async def new(
     Create a new project.
     """
     await dump_file(
-        configuration.data().porter.dump(configuration),
+        configuration.definition.porter.dump(configuration),
         configuration_file,
         serializers=await gather(*app.serializers),
     )

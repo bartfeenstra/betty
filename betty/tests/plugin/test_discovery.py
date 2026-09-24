@@ -47,17 +47,17 @@ def _new_static_discovery_async(
     ("expected", "discoveries"),
     [
         (set(), []),
-        ({DummyPluginOne.plugin()}, [DummyPluginOne]),
-        ({DummyPluginOne.plugin()}, [DummyPluginOne.plugin()]),
-        ({DummyPluginOne.plugin()}, [_new_static_discovery_sync(DummyPluginOne)]),
+        ({DummyPluginOne.definition}, [DummyPluginOne]),
+        ({DummyPluginOne.definition}, [DummyPluginOne.definition]),
+        ({DummyPluginOne.definition}, [_new_static_discovery_sync(DummyPluginOne)]),
         (
-            {DummyPluginOne.plugin()},
-            [_new_static_discovery_sync(DummyPluginOne.plugin())],
+            {DummyPluginOne.definition},
+            [_new_static_discovery_sync(DummyPluginOne.definition)],
         ),
-        ({DummyPluginOne.plugin()}, [_new_static_discovery_async(DummyPluginOne)]),
+        ({DummyPluginOne.definition}, [_new_static_discovery_async(DummyPluginOne)]),
         (
-            {DummyPluginOne.plugin()},
-            [_new_static_discovery_async(DummyPluginOne.plugin())],
+            {DummyPluginOne.definition},
+            [_new_static_discovery_async(DummyPluginOne.definition)],
         ),
     ],
 )
@@ -71,12 +71,14 @@ async def test_discover(
 class TestPluginDiscoverer:
     @pytest.fixture
     def entry_points(self, mocker: MockerFixture) -> Iterator[None]:
-        entry_point_group = kebab_case_to_snake_case(DummyPluginDefinition.type().id)
+        entry_point_group = kebab_case_to_snake_case(
+            DummyPluginDefinition.definition.id
+        )
         m_entry_points = mocker.patch(
             "importlib.metadata.entry_points",
             return_value=EntryPoints([
                 EntryPoint(
-                    name=DummyPluginOne.plugin().id,
+                    name=DummyPluginOne.definition.id,
                     value=fully_qualified_name(DummyPluginOne),
                     group=entry_point_group,
                 ),
@@ -91,11 +93,11 @@ class TestPluginDiscoverer:
 
     async def test___aiter____with_discovered_plugins(self, entry_points: None) -> None:
         sut = PluginDiscoverer(ServiceLevel(), DummyPluginDefinition)
-        assert DummyPluginOne.plugin() in [x async for x in aiter(sut)]
+        assert DummyPluginOne.definition in [x async for x in aiter(sut)]
 
     async def test___aiter____with_overridden_plugins(self) -> None:
         sut = PluginDiscoverer(ServiceLevel(), DummyPluginDefinition, [DummyPluginOne])
-        assert [x async for x in aiter(sut)] == [DummyPluginOne.plugin()]
+        assert [x async for x in aiter(sut)] == [DummyPluginOne.definition]
 
     async def test_get__with_plugin_not_found(self) -> None:
         sut = PluginDiscoverer(ServiceLevel(), DummyPluginDefinition, [])
@@ -104,15 +106,15 @@ class TestPluginDiscoverer:
 
     async def test_get__with_discovered_plugins(self, entry_points: None) -> None:
         sut = PluginDiscoverer(ServiceLevel(), DummyPluginDefinition)
-        assert await sut.get(DummyPluginOne.plugin().id) is DummyPluginOne.plugin()
+        assert await sut.get(DummyPluginOne.definition.id) is DummyPluginOne.definition
 
     async def test_get__with_overridden_plugin(self) -> None:
         sut = PluginDiscoverer(ServiceLevel(), DummyPluginDefinition, [DummyPluginOne])
-        assert await sut.get(DummyPluginOne.plugin().id) is DummyPluginOne.plugin()
+        assert await sut.get(DummyPluginOne.definition.id) is DummyPluginOne.definition
 
     async def test___getitem__(self, entry_points: None) -> None:
         sut = PluginDiscoverer(ServiceLevel(), DummyPluginDefinition)
-        assert await sut[DummyPluginOne.plugin().id] is DummyPluginOne.plugin()
+        assert await sut[DummyPluginOne.definition.id] is DummyPluginOne.definition
 
     async def test_ids__without_plugins(self) -> None:
         sut = PluginDiscoverer(ServiceLevel(), DummyPluginDefinition, [])
@@ -120,11 +122,11 @@ class TestPluginDiscoverer:
 
     async def test_ids__with_discovered_plugins(self, entry_points: None) -> None:
         sut = PluginDiscoverer(ServiceLevel(), DummyPluginDefinition)
-        assert DummyPluginOne.plugin().id in list(await sut.ids())
+        assert DummyPluginOne.definition.id in list(await sut.ids())
 
     async def test_ids__with_overridden_plugins(self) -> None:
         sut = PluginDiscoverer(ServiceLevel(), DummyPluginDefinition, [DummyPluginOne])
-        assert list(await sut.ids()) == [DummyPluginOne.plugin().id]
+        assert list(await sut.ids()) == [DummyPluginOne.definition.id]
 
     def test_type(self) -> None:
         sut = PluginDiscoverer(ServiceLevel(), DummyPluginDefinition)

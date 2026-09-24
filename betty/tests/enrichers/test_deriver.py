@@ -38,7 +38,7 @@ class TestDeriver:
             birth = next(
                 presence
                 for presence in person.presences
-                if presence.event.event_type.plugin().id == Birth.plugin().id
+                if presence.event.event_type.definition.id == Birth.definition.id
             )
             assert birth is not None
             assert birth.event is not None
@@ -49,7 +49,7 @@ class TestDeriver:
             end = next(
                 presence
                 for presence in person.presences
-                if presence.event.event_type.plugin().id == Death.plugin().id
+                if presence.event.event_type.definition.id == Death.definition.id
             )
             assert end is not None
             assert end.event is not None

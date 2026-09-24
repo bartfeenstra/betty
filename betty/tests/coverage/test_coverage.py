@@ -11,11 +11,8 @@ from typing import TYPE_CHECKING, Any, Final, Protocol, cast
 
 import pytest
 
-from betty.data import Data
 from betty.dirs import root_directory
 from betty.html.attributes import Attributes
-from betty.plugin import PluginDefinition
-from betty.plugin.cls import Plugin
 from betty.tests.coverage.fixtures import (
     _module_private,
     module_class_function_with_test,
@@ -215,6 +212,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/datas/aggregate/record/__init__.py": {
         "FieldPorter": MissingReason.ABSTRACT,
     },
+    "betty/datas/aggregate/record/object.py": {
+        "Object": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/datas/date.py": {
         "AnyDateDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
@@ -237,6 +237,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/definition/__init__.py": {
         "Definition": MissingReason.STATIC_CONTENT_ONLY,
+        "HasDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/deriver.py": {
         "Derivation": MissingReason.ENUM,
@@ -523,10 +524,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/cls.py": {
         "Plugin": MissingReason.ABSTRACT,
     },
-    "betty/plugin/data.py": {
-        "DataPlugin": MissingReason.ABSTRACT,
-        "DataPluginDefinition": MissingReason.ABSTRACT,
-    },
     "betty/plugin/error.py": {
         "PluginError": MissingReason.ABSTRACT,
     },
@@ -536,9 +533,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/collections/plugin/discoverer.py": {
         "PluginDiscovererCollection": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/plugin/ordered.py": {
-        "OrderedPluginClsDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/portable/__init__.py": {
         "KeyedPorter": MissingReason.ABSTRACT,
@@ -1098,20 +1092,6 @@ class _ModuleClassCoverageTester:
                 )
                 yield f"The source member {self._src_class.__module__}.{self._src_class.__name__}.{src_member_name}() has (a) matching test method(s) {formatted_test_members} in {test_class.__module__}.{test_class.__name__}, which was unexpectedly declared as known to be missing."
             return
-
-        for ignored_class, ignored_member_name in (
-            (Data, "data"),
-            (Plugin, "plugin"),
-            (PluginDefinition, "type"),
-        ):
-            assert hasattr(ignored_class, ignored_member_name)
-            if (
-                issubclass(self._src_class, ignored_class)
-                and src_member_name == ignored_member_name
-            ):
-                if ignore is not None:
-                    yield f"The source member {self._src_class.__module__}.{self._src_class.__name__}.{src_member_name}() is ignored automatically, but was also unexpectedly declared as known to be missing."
-                return
 
         if isinstance(ignore, MissingReason):
             return

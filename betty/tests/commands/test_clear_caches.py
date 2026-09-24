@@ -89,7 +89,7 @@ class TestClearCaches:
             await write(
                 project_directory / "betty.json",
                 dumps(
-                    ProjectData.data().porter.dump(
+                    ProjectData.definition.porter.dump(
                         ProjectData(title="Betty", url="https://example.com")
                     )
                 ),

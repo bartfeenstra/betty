@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from asyncio import to_thread
-from typing import TYPE_CHECKING, Final, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.concurrent import ThreadSafeLock
 from betty.localizables.gettext import _, ngettext
@@ -134,16 +134,16 @@ class AssetDirectoryDefinition(OrderedPluginDefinition):
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        asset_directory_id: ResolvableMachineName,
         *,
-        after: Order[AssetDirectoryDefinition] = (),
+        after: Order[Self] = (),
         assets: Path,
         auto: bool = False,
-        before: Order[AssetDirectoryDefinition] = (),
+        before: Order[Self] = (),
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            asset_directory_id,
             after=after,
             auto=auto,
             before=before,

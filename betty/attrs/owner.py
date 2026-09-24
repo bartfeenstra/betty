@@ -28,11 +28,11 @@ class __Owner[
     OwnerT: HasProps,
     GetT,
     SetT,
-    DataDefinitionT: DataDefinition = DataDefinition,
-](CommonAttr[OwnerT, GetT, SetT, DataDefinitionT]):
+    DefinitionT: DataDefinition = DataDefinition,
+](CommonAttr[OwnerT, GetT, SetT, DefinitionT]):
     def __init__(
         self,
-        field: ResolvableFieldDefinition[OwnerT, GetT, DataDefinitionT],
+        field: ResolvableFieldDefinition[OwnerT, GetT, DefinitionT],
         *args: Any,
         frozen: bool = False,
         **kwargs: Any,
@@ -61,17 +61,17 @@ class _Owner[
     OwnerT: HasProps,
     GetT,
     SetT,
-    DataDefinitionT: DataDefinition = DataDefinition,
+    DefinitionT: DataDefinition = DataDefinition,
 ](
-    __Owner[OwnerT, GetT, SetT, DataDefinitionT],
-    OptionableCommonAttr[OwnerT, GetT, SetT, DataDefinitionT],
+    __Owner[OwnerT, GetT, SetT, DefinitionT],
+    OptionableCommonAttr[OwnerT, GetT, SetT, DefinitionT],
 ):
     @final
     @override
     def default(
         self, default: Callable[[], SetT] | Callable[[OwnerT], SetT], /
-    ) -> OptionableCommonAttr[OwnerT, GetT, SetT, DataDefinitionT]:
-        return _Default[OwnerT, GetT, SetT, DataDefinitionT](self, default)
+    ) -> OptionableCommonAttr[OwnerT, GetT, SetT, DefinitionT]:
+        return _Default[OwnerT, GetT, SetT, DefinitionT](self, default)
 
     @final
     @override
@@ -79,8 +79,8 @@ class _Owner[
         self,
         setter: Callable[[SetterSetT], SetT] | Callable[[OwnerT, SetterSetT], SetT],
         /,
-    ) -> OptionableCommonAttr[OwnerT, GetT, SetterSetT, DataDefinitionT]:
-        return _Setter[OwnerT, GetT, SetterSetT, DataDefinitionT](setter, proxied=self)
+    ) -> OptionableCommonAttr[OwnerT, GetT, SetterSetT, DefinitionT]:
+        return _Setter[OwnerT, GetT, SetterSetT, DefinitionT](setter, proxied=self)
 
     @final
     @override
@@ -95,10 +95,10 @@ class _Default[
     OwnerT: HasProps,
     GetT,
     SetT,
-    DataDefinitionT: DataDefinition = DataDefinition,
+    DefinitionT: DataDefinition = DataDefinition,
 ](
-    DefaultAttr[OwnerT, GetT, SetT, DataDefinitionT],
-    _Owner[OwnerT, GetT, SetT, DataDefinitionT],
+    DefaultAttr[OwnerT, GetT, SetT, DefinitionT],
+    _Owner[OwnerT, GetT, SetT, DefinitionT],
 ):
     pass
 
@@ -114,18 +114,18 @@ class _Setter[
     OwnerT: HasProps,
     GetT,
     SetT,
-    DataDefinitionT: DataDefinition = DataDefinition,
+    DefinitionT: DataDefinition = DataDefinition,
 ](
     SetterProp[OwnerT, GetT, SetT],
-    ProxyAttr[OwnerT, GetT, SetT, DataDefinitionT],
-    _Owner[OwnerT, GetT, SetT, DataDefinitionT],
+    ProxyAttr[OwnerT, GetT, SetT, DefinitionT],
+    _Owner[OwnerT, GetT, SetT, DefinitionT],
 ):
     pass
 
 
 @final
-class OwnerAttr[OwnerT: HasProps, T, DataDefinitionT: DataDefinition = DataDefinition](
-    _Owner[OwnerT, T, T, DataDefinitionT]
+class OwnerAttr[OwnerT: HasProps, T, DefinitionT: DataDefinition = DataDefinition](
+    _Owner[OwnerT, T, T, DefinitionT]
 ):
     """
     An object attribute that stores its data on owner instances.
@@ -146,17 +146,17 @@ class _CollectionOwner[
     OwnerT: HasProps,
     GetT,
     SetT,
-    DataDefinitionT: DataDefinition = DataDefinition,
+    DefinitionT: DataDefinition = DataDefinition,
 ](
-    __Owner[OwnerT, GetT, SetT, DataDefinitionT],
-    CommonAttr[OwnerT, GetT, SetT, DataDefinitionT],
+    __Owner[OwnerT, GetT, SetT, DefinitionT],
+    CommonAttr[OwnerT, GetT, SetT, DefinitionT],
 ):
     @final
     @override
     def default(
         self, default: Callable[[], SetT] | Callable[[OwnerT], SetT], /
-    ) -> CommonAttr[OwnerT, GetT, SetT, DataDefinitionT]:
-        return _CollectionDefault[OwnerT, GetT, SetT, DataDefinitionT](self, default)
+    ) -> CommonAttr[OwnerT, GetT, SetT, DefinitionT]:
+        return _CollectionDefault[OwnerT, GetT, SetT, DefinitionT](self, default)
 
     @final
     @override
@@ -164,8 +164,8 @@ class _CollectionOwner[
         self,
         setter: Callable[[SetterSetT], SetT] | Callable[[OwnerT, SetterSetT], SetT],
         /,
-    ) -> CommonAttr[OwnerT, GetT, SetterSetT, DataDefinitionT]:
-        return _CollectionSetter[OwnerT, GetT, SetterSetT, DataDefinitionT](
+    ) -> CommonAttr[OwnerT, GetT, SetterSetT, DefinitionT]:
+        return _CollectionSetter[OwnerT, GetT, SetterSetT, DefinitionT](
             setter, proxied=self
         )
 
@@ -174,10 +174,10 @@ class _CollectionDefault[
     OwnerT: HasProps,
     GetT,
     SetT,
-    DataDefinitionT: DataDefinition = DataDefinition,
+    DefinitionT: DataDefinition = DataDefinition,
 ](
-    DefaultAttr[OwnerT, GetT, SetT, DataDefinitionT],
-    _CollectionOwner[OwnerT, GetT, SetT, DataDefinitionT],
+    DefaultAttr[OwnerT, GetT, SetT, DefinitionT],
+    _CollectionOwner[OwnerT, GetT, SetT, DefinitionT],
 ):
     pass
 
@@ -186,11 +186,11 @@ class _CollectionSetter[
     OwnerT: HasProps,
     GetT,
     SetT,
-    DataDefinitionT: DataDefinition = DataDefinition,
+    DefinitionT: DataDefinition = DataDefinition,
 ](
     SetterProp[OwnerT, GetT, SetT],
-    ProxyAttr[OwnerT, GetT, SetT, DataDefinitionT],
-    _CollectionOwner[OwnerT, GetT, SetT, DataDefinitionT],
+    ProxyAttr[OwnerT, GetT, SetT, DefinitionT],
+    _CollectionOwner[OwnerT, GetT, SetT, DefinitionT],
 ):
     pass
 
@@ -200,8 +200,8 @@ class CollectionOwnerAttr[
     OwnerT: HasProps,
     GetT: Collection[Any],
     SetT: Iterable,
-    DataDefinitionT: CollectionDefinition = CollectionDefinition,
-](_CollectionOwner[OwnerT, GetT, SetT, DataDefinitionT]):
+    DefinitionT: CollectionDefinition = CollectionDefinition,
+](_CollectionOwner[OwnerT, GetT, SetT, DefinitionT]):
     """
     An object attribute that stores its collection of data on owner instances.
     """

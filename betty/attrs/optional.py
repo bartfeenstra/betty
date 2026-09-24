@@ -63,8 +63,8 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
         self.set(owner, None)
 
 
-class OptionableAttr[OwnerT: HasProps, GetT, SetT, DataDefinitionT: DataDefinition](
-    Attr[OwnerT, GetT, SetT, DataDefinitionT]
+class OptionableAttr[OwnerT: HasProps, GetT, SetT, DefinitionT: DataDefinition](
+    Attr[OwnerT, GetT, SetT, DefinitionT]
 ):
     """
     An attribute that can be made optional.

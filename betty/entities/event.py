@@ -129,7 +129,7 @@ class Event(
             return self.name
 
         format_kwargs: Mapping[str, ResolvableLocalizable] = {
-            "event_type": self.event_type.plugin().label,
+            "event_type": self.event_type.definition.label,
         }
         subjects = [
             presence.person
@@ -155,7 +155,7 @@ class Event(
             )
         )
         portable["@type"] = "https://schema.org/Event"
-        portable["type"] = self.event_type.plugin().id
+        portable["type"] = self.event_type.definition.id
         portable["eventAttendanceMode"] = (
             "https://schema.org/OfflineEventAttendanceMode"
         )
@@ -178,7 +178,7 @@ class Event(
         schema.add_property(
             "type",
             PluginIdSchema(
-                EventTypeDefinition.type(),
+                EventTypeDefinition.definition,
                 [x async for x in project.plugins[EventTypeDefinition]],
             ),
         )

@@ -7,9 +7,10 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, final
 
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
+from betty.definition.cls import ClsDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.data import DataPlugin, DataPluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
     ManufacturablePlugin,
     PluginManufacturer,
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class CopyrightNotice(DataPlugin["CopyrightNoticeDefinition"]):
+class CopyrightNotice(Object["CopyrightNoticeDefinition"]):
     """
     A copyright notice.
 
@@ -59,21 +60,23 @@ class CopyrightNotice(DataPlugin["CopyrightNoticeDefinition"]):
     label_plural=_("Copyright notices"),
     label_countable=ngettext("{count} copyright notice", "{count} copyright notices"),
 )
-class CopyrightNoticeDefinition(DataPluginDefinition[CopyrightNotice]):
+class CopyrightNoticeDefinition(
+    ClsDefinition[CopyrightNotice], PluginDefinition, ObjectDefinition[CopyrightNotice]
+):
     """
     .. plugin_type:: copyright-notice.
     """
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        copyright_notice_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id, label=label, description=description, requires=requires
+            copyright_notice_id, label=label, description=description, requires=requires
         )
 
 

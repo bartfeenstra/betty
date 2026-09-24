@@ -7,16 +7,16 @@ class TestEntityAsReferenceDefinition:
         sut = EntityAsReferenceDefinition(label="-")
         loaded = sut.porter.load(
             {
-                "type": DummyEntityOne.plugin().id,
+                "type": DummyEntityOne.definition.id,
                 "id": "my-first-entity",
             },
         )
-        assert loaded.type == DummyEntityOne.plugin().id
+        assert loaded.type == DummyEntityOne.definition.id
         assert loaded.id == "my-first-entity"
 
     def test_porter_dump(self) -> None:
         sut = EntityAsReferenceDefinition(label="-")
         assert sut.porter.dump(DummyEntityOne(id="my-first-entity")) == {
-            "type": DummyEntityOne.plugin().id,
+            "type": DummyEntityOne.definition.id,
             "id": "my-first-entity",
         }

@@ -6,15 +6,15 @@ class TestEntityAsReferencePorter:
     def test_load(self) -> None:
         sut = EntityAsReferencePorter()
         loaded = sut.load({
-            "type": DummyEntityOne.plugin().id,
+            "type": DummyEntityOne.definition.id,
             "id": "my-first-entity",
         })
-        assert loaded.type == DummyEntityOne.plugin().id
+        assert loaded.type == DummyEntityOne.definition.id
         assert loaded.id == "my-first-entity"
 
     def test_dump(self) -> None:
         sut = EntityAsReferencePorter()
         assert sut.dump(DummyEntityOne(id="my-first-entity")) == {
-            "type": DummyEntityOne.plugin().id,
+            "type": DummyEntityOne.definition.id,
             "id": "my-first-entity",
         }

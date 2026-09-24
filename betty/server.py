@@ -11,17 +11,19 @@ from http.client import HTTPConnection
 from typing import TYPE_CHECKING, Any, Self, final
 from urllib.parse import urlsplit
 
+from betty.definition import HasDefinition
+from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.exception import HumanFacingException
 from betty.functools import Do
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
     ManufacturablePlugin,
     PluginManufacturer,
     PluginManufacturerDefinition,
 )
-from betty.plugin.ordered import Order, OrderedPluginClsDefinition
+from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.user import Severity
 
 if TYPE_CHECKING:
@@ -39,7 +41,7 @@ class ServerNotStarted(RuntimeError):
     """
 
 
-class Server(metaclass=ABCMeta):
+class Server(HasDefinition["ServerDefinition"], metaclass=ABCMeta):
     """
     A web server.
     """
@@ -129,7 +131,12 @@ class Server(metaclass=ABCMeta):
     label_plural=_("Servers"),
     label_countable=ngettext("{count} server", "{count} servers"),
 )
-class ServerDefinition(HumanFacingDefinition, OrderedPluginClsDefinition[Server]):
+class ServerDefinition(
+    HumanFacingDefinition,
+    OrderedPluginDefinition,
+    ClsDefinition[Server],
+    PluginDefinition,
+):
     """
     .. plugin_type:: server.
 
@@ -138,17 +145,17 @@ class ServerDefinition(HumanFacingDefinition, OrderedPluginClsDefinition[Server]
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        server_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
-        after: Order[ServerDefinition] = (),
+        after: Order[Self] = (),
         auto: bool = False,
-        before: Order[ServerDefinition] = (),
+        before: Order[Self] = (),
         description: ResolvableLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            server_id,
             after=after,
             auto=auto,
             before=before,

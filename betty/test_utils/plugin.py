@@ -6,9 +6,10 @@ from __future__ import annotations
 
 from typing import final
 
+from betty.definition import HasDefinition
+from betty.definition.cls import ClsDefinition
 from betty.life_cycle import LifeCycle
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
     ManufacturablePlugin,
     PluginManufacturer,
@@ -17,7 +18,7 @@ from betty.plugin.factory import (
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 
-class DummyPlugin(Plugin["DummyPluginDefinition"]):
+class DummyPlugin(HasDefinition["DummyPluginDefinition"]):
     """
     A dummy plugin.
     """
@@ -30,7 +31,7 @@ class DummyPlugin(Plugin["DummyPluginDefinition"]):
     label_plural="dummy plugin",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
-class DummyPluginDefinition(PluginClsDefinition[DummyPlugin]):
+class DummyPluginDefinition(ClsDefinition[DummyPlugin], PluginDefinition):
     """
     A definition of a dummy plugin.
     """

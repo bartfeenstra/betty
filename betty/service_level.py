@@ -11,8 +11,8 @@ from typing_extensions import disjoint_base
 
 from betty.collections import _empty_frozen_mapping
 from betty.collections.keyed.adapter import KeyedCollectionAdapter
+from betty.definition.id import resolve_id
 from betty.life_cycle.manage import ManagedLifeCycle
-from betty.plugin.resolve import resolve_plugin_type_id
 from betty.prop import HasProps
 from betty.services.simple import service
 
@@ -70,17 +70,18 @@ class ServiceLevel(HasProps, ManagedLifeCycle):
         return PluginDiscovererCollection(
             KeyedCollectionAdapter(
                 {
-                    plugin_type.type().id: PluginDiscoverer(
+                    plugin_type.definition.id: PluginDiscoverer(
                         self,
                         plugin_type,
                         self._plugin_discovery.get(plugin_type, None),
                     )
                     for plugin_type in plugin_types
                 },
-                key_resolver=resolve_plugin_type_id,
+                key_resolver=resolve_id,
             ),
             lambda error, key: _PluginTypeNotFound(
-                resolve_plugin_type_id(key), [x.type.type().id for x in self.plugins]
+                resolve_id(key),
+                [x.type.definition.id for x in self.plugins],
             ),
         )
 

@@ -35,6 +35,6 @@ class TestGenerateEntitiesJson:
 
         await assert_betty_json(
             isolated_project,
-            f"/{entity.plugin().id}/{entity.id}/index.json",
-            f"{kebab_case_to_lower_camel_case(entity.plugin().id)}Entity",
+            f"/{entity.definition.id}/{entity.id}/index.json",
+            f"{kebab_case_to_lower_camel_case(entity.definition.id)}Entity",
         )

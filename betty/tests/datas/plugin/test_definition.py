@@ -43,12 +43,12 @@ class TestPluginDefinitionDefinition:
         )
 
     def test_porter__dump(self) -> None:
-        assert _DummyPluginDefinitionData.data().porter.dump(
+        assert _DummyPluginDefinitionData.definition.porter.dump(
             _DummyPluginDefinitionData(id="hello-world")
         ) == {"id": "hello-world"}
 
     def test_porter__dump_keyed(self) -> None:
-        porter = _DummyPluginDefinitionData.data().porter
+        porter = _DummyPluginDefinitionData.definition.porter
         assert isinstance(porter, KeyedPorter)
         assert porter.dump_keyed(_DummyPluginDefinitionData(id="hello-world")) == (
             "hello-world",
@@ -56,12 +56,12 @@ class TestPluginDefinitionDefinition:
         )
 
     def test_porter__load(self) -> None:
-        assert _DummyPluginDefinitionData.data().porter.load({
+        assert _DummyPluginDefinitionData.definition.porter.load({
             "id": "hello-world"
         }) == _DummyPluginDefinitionData(id="hello-world")
 
     def test_porter__load_keyed(self) -> None:
-        porter = _DummyPluginDefinitionData.data().porter
+        porter = _DummyPluginDefinitionData.definition.porter
         assert isinstance(porter, KeyedPorter)
         assert porter.load_keyed("hello-world", {}) == _DummyPluginDefinitionData(
             id="hello-world"

@@ -261,13 +261,13 @@ class TestMediaType:
         assert sut.extensions == extensions
 
     def test_load(self) -> None:
-        assert MediaType.data().porter.load(
+        assert MediaType.definition.porter.load(
             "application/vnd.oasis.opendocument.text"
         ) == MediaType("application/vnd.oasis.opendocument.text")
 
     def test_dump(self) -> None:
         assert (
-            MediaType.data().porter.dump(
+            MediaType.definition.porter.dump(
                 MediaType("application/vnd.oasis.opendocument.text")
             )
             == "application/vnd.oasis.opendocument.text"

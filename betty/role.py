@@ -6,10 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
+from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.data import DataPlugin, DataPluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
     PluginManufacturer,
     PluginManufacturerDefinition,
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class Role(DataPlugin["RoleDefinition"]):
+class Role(Object["RoleDefinition"]):
     """
     A person's role at an event.
     """
@@ -35,14 +36,19 @@ class Role(DataPlugin["RoleDefinition"]):
     label_plural=_("Roles"),
     label_countable=ngettext("{count} role", "{count} roles"),
 )
-class RoleDefinition(CountableHumanFacingDefinition, DataPluginDefinition[Role]):
+class RoleDefinition(
+    CountableHumanFacingDefinition,
+    ClsDefinition[Role],
+    PluginDefinition,
+    ObjectDefinition[Role],
+):
     """
     .. plugin_type:: role.
     """
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        role_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         label_plural: ResolvableLocalizable,
@@ -51,7 +57,7 @@ class RoleDefinition(CountableHumanFacingDefinition, DataPluginDefinition[Role])
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            role_id,
             label=label,
             label_plural=label_plural,
             label_countable=label_countable,

@@ -48,4 +48,4 @@ def test_resolve_data_definition__with_data() -> None:
     class _Data(Data):
         pass
 
-    assert resolve_data_definition(_Data) is _Data.data()
+    assert resolve_data_definition(_Data) is _Data.definition

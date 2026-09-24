@@ -40,7 +40,6 @@ class ColorDefinition(DataDefinition[str]):
 
     def __init__(self, *, label: ResolvableLocalizable | None = None):
         super().__init__(
-            cls=str,
             label=label or _("Color"),
             description=_("A hexadecimal color, such as {example_color}").format(
                 example_color=Quote(samples.color_hex)

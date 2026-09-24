@@ -24,10 +24,9 @@ from betty.content_builder import (
 )
 from betty.content_builders.render import Render, RenderData
 from betty.content_builders.template import Template, TemplateBuild
-from betty.data import Data
 from betty.datas.aggregate.collection.dict import DictDefinition
 from betty.datas.aggregate.collection.list import ListDefinition
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.enum import EnumDefinition
 from betty.datas.int import IntDefinition
 from betty.datas.plugin.manufacturer.sequence import (
@@ -37,7 +36,6 @@ from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.porters.callback import CallbackPorter
 from betty.project import Project
-from betty.prop import HasProps
 from betty.sample import Sample, Samples, Size
 from betty.service_providers.raspberry_mint import Breakpoint, JustifyContent
 
@@ -116,7 +114,7 @@ type ResolvableColumnsWidth = (
     ),
     manufacturer=lambda **fields: ColumnsData(*fields.pop("content"), **fields),
 )
-class ColumnsData(Data, HasProps):
+class ColumnsData(Object):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_columns.Columns`.
 
@@ -139,7 +137,7 @@ class ColumnsData(Data, HasProps):
     """
 
     justify_content = OwnerAttr(
-        EnumDefinition(cls=JustifyContent, label=_("Justify content"))
+        EnumDefinition(JustifyContent, label=_("Justify content"))
     ).optional
     """
     If and how to justify content.
@@ -149,10 +147,7 @@ class ColumnsData(Data, HasProps):
     _load_widths = assert_sequence(assert_int()).pipe(list)
     width = OwnerAttr(
         DictDefinition(
-            key=EnumDefinition(
-                cls=Breakpoint,
-                label=_("Breakpoint"),
-            ),
+            key=EnumDefinition(Breakpoint, label=_("Breakpoint")),
             value=ListDefinition(
                 label=_("Column widths"), value=IntDefinition(label=_("Column width"))
             ),

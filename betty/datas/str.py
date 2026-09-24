@@ -27,7 +27,6 @@ class StrDefinition(DataDefinition[str]):
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            cls=str,
             label=label,
             description=description,
             porter=CallbackPorter(assert_str(), str),

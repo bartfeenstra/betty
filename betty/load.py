@@ -10,13 +10,14 @@ from functools import partial
 from typing import TYPE_CHECKING, final
 
 from betty.concurrent import max_strands
+from betty.definition import HasDefinition
+from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.job import Context
 from betty.job.executor.asyncio import AsyncExecutor
 from betty.job.scheduler.default import DefaultScheduler
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
     ManufacturablePlugin,
     PluginManufacturer,
@@ -34,7 +35,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class Loader(Plugin["LoaderDefinition"], metaclass=ABCMeta):
+class Loader(HasDefinition["LoaderDefinition"], metaclass=ABCMeta):
     """
     An ancestry data loader.
     """
@@ -53,14 +54,14 @@ class Loader(Plugin["LoaderDefinition"], metaclass=ABCMeta):
     label_plural=_("Loaders"),
     label_countable=ngettext("{count} loader", "{count} loaders"),
 )
-class LoaderDefinition(HumanFacingDefinition, PluginClsDefinition[Loader]):
+class LoaderDefinition(HumanFacingDefinition, ClsDefinition[Loader], PluginDefinition):
     """
     .. plugin_type:: loader.
     """
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        loader_id: ResolvableMachineName,
         *,
         auto: bool = False,
         label: ResolvableLocalizable,
@@ -68,7 +69,7 @@ class LoaderDefinition(HumanFacingDefinition, PluginClsDefinition[Loader]):
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            loader_id,
             auto=auto,
             label=label,
             description=description,
@@ -94,7 +95,7 @@ type ManufacturableLoader = ManufacturablePlugin[
 ]
 
 
-class Enricher(Plugin["EnricherDefinition"], metaclass=ABCMeta):
+class Enricher(HasDefinition["EnricherDefinition"], metaclass=ABCMeta):
     """
     An ancestry data enricher.
     """
@@ -113,14 +114,16 @@ class Enricher(Plugin["EnricherDefinition"], metaclass=ABCMeta):
     label_plural=_("Enrichers"),
     label_countable=ngettext("{count} enricher", "{count} enrichers"),
 )
-class EnricherDefinition(HumanFacingDefinition, PluginClsDefinition[Enricher]):
+class EnricherDefinition(
+    HumanFacingDefinition, ClsDefinition[Enricher], PluginDefinition
+):
     """
     .. plugin_type:: enricher.
     """
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        enricher_id: ResolvableMachineName,
         *,
         auto: bool = False,
         label: ResolvableLocalizable,
@@ -128,7 +131,7 @@ class EnricherDefinition(HumanFacingDefinition, PluginClsDefinition[Enricher]):
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            enricher_id,
             auto=auto,
             label=label,
             description=description,
@@ -175,7 +178,7 @@ async def load(project: Project, *, context: Context | None = None) -> None:
     )
 
 
-async def _do_jobs[PluginT: Plugin](
+async def _do_jobs[PluginT](
     project: Project,
     context: Context,
     plugins: Collection[PluginT],

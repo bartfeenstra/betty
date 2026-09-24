@@ -14,7 +14,7 @@ class TestEntityReference(DataTestBase[EntityReference]):
     sut_cls = EntityReference
 
     def test_type(self) -> None:
-        entity_type = DummyEntityOne.plugin().id
+        entity_type = DummyEntityOne.definition.id
         sut = EntityReference(entity_type, "123")
         assert sut.type == entity_type
 
@@ -25,6 +25,6 @@ class TestEntityReference(DataTestBase[EntityReference]):
 
     def test___call__(self, isolated_project: Project) -> None:
         entity = DummyEntityOne(id="my-first-entity")
-        sut = EntityReference(entity.plugin(), entity.id)
+        sut = EntityReference(entity.definition, entity.id)
         isolated_project.ancestry.add(entity)
         assert sut(isolated_project) is entity

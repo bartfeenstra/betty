@@ -76,7 +76,8 @@ if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.pathlib import StrPath
-    from betty.plugin.resolve import ResolvablePluginDefinition, ResolvablePluginId
+    from betty.definition import ResolvableDefinition
+    from betty.definition.id import ResolvableId
     from betty.portable import PortableData, PortableMapping
     from betty.server import ManufacturableServer
     from betty.service_level import Plugins
@@ -189,7 +190,7 @@ class IsolatedProjectFactory(Protocol):
         *,
         ancestry: EntityPool | None = None,
         app: App | None = None,
-        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
+        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
         cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None
@@ -199,9 +200,9 @@ class IsolatedProjectFactory(Protocol):
         directory: StrPath | None = None,
         enrichers: Iterable[ManufacturableEnricher] = (),
         service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
+        generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
         lifetime_threshold: int | None = None,
-        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
+        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
         loaders: Iterable[ManufacturableLoader] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: StrPath | None = None,
@@ -226,7 +227,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         *,
         ancestry: EntityPool | None = None,
         app: App | None = None,
-        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
+        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         author: ResolvableLocalizable | None = None,
         cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None
@@ -236,9 +237,9 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         directory: StrPath | None = None,
         enrichers: Iterable[ManufacturableEnricher] = (),
         service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        generate_entity_list_html: Iterable[ResolvablePluginId[EntityDefinition]] = (),
+        generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
         lifetime_threshold: int | None = None,
-        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
+        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
         loaders: Iterable[ManufacturableLoader] = (),
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: StrPath | None = None,
@@ -496,12 +497,12 @@ async def _assert_template(
     template_factory: Callable[[Environment, str], Template],
     template: str,
     *,
-    assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
+    assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
     autoescape: bool | None = None,
     data: MutableMapping[str, Any] | None = None,
     enrichers: Iterable[ManufacturableEnricher] = (),
     service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-    links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
+    links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
     loaders: Iterable[ManufacturableLoader] = (),
 ) -> AsyncIterator[tuple[str, Project]]:
     async with isolated_project_factory(
@@ -529,12 +530,12 @@ class AssertTemplateString(Protocol):
         self,
         template: str,
         *,
-        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
+        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
         enrichers: Iterable[ManufacturableEnricher] = (),
         service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
+        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
         loaders: Iterable[ManufacturableLoader] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         """
@@ -553,12 +554,12 @@ def assert_template_string(
     def _assert_template_string(
         template: str,
         *,
-        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
+        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
         enrichers: Iterable[ManufacturableEnricher] = (),
         service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
+        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
         loaders: Iterable[ManufacturableLoader] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         return _assert_template(
@@ -583,12 +584,12 @@ class AssertTemplateFile(Protocol):
         self,
         template: str,
         *,
-        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
+        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
         enrichers: Iterable[ManufacturableEnricher] = (),
         service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
+        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
         loaders: Iterable[ManufacturableLoader] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         """
@@ -607,12 +608,12 @@ def assert_template_file(
     def _assert_template_file(
         template: str,
         *,
-        assets: Iterable[ResolvablePluginDefinition[AssetDirectoryDefinition]] = (),
+        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
         enrichers: Iterable[ManufacturableEnricher] = (),
         service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        links: Iterable[ResolvablePluginDefinition[LinkDefinition]] = (),
+        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
         loaders: Iterable[ManufacturableLoader] = (),
     ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         return _assert_template(

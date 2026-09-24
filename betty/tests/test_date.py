@@ -293,34 +293,34 @@ class TestDate:
         assert sut.localize(default_localizer) == expected
 
     def test_load__minimal(self) -> None:
-        Date.data().porter.load({})
+        Date.definition.porter.load({})
 
     def test_load__with_year(self) -> None:
-        assert Date.data().porter.load({"year": 9}).year == 9
+        assert Date.definition.porter.load({"year": 9}).year == 9
 
     def test_load__with_month(self) -> None:
-        assert Date.data().porter.load({"month": 9}).month == 9
+        assert Date.definition.porter.load({"month": 9}).month == 9
 
     def test_load__with_day(self) -> None:
-        assert Date.data().porter.load({"day": 9}).day == 9
+        assert Date.definition.porter.load({"day": 9}).day == 9
 
     def test_load__with_fuzzy(self) -> None:
-        assert Date.data().porter.load({"fuzzy": True}).fuzzy
+        assert Date.definition.porter.load({"fuzzy": True}).fuzzy
 
     def test_dump__minimal(self) -> None:
-        assert Date.data().porter.dump(Date()) == {}
+        assert Date.definition.porter.dump(Date()) == {}
 
     def test_dump__with_year(self) -> None:
-        assert Date.data().porter.dump(Date(year=9)) == {"year": 9}
+        assert Date.definition.porter.dump(Date(year=9)) == {"year": 9}
 
     def test_dump__with_month(self) -> None:
-        assert Date.data().porter.dump(Date(month=9)) == {"month": 9}
+        assert Date.definition.porter.dump(Date(month=9)) == {"month": 9}
 
     def test_dump__with_day(self) -> None:
-        assert Date.data().porter.dump(Date(day=9)) == {"day": 9}
+        assert Date.definition.porter.dump(Date(day=9)) == {"day": 9}
 
     def test_dump__with_fuzzy(self) -> None:
-        assert Date.data().porter.dump(Date(fuzzy=True)) == {"fuzzy": True}
+        assert Date.definition.porter.dump(Date(fuzzy=True)) == {"fuzzy": True}
 
 
 class TestDateRange:

@@ -14,24 +14,17 @@ from betty.assertions.mapping import assert_mapping
 from betty.assertions.record import Field, assert_record
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import OwnerAttr
-from betty.classtools import TypeABCMeta
 from betty.data import Data, DataDefinition
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
+from betty.definition.cls import ClsDefinition
+from betty.definition.id import ResolvableId, resolve_id
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
-from betty.freezer import Frozen
 from betty.functools import Pipeline
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.machine_name import MachineName
-from betty.plugin.cls import PluginClsDefinition
-from betty.plugin.resolve import ResolvablePluginId, resolve_plugin_id
-from betty.portable import (
-    KeyedPorter,
-    OptionalPortableData,
-    PortableData,
-)
-from betty.prop import HasProps
+from betty.portable import KeyedPorter, OptionalPortableData, PortableData
 from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
@@ -51,8 +44,8 @@ NoPluginData = sentinel("NoPluginData")
 
 
 @disjoint_base
-class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
-    Data["PluginManufacturerDefinition"], HasProps, Frozen, metaclass=TypeABCMeta
+class PluginManufacturer[DefinitionT: PluginDefinition, PluginT](
+    Object["PluginManufacturerDefinition"]
 ):
     """
     Configure a single plugin instance.
@@ -73,18 +66,18 @@ class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
     @final
     def __init__(
         self,
-        plugin: ResolvablePluginId[PluginDefinitionT],
+        plugin: ResolvableId[DefinitionT],
         data: Data | OptionalPortableData | NoPluginData = NoPluginData,
         /,
     ):
         super().__init__()
-        self.plugin_id = resolve_plugin_id(plugin)
+        self.plugin_id = resolve_id(plugin)
         self.plugin_data = data
 
     @final
     def __hash__(self):
         return hash((
-            self.data().plugin_type,
+            self.definition.plugin_type,
             self.plugin_id,
             NoPluginData
             if self.plugin_data is NoPluginData
@@ -104,8 +97,8 @@ class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
         Create a new instance of the configured plugin.
         """
         plugin_cls = (
-            await services.plugins[self.data().plugin_type][self.plugin_id]
-        ).cls  # ty:ignore[unresolved-attribute]
+            await services.plugins[self.definition.plugin_type][self.plugin_id]
+        ).cls
         if self.plugin_data is NoPluginData:
             return await services.factory.new(plugin_cls)
         if not issubclass(plugin_cls, DataManufacturable):
@@ -113,26 +106,30 @@ class PluginManufacturer[PluginDefinitionT: PluginClsDefinition, PluginT](
                 _(
                     "{plugin_type} {plugin} is not configurable, but configuration was given."
                 ).format(
-                    plugin_type=self.data().label,
+                    plugin_type=self.definition.label,
                     plugin=Quote(self.plugin_id),
                 )
             )
         plugin_data = self.plugin_data
         if not isinstance(plugin_data, Data):
-            plugin_data = plugin_cls.new_data_cls().data().porter.load(plugin_data)
+            plugin_data = plugin_cls.new_data_cls().definition.porter.load(plugin_data)
         return await plugin_cls.new(services, plugin_data)
 
     @final
     @classmethod
     def resolve(
-        cls, manufacturer: ResolvablePluginManufacturer[PluginDefinitionT, Self]
+        cls, manufacturer: ResolvablePluginManufacturer[DefinitionT, Self]
     ) -> Self:
         """
         Resolve a value to a plugin manufacturer.
         """
         if isinstance(manufacturer, cls):
             return manufacturer
-        return cls(resolve_plugin_id(manufacturer))
+        return cls(
+            resolve_id(
+                manufacturer,  # ty: ignore[invalid-argument-type]
+            )
+        )
 
 
 @final
@@ -147,10 +144,10 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
         self._cls = cls
 
     _load = assert_if_else(
-        Pipeline(MachineName.data().porter.load)
+        Pipeline(MachineName.definition.porter.load)
         | (lambda plugin_id: {"plugin": plugin_id}),
         assert_record(
-            Field("plugin", MachineName.data().porter.load),
+            Field("plugin", MachineName.definition.porter.load),
             Field("data", optional=True),
         ),
     )
@@ -169,7 +166,7 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
     @classmethod
     def _dump_data(cls, configuration: Data | PortableData) -> PortableData:
         if isinstance(configuration, Data):
-            return configuration.data().porter.dump(configuration)
+            return configuration.definition.porter.dump(configuration)
         return configuration
 
     @override
@@ -193,22 +190,18 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
 
 
 @final
-class PluginManufacturerDefinition[PluginDefinitionT: PluginClsDefinition, PluginT](
-    ObjectDefinition[PluginManufacturer[PluginDefinitionT, PluginT]]
+class PluginManufacturerDefinition[DefinitionT: PluginDefinition, PluginT](
+    ObjectDefinition[PluginManufacturer[DefinitionT, PluginT]]
 ):
     """
     Define a plugin manufacturer.
     """
 
     def __init__(
-        self,
-        plugin_type: type[
-            Intersection[PluginDefinitionT, PluginClsDefinition[PluginT]]
-        ],
-        /,
+        self, plugin_type: type[Intersection[DefinitionT, ClsDefinition[PluginT]]], /
     ):
         super().__init__(
-            label=plugin_type.type().label,
+            label=plugin_type.definition.label,
             porter=lambda definition: PluginManufacturerPorter(definition.cls),
             samples=lambda definition: Samples(
                 lambda: Sample(
@@ -232,13 +225,13 @@ class PluginManufacturerDefinition[PluginDefinitionT: PluginClsDefinition, Plugi
 
 
 type ResolvablePluginManufacturer[
-    PluginDefinitionT: PluginClsDefinition,
+    DefinitionT: PluginDefinition,
     PluginManufacturerT: PluginManufacturer,
-] = ResolvablePluginId[PluginDefinitionT] | PluginManufacturerT
+] = ResolvableId[Intersection[DefinitionT, ClsDefinition]] | PluginManufacturerT
 
 
 type ManufacturablePlugin[
-    PluginDefinitionT: PluginClsDefinition,
+    DefinitionT: Intersection[PluginDefinition, ClsDefinition],
     PluginManufacturerT: PluginManufacturer,
     PluginT,
-] = ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT] | PluginT
+] = ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT] | PluginT

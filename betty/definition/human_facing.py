@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final
 
+from betty.definition import Definition
 from betty.localizable import resolve_localizable
 
 if TYPE_CHECKING:
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
     )
 
 
-class HumanFacingDefinition:
+class HumanFacingDefinition(Definition):
     """
     A definition that is human-facing and provides human-friendly information.
     """

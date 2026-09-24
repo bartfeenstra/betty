@@ -9,10 +9,11 @@ from typing import TYPE_CHECKING, final
 
 from markupsafe import Markup
 
+from betty.definition import HasDefinition
+from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
     PluginManufacturer,
     PluginManufacturerDefinition,
@@ -28,7 +29,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class ContentBuilder(Plugin["ContentBuilderDefinition"], metaclass=ABCMeta):
+class ContentBuilder(HasDefinition["ContentBuilderDefinition"], metaclass=ABCMeta):
     """
     A content builder plugin.
     """
@@ -48,7 +49,7 @@ class ContentBuilder(Plugin["ContentBuilderDefinition"], metaclass=ABCMeta):
     label_countable=ngettext("{count} content builder", "{count} content builders"),
 )
 class ContentBuilderDefinition(
-    HumanFacingDefinition, PluginClsDefinition[ContentBuilder]
+    HumanFacingDefinition, ClsDefinition[ContentBuilder], PluginDefinition
 ):
     """
     .. plugin_type:: content-builder.
@@ -56,7 +57,7 @@ class ContentBuilderDefinition(
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        content_builder_id: ResolvableMachineName,
         *,
         label: ResolvableLocalizable,
         auto: bool = False,
@@ -64,7 +65,7 @@ class ContentBuilderDefinition(
         requires: Requires = (),
     ):
         super().__init__(
-            plugin_id,
+            content_builder_id,
             auto=auto,
             label=label,
             description=description,

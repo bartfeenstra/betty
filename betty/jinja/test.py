@@ -4,12 +4,12 @@ The Jinja test API.
 
 from __future__ import annotations
 
-from abc import ABCMeta
 from typing import TYPE_CHECKING, final
 
+from betty.definition import HasDefinition
+from betty.definition.cls import ClsDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.cls import Plugin, PluginClsDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class JinjaTest(Plugin["JinjaTestDefinition"], metaclass=ABCMeta):
+class JinjaTest(HasDefinition["JinjaTestDefinition"]):
     """
     A Jinja test.
 
@@ -32,19 +32,19 @@ class JinjaTest(Plugin["JinjaTestDefinition"], metaclass=ABCMeta):
     label_plural=_("Jinja tests"),
     label_countable=ngettext("{count} Jinja test", "{count} Jinja tests"),
 )
-class JinjaTestDefinition(PluginClsDefinition[JinjaTest]):
+class JinjaTestDefinition(ClsDefinition[JinjaTest], PluginDefinition):
     """
     .. plugin_type:: jinja-test.
     """
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        jinja_test_plugin: ResolvableMachineName,
         *,
         auto: bool = False,
         requires: Requires = (),
     ):
-        super().__init__(plugin_id, auto=auto, requires=requires)
+        super().__init__(jinja_test_plugin, auto=auto, requires=requires)
 
 
 @final

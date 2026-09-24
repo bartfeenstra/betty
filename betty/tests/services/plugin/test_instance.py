@@ -51,7 +51,7 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
         "item",
         [
             DummyPluginOne,
-            DummyPluginOne.plugin(),
+            DummyPluginOne.definition,
             DummyPluginManufacturer(DummyPluginOne),
         ],
     )
@@ -71,7 +71,7 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
         "item",
         [
             DummyPluginWithLifeCycle,
-            DummyPluginWithLifeCycle.plugin(),
+            DummyPluginWithLifeCycle.definition,
             DummyPluginManufacturer(DummyPluginWithLifeCycle),
         ],
     )
@@ -116,10 +116,18 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
                 )
             )
 
+    def test_resolve_init_plugin_id__with_plugin_id(self) -> None:
+        assert (
+            _PluginInstanceServiceManagerTestSut().resolve_init_plugin_id(
+                DummyPluginOne
+            )
+            == DummyPluginOne.definition.id
+        )
+
     def test_resolve_init_plugin_id__with_plugin_manufacturer(self) -> None:
         assert (
             _PluginInstanceServiceManagerTestSut().resolve_init_plugin_id(
                 DummyPluginManufacturer(DummyPluginOne)
             )
-            == DummyPluginOne.plugin().id
+            == DummyPluginOne.definition.id
         )

@@ -239,7 +239,7 @@ class TestProject:
             plugins={EntityDefinition: [DummyEntityOne]},
         ) as sut:
             assert list(await sut.generate_entity_list_html) == [
-                DummyEntityOne.plugin()
+                DummyEntityOne.definition
             ]
 
     async def test_lifetime_threshold(
@@ -391,7 +391,7 @@ class TestProjectData(DataTestBase[ProjectData]):
             url="https://example.com",
         )
         assert sut.generate_entity_list_html is not None
-        assert list(sut.generate_entity_list_html) == [DummyEntityOne.plugin().id]
+        assert list(sut.generate_entity_list_html) == [DummyEntityOne.definition.id]
 
     @pytest.mark.parametrize(
         "debug",

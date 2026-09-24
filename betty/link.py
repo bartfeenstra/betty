@@ -5,7 +5,7 @@ An API for linking to web resources.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, Final, final, override
+from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.localizable import (
     Localizable,
@@ -54,15 +54,15 @@ class LinkDefinition(OrderedPluginDefinition):
 
     def __init__(
         self,
-        plugin_id: ResolvableMachineName,
+        link_id: ResolvableMachineName,
         *,
-        after: Order[LinkDefinition] = (),
+        after: Order[Self] = (),
         auto: bool = False,
-        before: Order[LinkDefinition] = (),
+        before: Order[Self] = (),
         link: Link,
         primary: bool = False,
     ):
-        super().__init__(plugin_id, before=before, after=after, auto=auto)
+        super().__init__(link_id, before=before, after=after, auto=auto)
         self.link: Final[Link] = link
         """
         The link.

@@ -35,6 +35,7 @@ from betty.attrs.privacy import HasPrivacy
 from betty.collections import _empty_frozen_mapping
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import AnyDate, Date, DateRange
+from betty.definition.cls import ClsDefinition
 from betty.entities.citation import Citation
 from betty.entities.enclosure import Enclosure
 from betty.entities.event import Event
@@ -114,7 +115,7 @@ from betty.place_types.street import Street
 from betty.place_types.town import Town
 from betty.place_types.unknown import UnknownPlaceType
 from betty.place_types.village import Village
-from betty.plugin.cls import PluginClsDefinition
+from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.role import ResolvableRoleManufacturer, RoleManufacturer
 from betty.roles.attendee import Attendee
@@ -308,12 +309,12 @@ _gramps_extensions: Final[Sequence[str]] = (
 
 def _resolve_plugin_manufacturer_mapping[
     T,
-    PluginDefinitionT: PluginClsDefinition,
+    DefinitionT: Intersection[PluginDefinition, ClsDefinition],
     PluginManufacturerT: PluginManufacturer,
 ](
     manufacturer: type[PluginManufacturerT],
     resolvable_manufacturers: Mapping[
-        T, ResolvablePluginManufacturer[PluginDefinitionT, PluginManufacturerT]
+        T, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]
     ],
 ) -> MutableMapping[T, PluginManufacturerT]:
     return {
@@ -334,7 +335,7 @@ def _machinify_associate(
 ) -> MachineName:
     assert index is None or index >= 0
     return MachineName(
-        hashid_sequence(owner.id, associate.plugin().id, bytes(str(index).encode()))
+        hashid_sequence(owner.id, associate.definition.id, bytes(str(index).encode()))
     )
 
 
@@ -984,7 +985,7 @@ class GrampsLoader:
                     person=Quote(person.id),
                     event_handle=Quote(event_handle),
                     gramps_role=Quote(gramps_role),
-                    betty_role=role.plugin().label.localize(
+                    betty_role=role.definition.label.localize(
                         self._project.upstream.user.localizer
                     ),
                 ),
@@ -1041,7 +1042,7 @@ class GrampsLoader:
                 ).format(
                     place=Quote(place_id),
                     gramps_place_type=Quote(gramps_type),
-                    betty_place_type=place_type.plugin().label.localize(
+                    betty_place_type=place_type.definition.label.localize(
                         self._project.upstream.user.localizer
                     ),
                 ),
@@ -1113,7 +1114,7 @@ class GrampsLoader:
                 ).format(
                     event=Quote(event_id),
                     gramps_event_type=Quote(gramps_type),
-                    betty_event_type=event_type.plugin().label.localize(
+                    betty_event_type=event_type.definition.label.localize(
                         self._project.upstream.user.localizer
                     ),
                 ),
@@ -1348,7 +1349,7 @@ class GrampsLoader:
             ).format(
                 attribute_name=Quote("betty:privacy"),
                 attribute_value=Quote(privacy_value),
-                entity_type=entity.plugin().label.localize(
+                entity_type=entity.definition.label.localize(
                     self._project.upstream.user.localizer
                 ),
                 entity_id=entity.id,

@@ -163,7 +163,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
         )
         portable["@type"] = "https://schema.org/Person"
         if self.public:
-            portable["gender"] = self.gender.plugin().id
+            portable["gender"] = self.gender.definition.id
         return portable
 
     @override
@@ -173,7 +173,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
         schema.add_property(
             "gender",
             PluginIdSchema(
-                GenderDefinition.type(),
+                GenderDefinition.definition,
                 [x async for x in project.plugins[GenderDefinition]],
             ),
             False,

@@ -20,8 +20,8 @@ class TestPlugin:
         ("expected", "plugin_identifier", "data"),
         [
             (True, None, DummyPluginOne()),
-            (True, DummyPluginOne.plugin().id, DummyPluginOne()),
-            (False, DummyPluginOne.plugin().id, DummyPluginTwo()),
+            (True, DummyPluginOne.definition.id, DummyPluginOne()),
+            (False, DummyPluginOne.definition.id, DummyPluginTwo()),
             (False, None, None),
             (False, None, object()),
         ],
