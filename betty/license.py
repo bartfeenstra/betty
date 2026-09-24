@@ -11,12 +11,8 @@ from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.cls import ClsDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.factory import (
-    ManufacturablePlugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
-    ResolvablePluginManufacturer,
-)
+from betty.plugin.cls.factory import PluginManufacturerDefinition
+from betty.plugin.data.factory import NewDataPlugin
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable, ResolvableLocalizable
@@ -82,16 +78,7 @@ class LicenseDefinition(
 
 @final
 @PluginManufacturerDefinition(LicenseDefinition)
-class LicenseManufacturer(PluginManufacturer[LicenseDefinition, License]):
+class NewLicense(NewDataPlugin):
     """
-    The license manufacturer.
+    Create new licenses from portable data.
     """
-
-
-type ResolvableLicenseManufacturer = ResolvablePluginManufacturer[
-    LicenseDefinition, LicenseManufacturer
-]
-
-type ManufacturableLicense = ManufacturablePlugin[
-    LicenseDefinition, LicenseManufacturer, License
-]

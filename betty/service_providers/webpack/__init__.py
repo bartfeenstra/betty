@@ -9,12 +9,12 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories.webpack import webpack as WEBPACK_ASSET
 from betty.css_resources.webpack import WEBPACK as WEBPACK_CSS_RESOURCE
-from betty.factory import Manufacturable
 from betty.jinja_filters.webpack_entry_point_js import WebpackEntryPointJs
 from betty.jobs._generate_webpack_assets import _GenerateWebpackAssets
 from betty.js_resources.webpack_entry_point_loader import WEBPACK_ENTRY_POINT_LOADER
 from betty.project import Project
 from betty.project.generate import Generator
+from betty.service_level.factory import Integratable
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
 from betty.service_providers.webpack import build
 from betty.service_providers.webpack.build import EntryPointProvider
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
         Project.js_resources.require(WEBPACK_ENTRY_POINT_LOADER),
     },
 )
-class Webpack(Generator, ServiceProvider[Project], Manufacturable):
+class Webpack(Generator, ServiceProvider[Project], Integratable):
     """
     .. plugin:: service-provider:webpack.
     """

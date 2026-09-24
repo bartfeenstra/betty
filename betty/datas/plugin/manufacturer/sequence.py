@@ -10,26 +10,23 @@ from betty.collection.sequence import MutableResolvedSequence
 from betty.collections.sequence.list import ResolvedList
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.definition.cls import ClsDefinition
-from betty.plugin import PluginDefinition
-from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
+from betty.plugin.cls.factory import NewPlugin
 
 if TYPE_CHECKING:
-    from ty_extensions import Intersection
-
     from betty.localizable import ResolvableLocalizable
 
 
 @final
-class PluginManufacturerSequenceDefinition[
-    DefinitionT: Intersection[PluginDefinition, ClsDefinition],
-    PluginManufacturerT: PluginManufacturer,
+class NewPluginSequenceDefinition[
+    DefinitionT: ClsDefinition,
+    NewPluginT: NewPlugin,
 ](
     SequenceDefinition[
         MutableResolvedSequence[
-            PluginManufacturerT,
-            ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],
+            NewPluginT,
+            ResolvablePluginManufacturer[DefinitionT, NewPluginT],
         ],
-        PluginManufacturerT,
+        NewPluginT,
     ]
 ):
     """
@@ -38,15 +35,15 @@ class PluginManufacturerSequenceDefinition[
 
     def __init__(
         self,
-        manufacturer: type[PluginManufacturerT],
+        manufacturer: type[NewPluginT],
         *,
         label: ResolvableLocalizable | None = None,
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
             manufacturer=lambda values: ResolvedList[
-                PluginManufacturerT,
-                ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],
+                NewPluginT,
+                ResolvablePluginManufacturer[DefinitionT, NewPluginT],
             ](values, value_resolver=manufacturer.resolve),
             value=manufacturer,
             label=manufacturer.definition.plugin_type.definition.label_plural

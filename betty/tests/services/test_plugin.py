@@ -17,11 +17,11 @@ from betty.services.plugin.definition.collection.keyed import (
 )
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
-    DummyPluginManufacturer,
     DummyPluginOne,
     DummyPluginThree,
     DummyPluginTwo,
     DummyPluginWithLifeCycle,
+    NewDummyPlugin,
 )
 from betty.typing import Unreachable
 
@@ -197,7 +197,7 @@ class _PluginServiceManagerTestSut(
         ResolvableServiceLevelHasPluginServices,
         DummyPluginDefinition,
         Sequence[MachineName],
-        ResolvableDefinition[DummyPluginDefinition] | DummyPluginManufacturer,
+        ResolvableDefinition[DummyPluginDefinition] | NewDummyPlugin,
     ]
 ):
     def __init__(self, *, auto: bool = True):
@@ -212,10 +212,10 @@ class _PluginServiceManagerTestSut(
     @override
     def resolve_init_plugin_id(
         self,
-        plugin: ResolvableDefinition[DummyPluginDefinition] | DummyPluginManufacturer,
+        plugin: ResolvableDefinition[DummyPluginDefinition] | NewDummyPlugin,
         /,
     ) -> MachineName:
-        if isinstance(plugin, DummyPluginManufacturer):
+        if isinstance(plugin, NewDummyPlugin):
             return plugin.plugin_id
         return resolve_id(plugin)
 

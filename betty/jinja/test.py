@@ -10,7 +10,7 @@ from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
+from betty.plugin.cls.factory import NewPlugin, NewPluginDefinition
 
 if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
@@ -48,8 +48,8 @@ class JinjaTestDefinition(ClsDefinition[JinjaTest], PluginDefinition):
 
 
 @final
-@PluginManufacturerDefinition(JinjaTestDefinition)
-class JinjaTestManufacturer(PluginManufacturer[JinjaTestDefinition, JinjaTest]):
+@NewPluginDefinition(JinjaTestDefinition)
+class NewJinjaTest(NewPlugin[JinjaTestDefinition, JinjaTest]):
     """
-    The Jinja test manufacturer.
+    The Jinja test factory.
     """

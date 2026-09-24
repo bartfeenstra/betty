@@ -11,11 +11,6 @@ from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.factory import (
-    PluginManufacturer,
-    PluginManufacturerDefinition,
-    ResolvablePluginManufacturer,
-)
 
 if TYPE_CHECKING:
     from betty.localizable import CountableLocalizable, ResolvableLocalizable
@@ -64,16 +59,3 @@ class PlaceTypeDefinition(
             description=description,
             requires=requires,
         )
-
-
-@final
-@PluginManufacturerDefinition(PlaceTypeDefinition)
-class PlaceTypeManufacturer(PluginManufacturer[PlaceTypeDefinition, PlaceType]):
-    """
-    The place type manufacturer.
-    """
-
-
-type ResolvablePlaceTypeManufacturer = ResolvablePluginManufacturer[
-    PlaceTypeDefinition, PlaceTypeManufacturer
-]

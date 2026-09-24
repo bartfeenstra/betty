@@ -154,9 +154,9 @@ class App(RequirableServiceLevel, HasPluginServices):
         """
         Create a new application from the environment.
         """
-        if AppData.FILE.exists():
-            data = AppData.definition.porter.load(
-                assert_load_file(serializers=[Json()])(AppData.FILE),
+        if AppConfig.FILE.exists():
+            data = AppConfig.definition.porter.load(
+                assert_load_file(serializers=[Json()])(AppConfig.FILE),
             )
             locale = data.locale
         else:
@@ -277,11 +277,11 @@ class App(RequirableServiceLevel, HasPluginServices):
 @ObjectDefinition(
     label=_("Application configuration"),
     samples=Samples(
-        lambda: Sample(AppData(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(AppData(locale=default_locale), label="Full", size=Size.FULL),
+        lambda: Sample(AppConfig(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(AppConfig(locale=default_locale), label="Full", size=Size.FULL),
     ),
 )
-class AppData(Object):
+class AppConfig(Object):
     """
     Configuration for :py:class:`betty.app.App`.
 

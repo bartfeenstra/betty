@@ -21,7 +21,7 @@ from betty.sample import Sample, Samples
     RoleDefinition,
     samples=Samples(
         lambda: Sample(
-            RoleDefinitionData(
+            RoleDefinitionConfig(
                 id="astronaut",
                 label="Astronaut",
                 label_plural="Astronauts",
@@ -36,7 +36,7 @@ from betty.sample import Sample, Samples
         )
     ),
 )
-class RoleDefinitionData(CountableHumanFacingPluginDefinitionData[RoleDefinition]):
+class RoleDefinitionConfig(CountableHumanFacingPluginDefinitionData[RoleDefinition]):
     """
     Configure a :py:class:`betty.role.RoleDefinition`.
 

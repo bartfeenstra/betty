@@ -11,16 +11,8 @@ from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.factory import (
-    PluginManufacturer,
-    PluginManufacturerDefinition,
-    ResolvablePluginManufacturer,
-)
-from betty.plugin.ordered import (
-    Order,
-    OrderedPluginDefinition,
-)
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.ordered import Order, OrderedPluginDefinition
 
 if TYPE_CHECKING:
     from betty.entities.person import Person
@@ -60,7 +52,6 @@ class EventTypeDefinition(
     CountableHumanFacingDefinition,
     OrderedPluginDefinition,
     ClsDefinition[EventType],
-    PluginDefinition,
     ObjectDefinition[EventType],
 ):
     """
@@ -89,16 +80,3 @@ class EventTypeDefinition(
             before=before,
             requires=requires,
         )
-
-
-@final
-@PluginManufacturerDefinition(EventTypeDefinition)
-class EventTypeManufacturer(PluginManufacturer[EventTypeDefinition, EventType]):
-    """
-    The event type manufacturer.
-    """
-
-
-type ResolvableEventTypeManufacturer = ResolvablePluginManufacturer[
-    EventTypeDefinition, EventTypeManufacturer
-]

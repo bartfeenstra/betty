@@ -8,12 +8,12 @@ from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, final
 
 from betty.definition import HasDefinition
-from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.html import plain_text_to_html
 from betty.localizables.gettext import _, ngettext
 from betty.media_type import resolve_media_type
-from betty.plugin import PluginDefinition, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.config import ConfigurablePluginDefinition
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
@@ -48,9 +48,7 @@ class Renderer(HasDefinition["RendererDefinition"], metaclass=ABCMeta):
     label_plural=_("Renderers"),
     label_countable=ngettext("{count} renderer", "{count} renderers"),
 )
-class RendererDefinition(
-    HumanFacingDefinition, ClsDefinition[Renderer], PluginDefinition
-):
+class RendererDefinition(HumanFacingDefinition, ConfigurablePluginDefinition[Renderer]):
     """
     .. plugin_type:: renderer.
     """

@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.factory import Manufacturable
 from betty.jobs.derive_ancestry import DeriveAncestry
 from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.service_level.factory import Integratable
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
         "Create events such as births and deaths by deriving their details from existing information."
     ),
 )
-class Deriver(Enricher, Manufacturable):
+class Deriver(Enricher, Integratable):
     """
     .. plugin:: enricher:deriver.
 

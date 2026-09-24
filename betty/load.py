@@ -11,23 +11,23 @@ from typing import TYPE_CHECKING, final
 
 from betty.concurrent import max_strands
 from betty.definition import HasDefinition
-from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.job import Context
 from betty.job.executor.asyncio import AsyncExecutor
 from betty.job.scheduler.default import DefaultScheduler
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.factory import (
-    ManufacturablePlugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
-    ResolvablePluginManufacturer,
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.config import ConfigurablePluginDefinition
+from betty.plugin.config.factory import (
+    ConfigurablePluginFactory,
+    NewConfigurablePlugin,
+    NewConfigurablePluginDefinition,
 )
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Collection
 
+    from betty.data import Data
     from betty.job.scheduler import Scheduler
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
@@ -54,7 +54,7 @@ class Loader(HasDefinition["LoaderDefinition"], metaclass=ABCMeta):
     label_plural=_("Loaders"),
     label_countable=ngettext("{count} loader", "{count} loaders"),
 )
-class LoaderDefinition(HumanFacingDefinition, ClsDefinition[Loader], PluginDefinition):
+class LoaderDefinition(HumanFacingDefinition, ConfigurablePluginDefinition[Loader]):
     """
     .. plugin_type:: loader.
     """
@@ -64,6 +64,7 @@ class LoaderDefinition(HumanFacingDefinition, ClsDefinition[Loader], PluginDefin
         loader_id: ResolvableMachineName,
         *,
         auto: bool = False,
+        config_cls: type[Data] | None = None,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         requires: Requires = (),
@@ -71,27 +72,23 @@ class LoaderDefinition(HumanFacingDefinition, ClsDefinition[Loader], PluginDefin
         super().__init__(
             loader_id,
             auto=auto,
-            label=label,
+            config_cls=config_cls,
             description=description,
+            label=label,
             requires=requires,
         )
 
 
 @final
-@PluginManufacturerDefinition(LoaderDefinition)
-class LoaderManufacturer(PluginManufacturer[LoaderDefinition, Loader]):
+@NewConfigurablePluginDefinition(LoaderDefinition)
+class NewLoader(NewConfigurablePlugin[LoaderDefinition, Loader]):
     """
-    The loader manufacturer.
+    The loader factory.
     """
 
 
-type ResolvableLoaderManufacturer = ResolvablePluginManufacturer[
-    LoaderDefinition, LoaderManufacturer
-]
-
-
-type ManufacturableLoader = ManufacturablePlugin[
-    LoaderDefinition, LoaderManufacturer, Loader
+type LoaderFactory[PluginT: Loader, ConfigT: Data] = ConfigurablePluginFactory[
+    PluginT, NewLoader, ConfigT
 ]
 
 
@@ -114,9 +111,7 @@ class Enricher(HasDefinition["EnricherDefinition"], metaclass=ABCMeta):
     label_plural=_("Enrichers"),
     label_countable=ngettext("{count} enricher", "{count} enrichers"),
 )
-class EnricherDefinition(
-    HumanFacingDefinition, ClsDefinition[Enricher], PluginDefinition
-):
+class EnricherDefinition(HumanFacingDefinition, ConfigurablePluginDefinition[Enricher]):
     """
     .. plugin_type:: enricher.
     """
@@ -126,6 +121,7 @@ class EnricherDefinition(
         enricher_id: ResolvableMachineName,
         *,
         auto: bool = False,
+        config_cls: type[Data] | None = None,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
         requires: Requires = (),
@@ -133,27 +129,23 @@ class EnricherDefinition(
         super().__init__(
             enricher_id,
             auto=auto,
-            label=label,
+            config_cls=config_cls,
             description=description,
+            label=label,
             requires=requires,
         )
 
 
 @final
-@PluginManufacturerDefinition(EnricherDefinition)
-class EnricherManufacturer(PluginManufacturer[EnricherDefinition, Enricher]):
+@NewConfigurablePluginDefinition(EnricherDefinition)
+class NewEnricher(NewConfigurablePlugin[EnricherDefinition, Enricher]):
     """
-    The enricher manufacturer.
+    The enricher factory.
     """
 
 
-type ResolvableEnricherManufacturer = ResolvablePluginManufacturer[
-    EnricherDefinition, EnricherManufacturer
-]
-
-
-type ManufacturableEnricher = ManufacturablePlugin[
-    EnricherDefinition, EnricherManufacturer, Enricher
+type EnricherFactory[PluginT: Enricher, ConfigT: Data] = ConfigurablePluginFactory[
+    PluginT, NewEnricher, ConfigT
 ]
 
 

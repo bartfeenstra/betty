@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.asyncio import ReAwaitable
 from betty.definition.cls import ClsDefinition
 from betty.plugin import PluginDefinition
-from betty.plugin.factory import ManufacturablePlugin, PluginManufacturer
+from betty.plugin.cls.factory import NewPlugin
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.instance import PluginInstanceServiceManager
 from betty.services.plugin.single import SinglePluginServiceManager
@@ -21,21 +21,21 @@ if TYPE_CHECKING:
 @final
 class PluginInstanceService[
     DefinitionT: Intersection[PluginDefinition, ClsDefinition],
-    PluginManufacturerT: PluginManufacturer,
+    NewPluginT: NewPlugin,
     PluginT,
 ](
     PluginInstanceServiceManager[
         ResolvableServiceLevelHasPluginServices,
         DefinitionT,
         ReAwaitable[PluginT],
-        PluginManufacturerT,
+        NewPluginT,
         PluginT,
     ],
     SinglePluginServiceManager[
         ResolvableServiceLevelHasPluginServices,
         DefinitionT,
         ReAwaitable[PluginT],
-        ManufacturablePlugin[DefinitionT, PluginManufacturerT, PluginT],
+        ManufacturablePlugin[DefinitionT, NewPluginT, PluginT],
     ],
 ):
     """

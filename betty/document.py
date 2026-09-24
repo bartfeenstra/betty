@@ -34,7 +34,6 @@ from betty.localizer import Localizer, default_localizer
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_types.html import HTML
 from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
@@ -210,12 +209,10 @@ class DocumentProviderDefinition(ClsDefinition[DocumentProvider], PluginDefiniti
 
 
 @final
-@PluginManufacturerDefinition(DocumentProviderDefinition)
-class DocumentProviderManufacturer(
-    PluginManufacturer[DocumentProviderDefinition, DocumentProvider]
-):
+@NewPluginDefinition(DocumentProviderDefinition)
+class NewDocumentProvider(NewPlugin[DocumentProviderDefinition, DocumentProvider]):
     """
-    The document provider manufacturer.
+    The document provider factory.
     """
 
 

@@ -57,6 +57,6 @@ class OrderedPluginDefinition(PluginDefinition):
         return self.__before(other)
 
 
-type Order[OrderedDefinitionT: OrderedPluginDefinition = OrderedPluginDefinition] = (
-    Callable[[MachineName], bool] | Iterable[ResolvableId[OrderedDefinitionT]]
+type Order[DefinitionT: OrderedPluginDefinition = OrderedPluginDefinition] = (
+    Callable[[MachineName], bool] | Iterable[ResolvableId[DefinitionT]]
 )

@@ -22,7 +22,7 @@ from betty.sample import Sample, Samples
     EventTypeDefinition,
     samples=Samples(
         lambda: Sample(
-            EventTypeDefinitionData(
+            EventTypeDefinitionConfig(
                 id="moon-landing",
                 label="Moon landing",
                 label_plural="Moon landings",
@@ -37,7 +37,7 @@ from betty.sample import Sample, Samples
         )
     ),
 )
-class EventTypeDefinitionData(
+class EventTypeDefinitionConfig(
     CountableHumanFacingPluginDefinitionData[EventTypeDefinition],
     OrderedPluginDefinitionData[EventTypeDefinition],
 ):

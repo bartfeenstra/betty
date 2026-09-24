@@ -7,9 +7,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.entity import EntityDefinition
-from betty.factory import Manufacturable
 from betty.json_schema import Array, JsonSchemaReference, Schema, String
 from betty.project import Project
+from betty.service_level.factory import Integratable
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 @final
-class ProjectSchema(Manufacturable, Schema):
+class ProjectSchema(Integratable, Schema):
     """
     A JSON Schema for a project.
     """

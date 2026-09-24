@@ -21,7 +21,7 @@ from betty.sample import Sample, Samples
     GenderDefinition,
     samples=Samples(
         lambda: Sample(
-            GenderDefinitionData(
+            GenderDefinitionConfig(
                 id="genderqueer",
                 label="Genderqueer",
                 label_plural="Genderqueers",
@@ -36,7 +36,9 @@ from betty.sample import Sample, Samples
         )
     ),
 )
-class GenderDefinitionData(CountableHumanFacingPluginDefinitionData[GenderDefinition]):
+class GenderDefinitionConfig(
+    CountableHumanFacingPluginDefinitionData[GenderDefinition]
+):
     """
     Configure a :py:class:`betty.gender.GenderDefinition`.
 

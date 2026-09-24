@@ -251,13 +251,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "indicators": MissingReason.COVERED_ELSEWHERE,
         },
     },
-    "betty/factory.py": {
-        "DataManufacturable": MissingReason.ABSTRACT,
-        "FactoryError": MissingReason.ABSTRACT,
-        "Manufacturable": MissingReason.ABSTRACT,
-        "ManufacturerError": MissingReason.ABSTRACT,
-        "UnsupportedManufacturer": MissingReason.ABSTRACT,
-    },
     "betty/functools.py": {
         "Result": {
             "result": MissingReason.COVERED_ELSEWHERE,
@@ -526,10 +519,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/plugin/error.py": {
         "PluginError": MissingReason.ABSTRACT,
-    },
-    "betty/plugin/factory.py": {
-        "PluginManufacturerDefinition": MissingReason.STATIC_CONTENT_ONLY,
-        "PluginManufacturerError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/collections/plugin/discoverer.py": {
         "PluginDiscovererCollection": MissingReason.STATIC_CONTENT_ONLY,

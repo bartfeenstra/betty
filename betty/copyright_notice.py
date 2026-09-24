@@ -11,12 +11,6 @@ from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.cls import ClsDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.factory import (
-    ManufacturablePlugin,
-    PluginManufacturer,
-    PluginManufacturerDefinition,
-    ResolvablePluginManufacturer,
-)
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable, ResolvableLocalizable
@@ -78,22 +72,3 @@ class CopyrightNoticeDefinition(
         super().__init__(
             copyright_notice_id, label=label, description=description, requires=requires
         )
-
-
-@final
-@PluginManufacturerDefinition(CopyrightNoticeDefinition)
-class CopyrightNoticeManufacturer(
-    PluginManufacturer[CopyrightNoticeDefinition, CopyrightNotice]
-):
-    """
-    The copyright notice manufacturer.
-    """
-
-
-type ResolvableCopyrightNoticeManufacturer = ResolvablePluginManufacturer[
-    CopyrightNoticeDefinition, CopyrightNoticeManufacturer
-]
-
-type ManufacturableCopyrightNotice = ManufacturablePlugin[
-    CopyrightNoticeDefinition, CopyrightNoticeManufacturer, CopyrightNotice
-]
