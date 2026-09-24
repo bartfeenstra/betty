@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from json import dumps
-from typing import TYPE_CHECKING, Final, Self, final, overload, override
+from typing import TYPE_CHECKING, Self, final, overload, override
 
 from typing_extensions import sentinel
 
@@ -15,7 +15,6 @@ from betty.assertions.mapping import assert_mapping
 from betty.assertions.record import Field, assert_record
 from betty.attrs.owner import OwnerAttr
 from betty.data import Data, DataDefinition
-from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.functools import Pipeline
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName, ResolvableMachineName
@@ -32,33 +31,8 @@ if TYPE_CHECKING:
     from betty.service_level import ServiceLevel
 
 
-class _Configurable[ConfigT: Data]:
-    """
-    A configurable plugin.
-
-    This internal base class exists only to ensure that multiple manufacturable base classes can be subclassed, but
-    only for the same configuration type.
-    """
-
-
-class ConfigurableManufacturable[ConfigT: Data](
-    _Configurable[ConfigT], metaclass=ABCMeta
-):
-    """
-    A plugin that can be initialized asynchronously from configuration data.
-    """
-
-    @classmethod
-    @abstractmethod
-    async def new(cls, config: ConfigT, /) -> Self:
-        """
-        Create a new instance.
-        """
-
-
-class ConfigurableIntegratable[ConfigT: Data](
-    _Configurable[ConfigT], metaclass=ABCMeta
-):
+# @todo These core types should not be part of the plugin API, but something lower level.
+class Configurable[ConfigT: Data](metaclass=ABCMeta):
     """
     A plugin that can be initialized asynchronously for a service level from configuration data.
     """
@@ -114,11 +88,6 @@ async def new(plugin, services, config=None, /):
     return await plugin.new(config)
 
 
-# @todo Move this onto NewPlugin?
-# @todo Except that for non-configurable
-# @todo
-# @todo
-# @todo
 NoConfig = sentinel("NoConfig")
 
 
@@ -164,7 +133,7 @@ class NewConfigurablePlugin[DefinitionT: ConfigurablePluginDefinition, PluginT](
     @override
     def __hash__(self):
         return hash((
-            self.data().plugin_type,
+            self.definition.plugin_type,
             self.id,
             NoConfig
             if self.config is NoConfig
@@ -174,14 +143,14 @@ class NewConfigurablePlugin[DefinitionT: ConfigurablePluginDefinition, PluginT](
     @final
     @override
     async def new(self, services: ServiceLevel, /) -> PluginT:
-        definition = await services.plugins[self.data().plugin_type][self.id]
+        definition = await services.plugins[self.definition.plugin_type][self.id]
         args = (definition.cls, services)
         if self.config is not NoConfig:
             if not isinstance(definition, ConfigurablePluginDefinition):
                 # @todo Add args and such
                 raise NotConfigurable
             if not isinstance(self.config, Data):
-                self.config = definition.config_cls.data().porter.load(self.config)
+                self.config = definition.config_cls.definition.porter.load(self.config)
             args += self.config
         return await new(*args)
 
@@ -194,10 +163,10 @@ class _NewConfigurablePluginPorter[NewPluginT: NewConfigurablePlugin](
         self._cls = cls
 
     _load = assert_if_else(
-        Pipeline(MachineName.data().porter.load)
+        Pipeline(MachineName.definition.porter.load)
         | (lambda plugin_id: {"plugin": plugin_id}),
         assert_record(
-            Field("id", MachineName.data().porter.load),
+            Field("id", MachineName.definition.porter.load),
             Field("data", optional=True),
         ),
     )
@@ -216,7 +185,7 @@ class _NewConfigurablePluginPorter[NewPluginT: NewConfigurablePlugin](
     @classmethod
     def dump_config(cls, config: Data | PortableData) -> PortableData:
         if isinstance(config, Data):
-            return config.data().porter.dump(config)
+            return config.definition.porter.dump(config)
         return config
 
     @override
@@ -233,20 +202,3 @@ class _NewConfigurablePluginPorter[NewPluginT: NewConfigurablePlugin](
         return data.id, {} if data.config is NoConfig else {
             "config": self.dump_config(data.config)
         }
-
-
-@final
-class NewConfigurablePluginDefinition[
-    DefinitionT: ConfigurablePluginDefinition,
-    PluginT,
-](ObjectDefinition[NewConfigurablePlugin[DefinitionT, PluginT]]):
-    """
-    Define a configurable plugin factory.
-    """
-
-    def __init__(self, plugin_type: type[DefinitionT], /):
-        super().__init__(
-            label=plugin_type.type().label,
-            porter=lambda definition: _NewConfigurablePluginPorter(definition.cls),
-        )
-        self.plugin_type: Final[type[DefinitionT]] = plugin_type

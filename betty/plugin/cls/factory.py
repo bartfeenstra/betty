@@ -4,6 +4,7 @@ The classed plugin factory API.
 
 from __future__ import annotations
 
+from abc import abstractmethod
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Final, Self, final, override
 
@@ -11,24 +12,21 @@ from typing_extensions import disjoint_base
 
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.classtools import TypeABCMeta
-from betty.data import Data
-from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.id import ResolvableId, resolve_id
-from betty.factory import Manufacturable
+from betty.factory import Manufacturable, new
 from betty.freezer import Frozen
 from betty.localizables.gettext import _
 from betty.plugin.config import ConfigurablePluginDefinition
 from betty.plugin.config.factory import (
-    NewConfigurablePlugin,
     _NewConfigurablePluginPorter,
 )
-from betty.prop import HasProps
-from betty.service_level.factory import Integratable, IntegratableFactory, Integrator
-from betty.service_level.factory import new as service_level_new
+from betty.service_level.factory import Integrator
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
 
+    from betty.plugin.cls import ClassedPluginDefinition
     from betty.service_level import ServiceLevel
 
 
@@ -37,35 +35,21 @@ type ManufacturablePlugin[PluginT] = (
 )
 
 
-type IntegratablePlugin[PluginT] = (
-    Intersection[PluginT, Integratable] | ManufacturablePlugin[PluginT]
-)
-
-
 type PluginFactory[PluginT, NewPluginT: PluginManufacturer] = (
-    NewPluginT | IntegratableFactory[PluginT]
+    NewPluginT | ManufacturablePlugin[PluginT]
 )
-
-
-async def new[PluginT, NewPluginT: NewPlugin](
-    plugin: PluginFactory[PluginT, NewPluginT],
-    services: ServiceLevel,
-    /,
-) -> PluginT:
-    """
-    Create a new plugin instance.
-    """
-    if isinstance(plugin, NewPlugin):
-        return await plugin.new(services)
-    return await service_level_new(plugin, services)
 
 
 @disjoint_base
 class PluginManufacturer[
-    DefinitionT: ClassedPluginDefinition,
+    DefinitionT: Intersection[ClassedPluginDefinition, ObjectDefinition],
     PluginT,
-    DataT: Data,
-](DataT, HasProps, Frozen, Integrator[PluginT], metaclass=TypeABCMeta):
+](
+    Object["PluginManufacturerDefinition[DefinitionT, PluginT]"],
+    Frozen,
+    Integrator[PluginT],
+    metaclass=TypeABCMeta,
+):
     """
     A plugin manufacturer.
     """
@@ -79,9 +63,9 @@ class PluginManufacturer[
         super().__init__()
         self.id = resolve_id(plugin_id)
 
-    @override
+    @abstractmethod
     def __hash__(self):
-        return hash((type(self), self.id))
+        pass
 
     @final
     @override
@@ -100,23 +84,37 @@ class PluginManufacturer[
             return factory
         return cls(resolve_id(factory))
 
+    @final
+    @override
+    async def new(self, services: ServiceLevel, /) -> PluginT:
+        return await self._new(
+            services, await services.plugins[self.definition.plugin_type][self.id]
+        )
 
-# @todo We really don't need this to be a factory?
-# @todo Plugins with dependencies (integration or config), those are not a thing for non-functional plugins.
-# @todo All we need is a way to map string IDs to plugin ID machine names (which can be done when loading and dumping).
-# @todo That means that for those plugins, this only ever needs to be a PODO.
-# @todo That also means that we can use MachineName instead? Except that we want to upcast it to a plugin definition
-# @todo (we don't inject machine names into services, we inject plugin definitions).
-# @todo
-# @todo
-# @todo
-# @todo
+    @abstractmethod
+    async def _new(self, services: ServiceLevel, plugin: DefinitionT, /) -> PluginT:
+        pass
+
+
+class PluginManufacturerDefinition[
+    DefinitionT: ConfigurablePluginDefinition,
+    PluginT,
+](ObjectDefinition[PluginManufacturer[DefinitionT, PluginT]]):
+    """
+    Define a plugin manufacturer.
+    """
+
+    def __init__(self, plugin_type: type[DefinitionT], /):
+        super().__init__(
+            label=plugin_type.type().label,
+            # @todo We cannot reuse the same porter for all PluginManufacturer subclasses
+            porter=lambda definition: _NewConfigurablePluginPorter(definition.cls),
+        )
+        self.plugin_type: Final[type[DefinitionT]] = plugin_type
+
+
 class NewPlugin[DefinitionT: ClassedPluginDefinition, PluginT](
-    PluginManufacturer[
-        DefinitionT,
-        PluginT,
-        Data["NewPluginDefinition[DefinitionT, PluginT]"],
-    ]
+    PluginManufacturer[DefinitionT, PluginT]
 ):
     """
     Configure a single plugin instance.
@@ -125,27 +123,21 @@ class NewPlugin[DefinitionT: ClassedPluginDefinition, PluginT](
     @final
     @override
     def __hash__(self):
-        return hash((type(self), self.data().plugin_type, self.id))
+        return hash((type(self), self.definition.plugin_type, self.id))
 
     @final
     @override
-    async def new(self, services: ServiceLevel, /) -> PluginT:
-        definition = await services.plugins[self.data().plugin_type][self.id]
-        return await new(definition.cls, services)
+    async def _new(self, services: ServiceLevel, plugin: DefinitionT, /) -> PluginT:
+        return await new(plugin.cls)
 
 
 @final
-class NewPluginDefinition[
-    DefinitionT: ConfigurablePluginDefinition,
-    PluginT,
-](ObjectDefinition[NewConfigurablePlugin[DefinitionT, PluginT]]):
+class NewPluginDefinition[DefinitionT: ClassedPluginDefinition, PluginT](
+    PluginManufacturerDefinition[DefinitionT, PluginT]
+):
     """
-    Define a configurable plugin factory.
+    Define a plugin manufacturer.
     """
 
     def __init__(self, plugin_type: type[DefinitionT], /):
-        super().__init__(
-            label=plugin_type.type().label,
-            porter=lambda definition: _NewConfigurablePluginPorter(definition.cls),
-        )
-        self.plugin_type: Final[type[DefinitionT]] = plugin_type
+        super().__init__(plugin_type)

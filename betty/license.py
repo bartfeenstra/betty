@@ -11,6 +11,8 @@ from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.cls import ClsDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
+from betty.plugin.cls.factory import PluginManufacturerDefinition
+from betty.plugin.data.factory import NewDataPlugin
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable, ResolvableLocalizable
@@ -72,3 +74,11 @@ class LicenseDefinition(
         super().__init__(
             license_id, label=label, description=description, requires=requires
         )
+
+
+@final
+@PluginManufacturerDefinition(LicenseDefinition)
+class NewLicense(NewDataPlugin):
+    """
+    Create new licenses from portable data.
+    """

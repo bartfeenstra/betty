@@ -8,6 +8,7 @@ from typing import Any, final
 
 from betty.data import Data
 from betty.definition import ResolvableDefinition, resolve_definition
+from betty.definition.cls import ClsDefinition
 from betty.definition.id import ResolvableId, resolve_id
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
@@ -17,7 +18,7 @@ from betty.plugin.config.factory import ConfigurablePlugin
 
 
 class ConfigurablePluginDefinition[PluginT, ConfigT: Data](
-    ClassedPluginDefinition[ConfigurablePlugin[PluginT, ConfigT]]
+    PluginDefinition, ClsDefinition[ConfigurablePlugin[PluginT, ConfigT]]
 ):
     """
     A configurable plugin definition.

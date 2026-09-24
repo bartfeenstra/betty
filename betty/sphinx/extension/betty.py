@@ -143,7 +143,7 @@ class _PluginDirective(SphinxDirective):
     ) -> list[nodes.Node]:
         cls = plugin.cls
         if issubclass(cls, ConfigurablePlugin.__value__):
-            configuration_content = f":py:class:`{cls.plugin().config_cls.__name__} <{cls.plugin().config_cls.__module__}.{cls.plugin().config_cls.__qualname__}>`"
+            configuration_content = f":py:class:`{cls.definition.config_cls.__name__} <{cls.definition.config_cls.__module__}.{cls.definition.config_cls.__qualname__}>`"
         else:
             configuration_content = "*not configurable*"
         content = f"""

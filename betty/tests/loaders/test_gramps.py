@@ -93,7 +93,7 @@ class TestGramps:
             loaders=[
                 NewLoader(
                     Gramps.definition,
-                    GrampsData(
+                    GrampsConfig(
                         family_trees=[
                             FamilyTree(
                                 gramps_family_tree_path,
@@ -329,7 +329,7 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
             place_types={gramps_type: NewPlaceType(plugin_id)},
         )
         assert sut.place_types[gramps_type].id == plugin_id
-        assert sut.place_types["Borough"].id == Borough.plugin().id
+        assert sut.place_types["Borough"].id == Borough.definition.id
 
     def test___init____with_roles(self) -> None:
         gramps_type = "my-first-gramps-type"
@@ -339,7 +339,7 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
             roles={gramps_type: NewRole(plugin_id)},
         )
         assert sut.roles[gramps_type].id == plugin_id
-        assert sut.roles["Aide"].id == Attendee.plugin().id
+        assert sut.roles["Aide"].id == Attendee.definition.id
 
     def test_source(self) -> None:
         name = "my-first-family-tree"
@@ -347,7 +347,7 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
         assert sut.source == name
 
 
-class TestGrampsData(DataTestBase[GrampsConfig]):
+class TestGrampsConfig(DataTestBase[GrampsConfig]):
     sut_cls = GrampsConfig
 
     async def test___init____with_family_trees(self) -> None:

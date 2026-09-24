@@ -235,7 +235,7 @@ class GrampsConfig(Object):
     """
     Configuration for the :py:class:`betty.loaders.gramps.Gramps` extension.
 
-    .. data:: betty.loaders.gramps:GrampsData
+    .. data:: betty.loaders.gramps:GrampsConfig
     """
 
     family_trees = CollectionOwnerAttr(
