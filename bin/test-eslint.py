@@ -11,7 +11,8 @@ print("Running ESLint...")  # noqa: T201
 check_call([
     "node_modules/.bin/eslint",
     "-c",
-    "eslint.config.js",
+    "eslint.config.ts",
     "data",
-    *sys.argv[2:],
+    "eslint.config.ts",
+    *sys.argv[1:],
 ])
