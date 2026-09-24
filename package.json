@@ -4,26 +4,28 @@
     "node": ">= 20"
   },
   "devDependencies": {
-    "@stylistic/eslint-plugin": "^5.0.0",
-    "@types/node": "*",
-    "@types/webpack": "^5.28.5",
     "@betty.py/betty": "file:./data/js",
     "@betty.py/betty.extensions.http-api-doc": "file:./data/webpack/http_api_doc",
     "@betty.py/betty.extensions.maps": "file:./data/webpack/maps",
     "@betty.py/betty.extensions.raspberry-mint": "file:./data/webpack/raspberry_mint",
     "@betty.py/betty.extensions.trees": "file:./data/webpack/trees",
     "@betty.py/betty.extensions.webpack": "file:./data/webpack/webpack",
-    "eslint": "^9.24.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-n": "^18.0.1",
-    "eslint-plugin-promise": "^7.2.1",
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/node": "*",
+    "@types/webpack": "^5.28.5",
+    "eslint": "^10.11.0",
+    "eslint-plugin-import-x": "^4.17.1",
+    "eslint-plugin-n": "^18.3.0",
+    "eslint-plugin-promise": "^7.3.0",
+    "globals": "^17.12.0",
     "stylelint": "^17.00.0",
     "stylelint-config-standard": "^40.0.0",
     "stylelint-config-standard-scss": "^17.0.0",
     "stylelint-no-unsupported-browser-features": "^8.0.2",
     "stylelint-scss": "^7.0.0",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.29.1"
+    "typescript-eslint": "^8.70.1"
   },
   "type": "module"
 }

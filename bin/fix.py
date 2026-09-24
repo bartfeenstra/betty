@@ -9,20 +9,20 @@ from subprocess import check_call
 check_call(["ruff", "check", "--preview", "--fix", "."])
 check_call(["ruff", "format", "--preview", "."])
 
-# Fix CSS code style violations.
-check_call([
-    "node_modules/.bin/stylelint",
-    "--fix",
-    "betty/**/*.css",
-    "betty/**/*.scss",
-])
+# # Fix CSS code style violations.
+# check_call([
+#     "node_modules/.bin/stylelint",
+#     "--fix",
+#     "betty/**/*.css",
+#     "betty/**/*.scss",
+# ])
 
 # Fix JS code style violations.
 check_call([
     "node_modules/.bin/eslint",
     "--fix",
     "-c",
-    "eslint.config.js",
-    "betty",
-    "js",
+    "eslint.config.ts",
+    "data",
+    "eslint.config.ts",
 ])
