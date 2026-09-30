@@ -10,12 +10,12 @@ from pytest_mock import MockerFixture
 from betty.app import App
 from betty.console import SystemExitCode, call_command_func, main_from_environment
 from betty.console.command import Command, CommandDefinition
-from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.user import Severity
+from betty.user.error import UserFacingError
 
 
 @CommandDefinition("no-op", label="No-op")
@@ -71,7 +71,7 @@ async def test_main__with_unknown_command(isolated_app: App) -> None:
         (SystemExitCode.OK, _NoOpCommand.definition),
         (
             SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
+            _create_raising_command(UserFacingError(DUMMY_LOCALIZABLE)),
         ),
         (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
         (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
@@ -93,7 +93,7 @@ async def test_main__with_user_facing_exception(
         (SystemExitCode.OK, _NoOpCommand.definition),
         (
             SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
+            _create_raising_command(UserFacingError(DUMMY_LOCALIZABLE)),
         ),
         (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
         (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),

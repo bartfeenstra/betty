@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final, final, override
 
-from betty.assertions.str import assert_str
 from betty.locale import ResolvableLocale, resolve_locale
 from betty.localizable import Localizable
 from betty.localized import LocalizedStr
+from betty.validators.str import is_str
 
 if TYPE_CHECKING:
     from babel import Locale
@@ -26,7 +26,7 @@ class Plain(Localizable):
     __slots__ = ("locale", "text")
 
     def __init__(self, text: str, locale: ResolvableLocale | None = None, /):
-        assert_str(minimum_length=1)(text)
+        is_str(minimum_length=1)(text)
         self.text: Final[str] = text
         """
         The plain text.

@@ -23,9 +23,9 @@ if TYPE_CHECKING:
         MutableSequence,
     )
 
-    from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
     from betty.progress import Progress
+    from betty.validation import Validator
 
 
 @final
@@ -188,7 +188,7 @@ class StaticUser(User):
         question: ResolvableLocalizable,
         /,
         *,
-        assertion: None = None,
+        validator: None = None,
         default: str | NoDefault = NoDefault,
     ) -> str:
         pass
@@ -199,13 +199,13 @@ class StaticUser(User):
         question: ResolvableLocalizable,
         /,
         *,
-        assertion: Pipe[str, T],
+        validator: Validator[str, T],
         default: str | NoDefault = NoDefault,
     ) -> T:
         pass
 
     @override
-    async def ask_input(self, question, /, *, assertion=None, default=NoDefault):
+    async def ask_input(self, question, /, *, validator=None, default=NoDefault):
         value = next(self._inputs)
         if value is None:
             if default is NoDefault:
@@ -213,6 +213,6 @@ class StaticUser(User):
                     "Neither a predefined response nor a call default were provided."
                 )
             return default
-        if assertion is None:
+        if validator is None:
             return value
-        return assertion(value)
+        return validator(value)

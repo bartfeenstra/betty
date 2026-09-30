@@ -4,10 +4,10 @@ from io import StringIO
 
 import pytest
 
-from betty.assertions.int import assert_int
 from betty.localizer import default_localizer
 from betty.rich.user import RichUser
 from betty.user import Severity
+from betty.validators.int import is_int
 
 
 class TestRichUser:
@@ -178,11 +178,11 @@ class TestRichUser:
 
     async def test_ask_input__with_assertion(self) -> None:
         def _assertion(value: str) -> int:
-            return assert_int()(int(value))
+            return is_int(int(value))
 
         stdin = StringIO("123")
         sut = RichUser()
-        assert await sut.ask_input("", stdin=stdin, assertion=_assertion) == 123
+        assert await sut.ask_input("", stdin=stdin, validator=_assertion) == 123
 
     async def test_ask_input__with_default(self) -> None:
         default = "Hello, world!"
@@ -192,11 +192,11 @@ class TestRichUser:
 
     async def test_ask_input__with_assertion_and_default(self) -> None:
         def _assertion(value: str) -> int:
-            return assert_int()(int(value))
+            return is_int(int(value))
 
         stdin = StringIO("")
         sut = RichUser()
         assert (
-            await sut.ask_input("", stdin=stdin, assertion=_assertion, default="123")
+            await sut.ask_input("", stdin=stdin, validator=_assertion, default="123")
             == 123
         )

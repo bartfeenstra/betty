@@ -50,7 +50,6 @@ from betty.entities.place_name import PlaceName
 from betty.entities.presence import Presence
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.error import FileNotFound
 from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
 from betty.event_types.adoption import Adoption
 from betty.event_types.baptism import Baptism
@@ -73,7 +72,6 @@ from betty.event_types.residence import Residence
 from betty.event_types.retirement import Retirement
 from betty.event_types.unknown import UnknownEventType
 from betty.event_types.will import Will
-from betty.exception import HumanFacingException
 from betty.gender import (
     GenderDefinition,
     GenderManufacturer,
@@ -92,6 +90,7 @@ from betty.localizables.markup import JoinOr, Quote
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.media_type import InvalidMediaType, MediaType
+from betty.os import FileNotFound
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeManufacturer, ResolvablePlaceTypeManufacturer
 from betty.place_types.borough import Borough
@@ -125,6 +124,7 @@ from betty.roles.subject import Subject
 from betty.roles.unknown import UnknownRole
 from betty.roles.witness import Witness
 from betty.user import Severity
+from betty.user.error import UserFacingError
 
 if TYPE_CHECKING:
     from asyncio.subprocess import Process
@@ -156,7 +156,7 @@ class GrampsError(Exception):
     """
 
 
-class UserFacingGrampsError(GrampsError, HumanFacingException):
+class UserFacingGrampsError(UserFacingError, GrampsError):
     """
     A user-facing Gramps API error.
     """

@@ -7,13 +7,13 @@ from __future__ import annotations
 from collections.abc import Iterable, MutableSequence, Sequence
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.assertions.sequence import assert_sequence
 from betty.datas.aggregate.collection import (
     CollectionDefinition,
     CollectionManufacturer,
     MutableCollectionDefinition,
 )
 from betty.porters.callback import CallbackPorter
+from betty.validators.sequence import is_sequence
 
 if TYPE_CHECKING:
     from betty.data import DataDefinition, ResolvableDataDefinition
@@ -45,7 +45,7 @@ class SequenceDefinition[SequenceT: Sequence[Any], ValueT](
         )
 
     def _load(self, portable: PortableData, /) -> SequenceT:
-        return self.new(assert_sequence(self.item.porter.load)(portable))
+        return self.new(is_sequence(self.item.porter.load)(portable))
 
     def _dump(self, data: SequenceT) -> PortableData:
         return [self.item.porter.dump(item) for item in data]

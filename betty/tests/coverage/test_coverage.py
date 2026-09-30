@@ -64,12 +64,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "shutdown": MissingReason.COVERED_ELSEWHERE,
         }
     },
-    "betty/assertions/plugin.py": {
-        "assert_plugin": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/assertions/record.py": {
-        "Field": MissingReason.DATACLASS,
-    },
     "betty/asset.py": {
         "AssetError": MissingReason.ABSTRACT,
         "AssetRepository": MissingReason.ABSTRACT,
@@ -243,14 +237,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Derivation": MissingReason.ENUM,
     },
     "betty/dirs.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/error.py": {
-        "FileNotFound": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/exception.py": {
-        "HumanFacingException": {
-            "locators": MissingReason.COVERED_ELSEWHERE,
-        },
-    },
     "betty/factory.py": {
         "DataManufacturable": MissingReason.ABSTRACT,
         "FactoryError": MissingReason.ABSTRACT,
@@ -742,6 +728,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         "UserTimeoutError": MissingReason.STATIC_CONTENT_ONLY,
         "Severity": MissingReason.ENUM,
+    },
+    "betty/validation.py": {
+        "Validator": MissingReason.PROTOCOL,
+    },
+    "betty/validators/plugin.py": {
+        "is_plugin": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/validators/record.py": {
+        "Field": MissingReason.DATACLASS,
     },
     "betty/warnings.py": {
         "BettyDeprecationWarning": MissingReason.STATIC_CONTENT_ONLY,

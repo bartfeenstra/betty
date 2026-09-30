@@ -7,31 +7,48 @@ from __future__ import annotations
 import argparse as stdargparse
 from typing import TYPE_CHECKING
 
-from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
-from betty.localizables.markup import Quote
+from betty.localizables.markup import Lines, Paragraphs, Quote, UnorderedList
+from betty.locator.operator import Operators
+from betty.validation import Invalid
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.functools import Pipe
     from betty.localizer import Localizer
+    from betty.validation import Validator
 
 
-def assertion_to_argument_type[T](
-    assertion: Pipe[str, T], *, localizer: Localizer
+def validator_to_argument_type[T](
+    validator: Validator[str, T], /, *, localizer: Localizer
 ) -> Callable[[str], T]:
     """
-    Convert an assertion to an argparse argument type.
+    Convert a validator to an argparse argument type.
     """
 
-    def _assertion_to_argument_type(value: str) -> T:
+    def _validator_to_argument_type(value: str) -> T:
         try:
-            return assertion(value)
-        except HumanFacingException as error:
-            raise stdargparse.ArgumentTypeError(error.localize(localizer)) from error
+            return validator(value)
+        except* Invalid as errors:
+            raise stdargparse.ArgumentTypeError(
+                Paragraphs(
+                    *(
+                        Lines(
+                            error.localizable_message,
+                            UnorderedList(*[
+                                operator.format()
+                                for operator in Operators.reduce(
+                                    *reversed(error.location)
+                                )
+                            ]),
+                        )
+                        for error in errors.exceptions
+                        if isinstance(error, Invalid)
+                    )
+                ).localize(localizer)
+            ) from None
 
-    return _assertion_to_argument_type
+    return _validator_to_argument_type
 
 
 def add_yes_argument(

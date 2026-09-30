@@ -1,7 +1,7 @@
 import pytest
 
 from betty.datas.int import IntDefinition
-from betty.exception import HumanFacingException
+from betty.user.error import UserFacingError
 
 
 class TestIntDefinition:
@@ -12,7 +12,7 @@ class TestIntDefinition:
 
     def test_load__without_int(self) -> None:
         sut = IntDefinition(label="-")
-        with pytest.raises(HumanFacingException):
+        with pytest.raises(UserFacingError):
             assert sut.porter.load({})
 
     def test_dump(self) -> None:

@@ -14,7 +14,6 @@ from urllib.parse import urlsplit
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.exception import HumanFacingException
 from betty.functools import Do
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
@@ -25,6 +24,7 @@ from betty.plugin.factory import (
 )
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.user import Severity
+from betty.user.error import UserFacingError
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -107,7 +107,7 @@ class Server(HasDefinition["ServerDefinition"], metaclass=ABCMeta):
         try:
             await Do[Any, None](self.__do_assert_available).until()
         except Exception as error:
-            raise HumanFacingException(
+            raise UserFacingError(
                 _("The server at {url} was unreachable after starting.").format(
                     url=self.public_url
                 )

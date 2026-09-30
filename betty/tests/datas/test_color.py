@@ -1,8 +1,8 @@
 import pytest
 
 from betty.datas.color import ColorDefinition
-from betty.exception import HumanFacingException
 from betty.portable import PortableData
+from betty.validation import Invalid
 
 
 class TestColorDefinition:
@@ -20,7 +20,7 @@ class TestColorDefinition:
         ],
     )
     def test_load__with_invalid_portable(self, portable: PortableData) -> None:
-        with pytest.raises(HumanFacingException):
+        with pytest.raises(Invalid):
             ColorDefinition().porter.load(portable)
 
     def test_dump(self) -> None:

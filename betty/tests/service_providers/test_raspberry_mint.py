@@ -7,7 +7,6 @@ import pytest
 from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.static import Static
 from betty.entity import EntityDefinition
-from betty.exception import HumanFacingException
 from betty.project.generate import generate
 from betty.service_providers.raspberry_mint import (
     RaspberryMint,
@@ -17,6 +16,7 @@ from betty.service_providers.raspberry_mint import (
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.entity import DummyEntityOne
 from betty.tests.conftest import check_skip_webpack_entry_point_provider
+from betty.validation import Invalid
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -141,7 +141,7 @@ class TestRaspberryMintData(DataTestBase[RaspberryMintData]):
         async with isolated_project_factory(
             service_providers=[RaspberryMint]
         ) as project:
-            with pytest.raises(HumanFacingException) as exc_info:
+            with pytest.raises(Invalid) as exc_info:
                 await sut.validate(project)
         assert 'data.regional_content["unknown-region"]' in str(exc_info.value)
 

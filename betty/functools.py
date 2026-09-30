@@ -314,33 +314,32 @@ class LazyReCallable[ValueT]:
 type Pipe[ValueT, ReturnT] = Callable[[ValueT], ReturnT]
 
 
-@final
 class Pipeline[ValueT, ReturnT]:
     """
     A function pipeline.
 
-    Function pipeline let you pipe/chain/link/combine functions into pipelines that take an input
-    value and, if the functions pass, return an output value. Each pipeline may be (re)used as many
-    times as needed.
+    Pipelines let you pipe/chain/link/combine functions into pipelines that take an input value and return an output
+    value. Each pipeline may be (re)used as many times as needed.
     """
 
-    __slots__ = ("_pipe",)
+    __slots__ = ("__pipe",)
 
     def __init__(self, pipe: Pipe[ValueT, ReturnT], /):
-        self._pipe = pipe
+        self.__pipe = pipe
 
+    @final
     def pipe[PipeReturnT](
         self, pipe: Pipe[ReturnT, PipeReturnT], /
     ) -> Pipeline[ValueT, PipeReturnT]:
         """
         Return a new pipeline consisting of ``self`` with ``pipe`` added to it.
         """
-        return Pipeline(lambda value: pipe(self._pipe(value)))
+        return Pipeline(lambda value: pipe(self.__pipe(value)))
 
     __or__ = pipe
 
-    def __call__(self, value: ValueT) -> ReturnT:
+    def __call__(self, value: ValueT, /) -> ReturnT:
         """
         Invoke the pipeline with a value.
         """
-        return self._pipe(value)
+        return self.__pipe(value)

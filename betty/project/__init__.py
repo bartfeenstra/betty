@@ -20,8 +20,6 @@ from babel import Locale
 
 from betty.about import version_major
 from betty.app import App
-from betty.assertions.int import assert_int
-from betty.assertions.url import assert_url
 from betty.attrs.locale import new_locale_attr
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.machine_name import new_machine_name_attr
@@ -60,7 +58,6 @@ from betty.document import Document, DocumentProviderDefinition
 from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.event_type import EventTypeDefinition
-from betty.exception import HumanFacingException
 from betty.freezer import Frozen
 from betty.gender import GenderDefinition
 from betty.gettext import TranslationsRepository
@@ -128,6 +125,9 @@ from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
+from betty.validation import Invalid
+from betty.validators.int import is_int
+from betty.validators.url import is_url
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable, Sequence
@@ -660,7 +660,7 @@ class ProjectLocale(Object, Frozen):
         super().__init__()
         self.locale = locale
         if alias is not None and "/" in alias:
-            raise HumanFacingException(_("Locale aliases must not contain slashes."))
+            raise Invalid(_("Locale aliases must not contain slashes."))
         self.alias = alias
         self.slug: Final[str] = alias or to_language_tag(self.locale)
         """
@@ -875,7 +875,7 @@ class ProjectData(Object):
                 ),
             )
         )
-        .setter(assert_int(minimum=1))
+        .setter(is_int(min=1))
         .default(lambda: default_lifetime_threshold)
     )
     """
@@ -961,7 +961,7 @@ class ProjectData(Object):
                 "The absolute, public URL at which the site will be published."
             ),
         )
-    ).setter(assert_url())
+    ).setter(is_url())
     """
     The project's public URL.
     """

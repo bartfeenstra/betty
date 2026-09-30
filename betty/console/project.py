@@ -9,15 +9,15 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from betty.argparse import assertion_to_argument_type
-from betty.assertions.path import assert_path
-from betty.error import FileNotFound
-from betty.exception import HumanFacingException
+from betty.argparse import validator_to_argument_type
 from betty.localizables.gettext import _
 from betty.localizables.markup import JoinOr
-from betty.portable.file import assert_load_file
+from betty.os import FileNotFound
+from betty.portable.file import is_load_file
 from betty.project import Project, ProjectData
 from betty.user import Severity
+from betty.validation import Invalid
+from betty.validators.path import is_path
 
 if TYPE_CHECKING:
     import argparse
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from betty.user import User
 
 
-class ConfigurationFileNotFound(HumanFacingException):
+class ConfigurationFileNotFound(Invalid):
     """
     Raised when no configuration file could be found.
     """
@@ -55,7 +55,7 @@ async def add_project_argument(
         ).format(
             default=f"betty.{'|'.join([extension[1:] for serializer in serializers for extension in serializer.media_type().extensions])}"
         ),
-        type=assertion_to_argument_type(assert_path(), localizer=app.user.localizer),
+        type=validator_to_argument_type(is_path(), localizer=app.user.localizer),
     )
 
     async def _command_function_with_project_argument(
@@ -119,10 +119,10 @@ async def _read_project_configuration(
 async def _read_project_configuration_file(
     configuration_file: Path, serializers: Iterable[Serializer], user: User
 ) -> tuple[ProjectData, Path]:
-    assert_configuration = assert_load_file(serializers=serializers)
+    assert_configuration = is_load_file(serializers=serializers)
     try:
         portable = assert_configuration(configuration_file)
-    except HumanFacingException as error:
+    except Invalid as error:
         await user.message(error, Severity.DEBUG)
         raise
     else:

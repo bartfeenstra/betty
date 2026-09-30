@@ -7,10 +7,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.definition.id import resolve_id
-from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, Quote, do_you_mean
 from betty.plugin import PluginDefinition
+from betty.user.error import UserFacingError
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -25,7 +25,7 @@ class PluginError(Exception):
     """
 
 
-class PluginTypeNotFound(PluginError, HumanFacingException):
+class PluginTypeNotFound(PluginError, UserFacingError):
     """
     Raised when a plugin type cannot be found.
     """
@@ -49,7 +49,7 @@ class PluginTypeNotFound(PluginError, HumanFacingException):
         )
 
 
-class PluginNotFound(PluginError, HumanFacingException):
+class PluginNotFound(PluginError, UserFacingError):
     """
     Raised when a plugin cannot be found.
     """

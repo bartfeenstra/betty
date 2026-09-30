@@ -10,12 +10,13 @@ import shutil
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any
 
-from betty.pathlib import resolve_path
+from betty.localizables.gettext import _
+from betty.localizables.markup import Quote
+from betty.pathlib import StrPath, resolve_path
+from betty.validation import Invalid
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-
-    from betty.pathlib import StrPath
 
 
 async def link_or_copy(source_file: StrPath, destination_file: StrPath, /) -> None:
@@ -60,3 +61,14 @@ def _retry_link(source_file: StrPath, destination_file: StrPath) -> None:
 def _retry_copyfile(source_file: StrPath, destination_file: StrPath) -> None:
     with suppress(shutil.SameFileError):
         _retry(shutil.copyfile, source_file, destination_file)
+
+
+class FileNotFound(Invalid, FileNotFoundError):
+    """
+    Raised when a file cannot be found.
+    """
+
+    def __init__(self, file: StrPath, /):
+        super().__init__(
+            _("Could not find the file {file_path}.").format(file_path=Quote(str(file)))
+        )

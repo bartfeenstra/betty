@@ -23,10 +23,10 @@ from betty.user import NoDefault, Severity, User
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Mapping
 
-    from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
     from betty.localizer import Localizer
     from betty.progress import Progress
+    from betty.validation import Validator
 
 
 @final
@@ -131,7 +131,7 @@ class RichUser(User):
         question: ResolvableLocalizable,
         /,
         *,
-        assertion: None = None,
+        validator: None = None,
         default: str | NoDefault = NoDefault,
         stdin: TextIO | None = None,
     ) -> str:
@@ -143,7 +143,7 @@ class RichUser(User):
         question: ResolvableLocalizable,
         /,
         *,
-        assertion: Pipe[str, T],
+        validator: Validator[str, T],
         default: str | NoDefault = NoDefault,
         stdin: TextIO | None = None,
     ) -> T:
@@ -155,7 +155,7 @@ class RichUser(User):
         question,
         /,
         *,
-        assertion=None,
+        validator=None,
         default=NoDefault,
         stdin: TextIO | None = None,
     ):
@@ -171,6 +171,6 @@ class RichUser(User):
                 **ask_kwargs,
             ),
         )
-        if assertion is None:
+        if validator is None:
             return value
-        return assertion(value)
+        return validator(value)

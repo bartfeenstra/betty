@@ -6,7 +6,6 @@ from betty.datas.localizable import (
     CountableLocalizableDefinition,
     LocalizableDefinition,
 )
-from betty.exception import HumanFacingException
 from betty.locale import default_locale_tag
 from betty.localizable import (
     CountableLocalizable,
@@ -24,6 +23,7 @@ from betty.localizables.static import (
 from betty.localizer import default_localizer
 from betty.portable.error import NotDumpable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+from betty.user.error import UserFacingError
 
 if TYPE_CHECKING:
     from betty.localizable import (
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 
 class TestLocalizableDefinition:
     def test_load__without_translations_should_error(self) -> None:
-        with pytest.raises(HumanFacingException):
+        with pytest.raises(UserFacingError):
             LocalizableDefinition().porter.load({})
 
     def test_load__with_single_undetermined_translation(self) -> None:
@@ -89,7 +89,7 @@ class TestCountableLocalizableDefinition:
         assert loaded.count(1).localize(default_localizer) == "1 thing"
 
     def test_load_countable_localizable__without_locales(self) -> None:
-        with pytest.raises(HumanFacingException):
+        with pytest.raises(UserFacingError):
             CountableLocalizableDefinition().porter.load({})
 
     def test_load_countable_localizable__with_missing_plural_tag(self) -> None:

@@ -8,13 +8,13 @@ import re
 from typing import TYPE_CHECKING, Final, Self, final
 from uuid import uuid4
 
-from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
-from betty.exception import HumanFacingException
 from betty.functools import passthrough
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, Quote
 from betty.porters.callback import CallbackPorter
+from betty.validation import Invalid
+from betty.validators.str import is_str
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable
@@ -29,7 +29,7 @@ _machinify_disallowed_character_pattern: Final[re.Pattern[str]] = re.compile(
 )
 _machinify_hyphen_pattern: Final[re.Pattern[str]] = re.compile(r"-{2,}")
 
-__load = assert_str()
+__load = is_str
 
 
 def _load(portable: PortableData, /) -> MachineName:
@@ -114,7 +114,7 @@ type ResolvableMachineName = MachineName | str
 
 
 @final
-class InvalidMachineName(HumanFacingException, ValueError):
+class InvalidMachineName(Invalid):
     """
     Raised when something is not a valid machine name.
     """
