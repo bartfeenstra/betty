@@ -7,7 +7,7 @@ import pytest
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.str import assert_str
 from betty.exception import HumanFacingException
-from betty.indicator.operator import Key
+from betty.locator.operator import Key
 
 if TYPE_CHECKING:
     from betty.functools import Pipe
@@ -33,13 +33,13 @@ def test_assert_mapping__with_invalid_top_level_value(value: Any) -> None:
 def test_assert_mapping__with_invalid_item_value() -> None:
     with pytest.raises(HumanFacingException) as exc_info:
         assert_mapping(assert_str())({"abc": 123})
-    assert exc_info.value.indicators == [Key("abc")]
+    assert exc_info.value.locators == [Key("abc")]
 
 
 def test_assert_mapping__with_invalid_item_key() -> None:
     with pytest.raises(HumanFacingException) as exc_info:
         assert_mapping(None, assert_str())({123: "abc"})
-    assert exc_info.value.indicators == [Key("123")]
+    assert exc_info.value.locators == [Key("123")]
 
 
 @pytest.mark.parametrize(

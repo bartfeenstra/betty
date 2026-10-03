@@ -17,12 +17,12 @@ from geopy import Point
 from betty.assertions.float import assert_float
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.str import assert_str
-from betty.exception import HumanFacingException, reraise_with_indicator
+from betty.exception import HumanFacingException, reraise_with_locator
 from betty.file import write
 from betty.hashid import hashid
-from betty.indicator import Url
-from betty.indicator.operator import Index, Key, OperatorError, Operators
 from betty.localizables.gettext import _
+from betty.locator import Url
+from betty.locator.operator import Index, Key, OperatorError, Operators
 from betty.media_type import MediaType
 
 if TYPE_CHECKING:
@@ -117,7 +117,7 @@ class Client:
         data = await self._get_json(url)
         with (
             self._human_facing_exception_to_client_error(),
-            reraise_with_indicator(Url(url)),
+            reraise_with_locator(Url(url)),
         ):
             return Operators(Key("query"), Key("pages"), Index(0)).get(
                 data, assert_mapping(None, assert_str())
@@ -154,7 +154,7 @@ class Client:
 
         with (
             self._human_facing_exception_to_client_error(),
-            reraise_with_indicator(Url(url)),
+            reraise_with_locator(Url(url)),
         ):
             api_data = await self._get_json(url)
 
@@ -191,12 +191,12 @@ class Client:
         image_info_selectors = (Key("imageinfo"), Index(0))
         with (
             self._human_facing_exception_to_client_error(),
-            reraise_with_indicator(Url(url)),
+            reraise_with_locator(Url(url)),
         ):
             image_info = Operators(*image_info_selectors).get(
                 image_info_api_data, assert_mapping()
             )
-            with reraise_with_indicator(*image_info_selectors):
+            with reraise_with_locator(*image_info_selectors):
                 image_url = Key("url").get(image_info, assert_str())
                 image_media_type = Key("mime").get(image_info, MediaType)
                 image_title = Key("canonicaltitle").get(image_info, assert_str())
@@ -236,7 +236,7 @@ class Client:
 
         with (
             self._human_facing_exception_to_client_error(),
-            reraise_with_indicator(Url(url)),
+            reraise_with_locator(Url(url)),
         ):
             globe = Key("globe").get(coordinates, assert_str())
             if globe != "earth":

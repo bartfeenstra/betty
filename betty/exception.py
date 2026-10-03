@@ -7,17 +7,17 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Never, override
 
-from betty.indicator.operator import Operators
 from betty.localizable import Localizable, ResolvableLocalizable
 from betty.localizables.markup import Lines, UnorderedList
 from betty.localizer import default_localizer
+from betty.locator.operator import Operators
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
-    from betty.indicator import Indicator
     from betty.localized import LocalizedStr
     from betty.localizer import Localizer
+    from betty.locator import Locator
 
 
 def do_raise(exception: BaseException, /) -> Never:
@@ -30,14 +30,14 @@ def do_raise(exception: BaseException, /) -> Never:
 
 
 @contextmanager
-def reraise_with_indicator(*indicators: Indicator) -> Iterator[None]:
+def reraise_with_locator(*locators: Locator) -> Iterator[None]:
     """
-    Re-raise a human-facing exception with the given indicators.
+    Re-raise a human-facing exception with the given locators.
     """
     try:
         yield
     except HumanFacingException as error:
-        error.with_indicator(*indicators)
+        error.with_locator(*locators)
         raise
 
 
@@ -53,14 +53,14 @@ class HumanFacingException(Exception, Localizable):
         self,
         message: ResolvableLocalizable,
         *,
-        indicators: Sequence[Indicator] = (),
+        locators: Sequence[Locator] = (),
     ):
         super().__init__(
             # Provide a default localization so this exception can be displayed like any other.
             default_localizer.localize(message),
         )
         self._localizable_message = message
-        self._indicators = list(indicators)
+        self._locators = list(locators)
 
     @override
     def __str__(self) -> str:
@@ -72,23 +72,23 @@ class HumanFacingException(Exception, Localizable):
             self._localizable_message,
             UnorderedList(*[
                 operator.format()
-                for operator in Operators.reduce(*reversed(self.indicators))
+                for operator in Operators.reduce(*reversed(self.locators))
             ]),
         ).localize(localizer)
 
     @property
-    def indicators(self) -> Sequence[Indicator]:
+    def locators(self) -> Sequence[Locator]:
         """
-        Get the human-readable indicators describing where the error occurred in the source data.
+        Get the human-readable locators describing where the error occurred in the source data.
 
-        The first indicator is the innermost, and the last indicator is the outermost.
+        The first locator is the innermost, and the last locator is the outermost.
         """
-        return self._indicators
+        return self._locators
 
-    def with_indicator(self, *indicators: Indicator) -> None:
+    def with_locator(self, *locators: Locator) -> None:
         """
-        Adds the given indicator(s) to the exception.
+        Adds the given locator(s) to the exception.
 
-        The first indicator is the innermost, and the last indicator is the outermost.
+        The first locator is the innermost, and the last locator is the outermost.
         """
-        self._indicators.extend(indicators)
+        self._locators.extend(locators)

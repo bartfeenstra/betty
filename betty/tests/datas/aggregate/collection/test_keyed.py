@@ -15,7 +15,7 @@ from betty.datas.aggregate.collection.keyed import (
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.mapping import TypedMappingDefinition
 from betty.datas.str import StrDefinition
-from betty.indicator.operator import Key
+from betty.locator.operator import Key
 from betty.portable import PortableData
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter

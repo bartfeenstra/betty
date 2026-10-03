@@ -1,5 +1,5 @@
 """
-Data indicators.
+The locator API.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from betty.pathlib import StrPath
 
 
-class Indicator(metaclass=ABCMeta):
+class Locator(metaclass=ABCMeta):
     """
     Describe a location of a piece of data.
     """
@@ -23,14 +23,14 @@ class Indicator(metaclass=ABCMeta):
     @abstractmethod
     def format(self) -> str:
         """
-        Format the indicator to a string.
+        Format the locator to a string.
         """
 
 
 @final
-class AnyIndex(Indicator):
+class AnyIndex(Locator):
     """
-    A sequence item indicator.
+    A sequence item locator.
     """
 
     @override
@@ -39,9 +39,9 @@ class AnyIndex(Indicator):
 
 
 @final
-class AnyKey(Indicator):
+class AnyKey(Locator):
     """
-    A mapping item indicator.
+    A mapping item locator.
     """
 
     @override
@@ -50,7 +50,7 @@ class AnyKey(Indicator):
 
 
 @final
-class Path(Indicator):
+class Path(Locator):
     """
     A file on disk.
     """
@@ -64,7 +64,7 @@ class Path(Indicator):
 
 
 @final
-class Url(Indicator):
+class Url(Locator):
     """
     A URL.
     """

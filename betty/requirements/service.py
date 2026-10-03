@@ -11,8 +11,8 @@ from betty.requirement import UnmetRequirement
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.indicator import Indicator
     from betty.localizable import ResolvableLocalizable
+    from betty.locator import Locator
     from betty.service import ServiceManager
 
 
@@ -26,9 +26,9 @@ class UnmetServiceRequirement(UnmetRequirement):
         service: ServiceManager,
         message: ResolvableLocalizable,
         *,
-        indicators: Sequence[Indicator] = (),
+        locators: Sequence[Locator] = (),
     ):
-        super().__init__(message, indicators=indicators)
+        super().__init__(message, locators=locators)
         self.service: Final[ServiceManager] = service
         """
         The service for which the error was raised.

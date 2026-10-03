@@ -1,5 +1,5 @@
 """
-Integrate the console and assertion APIs.
+Argparse utilities.
 """
 
 from __future__ import annotations

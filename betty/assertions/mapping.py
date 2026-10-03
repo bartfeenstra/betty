@@ -8,9 +8,9 @@ from collections.abc import Mapping
 from typing import Any, overload
 
 from betty.assertions.type import assert_type
-from betty.exception import reraise_with_indicator
+from betty.exception import reraise_with_locator
 from betty.functools import Pipe, Pipeline
-from betty.indicator.operator import Key
+from betty.locator.operator import Key
 
 
 @overload
@@ -62,11 +62,11 @@ def assert_mapping[ReturnT, AssertionKeyT](
         for value_key, value_value in mapping.items():
             asserted_value_key = value_key
             if key_assertion:
-                with reraise_with_indicator(Key(str(value_key))):
+                with reraise_with_locator(Key(str(value_key))):
                     asserted_value_key = key_assertion(value_key)
             asserted_value_value = value_value
             if value_assertion:
-                with reraise_with_indicator(Key(str(value_key))):
+                with reraise_with_locator(Key(str(value_key))):
                     asserted_value_value = value_assertion(value_value)
             asserted_mapping[asserted_value_key] = asserted_value_value
         return asserted_mapping

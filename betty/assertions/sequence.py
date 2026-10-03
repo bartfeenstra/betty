@@ -8,9 +8,9 @@ from collections.abc import Sequence
 from typing import Any, overload
 
 from betty.assertions.type import assert_type
-from betty.exception import reraise_with_indicator
+from betty.exception import reraise_with_locator
 from betty.functools import Pipe, Pipeline
-from betty.indicator.operator import Index
+from betty.locator.operator import Index
 
 
 @overload
@@ -38,7 +38,7 @@ def assert_sequence[ReturnT](value_assertion: Pipe[Any, ReturnT] | None = None, 
             return sequence
         asserted_sequence = []
         for value_index, value_value in enumerate(sequence):
-            with reraise_with_indicator(Index(value_index)):
+            with reraise_with_locator(Index(value_index)):
                 asserted_sequence.append(value_assertion(value_value))
         return asserted_sequence
 
