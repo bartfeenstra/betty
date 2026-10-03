@@ -1,4 +1,4 @@
-from betty.indicator import AnyIndex, AnyKey, Path, Url
+from betty.locator import AnyIndex, AnyKey, Path, Url
 
 
 class TestAnyIndex:

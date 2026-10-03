@@ -7,7 +7,7 @@ import pytest
 from betty.assertions.record import Field, assert_record
 from betty.assertions.str import assert_str
 from betty.exception import HumanFacingException
-from betty.indicator.operator import Key
+from betty.locator.operator import Key
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 def test_assert_record__with_unknown_key_should_error() -> None:
     with pytest.raises(HumanFacingException) as exc_info:
         assert_record()({"unknown-key": True})
-    assert exc_info.value.indicators == [Key("unknown-key")]
+    assert exc_info.value.locators == [Key("unknown-key")]
 
 
 def test_assert_record__with_optional_fields_without_items() -> None:

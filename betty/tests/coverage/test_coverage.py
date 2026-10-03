@@ -248,7 +248,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/exception.py": {
         "HumanFacingException": {
-            "indicators": MissingReason.COVERED_ELSEWHERE,
+            "locators": MissingReason.COVERED_ELSEWHERE,
         },
     },
     "betty/factory.py": {
@@ -288,13 +288,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/http_client/rate_limit.py": {
         "RateLimitDefinition": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/indicator/__init__.py": {
-        "Indicator": MissingReason.ABSTRACT,
-    },
-    "betty/indicator/operator.py": {
-        "Indicator": MissingReason.ABSTRACT,
-        "Operator": MissingReason.ABSTRACT,
     },
     "betty/jinja/__init__.py": {
         "context_document": MissingReason.SHOULD_BE_COVERED,
@@ -409,6 +402,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/localized.py": {
         "Localized": MissingReason.ABSTRACT,
+    },
+    "betty/locator/__init__.py": {
+        "Locator": MissingReason.ABSTRACT,
+    },
+    "betty/locator/operator.py": {
+        "Operator": MissingReason.ABSTRACT,
     },
     "betty/machine_name.py": {
         "MachineName": {

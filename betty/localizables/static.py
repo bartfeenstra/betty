@@ -7,8 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.assertions.len import assert_len
-from betty.exception import reraise_with_indicator
-from betty.indicator.operator import Key
+from betty.exception import reraise_with_locator
 from betty.locale import (
     ResolvableLocale,
     negotiate_locale,
@@ -29,6 +28,7 @@ from betty.localizable import (
 from betty.localizables.gettext import _
 from betty.localizables.markup import JoinAnd, Paragraphs, UnorderedList, do_you_mean
 from betty.localized import LocalizedStr
+from betty.locator.operator import Key
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -60,9 +60,9 @@ class CountableStaticTranslations(CountableLocalizable):
         self, locale: ResolvableLocale, translations: Mapping[str, str]
     ) -> Locale:
         locale = resolve_locale(locale)
-        with reraise_with_indicator(Key(to_language_tag(locale))):
+        with reraise_with_locator(Key(to_language_tag(locale))):
             for plural_tag, translation in translations.items():
-                with reraise_with_indicator(Key(plural_tag)):
+                with reraise_with_locator(Key(plural_tag)):
                     assert_len(minimum=1)(translations)
                     if "{count}" not in translation:
                         raise MissingPluralPlaceholder(

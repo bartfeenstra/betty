@@ -5,8 +5,8 @@ from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.str import StrDefinition
-from betty.indicator.operator import Attr as AttrSelector
 from betty.localizables.plain import Plain
+from betty.locator.operator import Attr as AttrSelector
 
 
 @dataclass(frozen=True)

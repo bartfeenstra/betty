@@ -9,9 +9,9 @@ from contextlib import chdir
 from typing import TYPE_CHECKING
 
 from betty.assertions.file import assert_file
-from betty.exception import reraise_with_indicator
+from betty.exception import reraise_with_locator
 from betty.file import write
-from betty.indicator import Path as IndicatorPath
+from betty.locator import Path as LocatorPath
 from betty.pathlib import resolve_path
 from betty.serialize import Serializer, serializer_for
 
@@ -34,7 +34,7 @@ def assert_load_file(
     def _assert(file: Path, /) -> PortableData:
         file = resolve_path(file)
         with (
-            reraise_with_indicator(IndicatorPath(file)),
+            reraise_with_locator(LocatorPath(file)),
             # Change the working directory to allow relative paths to be resolved
             # against the configuration file's directory path.
             chdir(file.parent),

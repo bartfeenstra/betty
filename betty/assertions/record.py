@@ -9,10 +9,10 @@ from typing import TYPE_CHECKING, Any, final
 
 from betty.assertions import _HumanFacingValueError
 from betty.assertions.mapping import assert_mapping
-from betty.exception import reraise_with_indicator
-from betty.indicator.operator import Key
+from betty.exception import reraise_with_locator
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, do_you_mean
+from betty.locator.operator import Key
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -51,7 +51,7 @@ def assert_record(
         record: dict[str, Any] = {}
         if not allow_extra:
             for unknown_key in unknown_keys:
-                with reraise_with_indicator(Key(unknown_key)):
+                with reraise_with_locator(Key(unknown_key)):
                     raise _HumanFacingValueError(
                         Paragraph(
                             _("Unknown key: {unknown_key}.").format(
@@ -61,7 +61,7 @@ def assert_record(
                         )
                     )
         for field in fields:
-            with reraise_with_indicator(Key(field.name)):
+            with reraise_with_locator(Key(field.name)):
                 if field.name in value:
                     record[field.name if field.as_name is None else field.as_name] = (
                         field.assertion(value[field.name])

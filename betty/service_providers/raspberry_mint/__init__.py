@@ -34,15 +34,15 @@ from betty.datas.plugin.manufacturer.sequence import (
 from betty.datas.str import StrDefinition
 from betty.dirs import webpack_entry_point_directory
 from betty.entity import EntityDefinition
-from betty.exception import HumanFacingException, reraise_with_indicator
+from betty.exception import HumanFacingException, reraise_with_locator
 from betty.factory import DataManufacturable, Manufacturable
-from betty.indicator.operator import Attr, Key
 from betty.jobs._generate_raspberry_mint_search_index import (
     _GenerateRaspberryMintSearchIndex,
 )
 from betty.jobs.generate_logo import GenerateLogo
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, do_you_mean
+from betty.locator.operator import Attr, Key
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.project.generate import Generator
@@ -155,9 +155,9 @@ class RaspberryMintData(Object):
         Validate the configuration.
         """
         available_regions = await Region.all(project)
-        with reraise_with_indicator(Attr("regional_content")):
+        with reraise_with_locator(Attr("regional_content")):
             for region in self.regional_content:
-                with reraise_with_indicator(Key(region)):
+                with reraise_with_locator(Key(region)):
                     if region not in available_regions:
                         raise HumanFacingException(
                             Paragraph(

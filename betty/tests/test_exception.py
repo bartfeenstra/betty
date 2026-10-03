@@ -3,12 +3,12 @@ import pytest
 from betty.exception import (
     HumanFacingException,
     do_raise,
-    reraise_with_indicator,
+    reraise_with_locator,
 )
-from betty.indicator.operator import Attr, Key
 from betty.locale import default_locale_tag
 from betty.localizables.static import StaticTranslations
 from betty.localizer import Localizer, default_localizer
+from betty.locator.operator import Attr, Key
 
 
 def test_do_raise() -> None:
@@ -41,50 +41,48 @@ class TestHumanFacingException:
         localizer = Localizer(locale)
         assert sut.localize(localizer) == localized_message
 
-    def test_localize__without_indicators(self) -> None:
+    def test_localize__without_locators(self) -> None:
         sut = HumanFacingException(StaticTranslations("Something went wrong!"))
         assert sut.localize(default_localizer) == "Something went wrong!"
 
-    def test_localize__with_indicators(self) -> None:
+    def test_localize__with_locators(self) -> None:
         sut = HumanFacingException(StaticTranslations("Something went wrong!"))
-        sut.with_indicator(Attr("my_first_indicator"))
-        sut.with_indicator(Attr("my_second_indicator"))
+        sut.with_locator(Attr("my_first_locator"))
+        sut.with_locator(Attr("my_second_locator"))
         assert (
             sut.localize(default_localizer)
-            == "Something went wrong!\n- data.my_second_indicator.my_first_indicator"
+            == "Something went wrong!\n- data.my_second_locator.my_first_locator"
         )
 
-    def test_with_indicator__and_indicators(self) -> None:
+    def test_with_locator__and_locators(self) -> None:
         sut = HumanFacingException(StaticTranslations("Something went wrong!"))
-        sut.with_indicator(Attr("my_first_indicator"))
-        assert [indicator.format() for indicator in sut.indicators] == [
-            ".my_first_indicator"
-        ]
+        sut.with_locator(Attr("my_first_locator"))
+        assert [locator.format() for locator in sut.locators] == [".my_first_locator"]
 
 
-def test_reraise_with_indicator__without_exception() -> None:
-    with reraise_with_indicator():
+def test_reraise_with_locator__without_exception() -> None:
+    with reraise_with_locator():
         pass
 
 
-def test_reraise_with_indicator__with_irrelevant_exception() -> None:
+def test_reraise_with_locator__with_irrelevant_exception() -> None:
     class _Exception(Exception):
         pass
 
-    with pytest.raises(_Exception), reraise_with_indicator():
+    with pytest.raises(_Exception), reraise_with_locator():
         raise _Exception
 
 
-def test_reraise_with_indicator__without_contexts() -> None:
-    with pytest.raises(HumanFacingException), reraise_with_indicator():
+def test_reraise_with_locator__without_contexts() -> None:
+    with pytest.raises(HumanFacingException), reraise_with_locator():
         raise HumanFacingException("-")
 
 
-def test_reraise_with_indicator__with_contexts() -> None:
+def test_reraise_with_locator__with_contexts() -> None:
     context = Key("my_first_key")
     with (
         pytest.raises(HumanFacingException) as exc_info,
-        reraise_with_indicator(context),
+        reraise_with_locator(context),
     ):
         raise HumanFacingException("-")
-    assert exc_info.value.indicators == [context]
+    assert exc_info.value.locators == [context]

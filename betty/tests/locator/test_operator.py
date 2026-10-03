@@ -3,8 +3,8 @@ from typing import Any, override
 
 import pytest
 
-from betty.indicator import Indicator
-from betty.indicator.operator import (
+from betty.locator import Locator
+from betty.locator.operator import (
     Attr,
     Index,
     Key,
@@ -16,7 +16,7 @@ from betty.indicator.operator import (
 from betty.typing import Unreachable
 
 
-class DummyIndicator(Indicator):
+class DummyLocator(Locator):
     @override
     def format(self) -> str:
         return "DUMMY"
@@ -135,10 +135,10 @@ class TestOperators:
             (
                 "DUMMY\ndata.my_first_attr.my_second_attr\nDUMMY\ndata.my_third_attr.my_fourth_attr",
                 [
-                    DummyIndicator(),
+                    DummyLocator(),
                     Attr("my_first_attr"),
                     Attr("my_second_attr"),
-                    DummyIndicator(),
+                    DummyLocator(),
                     Attr("my_third_attr"),
                     Attr("my_fourth_attr"),
                 ],

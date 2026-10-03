@@ -8,7 +8,7 @@ from abc import ABCMeta, abstractmethod
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Final, final, override
 
-from betty.indicator import Indicator
+from betty.locator import Locator
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence, Sequence
@@ -26,7 +26,7 @@ class OperatorError(ValueError):
         super().__init__(f"Cannot access {selector.format()}")
 
 
-class Operator(Indicator, metaclass=ABCMeta):
+class Operator(Locator, metaclass=ABCMeta):
     """
     Indicate and interact with an aggregate data element.
     """
@@ -118,27 +118,27 @@ class Operators(Operator):
         return "".join(["data", *[operator.format() for operator in self._operators]])
 
     @classmethod
-    def reduce(cls, *indicators: Indicator) -> Sequence[Indicator]:
+    def reduce(cls, *locators: Locator) -> Sequence[Locator]:
         """
-        Reduce all consecutive instances of py:class:`betty.indicator.operator.Operator` to a single instance of this class.
+        Reduce all consecutive instances of py:class:`betty.locator.operator.Operator` to a single instance of this class.
 
-        All other indicators are kept verbatim.
+        All other locators are kept verbatim.
         """
-        reduced_indicators: MutableSequence[Indicator] = []
+        reduced_locators: MutableSequence[Locator] = []
         reducing_operators = []
-        for indicator in indicators:
-            if isinstance(indicator, Operators):
-                reducing_operators.extend(indicator._operators)
-            elif isinstance(indicator, Operator):
-                reducing_operators.append(indicator)
+        for locator in locators:
+            if isinstance(locator, Operators):
+                reducing_operators.extend(locator._operators)
+            elif isinstance(locator, Operator):
+                reducing_operators.append(locator)
             else:
                 if reducing_operators:
-                    reduced_indicators.append(Operators(*reducing_operators))
+                    reduced_locators.append(Operators(*reducing_operators))
                     reducing_operators.clear()
-                reduced_indicators.append(indicator)
+                reduced_locators.append(locator)
         if reducing_operators:
-            reduced_indicators.append(Operators(*reducing_operators))
-        return reduced_indicators
+            reduced_locators.append(Operators(*reducing_operators))
+        return reduced_locators
 
     @override
     def _get(self, data: Any, /) -> Any:
