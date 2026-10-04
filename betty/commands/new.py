@@ -4,8 +4,6 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
-from betty.assertions.locale import assert_locale
-from betty.assertions.path import assert_path
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.enrichers.deriver import Deriver
 from betty.enrichers.privatizer import Privatizer
@@ -26,6 +24,8 @@ from betty.service_providers.trees import Trees
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.wiki import Wiki as WikiExtension
 from betty.user import NoDefault
+from betty.validators.locale import is_locale
+from betty.validators.path import is_path
 
 if TYPE_CHECKING:
     import argparse
@@ -63,7 +63,7 @@ class New(Manufacturable, Command):
 
         configuration_file = await self._app.user.ask_input(
             _("Where do you want to save your project's configuration file?"),
-            assertion=assert_path(),
+            validator=is_path(),
         )
         if not configuration_file.suffix:
             configuration_file /= f"betty{serializers[0].media_type().extensions[0]}"
@@ -74,7 +74,7 @@ class New(Manufacturable, Command):
                     "Which language should your project site be generated in? Enter a language code."
                 ),
                 default=default_locale_tag,
-                assertion=assert_locale,
+                validator=is_locale,
             )
         ]
         while await self._app.user.ask_confirmation(
@@ -85,7 +85,7 @@ class New(Manufacturable, Command):
                     _(
                         "Which language should your project site be generated in? Enter a language code."
                     ),
-                    assertion=assert_locale,
+                    validator=is_locale,
                 )
             )
         locales = tuple(configuration.locales.keys())
@@ -126,7 +126,7 @@ class New(Manufacturable, Command):
                                     _(
                                         "What is the path to your exported Gramps family tree file?"
                                     ),
-                                    assertion=assert_path(),
+                                    validator=is_path(),
                                 )
                             )
                         ]

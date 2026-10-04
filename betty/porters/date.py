@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.assertions.if_else import assert_if_else
 from betty.date import AnyDate, Date, DateRange
 from betty.portable import PortableData, Porter
+from betty.validators.if_else import is_if_else
 
 
 @final
@@ -18,7 +18,7 @@ class AnyDatePorter(Porter[AnyDate]):
     """
 
     load = override(
-        assert_if_else(
+        is_if_else(
             Date.definition.porter.load,
             DateRange.definition.porter.load,
         )

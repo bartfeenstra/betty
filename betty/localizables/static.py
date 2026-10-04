@@ -6,8 +6,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from betty.assertions.len import assert_len
-from betty.exception import reraise_with_locator
 from betty.locale import (
     ResolvableLocale,
     negotiate_locale,
@@ -29,6 +27,8 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import JoinAnd, Paragraphs, UnorderedList, do_you_mean
 from betty.localized import LocalizedStr
 from betty.locator.operator import Key
+from betty.validation import Invalid, locate
+from betty.validators.len import is_len
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -47,7 +47,7 @@ class CountableStaticTranslations(CountableLocalizable):
     __slots__ = ("translations",)
 
     def __init__(self, translations: ResolvableCountableStaticTranslations, /):
-        assert_len(minimum=1)(translations)
+        is_len(min=1)(translations)
         self.translations: Final[CountableStaticTranslationsMapping] = {
             self._ensure_locale(locale, locale_translations): locale_translations
             for locale, locale_translations in translations.items()
@@ -60,10 +60,10 @@ class CountableStaticTranslations(CountableLocalizable):
         self, locale: ResolvableLocale, translations: Mapping[str, str]
     ) -> Locale:
         locale = resolve_locale(locale)
-        with reraise_with_locator(Key(to_language_tag(locale))):
+        with locate(Key(to_language_tag(locale))):
             for plural_tag, translation in translations.items():
-                with reraise_with_locator(Key(plural_tag)):
-                    assert_len(minimum=1)(translations)
+                with locate(Key(plural_tag)):
+                    is_len(min=1)(translations)
                     if "{count}" not in translation:
                         raise MissingPluralPlaceholder(
                             Paragraphs(
@@ -211,7 +211,7 @@ class StaticTranslations(Localizable):
         :param translations: Keys are locales, values are translations.
         """
         super().__init__()
-        assert_len(minimum=1)(translations)
+        is_len(min=1)(translations)
         self.translations: Final[StaticTranslationsMapping] = (
             {None: translations}
             if isinstance(translations, str)
@@ -250,21 +250,21 @@ class StaticTranslations(Localizable):
 
 
 @final
-class MissingPluralPlaceholder(LocaleError):
+class MissingPluralPlaceholder(Invalid, LocaleError):
     """
     Raised when a plural translation is missing a placeholder.
     """
 
 
 @final
-class MissingPluralTag(LocaleError):
+class MissingPluralTag(Invalid, LocaleError):
     """
     Raised when a countable localizable is missing a plural tag.
     """
 
 
 @final
-class InvalidPluralTag(LocaleError):
+class InvalidPluralTag(Invalid, LocaleError):
     """
     Raised when a countable localizable defines an invalid plural tag.
     """

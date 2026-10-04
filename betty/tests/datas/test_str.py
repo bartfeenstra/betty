@@ -1,7 +1,7 @@
 import pytest
 
 from betty.datas.str import StrDefinition
-from betty.exception import HumanFacingException
+from betty.user.error import UserFacingError
 
 
 class TestStrDefinition:
@@ -12,7 +12,7 @@ class TestStrDefinition:
 
     def test_load__without_str(self) -> None:
         sut = StrDefinition(label="-")
-        with pytest.raises(HumanFacingException):
+        with pytest.raises(UserFacingError):
             assert sut.porter.load({})
 
     def test_dump(self) -> None:

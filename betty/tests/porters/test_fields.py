@@ -2,13 +2,13 @@ import pytest
 
 from betty.datas.aggregate.record import FieldDefinition, RecordDefinition
 from betty.datas.str import StrDefinition
-from betty.exception import HumanFacingException
 from betty.locator.operator import Attr
 from betty.porters.fields import FieldsPorter
 from betty.tests.datas.aggregate.test_record import (
     RecordDefinitionTestFactoryRecord,
     RecordDefinitionTestRecord,
 )
+from betty.user.error import UserFacingError
 
 
 class TestFieldsPorter:
@@ -34,7 +34,7 @@ class TestFieldsPorter:
                 fields={Attr(field_name): FieldDefinition(StrDefinition(label="-"))},
             )
         )
-        with pytest.raises(HumanFacingException):
+        with pytest.raises(UserFacingError):
             sut.load({})
 
     def test_load__with_factory(self) -> None:

@@ -13,7 +13,7 @@ from betty.locator import Locator
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence, Sequence
 
-    from betty.functools import Pipe
+    from betty.validation import Validator
 
 
 @final
@@ -49,7 +49,7 @@ class Operator(Locator, metaclass=ABCMeta):
             raise OperatorError(self) from error
 
     @final
-    def get[T](self, data: Any, assertion: Pipe[Any, T] | None = None, /) -> T:
+    def get[T](self, data: Any, validator: Validator[Any, T] | None = None, /) -> T:
         """
         Get the value for this operator.
 
@@ -57,7 +57,7 @@ class Operator(Locator, metaclass=ABCMeta):
         """
         with self._catch():
             data = self._get(data)
-        return assertion(data) if assertion else data
+        return validator(data) if validator else data
 
     @abstractmethod
     def _get(self, data: Any, /) -> Any:

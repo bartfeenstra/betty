@@ -30,10 +30,10 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from contextlib import AbstractAsyncContextManager
 
-    from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
     from betty.localizer import Localizer
     from betty.progress import Progress
+    from betty.validation import Validator
 
 
 @final
@@ -204,7 +204,7 @@ class User(metaclass=ABCMeta):
         question: ResolvableLocalizable,
         /,
         *,
-        assertion: None = None,
+        validator: None = None,
         default: str | NoDefault = NoDefault,
     ) -> str:
         pass
@@ -215,13 +215,13 @@ class User(metaclass=ABCMeta):
         question: ResolvableLocalizable,
         /,
         *,
-        assertion: Pipe[str, T],
+        validator: Validator[str, T],
         default: str | NoDefault = NoDefault,
     ) -> T:
         pass
 
     @abstractmethod
-    async def ask_input(self, question, /, *, assertion=None, default=NoDefault):
+    async def ask_input(self, question, /, *, validator=None, default=NoDefault):
         """
         Ask the user to input text.
 

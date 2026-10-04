@@ -34,7 +34,6 @@ from betty.datas.plugin.manufacturer.sequence import (
 from betty.datas.str import StrDefinition
 from betty.dirs import webpack_entry_point_directory
 from betty.entity import EntityDefinition
-from betty.exception import HumanFacingException, reraise_with_locator
 from betty.factory import DataManufacturable, Manufacturable
 from betty.jobs._generate_raspberry_mint_search_index import (
     _GenerateRaspberryMintSearchIndex,
@@ -51,6 +50,7 @@ from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.webpack.build import EntryPointProvider
 from betty.services.simple import service
+from betty.validation import Invalid, group, locate
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping, Sequence
@@ -155,23 +155,23 @@ class RaspberryMintData(Object):
         Validate the configuration.
         """
         available_regions = await Region.all(project)
-        with reraise_with_locator(Attr("regional_content")):
+        with locate(Attr("regional_content")), group():
             for region in self.regional_content:
-                with reraise_with_locator(Key(region)):
-                    if region not in available_regions:
-                        raise HumanFacingException(
-                            Paragraph(
-                                _("Invalid region {invalid_region}.").format(
-                                    invalid_region=f'"{region}"',
-                                ),
-                                do_you_mean(
-                                    *(
-                                        f'"{available_region}"'
-                                        for available_region in available_regions
-                                    )
-                                ),
-                            )
-                        ) from None
+                if region not in available_regions:
+                    raise Invalid(
+                        Paragraph(
+                            _("Invalid region {invalid_region}.").format(
+                                invalid_region=f'"{region}"',
+                            ),
+                            do_you_mean(
+                                *(
+                                    f'"{available_region}"'
+                                    for available_region in available_regions
+                                )
+                            ),
+                        ),
+                        location=[Key(region)],
+                    )
 
 
 @final

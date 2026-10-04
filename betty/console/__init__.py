@@ -16,9 +16,9 @@ import rich_argparse
 from betty import about
 from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction
-from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
 from betty.user import Severity, User, UserHandler
+from betty.user.error import UserFacingError
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -289,7 +289,7 @@ async def main(app: App, args: Sequence[str], /) -> None:
                 await command_func()
         else:
             await command_func()
-    except HumanFacingException as error:
+    except UserFacingError as error:
         if namespace.__show_tracebacks:
             await app.user.exception()
         await app.user.message(error, Severity.ERROR)

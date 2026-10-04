@@ -8,12 +8,12 @@ from asyncio import to_thread
 from contextlib import chdir
 from typing import TYPE_CHECKING
 
-from betty.assertions.file import assert_file
-from betty.exception import reraise_with_locator
 from betty.file import write
 from betty.locator import Path as LocatorPath
 from betty.pathlib import resolve_path
 from betty.serialize import Serializer, serializer_for
+from betty.validation import locate
+from betty.validators.file import is_file
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -24,17 +24,17 @@ if TYPE_CHECKING:
     from betty.portable import PortableData
 
 
-def assert_load_file(
+def is_load_file(
     *, serializers: Iterable[Serializer]
 ) -> Pipeline[StrPath, PortableData]:
     """
-    An assertion to load a dump from a file.
+    A validator to load a dump from a file.
     """
 
     def _assert(file: Path, /) -> PortableData:
         file = resolve_path(file)
         with (
-            reraise_with_locator(LocatorPath(file)),
+            locate(LocatorPath(file)),
             # Change the working directory to allow relative paths to be resolved
             # against the configuration file's directory path.
             chdir(file.parent),
@@ -43,7 +43,7 @@ def assert_load_file(
                 dump_data = f.read()
             return serializer_for(serializers, file.suffix).load(dump_data)
 
-    return assert_file() | _assert
+    return is_file | _assert
 
 
 async def dump_file(

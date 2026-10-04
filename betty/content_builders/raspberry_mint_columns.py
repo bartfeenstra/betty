@@ -8,11 +8,6 @@ from asyncio import gather
 from collections.abc import Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, ClassVar, Self, final, override
 
-from betty.assertions.enum import assert_enum
-from betty.assertions.if_else import assert_if_else
-from betty.assertions.int import assert_int
-from betty.assertions.mapping import assert_mapping
-from betty.assertions.sequence import assert_sequence
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import OwnerAttr
 from betty.content_builder import (
@@ -38,6 +33,11 @@ from betty.porters.callback import CallbackPorter
 from betty.project import Project
 from betty.sample import Sample, Samples, Size
 from betty.service_providers.raspberry_mint import Breakpoint, JustifyContent
+from betty.validators.enum import is_enum
+from betty.validators.if_else import is_if_else
+from betty.validators.int import is_int
+from betty.validators.mapping import is_mapping
+from betty.validators.sequence import is_sequence
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -143,8 +143,8 @@ class ColumnsData(Object):
     If and how to justify content.
     """
 
-    _load_width = assert_int().pipe(lambda value: [value])
-    _load_widths = assert_sequence(assert_int()).pipe(list)
+    _load_width = is_int.pipe(lambda value: [value])
+    _load_widths = is_sequence(values=is_int).pipe(list)
     width = OwnerAttr(
         DictDefinition(
             key=EnumDefinition(Breakpoint, label=_("Breakpoint")),
@@ -153,13 +153,13 @@ class ColumnsData(Object):
             ),
             label=_("Breakpoints"),
             porter=CallbackPorter(
-                assert_if_else(
-                    assert_if_else(_load_width, _load_widths).pipe(
+                is_if_else(
+                    is_if_else(_load_width, _load_widths).pipe(
                         lambda value: {Breakpoint.XS: value}
                     ),
-                    assert_mapping(
-                        assert_if_else(_load_width, _load_widths),
-                        assert_enum(Breakpoint),
+                    is_mapping(
+                        keys=is_enum(Breakpoint),
+                        values=is_if_else(_load_width, _load_widths),
                     )
                     | dict,
                 ),

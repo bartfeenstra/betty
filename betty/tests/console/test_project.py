@@ -9,10 +9,10 @@ import pytest
 from betty.app import App
 from betty.console import call_command_func
 from betty.console.project import add_project_argument
-from betty.exception import HumanFacingException
 from betty.file import write
 from betty.project import Project
 from betty.typing import Unreachable
+from betty.user.error import UserFacingError
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
@@ -76,5 +76,5 @@ async def test_add_project_argument__without_argument_without_file(
     )
     namespace = parser.parse_args([])
     assert namespace.project_configuration_file is None
-    with chdir(tmp_path), pytest.raises(HumanFacingException):
+    with chdir(tmp_path), pytest.raises(UserFacingError):
         await call_command_func(command_function, namespace)

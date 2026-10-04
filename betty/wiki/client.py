@@ -14,16 +14,17 @@ from urllib.parse import quote, urlsplit
 
 from geopy import Point
 
-from betty.assertions.float import assert_float
-from betty.assertions.mapping import assert_mapping
-from betty.assertions.str import assert_str
-from betty.exception import HumanFacingException, reraise_with_locator
 from betty.file import write
 from betty.hashid import hashid
 from betty.localizables.gettext import _
 from betty.locator import Url
 from betty.locator.operator import Index, Key, OperatorError, Operators
 from betty.media_type import MediaType
+from betty.user.error import UserFacingError
+from betty.validation import Invalid, locate
+from betty.validators.float import is_float
+from betty.validators.mapping import is_mapping
+from betty.validators.str import is_str
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterator, Mapping, MutableMapping
@@ -33,7 +34,7 @@ if TYPE_CHECKING:
     from betty.user import User
 
 
-class ClientError(HumanFacingException, RuntimeError):
+class ClientError(UserFacingError, RuntimeError):
     """
     A client error.
     """
@@ -87,10 +88,10 @@ class Client:
         self._user = user
 
     @contextmanager
-    def _human_facing_exception_to_client_error(self) -> Iterator[None]:
+    def _invalid_to_client_error(self) -> Iterator[None]:
         try:
             yield
-        except HumanFacingException as error:
+        except Invalid as error:
             raise ClientError(error) from error
         except OperatorError as error:
             raise ClientError(str(error)) from error
@@ -115,12 +116,9 @@ class Client:
 
     async def _get_query_api_data(self, url: str) -> Mapping[str, Any]:
         data = await self._get_json(url)
-        with (
-            self._human_facing_exception_to_client_error(),
-            reraise_with_locator(Url(url)),
-        ):
+        with self._invalid_to_client_error(), locate(Url(url)):
             return Operators(Key("query"), Key("pages"), Index(0)).get(
-                data, assert_mapping(None, assert_str())
+                data, is_mapping(keys=is_str)
             )
 
     async def _get_page_query_api_data(
@@ -152,18 +150,13 @@ class Client:
         """
         url = f"https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}"
 
-        with (
-            self._human_facing_exception_to_client_error(),
-            reraise_with_locator(Url(url)),
-        ):
+        with self._invalid_to_client_error(), locate(Url(url)):
             api_data = await self._get_json(url)
 
-            title = Operators(Key("titles"), Key("normalized")).get(
-                api_data, assert_str()
-            )
+            title = Operators(Key("titles"), Key("normalized")).get(api_data, is_str)
             extract = Operators(
                 Key("extract_html") if "extract_html" in api_data else Key("extract")
-            ).get(api_data, assert_str())
+            ).get(api_data, is_str)
         return Summary(
             page_language,
             page_name,
@@ -189,19 +182,16 @@ class Client:
         image_info_api_data = await self._get_query_api_data(url)
 
         image_info_selectors = (Key("imageinfo"), Index(0))
-        with (
-            self._human_facing_exception_to_client_error(),
-            reraise_with_locator(Url(url)),
-        ):
+        with self._invalid_to_client_error(), locate(Url(url)):
             image_info = Operators(*image_info_selectors).get(
-                image_info_api_data, assert_mapping()
+                image_info_api_data, is_mapping()
             )
-            with reraise_with_locator(*image_info_selectors):
-                image_url = Key("url").get(image_info, assert_str())
+            with locate(*image_info_selectors):
+                image_url = Key("url").get(image_info, is_str)
                 image_media_type = Key("mime").get(image_info, MediaType)
-                image_title = Key("canonicaltitle").get(image_info, assert_str())
+                image_title = Key("canonicaltitle").get(image_info, is_str)
                 image_wikimedia_commons_url = Key("descriptionurl").get(
-                    image_info, assert_str()
+                    image_info, is_str
                 )
         async with self._get(image_url) as image_response:
             image_data = await image_response.read()
@@ -234,13 +224,10 @@ class Client:
             # There may not be any coordinates.
             return None
 
-        with (
-            self._human_facing_exception_to_client_error(),
-            reraise_with_locator(Url(url)),
-        ):
-            globe = Key("globe").get(coordinates, assert_str())
+        with self._invalid_to_client_error(), locate(Url(url)):
+            globe = Key("globe").get(coordinates, is_str)
             if globe != "earth":
                 return None
-            latitude = Key("lat").get(coordinates, assert_float())
-            longitude = Key("lon").get(coordinates, assert_float())
+            latitude = Key("lat").get(coordinates, is_float)
+            longitude = Key("lon").get(coordinates, is_float)
         return Point(latitude, longitude)

@@ -25,15 +25,11 @@ __all__ = [
 ]
 import re
 import tarfile
-from collections.abc import (
-    Awaitable,
-    MutableMapping,
-    MutableSequence,
-)
+from collections.abc import Awaitable, MutableMapping, MutableSequence
 from contextlib import asynccontextmanager
 from io import BytesIO
 from json import dumps
-from typing import TYPE_CHECKING, Any, Final, Literal, Protocol, final
+from typing import TYPE_CHECKING, Any, Final, Literal, Never, Protocol, final
 
 import pytest
 import pytest_asyncio
@@ -42,7 +38,6 @@ from jinja2 import Environment, Template
 
 from betty.app import App
 from betty.collections import _empty_frozen_mapping
-from betty.exception import do_raise
 from betty.json_schema import Schema
 from betty.licenses.spdx import SpdxLicenseDiscoverer
 from betty.multiprocessing import ProcessPoolExecutor
@@ -68,10 +63,7 @@ if TYPE_CHECKING:
     from betty.entity.collection.pool import EntityPool
     from betty.link import LinkDefinition
     from betty.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
-    from betty.load import (
-        ManufacturableLoader,
-        ManufacturableEnricher,
-    )
+    from betty.load import ManufacturableLoader, ManufacturableEnricher
     from betty.locale import ResolvableLocale
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
@@ -81,9 +73,7 @@ if TYPE_CHECKING:
     from betty.portable import PortableData, PortableMapping
     from betty.server import ManufacturableServer
     from betty.service_level import Plugins
-    from betty.service_provider import (
-        ManufacturableServiceProvider,
-    )
+    from betty.service_provider import ManufacturableServiceProvider
     from betty.services.plugin import SupportedPlugins
 
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
@@ -284,8 +274,12 @@ async def page(context: BrowserContext) -> Page:
     """
     A Playwright Page instance.
     """
+
+    def _raise(exception: BaseException, /) -> Never:
+        raise exception
+
     page = await context.new_page()
-    page.on("pageerror", do_raise)
+    page.on("pageerror", _raise)
     return page
 
 

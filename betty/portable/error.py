@@ -6,18 +6,18 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.exception import HumanFacingException
+from betty.user.error import UserFacingError
 
 
 @final
-class NotPortable(HumanFacingException):
+class NotPortable(UserFacingError):
     """
     Raised when data is not portable.
     """
 
 
 @final
-class NotDumpable(HumanFacingException):
+class NotDumpable(UserFacingError):
     """
     Raised when data is not dumpable.
     """

@@ -9,23 +9,24 @@ from typing import TYPE_CHECKING, Final, final
 from babel import Locale
 from babel.localedata import locale_identifiers
 
-from betty.exception import HumanFacingException
 from betty.locale import to_language_tag
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, Quote, do_you_mean
+from betty.user.error import UserFacingError
+from betty.validation import Invalid
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-class LocaleError(HumanFacingException, Exception):
+class LocaleError(UserFacingError):
     """
     A locale API error.
     """
 
 
 @final
-class InvalidLocale(LocaleError):
+class InvalidLocale(Invalid, LocaleError):
     """
     Raised when a value is not a valid locale.
     """
@@ -39,7 +40,7 @@ class InvalidLocale(LocaleError):
 
 
 @final
-class UnknownLocale(LocaleError):
+class UnknownLocale(Invalid, LocaleError):
     """
     Raised when a locale is not known by the system.
     """

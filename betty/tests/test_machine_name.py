@@ -2,9 +2,9 @@ from typing import Any
 
 import pytest
 
-from betty.exception import HumanFacingException
 from betty.machine_name import InvalidMachineName, MachineName
 from betty.test_utils.machine_name import INVALID_MACHINE_NAMES, VALID_MACHINE_NAMES
+from betty.validation import Invalid
 
 
 class TestMachineName:
@@ -21,7 +21,7 @@ class TestMachineName:
 
     @pytest.mark.parametrize("machine_name", INVALID_MACHINE_NAMES)
     def test___init____with_invalid_value(self, machine_name: str) -> None:
-        with pytest.raises(InvalidMachineName):
+        with pytest.RaisesGroup(InvalidMachineName):
             MachineName(machine_name)
 
     @pytest.mark.parametrize("machine_name", VALID_MACHINE_NAMES)
@@ -34,7 +34,7 @@ class TestMachineName:
         "machine_name", [*INVALID_MACHINE_NAMES, {}, None, True, 123]
     )
     def test_load__with_invalid_value(self, machine_name: Any) -> None:
-        with pytest.raises(HumanFacingException):
+        with pytest.RaisesGroup(Invalid):
             MachineName.definition.porter.load(machine_name)
 
     @pytest.mark.parametrize("machine_name", VALID_MACHINE_NAMES)
