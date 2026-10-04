@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 )
 def test_is_sequence__with_invalid_top_level_value(value: Any) -> None:
     with pytest.RaisesGroup(Invalid):
-        is_sequence()(value)
+        is_sequence(value)
 
 
 def test_is_sequence__with_invalid_item() -> None:
