@@ -26,8 +26,7 @@ class Plain(Localizable):
     __slots__ = ("locale", "text")
 
     def __init__(self, text: str, locale: ResolvableLocale | None = None, /):
-        is_str(minimum_length=1)(text)
-        self.text: Final[str] = text
+        self.text: Final[str] = is_str(text, min_len=1)
         """
         The plain text.
         """

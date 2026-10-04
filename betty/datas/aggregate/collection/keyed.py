@@ -61,7 +61,7 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
 
     def _load(self, portable: PortableData, /) -> KeyedCollectionT:
         if self._order_dump:
-            values = is_sequence(self._value_porter.load)(portable)
+            values = is_sequence(values=self._value_porter.load)(portable)
         else:
             values = [
                 self._value_porter.load_keyed(*x)

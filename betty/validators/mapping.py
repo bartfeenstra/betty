@@ -38,7 +38,7 @@ def is_mapping[KeyT](
 
 
 @overload
-def is_mapping[ValueT, KeyT](
+def is_mapping[KeyT, ValueT](
     *,
     keys: Validator[Any, KeyT],
     values: Validator[Any, ValueT],
@@ -46,7 +46,11 @@ def is_mapping[ValueT, KeyT](
     pass
 
 
-def is_mapping[ValueT, KeyT](values=None, keys=None, /):
+def is_mapping[KeyT, ValueT](
+    values: Validator[Any, KeyT] | None = None,
+    keys: Validator[Any, ValueT] | None = None,
+    /,
+):
     """
     Validate that a value is a key-value mapping.
 

@@ -53,6 +53,6 @@ def test_is_mapping__with_invalid_item_key() -> None:
     ],
 )
 def test_is_mapping__valid(
-    value: Any, values: Validator[Any, Any] | None, keys: Validator[Any, Any] | None
+    value: Any, keys: Validator[Any, Any] | None, values: Validator[Any, Any] | None
 ) -> None:
     is_mapping(keys=keys, values=values)(value)

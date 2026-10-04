@@ -45,7 +45,7 @@ class SequenceDefinition[SequenceT: Sequence[Any], ValueT](
         )
 
     def _load(self, portable: PortableData, /) -> SequenceT:
-        return self.new(is_sequence(self.item.porter.load)(portable))
+        return self.new(is_sequence(values=self.item.porter.load)(portable))
 
     def _dump(self, data: SequenceT) -> PortableData:
         return [self.item.porter.dump(item) for item in data]

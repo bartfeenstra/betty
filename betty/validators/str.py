@@ -19,7 +19,7 @@ def _is_str(
     *,
     len_: int | None = None,
     min_len: int | None = None,
-    man_len: int | None = None,
+    max_len: int | None = None,
 ) -> str:
     if not isinstance(value, str):
         raise Invalid(_("This must be a string."))
@@ -34,10 +34,10 @@ def _is_str(
                 length=str(min_len)
             )
         )
-    if man_len is not None and actual_len > man_len:
+    if max_len is not None and actual_len > max_len:
         raise Invalid(
             _("This must be at most {length} characters long.").format(
-                length=str(man_len)
+                length=str(max_len)
             )
         )
     return value
@@ -56,7 +56,7 @@ class _IsStr(Pipeline[Any, str]):
         *,
         len: int | None = None,
         min_len: int | None = None,
-        man_len: int | None = None,
+        max_len: int | None = None,
     ) -> str:
         pass
 
@@ -66,7 +66,7 @@ class _IsStr(Pipeline[Any, str]):
         *,
         len: int | None = None,
         min_len: int | None = None,
-        man_len: int | None = None,
+        max_len: int | None = None,
     ) -> Pipeline[Any, str]:
         pass
 

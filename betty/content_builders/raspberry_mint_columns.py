@@ -144,7 +144,7 @@ class ColumnsData(Object):
     """
 
     _load_width = is_int.pipe(lambda value: [value])
-    _load_widths = is_sequence(is_int).pipe(list)
+    _load_widths = is_sequence(values=is_int).pipe(list)
     width = OwnerAttr(
         DictDefinition(
             key=EnumDefinition(Breakpoint, label=_("Breakpoint")),

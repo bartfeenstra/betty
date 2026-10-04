@@ -32,7 +32,7 @@ def _is_number[NumberT](
 
 
 @final
-class IsNumberType[NumberT](Pipeline[Any, NumberT]):
+class IsNumber[NumberT](Pipeline[Any, NumberT]):
     """
     Validate that a value is a number.
     """
@@ -42,7 +42,7 @@ class IsNumberType[NumberT](Pipeline[Any, NumberT]):
         *,
         type: builtins.type[NumberT],  # noqa: A002
     ):
-        super().__init__(_is_number)
+        super().__init__(partial(_is_number, type_=type))
         self._type = type
 
     @overload
@@ -58,7 +58,7 @@ class IsNumberType[NumberT](Pipeline[Any, NumberT]):
         pass
 
     @override
-    def __call__(self, *value_, **kwargs):
+    def __call__(self, *value_, min: NumberT | None = None, max: NumberT | None = None):
         if value_:
-            return _is_number(value_[0], self._type, kwargs["min"], kwargs["max"])
-        return Pipeline(partial(_is_number, **kwargs))
+            return self(value_[0], min=min, max=max)
+        return Pipeline(partial(self, min=min, max=max))

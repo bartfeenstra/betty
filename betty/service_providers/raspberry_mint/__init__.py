@@ -170,7 +170,7 @@ class RaspberryMintData(Object):
                                 )
                             ),
                         ),
-                        locators=[Key(region)],
+                        location=[Key(region)],
                     )
 
 

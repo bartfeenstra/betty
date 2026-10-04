@@ -5,31 +5,26 @@ The validation API.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Final, Protocol
+from typing import TYPE_CHECKING, Final
 
 from betty.localizer import default_localizer
 from betty.user.error import UserFacingError
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, MutableSequence, Sequence
+    from collections.abc import Callable, Iterator, MutableSequence, Sequence
 
     from betty.localizable import ResolvableLocalizable
     from betty.locator import Locator
 
 
-class Validator[ValueT, ValidatedT](Protocol):
-    """
-    A validator.
-    """
+type Validator[ValueT, ValidatedT] = Callable[[ValueT], ValidatedT]
+"""
+A validator.
 
-    def __call__(self, value: ValueT, /) -> ValidatedT:
-        """
-        Validate a value.
+Validators may return a different value than the ``value`` arg.
 
-        Validators may return a different value than the ``value`` arg.
-
-        :raises: *Invalid
-        """
+:raises: *Invalid
+"""
 
 
 class Invalid(UserFacingError, ValueError):
