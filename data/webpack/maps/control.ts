@@ -4,7 +4,7 @@ import OpenLayersControl from "ol/control/Control"
 import OpenLayersMap from "ol/Map"
 import { htmlToElement } from "./html.ts"
 import { zoomByDelta } from "./view.ts"
-import { Map } from "./map.ts"
+import { Map, requireTargetElement } from "./map.ts"
 import Point from "ol/geom/Point"
 import VectorSource from "ol/source/Vector"
 import Feature from "ol/Feature"
@@ -14,11 +14,21 @@ import { getTranslationFromResolvableStatic } from "@betty.py/betty/locale/local
 /**
  * @internal
  */
-class Control extends OpenLayersControl {
+class HasHTMLElementOpenLayersControl extends OpenLayersControl {
+    declare protected element: HTMLElement
+    public constructor(element: HTMLElement) {
+        super({ element })
+    }
+}
+
+/**
+ * @internal
+ */
+class Control extends HasHTMLElementOpenLayersControl {
     public constructor(element: HTMLElement, classSuffix: string) {
         element.classList.add("map-control")
         element.classList.add(`map-control-${classSuffix}`)
-        super({ element })
+        super(element)
     }
 }
 
@@ -29,7 +39,7 @@ class FullScreen extends Control {
     public constructor(buttonHtml: string, map: OpenLayersMap) {
         super(document.createElement("div"), "full-screen")
 
-        const button = htmlToElement(buttonHtml.replace("{{{ betty-maps-control-full-screen-target }}}", map.getTargetElement().id))
+        const button = htmlToElement(buttonHtml.replace("{{{ betty-maps-control-full-screen-target }}}", requireTargetElement(map).id))
         this.element.appendChild(button)
     }
 }
@@ -85,15 +95,13 @@ const selectedPlaceAnchorCssVariableName = "--betty-map-selected-place-anchor"
 /**
  * @internal
  */
-class SelectedPlace extends OpenLayersControl {
+class SelectedPlace extends HasHTMLElementOpenLayersControl {
     private readonly map: Map
     private readonly inner: HTMLElement
     private readonly selectedPlaceSource: VectorSource
 
     public constructor(map: Map, selectedPlaceSource: VectorSource) {
-        super({
-            element: htmlToElement(getTranslationFromResolvableStatic(map.options.selectedPlaceHtml, map.locale)),
-        })
+        super(htmlToElement(getTranslationFromResolvableStatic(map.options.selectedPlaceHtml, map.locale)))
         this.element.classList.add("map-selected-place")
         this.inner = this.element.getElementsByClassName("map-selected-place-content")[0] as HTMLElement
         for (const closeButton of this.element.getElementsByClassName("map-selected-place-close")) {

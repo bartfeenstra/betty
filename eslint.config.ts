@@ -32,13 +32,6 @@ export default defineConfig([
 
     // Generic EcmaScript.
     js.configs.recommended,
-    {
-        languageOptions: {
-            parserOptions: {
-                ecmaVersion: 2022,
-            },
-        },
-    },
     stylistic.configs.customize({
         indent: 4,
         quotes: "double",

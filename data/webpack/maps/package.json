@@ -1,7 +1,8 @@
 {
-  "name": "@betty.py/betty.extensions.maps",
+  "name": "@betty.py/maps",
   "dependencies": {
     "@betty.py/betty": "*",
     "ol": "^10.4.0"
-  }
+  },
+  "type": "module"
 }
