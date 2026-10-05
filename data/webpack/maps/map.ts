@@ -176,14 +176,14 @@ class Map {
             this.map.addControl(this.selectedPlace)
             this.map.addInteraction(new DoubleClickZoom())
             this.map.addInteraction(new DragPan({
-                condition: (event): boolean => (event.activePointers !== undefined && event.activePointers.length === 2) || mouseOnly(event) || document.fullscreenElement === this.map.getTargetElement(),
+                condition: (event): boolean => (event.activePointers !== undefined && event.activePointers.length === 2) || mouseOnly(event) || document.fullscreenElement === requireTargetElement(this.map),
                 kinetic,
             }))
             this.map.addInteraction(new DragZoom())
             this.map.addInteraction(new KeyboardPan())
             this.map.addInteraction(new KeyboardZoom())
             this.map.addInteraction(new MouseWheelZoom({
-                condition: (event): boolean => platformModifierKeyOnly(event) || document.fullscreenElement === this.map.getTargetElement(),
+                condition: (event): boolean => platformModifierKeyOnly(event) || document.fullscreenElement === requireTargetElement(this.map),
             }))
             this.map.addInteraction(new PinchZoom())
 
@@ -261,8 +261,9 @@ class Map {
     }
 
     public async initialize(): Promise<void> {
-        await BETTY.initialize(this.map.getTargetElement())
-        this.map.getTargetElement().classList.add("map-initialized")
+        const targetElement = requireTargetElement(this.map)
+        await BETTY.initialize(targetElement)
+        targetElement.classList.add("map-initialized")
     }
 
     private placeLayerStyle(feature: FeatureLike): Style {
@@ -281,9 +282,18 @@ class Map {
     }
 }
 
+function requireTargetElement(map: OpenLayersMap): HTMLElement {
+    const targetElement = map.getTargetElement()
+    if (!targetElement) {
+        throw new Error("This map does not have a target element.")
+    }
+    return targetElement
+}
+
 export {
     initializeMap,
     initializeMaps,
     Map,
     MapOptions,
+    requireTargetElement,
 }

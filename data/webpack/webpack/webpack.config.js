@@ -7,6 +7,8 @@ import { readFileSync } from "node:fs"
 import TerserPlugin from "terser-webpack-plugin"
 import url from "node:url"
 import webpack from "webpack"
+import autoprefixer from "autoprefixer"
+import coreJsPackageJson from "core-js/package.json" with { type: "json" }
 
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url))
 const configuration = JSON.parse(readFileSync("./webpack.config.json"))
@@ -126,12 +128,14 @@ const webpackConfiguration = {
                                     "@babel/preset-env", {
                                         debug: configuration.debug,
                                         modules: false,
-                                        useBuiltIns: "usage",
-                                        corejs: 3,
                                     },
                                 ],
                                 "@babel/preset-typescript",
                             ],
+                            plugins: [["polyfill-corejs3", {
+                                method: "usage-global",
+                                version: coreJsPackageJson.version,
+                            }]],
                         },
                     },
                 ],
@@ -157,7 +161,7 @@ const webpackConfiguration = {
                         options: {
                             postcssOptions: {
                                 plugins: () => [
-                                    require("autoprefixer"),
+                                    autoprefixer,
                                 ],
                             },
                         },

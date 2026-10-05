@@ -1,15 +1,15 @@
 {
   "name": "@betty.py/betty.project",
   "engines": {
-    "node": ">= 20"
+    "node": ">= 22"
   },
   "devDependencies": {
     "@betty.py/betty": "file:./data/js",
-    "@betty.py/betty.extensions.http-api-doc": "file:./data/webpack/http_api_doc",
-    "@betty.py/betty.extensions.maps": "file:./data/webpack/maps",
-    "@betty.py/betty.extensions.raspberry-mint": "file:./data/webpack/raspberry_mint",
-    "@betty.py/betty.extensions.trees": "file:./data/webpack/trees",
-    "@betty.py/betty.extensions.webpack": "file:./data/webpack/webpack",
+    "@betty.py/http-api-doc": "file:./data/webpack/http-api-doc",
+    "@betty.py/maps": "file:./data/webpack/maps",
+    "@betty.py/raspberry-mint": "file:./data/webpack/raspberry-mint",
+    "@betty.py/trees": "file:./data/webpack/trees",
+    "@betty.py/webpack": "file:./data/webpack/webpack",
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@types/node": "*",

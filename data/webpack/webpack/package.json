@@ -1,11 +1,13 @@
 {
-  "name": "@betty.py/betty.extensions.webpack",
+  "name": "@betty.py/webpack",
   "dependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/preset-env": "^7.26.0",
-    "@babel/preset-typescript": "^7.26.0",
+    "@babel/core": "^8.0.0",
+    "@babel/preset-env": "^8.0.0",
+    "@babel/preset-typescript": "^8.0.0",
+    "autoprefixer": "^10.6.0",
     "babel-loader": "^10.0.0",
-    "core-js": "^3.39.0",
+    "babel-plugin-polyfill-corejs3": "^1.0.0",
+    "core-js": "^3.50.0",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.0",
     "mini-css-extract-plugin": "^2.9.2",
