@@ -8,14 +8,26 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.console import SystemExitCode, call_command_func, main_from_environment
-from betty.console.command import Command, CommandDefinition
-from betty.exception import HumanFacingException
+from betty.console import (
+    Command,
+    CommandDefinition,
+    ExitCode,
+    call_command_func,
+    main_from_environment,
+)
 from betty.functools import Result, suppress
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.user import Severity
+from betty.user.error import UserFacingError
+
+
+class TestCommandDefinition:
+    def test_aliases(self) -> None:
+        alias = "hello-world"
+        sut = CommandDefinition("-", label="-", aliases=[alias])
+        assert list(sut.aliases) == [alias]
 
 
 @CommandDefinition("no-op", label="No-op")
@@ -46,7 +58,7 @@ def _create_raising_command(exception: BaseException) -> CommandDefinition:
 
 
 async def test_main__without_arguments(isolated_app: App) -> None:
-    await run(isolated_app, expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE)
+    await run(isolated_app, exit_code=ExitCode.ERROR_USAGE)
 
 
 async def test_main__help(isolated_app: App) -> None:
@@ -58,50 +70,46 @@ async def test_main__commands(isolated_app: App) -> None:
 
 
 async def test_main__with_unknown_command(isolated_app: App) -> None:
-    await run(
-        isolated_app,
-        "unknown-command",
-        expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
-    )
+    await run(isolated_app, "unknown-command", exit_code=ExitCode.ERROR_USAGE)
 
 
 @pytest.mark.parametrize(
     ("expected", "command"),
     [
-        (SystemExitCode.OK, _NoOpCommand.definition),
+        (ExitCode.OK, _NoOpCommand.definition),
         (
-            SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
+            ExitCode.ERROR_UNEXPECTED,
+            _create_raising_command(UserFacingError(DUMMY_LOCALIZABLE)),
         ),
-        (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
-        (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
-        (SystemExitCode.ERROR_UNEXPECTED, _create_raising_command(RuntimeError())),
+        (ExitCode.USER_QUIT, _create_raising_command(CancelledError())),
+        (ExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
+        (ExitCode.ERROR_UNEXPECTED, _create_raising_command(RuntimeError())),
     ],
 )
 async def test_main__with_user_facing_exception(
-    expected: SystemExitCode,
+    expected: ExitCode,
     command: CommandDefinition,
     isolated_app_factory: IsolatedAppFactory,
 ) -> None:
     async with isolated_app_factory(plugins={CommandDefinition: [command]}) as app:
-        await run(app, command.id, expected_exit_code=expected)
+        await run(app, command.id, exit_code=expected)
 
 
 @pytest.mark.parametrize(
     ("expected", "command"),
     [
-        (SystemExitCode.OK, _NoOpCommand.definition),
+        (ExitCode.OK, _NoOpCommand.definition),
         (
-            SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
+            ExitCode.ERROR_UNEXPECTED,
+            _create_raising_command(UserFacingError(DUMMY_LOCALIZABLE)),
         ),
-        (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
-        (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
-        (SystemExitCode.ERROR_UNEXPECTED, _create_raising_command(RuntimeError())),
+        (ExitCode.USER_QUIT, _create_raising_command(CancelledError())),
+        (ExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
+        (ExitCode.ERROR_UNEXPECTED, _create_raising_command(RuntimeError())),
     ],
 )
 async def test_main_from_environment(
-    expected: SystemExitCode,
+    expected: ExitCode,
     command: CommandDefinition,
     isolated_app_factory: IsolatedAppFactory,
     mocker: MockerFixture,

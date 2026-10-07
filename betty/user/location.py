@@ -5,27 +5,54 @@ Describe locations of data and information in user-facing ways.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from betty.operator import Chain, Operator
 from betty.url import HasUrl
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable, Iterator, Sequence
 
     from betty.localizer import Localizer
 
-type Locator = Operator | HasUrl | Path
+type Locator = Operator | HasLocation | HasUrl | Path
 """
 Describe a partial location of something.
 """
+
+
+class HasLocation:
+    """
+    An object with a location.
+    """
+
+    def __init__(self, *args: Any, location: Iterable[Locator] = (), **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._location = tuple(location)
+
+    @property
+    def location(self) -> Sequence[Locator]:
+        """
+        The object's location.
+
+        The first locator is the innermost, and the last locator is the outermost.
+        """
+        return self._location
 
 
 def reduce(*location: Locator) -> Sequence[Locator]:
     """
     Reduce a location to its most compact and descriptive form.
     """
-    return Chain.reduce(*location)
+    return Chain.reduce(*_flatten(*location))
+
+
+def _flatten(*location: Locator) -> Iterator[Locator]:
+    for locator in location:
+        if isinstance(locator, HasLocation):
+            yield from locator.location
+        else:
+            yield locator
 
 
 def format_(*locators: Locator, localizer: Localizer) -> Sequence[str]:

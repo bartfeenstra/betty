@@ -10,7 +10,7 @@ from betty.asset import AssetDirectoryDefinition
 from betty.commands.update_translations import (
     UpdateTranslations,
 )
-from betty.console import CommandDefinition, SystemExitCode
+from betty.console import CommandDefinition, ExitCode
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 
@@ -82,7 +82,7 @@ class TestUpdateTranslations:
             "update-translations",
             "unknown-asset-id",
             str(source),
-            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+            exit_code=ExitCode.ERROR_USAGE,
         )
 
     async def test_configure__with_asset_not_found(
@@ -95,7 +95,7 @@ class TestUpdateTranslations:
             "update-translations",
             "dummy-not-found",
             str(source),
-            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+            exit_code=ExitCode.ERROR_USAGE,
         )
 
     async def test_configure__with_invalid_source_directory(
@@ -106,5 +106,5 @@ class TestUpdateTranslations:
             "update-translations",
             "dummy",
             str(tmp_path / "non-existent-source"),
-            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+            exit_code=ExitCode.ERROR_USAGE,
         )

@@ -12,6 +12,7 @@ from time import time
 from typing import (
     TYPE_CHECKING,
     Any,
+    Never,
     Protocol,
     Self,
     final,
@@ -311,36 +312,41 @@ class LazyReCallable[ValueT]:
         return self._value
 
 
-type Pipe[ValueT, ReturnT] = Callable[[ValueT], ReturnT]
-
-
-@final
-class Pipeline[ValueT, ReturnT]:
+class Pipe[InputT, OutputT]:
     """
-    A function pipeline.
+    A callable pipe.
 
-    Function pipeline let you pipe/chain/link/combine functions into pipelines that take an input
-    value and, if the functions pass, return an output value. Each pipeline may be (re)used as many
-    times as needed.
+    Pipes let you pipe/chain/link/combine callable into single callables that take an input value and return an output
+    value. Each pipe may be (re)used as many times as needed.
     """
 
-    __slots__ = ("_pipe",)
+    __slots__ = ("__pipe",)
 
-    def __init__(self, pipe: Pipe[ValueT, ReturnT], /):
-        self._pipe = pipe
+    def __init__(self, pipe: Callable[[InputT], OutputT], /):
+        self.__pipe = pipe
 
-    def pipe[PipeReturnT](
-        self, pipe: Pipe[ReturnT, PipeReturnT], /
-    ) -> Pipeline[ValueT, PipeReturnT]:
+    @final
+    def pipe[IntoOutputT](
+        self, into: Callable[[OutputT], IntoOutputT], /
+    ) -> Pipe[InputT, IntoOutputT]:
         """
-        Return a new pipeline consisting of ``self`` with ``pipe`` added to it.
+        Return a new pipe consisting of ``self`` with ``into`` added to it.
         """
-        return Pipeline(lambda value: pipe(self._pipe(value)))
+        return Pipe(lambda value: into(self.__pipe(value)))
 
     __or__ = pipe
 
-    def __call__(self, value: ValueT) -> ReturnT:
+    def __call__(self, value: InputT, /) -> OutputT:
         """
-        Invoke the pipeline with a value.
+        Invoke the pipe with a value.
         """
-        return self._pipe(value)
+        return self.__pipe(value)
+
+
+def raise_(exception: Exception, /) -> Never:
+    """
+    Raise the given exception.
+
+    This is helpful in situations where statements are not allowed, such as in lambdas.
+    """
+    raise exception

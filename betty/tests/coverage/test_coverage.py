@@ -64,12 +64,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "shutdown": MissingReason.COVERED_ELSEWHERE,
         }
     },
-    "betty/assertions/plugin.py": {
-        "assert_plugin": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/assertions/record.py": {
-        "Field": MissingReason.DATACLASS,
-    },
     "betty/asset.py": {
         "AssetError": MissingReason.ABSTRACT,
         "AssetRepository": MissingReason.ABSTRACT,
@@ -130,13 +124,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/commands/dev_profile_demo.py": MissingReason.DEVELOPMENT,
     "betty/console/__init__.py": {
-        "SystemExitCode": MissingReason.ENUM,
-    },
-    "betty/console/command.py": {
         "Command": MissingReason.SHOULD_BE_COVERED,
+        "ExitCode": MissingReason.ENUM,
     },
     "betty/console/project.py": {
-        "ConfigurationFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
+        "NotAProjectDirectory": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/concurrent.py": {
         "ThreadSafeLock": {
@@ -243,14 +235,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Derivation": MissingReason.ENUM,
     },
     "betty/dirs.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/error.py": {
-        "FileNotFound": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/exception.py": {
-        "HumanFacingException": {
-            "locators": MissingReason.COVERED_ELSEWHERE,
-        },
-    },
     "betty/factory.py": {
         "DataManufacturable": MissingReason.ABSTRACT,
         "FactoryError": MissingReason.ABSTRACT,
@@ -274,10 +258,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "GrampsEntityReference": MissingReason.SHOULD_BE_COVERED,
         "GrampsEntityType": MissingReason.ENUM,
         "GrampsError": MissingReason.STATIC_CONTENT_ONLY,
-        "GrampsFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
         "LoaderUsedAlready": MissingReason.STATIC_CONTENT_ONLY,
+        "LocalizableGrampsError": MissingReason.STATIC_CONTENT_ONLY,
         "XPathError": MissingReason.STATIC_CONTENT_ONLY,
-        "UserFacingGrampsError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/html/attributes.py": {
         "Attributes": {
@@ -628,6 +611,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/project/__init__.py": {
+        "InvalidProjectLocaleAlias": MissingReason.STATIC_CONTENT_ONLY,
         "ProjectData": {
             "copyright_notice": MissingReason.INHERITED,
             "license": MissingReason.INHERITED,
@@ -745,6 +729,59 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Ui": MissingReason.ABSTRACT,
         "UiError": MissingReason.STATIC_CONTENT_ONLY,
         "UiTimeoutError": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/bool.py": {
+        "NotABool": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/color.py": {
+        "NotAHex": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/enum.py": {
+        "UnknownOption": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/float.py": {
+        "NotAFloat": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/int.py": {
+        "NotAnInt": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/len.py": {
+        "TooLong": MissingReason.STATIC_CONTENT_ONLY,
+        "TooShort": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/mapping.py": {
+        "NotAMapping": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/none.py": {
+        "NotNone": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/number.py": {
+        "TooHigh": MissingReason.STATIC_CONTENT_ONLY,
+        "TooLow": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/path.py": {
+        "NotADirectory": MissingReason.STATIC_CONTENT_ONLY,
+        "NotAFile": MissingReason.STATIC_CONTENT_ONLY,
+        "NotAPath": MissingReason.STATIC_CONTENT_ONLY,
+        "NotFound": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/plugin.py": {
+        "is_plugin": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/validators/record.py": {
+        "Field": MissingReason.DATACLASS,
+        "MissingField": MissingReason.DATACLASS,
+        "UnknownField": MissingReason.DATACLASS,
+    },
+    "betty/validators/sequence.py": {
+        "NotASequence": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/str.py": {
+        "NotAStr": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/validators/url.py": {
+        "NotAUrl": MissingReason.STATIC_CONTENT_ONLY,
+        "MissingHost": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/warnings.py": {
         "BettyDeprecationWarning": MissingReason.STATIC_CONTENT_ONLY,

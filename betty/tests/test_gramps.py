@@ -28,10 +28,9 @@ from betty.event_types.unknown import UnknownEventType
 from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import UnknownGender
 from betty.gramps import (
-    GrampsFileNotFound,
     GrampsLoader,
     LoaderUsedAlready,
-    UserFacingGrampsError,
+    LocalizableGrampsError,
     machinify,
 )
 from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
@@ -45,6 +44,7 @@ from betty.roles.subject import Subject
 from betty.subprocess import CalledSubprocessError
 from betty.test_utils.user.ui import StaticUi
 from betty.user import Severity
+from betty.validators.path import NotFound
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Mapping
@@ -151,7 +151,7 @@ class TestGrampsLoader:
             project=isolated_project,
             attribute_prefix_key=self.attribute_prefix_key,
         )
-        with pytest.raises(GrampsFileNotFound):
+        with pytest.raises(NotFound):
             await sut.load_gramps(tmp_path / "non-existent-file")
 
     async def test_load_gpkg(self, isolated_project: Project, tmp_path: Path) -> None:
@@ -174,7 +174,7 @@ class TestGrampsLoader:
             project=isolated_project,
             attribute_prefix_key=self.attribute_prefix_key,
         )
-        with pytest.raises(GrampsFileNotFound):
+        with pytest.raises(NotFound):
             await sut.load_gpkg(tmp_path / "non-existent-file")
 
     async def test_load_file__with_gramps(
@@ -231,7 +231,7 @@ class TestGrampsLoader:
             project=isolated_project,
             attribute_prefix_key=self.attribute_prefix_key,
         )
-        with pytest.raises(UserFacingGrampsError):
+        with pytest.raises(LocalizableGrampsError):
             await sut.load_file(tmp_path / "non-existent-file")
 
     async def test_load_file__with_invalid_file(
@@ -241,7 +241,7 @@ class TestGrampsLoader:
             project=isolated_project,
             attribute_prefix_key=self.attribute_prefix_key,
         )
-        with pytest.raises(UserFacingGrampsError):
+        with pytest.raises(LocalizableGrampsError):
             await sut.load_file(Path(__file__).parent / "asset" / "minimal.invalid")
 
     async def test_load_name__with_existent_family_tree(
@@ -279,7 +279,7 @@ class TestGrampsLoader:
             attribute_prefix_key=self.attribute_prefix_key,
             executable=gramps_executable,
         )
-        with pytest.raises(UserFacingGrampsError):
+        with pytest.raises(LocalizableGrampsError):
             await sut.load_name(family_tree_name)
         m_run_process.assert_awaited_once_with(
             [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file)], ui=ANY
@@ -371,7 +371,7 @@ class TestGrampsLoader:
         sut = GrampsLoader(
             project=isolated_project, attribute_prefix_key=self.attribute_prefix_key
         )
-        with pytest.raises(UserFacingGrampsError):
+        with pytest.raises(LocalizableGrampsError):
             await sut.load_xml(_minimal_xml(version))
 
     async def test_load_xml_with_invalid_xml_should_error(
@@ -391,7 +391,7 @@ class TestGrampsLoader:
         sut = GrampsLoader(
             project=isolated_project, attribute_prefix_key=self.attribute_prefix_key
         )
-        with pytest.raises(UserFacingGrampsError):
+        with pytest.raises(LocalizableGrampsError):
             await sut.load_xml(xml)
 
     async def test_place_should_include_place_type(
@@ -1769,7 +1769,7 @@ class TestGrampsLoader:
         self,
         load_partial: LoadPartial,
     ) -> None:
-        with pytest.raises(UserFacingGrampsError):
+        with pytest.raises(LocalizableGrampsError):
             await load_partial(
                 f"""
     <objects>
@@ -1811,7 +1811,7 @@ class TestGrampsLoader:
     async def test_file_not_exists_should_error(
         self, load_partial: LoadPartial, tmp_path: Path
     ) -> None:
-        with pytest.raises(UserFacingGrampsError):
+        with pytest.raises(LocalizableGrampsError):
             await load_partial(
                 f"""
     <objects>

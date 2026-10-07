@@ -15,10 +15,11 @@ if TYPE_CHECKING:
     import logging
     from collections.abc import AsyncGenerator
 
-    from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
     from betty.progress import Progress
     from betty.user import Severity
+    from betty.user.error import UserFacingError
+    from betty.validation import Validator
 
 
 @final
@@ -31,6 +32,12 @@ class NoOpUi(Ui):
 
     @override
     async def exception(self) -> None:
+        pass
+
+    @override
+    async def error(
+        self, error: UserFacingError, message: ResolvableLocalizable = "{error}", /
+    ) -> None:
         pass
 
     @override
@@ -62,7 +69,7 @@ class NoOpUi(Ui):
         question: ResolvableLocalizable,
         /,
         *,
-        assertion: None = None,
+        validator: None = None,
         default: str | NoDefault = NoDefault,
     ) -> str:
         pass
@@ -73,11 +80,11 @@ class NoOpUi(Ui):
         question: ResolvableLocalizable,
         /,
         *,
-        assertion: Pipe[str, T],
+        validator: Validator[str, T],
         default: str | NoDefault = NoDefault,
     ) -> T:
         pass
 
     @override
-    async def ask_input(self, question, /, *, assertion=None, default=NoDefault):
+    async def ask_input(self, question, /, *, validator=None, default=NoDefault):
         raise UiTimeoutError

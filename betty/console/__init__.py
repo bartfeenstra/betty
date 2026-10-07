@@ -6,39 +6,106 @@ from __future__ import annotations
 
 import argparse
 import sys
+from abc import abstractmethod
 from asyncio import CancelledError, run
 from enum import IntEnum
 from functools import partial
-from typing import TYPE_CHECKING, Any, cast, final, override
+from typing import TYPE_CHECKING, Any, Final, Literal, cast, final, override
 
 import rich_argparse
 
 from betty import about
 from betty.app import App
-from betty.console.command import CommandDefinition, CommandFunction
-from betty.exception import HumanFacingException
-from betty.localizables.gettext import _
+from betty.definition import HasDefinition
+from betty.definition.cls import ClsDefinition
+from betty.definition.human_facing import HumanFacingDefinition
+from betty.localizables.gettext import _, ngettext
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.user import Severity
+from betty.user.error import UserFacingError
 from betty.user.logging import UiHandler
 from betty.user.ui import Ui
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Awaitable, Callable, Iterable, Sequence
 
+    from betty.localizable import ResolvableLocalizable
     from betty.localizer import Localizer
+    from betty.machine_name import ResolvableMachineName
+    from betty.requirement import Requires
 
 
 @final
-class SystemExitCode(IntEnum):
+class ExitCode(IntEnum):
     """
     The exit codes used by the console.
     """
 
     OK = 0
+
+    # User-caused exists are numbered 1-9.
     USER_QUIT = 1
-    ERROR_CONSOLE_USAGE = 2
-    ERROR_COMMAND_RUNTIME = 3
-    ERROR_UNEXPECTED = 4
+
+    # Error-caused exists are numbered 11-19.
+    ERROR_UNEXPECTED = 11
+    ERROR_USAGE = 12
+    ERROR_COMMAND = 13
+
+
+type CommandResult = None | Literal[ExitCode.OK, ExitCode.ERROR_COMMAND]
+
+
+type CommandFunction = Callable[
+    ...,
+    Awaitable[CommandResult],
+]
+
+
+class Command(HasDefinition["CommandDefinition"]):
+    """
+    A console command plugin.
+    """
+
+    @abstractmethod
+    async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+        """
+        Configure the command.
+
+        :return: The command function, which is an async callable that returns ``None`` and takes all parser arguments
+            as keyword arguments.
+        """
+
+
+@final
+@PluginTypeDefinition(
+    "command",
+    label=_("Command"),
+    label_plural=_("Commands"),
+    label_countable=ngettext("{count} command", "{count} commands"),
+)
+class CommandDefinition(
+    HumanFacingDefinition, ClsDefinition[Command], PluginDefinition
+):
+    """
+    .. plugin_type:: command.
+    """
+
+    def __init__(
+        self,
+        command_id: ResolvableMachineName,
+        *,
+        label: ResolvableLocalizable,
+        aliases: Iterable[str] = (),
+        description: ResolvableLocalizable | None = None,
+        requires: Requires = (),
+    ):
+        super().__init__(
+            command_id, label=label, description=description, requires=requires
+        )
+        self.aliases: Final[Sequence[str]] = tuple(aliases)
+        """
+        Any aliases for the command.
+        """
 
 
 def _create_parser_class(*, localizer: Localizer) -> type[argparse.ArgumentParser]:
@@ -230,7 +297,7 @@ async def _create_list_commands_action_class(
                 description = command_definition.description
                 if description is not None:
                     rich.print(f"  {description.localize(localizer)}")
-            raise SystemExit(SystemExitCode.OK)
+            raise SystemExit(ExitCode.OK)
 
     return _ListCommandsAction
 
@@ -267,13 +334,14 @@ async def main(app: App, args: Sequence[str], /) -> None:
     try:
         namespace = parser.parse_args(args)
     except argparse.ArgumentError as error:
-        await app.ui.message(
-            _("Invalid argument {argument}: {error}").format(
-                argument=str(error.argument_name), error=error.message
-            ),
-            Severity.ERROR,
+        message = _("Invalid argument {argument}: {{error}}").format(
+            argument=str(error.argument_name)
         )
-        raise SystemExit(SystemExitCode.ERROR_CONSOLE_USAGE) from None
+        if isinstance(error, UserFacingError):
+            await app.ui.error(error, message)
+        else:
+            await app.ui.message(message.format(error=error.message), Severity.ERROR)
+        raise SystemExit(ExitCode.ERROR_USAGE) from None
     try:
         command_func = cast(CommandFunction, namespace.__command_func)
     except AttributeError:
@@ -282,25 +350,20 @@ async def main(app: App, args: Sequence[str], /) -> None:
             Severity.WARN,
         )
         parser.print_help()
-        raise SystemExit(SystemExitCode.ERROR_CONSOLE_USAGE) from None
+        raise SystemExit(ExitCode.ERROR_USAGE) from None
     app.ui.severity = namespace.__show_severity
     command_func = partial(call_command_func, command_func, namespace)
     try:
         if namespace.__show_logs:
             async with UiHandler(app.ui):
-                await command_func()
+                command_result = await command_func()
         else:
-            await command_func()
-    except HumanFacingException as error:
-        if namespace.__show_tracebacks:
-            await app.ui.exception()
-        await app.ui.message(error, Severity.ERROR)
-        raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
+            command_result = await command_func()
     except (CancelledError, KeyboardInterrupt):
         if namespace.__show_tracebacks:
             await app.ui.exception()
         await app.ui.message(_("Quitting…"), Severity.CONFIRM)
-        raise SystemExit(SystemExitCode.USER_QUIT) from None
+        raise SystemExit(ExitCode.USER_QUIT) from None
     except Exception:
         await app.ui.exception()
         await app.ui.message(
@@ -309,9 +372,9 @@ async def main(app: App, args: Sequence[str], /) -> None:
             ).format(url=about.url_report_issue),
             Severity.WARN,
         )
-        raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
+        raise SystemExit(ExitCode.ERROR_UNEXPECTED) from None
     else:
-        raise SystemExit(SystemExitCode.OK) from None
+        raise SystemExit(command_result or ExitCode.OK) from None
 
 
 def main_from_environment() -> None:

@@ -6,8 +6,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from betty.assertions.len import assert_len
-from betty.exception import reraise_with_locator
 from betty.locale import (
     ResolvableLocale,
     negotiate_locale,
@@ -26,9 +24,11 @@ from betty.localizable import (
     StaticTranslationsMapping,
 )
 from betty.localizables.gettext import _
-from betty.localizables.markup import JoinAnd, Paragraphs, UnorderedList, do_you_mean
+from betty.localizables.markup import JoinAnd, do_you_mean
 from betty.localized import LocalizedStr
 from betty.operator import Key
+from betty.validation import Invalid, collect
+from betty.validators.len import is_min_len
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -36,6 +36,8 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.localizer import Localizer
+
+_validate_translation_len = is_min_len(1)
 
 
 @final
@@ -47,7 +49,7 @@ class CountableStaticTranslations(CountableLocalizable):
     __slots__ = ("translations",)
 
     def __init__(self, translations: ResolvableCountableStaticTranslations, /):
-        assert_len(minimum=1)(translations)
+        _validate_translation_len(translations)
         self.translations: Final[CountableStaticTranslationsMapping] = {
             self._ensure_locale(locale, locale_translations): locale_translations
             for locale, locale_translations in translations.items()
@@ -60,53 +62,49 @@ class CountableStaticTranslations(CountableLocalizable):
         self, locale: ResolvableLocale, translations: Mapping[str, str]
     ) -> Locale:
         locale = resolve_locale(locale)
-        with reraise_with_locator(Key(to_language_tag(locale))):
+        with collect(translations, location=[Key(to_language_tag(locale))]) as errors:
             for plural_tag, translation in translations.items():
-                with reraise_with_locator(Key(plural_tag)):
-                    assert_len(minimum=1)(translations)
-                    if "{count}" not in translation:
-                        raise MissingPluralPlaceholder(
-                            Paragraphs(
-                                _(
-                                    "Missing `{{count}}` placeholder in {locale} plural translations"
-                                ).format(locale=to_language_tag(locale)),
-                                self._format_translations(translations),
-                            )
+                _validate_translation_len(translations)
+                if "{count}" not in translation:
+                    errors.add(
+                        MissingPluralPlaceholder(
+                            translations,
+                            _(
+                                "Missing `{{count}}` placeholder in {locale} plural translations"
+                            ).format(locale=to_language_tag(locale)),
+                            location=[Key(plural_tag)],
                         )
+                    )
             provided_plural_tags = set(translations.keys())
             locale_plural_tags = set(plural_tags(locale))
             invalid_plural_tags = provided_plural_tags - locale_plural_tags
             missing_plural_tags = locale_plural_tags - provided_plural_tags
             if invalid_plural_tags:
                 raise InvalidPluralTag(
-                    Paragraphs(
-                        _(
-                            "Invalid plural tag(s) {plural_tags} for {locale} translations."
-                        ).format(
-                            locale=to_language_tag(locale),
-                            plural_tags=JoinAnd(
-                                *self._format_plural_tags(invalid_plural_tags)
-                            ),
+                    translations,
+                    _(
+                        "Invalid plural tag(s) {plural_tags} for {locale} translations."
+                    ).format(
+                        locale=to_language_tag(locale),
+                        plural_tags=JoinAnd(
+                            *self._format_plural_tags(invalid_plural_tags)
                         ),
-                        do_you_mean(*self._format_plural_tags(locale_plural_tags)),
-                        self._format_translations(translations),
-                        self._format_plural_rules_link(locale),
-                    )
+                    ),
+                    hint=do_you_mean(*self._format_plural_tags(locale_plural_tags)),
+                    url=self._format_plural_rules_link(locale),
                 )
             if missing_plural_tags:
                 raise MissingPluralTag(
-                    Paragraphs(
-                        _(
-                            "Missing plural tag(s) {plural_tags} for {locale} translations."
-                        ).format(
-                            locale=to_language_tag(locale),
-                            plural_tags=JoinAnd(
-                                *self._format_plural_tags(missing_plural_tags)
-                            ),
+                    translations,
+                    _(
+                        "Missing plural tag(s) {plural_tags} for {locale} translations."
+                    ).format(
+                        locale=to_language_tag(locale),
+                        plural_tags=JoinAnd(
+                            *self._format_plural_tags(missing_plural_tags)
                         ),
-                        self._format_translations(translations),
-                        self._format_plural_rules_link(locale),
-                    )
+                    ),
+                    url=self._format_plural_rules_link(locale),
                 )
             return locale
 
@@ -117,12 +115,6 @@ class CountableStaticTranslations(CountableLocalizable):
         return _("Read more at {url}").format(
             url=f"https://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html#{locale}"
         )
-
-    def _format_translations(self, translations: Mapping[str, str]) -> Localizable:
-        return UnorderedList(*[
-            f"{plural_tag}: {translation}"
-            for plural_tag, translation in translations.items()
-        ])
 
     @override
     def count(self, count: LocalizableCount, /) -> Localizable:
@@ -211,7 +203,7 @@ class StaticTranslations(Localizable):
         :param translations: Keys are locales, values are translations.
         """
         super().__init__()
-        assert_len(minimum=1)(translations)
+        _validate_translation_len(translations)
         self.translations: Final[StaticTranslationsMapping] = (
             {None: translations}
             if isinstance(translations, str)
@@ -250,21 +242,21 @@ class StaticTranslations(Localizable):
 
 
 @final
-class MissingPluralPlaceholder(LocaleError):
+class MissingPluralPlaceholder(Invalid, LocaleError):
     """
     Raised when a plural translation is missing a placeholder.
     """
 
 
 @final
-class MissingPluralTag(LocaleError):
+class MissingPluralTag(Invalid, LocaleError):
     """
     Raised when a countable localizable is missing a plural tag.
     """
 
 
 @final
-class InvalidPluralTag(LocaleError):
+class InvalidPluralTag(Invalid, LocaleError):
     """
     Raised when a countable localizable defines an invalid plural tag.
     """

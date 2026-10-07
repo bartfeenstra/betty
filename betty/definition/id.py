@@ -22,7 +22,7 @@ class IdentifiableDefinition(Definition):
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self.id: Final[MachineName] = MachineName.resolve(id)
+        self.id: Final[MachineName] = MachineName(id)
         """
         The ID.
         """
@@ -40,5 +40,5 @@ def resolve_id(id_: ResolvableId, /) -> MachineName:
     :raises ValueError: Raised if the value cannot be resolved to its definition ID.
     """
     if isinstance(id_, str):
-        return MachineName.resolve(id_)
+        return MachineName(id_)
     return resolve_definition(id_).id

@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 
 import pytest
 
-from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, UnsupportedManufacturer
 from betty.plugin.factory import (
     NoPluginData,
@@ -18,6 +17,7 @@ from betty.test_utils.plugin import (
     DummyPluginManufacturer,
     DummyPluginOne,
 )
+from betty.user.error import UserFacingError
 
 if TYPE_CHECKING:
     from betty.portable import PortableData
@@ -161,7 +161,7 @@ class TestPluginManufacturer:
 
 class TestPluginManufacturerPorter:
     def test_load__without_id(self) -> None:
-        with pytest.raises(HumanFacingException):
+        with pytest.raises(UserFacingError):
             PluginManufacturerPorter(DummyPluginManufacturer).load({})
 
     def test_load__minimal(self) -> None:

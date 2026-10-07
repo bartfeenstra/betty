@@ -7,7 +7,6 @@ from __future__ import annotations
 from email.message import EmailMessage
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
@@ -15,13 +14,13 @@ from betty.pathlib import StrPath
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.porters.callback import CallbackPorter
+from betty.validators.str import is_str
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.portable import PortableData
 
 
 class InvalidMediaType(ValueError):
@@ -48,17 +47,12 @@ class MissingMediaType(RuntimeError):
         super().__init__("Missing media type")
 
 
-__load = assert_str()
-
-
-def _load(portable: PortableData, /) -> MediaType:
-    return MediaType(__load(portable))
-
-
 @final
 @DataDefinition(
     label=_("Media type"),
-    porter=CallbackPorter(_load, lambda media_type: media_type._str),
+    porter=lambda _: CallbackPorter(
+        is_str | MediaType, lambda media_type: media_type._str
+    ),
 )
 class MediaType(Data):
     """

@@ -8,41 +8,40 @@ from asyncio import to_thread
 from contextlib import chdir
 from typing import TYPE_CHECKING
 
-from betty.assertions.file import assert_file
-from betty.exception import reraise_with_locator
 from betty.file import write
 from betty.pathlib import resolve_path
 from betty.serialize import Serializer, serializer_for
+from betty.validation import collect
+from betty.validators.path import is_file
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
-    from betty.functools import Pipeline
+    from betty.functools import Pipe
     from betty.pathlib import StrPath
     from betty.portable import PortableData
 
 
-def assert_load_file(
-    *, serializers: Iterable[Serializer]
-) -> Pipeline[StrPath, PortableData]:
+# @todo Move to betty.validators?
+def is_load_file(*, serializers: Iterable[Serializer]) -> Pipe[StrPath, PortableData]:
     """
-    An assertion to load a dump from a file.
+    A validator to load a dump from a file.
     """
 
     def _assert(file: Path, /) -> PortableData:
-        file = resolve_path(file)
+        file = is_file(file)
+        with open(file, encoding="utf-8") as f:
+            dump_data = f.read()
         with (
-            reraise_with_locator(file),
             # Change the working directory to allow relative paths to be resolved
             # against the configuration file's directory path.
             chdir(file.parent),
+            collect(dump_data, location=[file]).catch(),
         ):
-            with open(file, encoding="utf-8") as f:
-                dump_data = f.read()
             return serializer_for(serializers, file.suffix).load(dump_data)
 
-    return assert_file() | _assert
+    return is_file | _assert
 
 
 async def dump_file(

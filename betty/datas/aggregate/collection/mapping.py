@@ -7,7 +7,6 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.assertions.mapping import assert_mapping
 from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 from betty.datas.aggregate.collection import (
     CollectionDefinition,
@@ -15,6 +14,7 @@ from betty.datas.aggregate.collection import (
     MutableCollectionDefinition,
 )
 from betty.porters.callback import CallbackPorter
+from betty.validators.mapping import is_mapping
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
@@ -53,7 +53,9 @@ class MappingDefinition[MappingT: Mapping[Any, Any], KeyT, ValueT](
 
     def _load(self, portable: PortableData, /) -> MappingT:
         return self.new(
-            assert_mapping(self._value.porter.load, self.item.porter.load)(portable)
+            is_mapping(
+                portable, keys=self.item.porter.load, values=self._value.porter.load
+            )
         )
 
     def _dump(self, data: MappingT) -> PortableData:

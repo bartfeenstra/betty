@@ -4,18 +4,22 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty import gettext
 from betty.app import App
-from betty.argparse import assertion_to_argument_type
-from betty.assertions.directory import assert_directory
+from betty.argparse import validator_to_argument_type
 from betty.asset import AssetDirectoryDefinition
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console import Command, CommandDefinition
 from betty.factory import Manufacturable
+from betty.functools import Pipe
 from betty.localizables.gettext import _
+from betty.machine_name import MachineName
 from betty.plugin.error import PluginNotFound
+from betty.validators.path import is_directory
 
 if TYPE_CHECKING:
     import argparse
     from collections.abc import Mapping
     from pathlib import Path
+
+    from betty.console import CommandFunction
 
 
 @final
@@ -39,12 +43,12 @@ class UpdateTranslations(Manufacturable, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        assets: Mapping[str, AssetDirectoryDefinition] = {
+        assets: Mapping[MachineName, AssetDirectoryDefinition] = {
             asset.id: asset
             async for asset in self._app.plugins[AssetDirectoryDefinition]
         }
 
-        def _assert_asset(asset_id: str) -> AssetDirectoryDefinition:
+        def _assert_asset(asset_id: MachineName) -> AssetDirectoryDefinition:
             try:
                 asset = assets[asset_id]
             except KeyError:
@@ -55,23 +59,17 @@ class UpdateTranslations(Manufacturable, Command):
 
         parser.add_argument(
             "output",
-            type=assertion_to_argument_type(
-                _assert_asset, localizer=self._app.ui.localizer
-            ),
+            type=validator_to_argument_type(Pipe(MachineName) | _assert_asset),
         )
         parser.add_argument(
             "inputs",
-            type=assertion_to_argument_type(
-                assert_directory(), localizer=self._app.ui.localizer
-            ),
+            type=validator_to_argument_type(is_directory),
             nargs="+",
         )
         parser.add_argument(
             "--exclude",
             action="append",
-            type=assertion_to_argument_type(
-                assert_directory(), localizer=self._app.ui.localizer
-            ),
+            type=validator_to_argument_type(is_directory),
             default=[],
             dest="excludes",
         )

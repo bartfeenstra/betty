@@ -6,14 +6,26 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Final, TextIO, cast, final, overload, override
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Final,
+    TextIO,
+    cast,
+    final,
+    overload,
+    override,
+)
 
 from rich.console import Console as RichConsole
+from rich.markdown import Markdown
 from rich.markup import escape
 from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsedColumn
 from rich.progress import Progress as _RichProgress
 from rich.prompt import Confirm, Prompt
 
+from betty.localizable import Localizable
+from betty.localizables.gettext import _
 from betty.localizer import default_localizer
 from betty.progresses.no_op import NoOpProgress
 from betty.progresses.rich import RichProgress
@@ -22,12 +34,13 @@ from betty.user import Severity
 from betty.user.ui import NoDefault, Ui
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator, Mapping
+    from collections.abc import AsyncGenerator, Mapping, MutableSequence
 
-    from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
     from betty.localizer import Localizer
     from betty.progress import Progress
+    from betty.user.error import UserFacingError
+    from betty.validation import Validator
 
 
 @final
@@ -59,9 +72,17 @@ class Console(Ui):
         self._localizer = localizer
         self.severity = severity
 
-    def _print(self, message: ResolvableLocalizable, style: str, /) -> None:
+    def _print(self, *messages: Any, style: str) -> None:
         self.console.print(
-            self.localizer.localize(message), emoji=False, markup=False, style=style
+            *(
+                self.localizer.localize(message)
+                if isinstance(message, Localizable)
+                else message
+                for message in messages
+            ),
+            emoji=False,
+            markup=False,
+            style=style,
         )
 
     @override
@@ -74,12 +95,46 @@ class Console(Ui):
         self.console.print_exception(show_locals=self.shows(Severity.DEBUG))
 
     @override
+    async def error(
+        self, error: UserFacingError, message: ResolvableLocalizable = "{error}", /
+    ) -> None:
+        # @todo Add test coverage
+        # @todo
+        # @todo
+        # @todo Extract single Invalid formatting into a separate function.
+        # @todo Then, here, support formatting InvalidGroup as well.
+        # @todo
+        # @todo
+        messages: MutableSequence[Any] = [
+            self.localizer.localize(message).format(
+                error=self.localizer.localize(error)
+            )
+        ]
+        if error.location:
+            messages.append(Markdown("# " + self.localizer.localize(_("Where"))))
+            # @todo
+            messages.append("???????")
+        if error.hint:
+            messages.append(Markdown("# " + self.localizer.localize(_("Why"))))
+            messages.append(error.hint)
+        if error.url:
+            messages.append(Markdown("# " + self.localizer.localize(_("Learn more"))))
+            messages.append(
+                f"[link={error.url}]{self.localizer.localize(_('Read more'))}[/link]"
+            )
+        self._print(
+            *messages,
+            style=self._severity_to_style[Severity.ERROR],
+        )
+
+    @override
     async def message(
         self, message: ResolvableLocalizable, severity: Severity, /
     ) -> None:
         if self.shows(severity):
             self._print(
-                self.localizer.localize(message), self._severity_to_style[severity]
+                self.localizer.localize(message),
+                style=self._severity_to_style[severity],
             )
 
     @override
@@ -132,7 +187,7 @@ class Console(Ui):
         question: ResolvableLocalizable,
         /,
         *,
-        assertion: None = None,
+        validator: None = None,
         default: str | NoDefault = NoDefault,
         stdin: TextIO | None = None,
     ) -> str:
@@ -144,7 +199,7 @@ class Console(Ui):
         question: ResolvableLocalizable,
         /,
         *,
-        assertion: Pipe[str, T],
+        validator: Validator[str, T],
         default: str | NoDefault = NoDefault,
         stdin: TextIO | None = None,
     ) -> T:
@@ -156,7 +211,7 @@ class Console(Ui):
         question,
         /,
         *,
-        assertion=None,
+        validator=None,
         default=NoDefault,
         stdin: TextIO | None = None,
     ):
@@ -172,6 +227,6 @@ class Console(Ui):
                 **ask_kwargs,
             ),
         )
-        if assertion is None:
+        if validator is None:
             return value
-        return assertion(value)
+        return validator(value)

@@ -5,7 +5,6 @@ Complex/markup localizables.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from textwrap import indent
 from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 
 from betty.localizable import (
@@ -90,91 +89,6 @@ class Paragraph(_Join):
     """
 
     _separator: ClassVar[str] = " "
-
-
-@final
-class Lines(_Join):
-    """
-    Represent multiple localizables as multiple lines of text.
-    """
-
-    _separator: ClassVar[str] = "\n"
-
-
-@final
-class Paragraphs(_Join):
-    """
-    Represent multiple localizables as multiple paragraphs of text.
-    """
-
-    _separator: ClassVar[str] = "\n\n"
-
-
-class _List(_LocalizableSequence, Localizable):
-    _template_left_to_right: Final[str] = "{prefix} {localized}"
-    _template_right_to_left: Final[str] = "{localized} {prefix}"
-
-    @override
-    def localize(self, localizer: Localizer, /) -> LocalizedStr:
-        if not self.localizables:
-            return LocalizedStr("")
-        localizeds = []
-        prefixes = []
-        prefix_lengths = []
-        if localizer.locale.character_order == "right-to-left":
-            template = self._template_right_to_left
-        else:
-            template = self._template_left_to_right
-        for index, localizable in enumerate(self._localizables):
-            localizeds.append(localizable.localize(localizer))
-            prefix = self._get_prefix(localizer, index)
-            prefixes.append(prefix)
-            prefix_lengths.append(len(prefix))
-        max_prefix_length = max(prefix_lengths) + 1
-        return LocalizedStr(
-            "\n".join(
-                template.format(
-                    localized=indent(localized, " " * max_prefix_length)[
-                        len(prefixes[index]) + 1 :
-                    ],
-                    prefix=self._get_prefix(localizer, index),
-                )
-                for index, localized in enumerate(localizeds)
-            )
-        )
-
-    @abstractmethod
-    def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
-        pass
-
-
-@final
-class OrderedList(_List):
-    """
-    Represent multiple localizables in an ordered list.
-    """
-
-    _prefix_template_left_to_right: Final[str] = "{index}."
-    _prefix_template_right_to_left: Final[str] = ".{index}"
-
-    @override
-    def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
-        if localizer.locale.character_order == "right-to-left":
-            template = self._prefix_template_right_to_left
-        else:
-            template = self._prefix_template_left_to_right
-        return template.format(index=index + 1)
-
-
-@final
-class UnorderedList(_List):
-    """
-    Represent multiple localizables in an unordered list.
-    """
-
-    @override
-    def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
-        return "-"
 
 
 class _NaturalJoin(_LocalizableSequence, Localizable):

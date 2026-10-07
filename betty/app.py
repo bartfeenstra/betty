@@ -28,7 +28,7 @@ from betty.localizables.gettext import _
 from betty.localizer import LocalizerRepository
 from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
-from betty.portable.file import assert_load_file
+from betty.portable.file import is_load_file
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.sample import Sample, Samples, Size
 from betty.serialize import SerializerDefinition
@@ -156,7 +156,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         """
         if AppData.FILE.exists():
             data = AppData.definition.porter.load(
-                assert_load_file(serializers=[Json()])(AppData.FILE),
+                is_load_file(serializers=[Json()])(AppData.FILE),
             )
             locale = data.locale
         else:

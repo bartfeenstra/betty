@@ -2,8 +2,14 @@ from pathlib import Path
 
 from betty.link import StaticLink
 from betty.localizer import default_localizer
-from betty.operator import Attr, Index
-from betty.user.location import format_, reduce
+from betty.operator import Attr, Index, Key
+from betty.user.location import HasLocation, format_, reduce
+
+
+class TestHasLocation:
+    def test_location(self) -> None:
+        assert HasLocation().location == ()
+        assert HasLocation(location=[Key("a")]).location == (Key("a"),)
 
 
 def test_reduce() -> None:
@@ -12,7 +18,7 @@ def test_reduce() -> None:
         *reduce(
             Path("foo"),
             Attr("my_first_attr"),
-            Attr("my_second_attr"),
+            HasLocation(location=[Attr("my_second_attr")]),
             Path("bar"),
             Attr("my_third_attr"),
             Attr("my_fourth_attr"),

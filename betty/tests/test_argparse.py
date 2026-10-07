@@ -2,29 +2,30 @@ import argparse
 
 import pytest
 
-from betty.argparse import add_yes_argument, assertion_to_argument_type
-from betty.exception import HumanFacingException
+from betty.argparse import (
+    UserFacingArgumentError,
+    add_yes_argument,
+    validator_to_argument_type,
+)
 from betty.localizer import default_localizer
+from betty.validation import Invalid
 
 
-def test_assertion_to_argument_type__with_error() -> None:
+def test_validator_to_argument_type__with_error() -> None:
     message = "Hello, world!"
 
-    def _assertion(_: str) -> None:
-        raise HumanFacingException(message)
+    def _validator(_: str) -> None:
+        raise Invalid(None, message)
 
-    with pytest.raises(argparse.ArgumentTypeError, match=message):
-        assertion_to_argument_type(_assertion, localizer=default_localizer)("Value")
+    with pytest.raises(UserFacingArgumentError, match=message):
+        validator_to_argument_type(_validator)("Value")
 
 
-def test_assertion_to_argument_type__without_error() -> None:
-    def _assertion(value: str) -> str:
+def test_validator_to_argument_type__without_error() -> None:
+    def _validator(value: str) -> str:
         return value.upper()
 
-    assert (
-        assertion_to_argument_type(_assertion, localizer=default_localizer)("value")
-        == "VALUE"
-    )
+    assert validator_to_argument_type(_validator)("value") == "VALUE"
 
 
 async def test_add_yes_argument__without_argument() -> None:

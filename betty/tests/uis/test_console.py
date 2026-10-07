@@ -4,10 +4,11 @@ from io import StringIO
 
 import pytest
 
-from betty.assertions.int import assert_int
 from betty.localizer import default_localizer
 from betty.uis.console import Console
 from betty.user import Severity
+from betty.user.error import UserFacingError
+from betty.validators.int import is_int
 
 
 class TestConsole:
@@ -58,8 +59,8 @@ class TestConsole:
 
         message = "Hello, world!"
         stdout = StringIO()
+        sut = Console(severity=severity)
         with redirect_stdout(stdout):
-            sut = Console(severity=severity)
             try:
                 raise _Exception(message)  # noqa: TRY301
             except _Exception:
@@ -71,6 +72,19 @@ class TestConsole:
         assert message in stdout_str
         if expected:
             assert "locals" in stdout_str
+
+    async def test_error(self) -> None:
+        class _Error(UserFacingError):
+            pass
+
+        message = "Hello, world!"
+        stdout = StringIO()
+        sut = Console()
+        with redirect_stdout(stdout):
+            await sut.error(_Error(message))
+        stdout.seek(0)
+        stdout_str = stdout.read().replace("\n", "")
+        assert message in stdout_str
 
     @pytest.mark.parametrize(
         ("expected", "severity"),
@@ -176,13 +190,13 @@ class TestConsole:
         sut = Console()
         assert await sut.ask_input("", stdin=stdin) == value
 
-    async def test_ask_input__with_assertion(self) -> None:
-        def _assertion(value: str) -> int:
-            return assert_int()(int(value))
+    async def test_ask_input__with_validator(self) -> None:
+        def _validator(value: str) -> int:
+            return is_int(int(value))
 
         stdin = StringIO("123")
         sut = Console()
-        assert await sut.ask_input("", stdin=stdin, assertion=_assertion) == 123
+        assert await sut.ask_input("", stdin=stdin, validator=_validator) == 123
 
     async def test_ask_input__with_default(self) -> None:
         default = "Hello, world!"
@@ -190,13 +204,13 @@ class TestConsole:
         sut = Console()
         assert await sut.ask_input("", stdin=stdin, default=default) == default
 
-    async def test_ask_input__with_assertion_and_default(self) -> None:
-        def _assertion(value: str) -> int:
-            return assert_int()(int(value))
+    async def test_ask_input__with_validator_and_default(self) -> None:
+        def _validator(value: str) -> int:
+            return is_int(int(value))
 
         stdin = StringIO("")
         sut = Console()
         assert (
-            await sut.ask_input("", stdin=stdin, assertion=_assertion, default="123")
+            await sut.ask_input("", stdin=stdin, validator=_validator, default="123")
             == 123
         )

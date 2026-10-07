@@ -13,8 +13,8 @@ from typing_extensions import disjoint_base
 if TYPE_CHECKING:
     from collections.abc import Generator, MutableSequence, Sequence
 
-    from betty.functools import Pipe
     from betty.user.location import Locator
+    from betty.validation import Validator
 
 
 @final
@@ -57,7 +57,7 @@ class Operator(metaclass=ABCMeta):
             raise OperatorError(self) from error
 
     @final
-    def get[T](self, data: Any, assertion: Pipe[Any, T] | None = None, /) -> T:
+    def get[T](self, data: Any, validator: Validator[Any, T] | None = None, /) -> T:
         """
         Get the value for this operator.
 
@@ -65,7 +65,7 @@ class Operator(metaclass=ABCMeta):
         """
         with self._catch():
             data = self._get(data)
-        return assertion(data) if assertion else data
+        return validator(data) if validator else data
 
     @abstractmethod
     def _get(self, data: Any, /) -> Any:

@@ -10,11 +10,11 @@ from typing import TYPE_CHECKING, final
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.exception import HumanFacingException
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import JoinOr, Quote
 from betty.localizables.plain import Plain
 from betty.plugin import PluginDefinition, PluginTypeDefinition
+from betty.user.error import UserFacingError
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class SerializationError(HumanFacingException):
+class SerializationError(UserFacingError):
     """
     Raised when an error occurs during (de)serialization.
     """

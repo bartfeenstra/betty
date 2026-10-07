@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-25 19:03+0100\n"
+"POT-Creation-Date: 2026-10-09 09:29+0100\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -59,9 +59,6 @@ msgstr "{example_color} போன்ற எக்சாடெசிமல் வ
 msgid "A localizable string"
 msgstr "உள்ளூர்மயமாக்கக்கூடிய சரம்"
 
-msgid "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
-msgstr "இயந்திரப் பெயர் என்பது சிறிய எழுத்துகள், எண்கள் மற்றும்/அல்லது தொடர்ச்சியாக இல்லாத ஐபன்கள் (-) ஆகியவற்றால் உருவாக்கப்பட்ட அதிகபட்சம் 250 எழுத்துகள் கொண்ட அடையாளங்காட்டியாகும்."
-
 msgid "A person's presence at an event."
 msgstr "ஒரு நிகழ்வில் ஒரு நபரின் இருப்பு."
 
@@ -98,6 +95,9 @@ msgstr "மாற்றுப்பெயர்"
 msgid "All caches cleared."
 msgstr "அனைத்து தற்காலிக சேமிப்புகளும் அழிக்கப்பட்டன."
 
+msgid "All of the problems must be fixed."
+msgstr ""
+
 msgid "All rights reserved"
 msgstr "அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை"
 
@@ -117,6 +117,9 @@ msgstr "ஆம்ச்டர்டாம்"
 #, python-brace-format
 msgid "An IETF BCP 47 language tag, such as {example_language_tag}."
 msgstr "{example_language_tag} போன்ற IETF BCP 47 மொழி குறிச்சொல்."
+
+msgid "An identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
+msgstr ""
 
 #, python-brace-format
 msgid "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
@@ -155,13 +158,8 @@ msgstr "சொத்து அடைவு"
 msgid "Associates"
 msgstr ""
 
-#, python-brace-format
-msgid "At least {expected} items are required, but found {actual}."
-msgstr "குறைந்தபட்சம் {expected} உருப்படிகள் தேவை, ஆனால் {actual} கண்டறியப்பட்டது."
-
-#, python-brace-format
-msgid "At most {expected} items are allowed, but found {actual}."
-msgstr "அதிகபட்சம் {expected} உருப்படிகள் அனுமதிக்கப்படும், ஆனால் {actual} கண்டறியப்பட்டது."
+msgid "At least one of the problems must be fixed."
+msgstr ""
 
 msgid "At which URL will your site be published?"
 msgstr "உங்கள் தளம் எந்த முகவரி இல் வெளியிடப்படும்?"
@@ -465,10 +463,6 @@ msgstr "சிசிப் செய்யப்பட்ட தார் கோ
 msgid "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
 msgstr "{project_directory_path} இல் பின்வரும் உள்ளமைவு கோப்புகள் எதையும் கண்டுபிடிக்க முடியவில்லை: {configuration_file_names}."
 
-#, python-brace-format
-msgid "Could not find the file {file_path}."
-msgstr "{file_path} கோப்பைக் கண்டுபிடிக்க முடியவில்லை."
-
 msgid "Counties"
 msgstr "மாவட்டங்கள்"
 
@@ -661,10 +655,6 @@ msgstr "நிகழ்வு வகைகள்"
 msgid "Events"
 msgstr "நிகழ்வுகள்"
 
-#, python-brace-format
-msgid "Exactly {expected} items are required, but found {actual}."
-msgstr "சரியாக {expected} உருப்படிகள் தேவை, ஆனால் கண்டறியப்பட்டது {actual}."
-
 msgid "Exclude"
 msgstr "விலக்கு"
 
@@ -850,12 +840,8 @@ msgid "Invalid YAML: {error}."
 msgstr "தவறான YAML: {error}."
 
 #, python-brace-format
-msgid "Invalid argument {argument}: {error}"
-msgstr "தவறான உரையாடல் {argument}: {error}"
-
-#, python-brace-format
-msgid "Invalid option {value}."
-msgstr "தவறான விருப்பம் {value}."
+msgid "Invalid argument {argument}: {{error}}"
+msgstr ""
 
 #, python-brace-format
 msgid "Invalid plural tag(s) {plural_tags} for {locale} translations."
@@ -913,6 +899,9 @@ msgstr "%(last_modified)s அன்று கடைசியாக மாற்�
 
 msgid "Last page"
 msgstr "கடைசி பக்கம்"
+
+msgid "Learn more"
+msgstr ""
 
 msgid "License"
 msgstr "உரிமம்"
@@ -1152,6 +1141,9 @@ msgstr "தொழில்"
 
 msgid "Occupations"
 msgstr "தொழில்கள்"
+
+msgid "One of the problems must be fixed."
+msgstr ""
 
 #, python-brace-format
 msgid "Only the following file types can be loaded: {file_extensions}"
@@ -1704,8 +1696,24 @@ msgstr[1] "அவர்களுக்கு %(child_count)s குழந்த�
 msgid "This field is required."
 msgstr "இந்த புலம் தேவை."
 
+msgid "This field is unknown."
+msgstr ""
+
 msgid "This information is unavailable to protect people's privacy."
 msgstr "மக்களின் தனியுரிமையைப் பாதுகாக்க இந்தத் செய்தி இல்லை."
+
+msgid "This is not a directory."
+msgstr ""
+
+msgid "This is not a file."
+msgstr ""
+
+msgid "This is not a valid URL."
+msgstr ""
+
+#, python-brace-format
+msgid "This is not a valid hexadecimal color, such as {color}."
+msgstr ""
 
 msgid "This is not valid Gramps XML."
 msgstr "இது செல்லுபடியாகாத Gramps XML."
@@ -1750,6 +1758,24 @@ msgstr "இது ஒன்றும் இல்லை/பூச்யமாக
 #, python-brace-format
 msgid "This must be {length} characters long."
 msgstr "இது {length} எழுத்துக்கள் நீளமாக இருக்க வேண்டும்."
+
+msgid "This must consist of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
+msgstr ""
+
+#, python-brace-format
+msgid "This must have a length of at least {length}."
+msgstr ""
+
+#, python-brace-format
+msgid "This must have a length of at most {length}."
+msgstr ""
+
+#, python-brace-format
+msgid "This must have a length of {length}."
+msgstr ""
+
+msgid "This path does not exist."
+msgstr ""
 
 msgid "This person's name is unknown."
 msgstr "இந்த நபரின் பெயர் தெரியவில்லை."
@@ -1799,12 +1825,8 @@ msgid "Unknown"
 msgstr "தெரியவில்லை"
 
 #, python-brace-format
-msgid "Unknown key: {unknown_key}."
-msgstr "தெரியாத விசை: {unknown_key}."
-
-#, python-brace-format
-msgid "Unknown plugin {plugin}."
-msgstr "தெரியாத செருகுநிரல் {plugin_id}."
+msgid "Unknown option {value}."
+msgstr ""
 
 msgid "Unknowns"
 msgstr "தெரியாதவர்கள்"
@@ -1871,6 +1893,9 @@ msgstr "உங்கள் திட்டம் {locale} இல் என்ன
 msgid "What is your project's machine name?"
 msgstr "உங்கள் திட்டத்தின் இயந்திரத்தின் பெயர் என்ன?"
 
+msgid "Where"
+msgstr ""
+
 msgid "Where do you want to save your project's configuration file?"
 msgstr "உங்கள் திட்டத்தின் உள்ளமைவு கோப்பை எங்கே சேமிக்க விரும்புகிறீர்கள்?"
 
@@ -1886,6 +1911,9 @@ msgstr "தூய்மையான URLகளைப் பயன்படுத�
 
 msgid "Which language should your project site be generated in? Enter a language code."
 msgstr "உங்கள் திட்ட தளம் எந்த மொழியில் உருவாக்கப்பட வேண்டும்? மொழிக் குறியீட்டை உள்ளிடவும்."
+
+msgid "Why"
+msgstr ""
 
 msgid "Width"
 msgstr "அகலம்"
@@ -2663,10 +2691,6 @@ msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
 
 #, python-brace-format
-msgid "{invalid_color} is not a valid hexadecimal color, such as {example_color}."
-msgstr "{invalid_color} என்பது {example_color} போன்ற சரியான எக்சாடெசிமல் வண்ணம் அல்ல."
-
-#, python-brace-format
 msgid "{invalid_locale} is not a valid IETF BCP 47 language tag."
 msgstr "{invalid_locale} என்பது சரியான IETF BCP 47 மொழி குறிச்சொல் அல்ல."
 
@@ -2681,24 +2705,12 @@ msgid "{most}, or {last}"
 msgstr "{most}, அல்லது {last}"
 
 #, python-brace-format
-msgid "{path} is not a directory."
-msgstr "{path} என்பது அடைவு அல்ல."
-
-#, python-brace-format
 msgid "{plugin_type} configuration"
 msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type} {plugin} is not configurable, but configuration was given."
 msgstr ""
-
-#, python-brace-format
-msgid "{url} is not a valid URL."
-msgstr "{url} சரியான முகவரி அல்ல."
-
-#, python-brace-format
-msgid "{value} is not a valid machine name."
-msgstr "{value} என்பது சரியான இயந்திரப் பெயர் அல்ல."
 
 msgid "© Copyright the author, unless otherwise credited"
 msgstr "© பதிப்புரிமை ஆசிரியர், இல்லையெனில் வரவு"

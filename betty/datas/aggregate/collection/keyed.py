@@ -7,8 +7,6 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, final, override
 
-from betty.assertions.mapping import assert_mapping
-from betty.assertions.sequence import assert_sequence
 from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
 from betty.datas.aggregate.collection import (
     CollectionDefinition,
@@ -19,6 +17,8 @@ from betty.portable import (
     KeyedPorter,
 )
 from betty.porters.callback import CallbackPorter
+from betty.validators.mapping import is_mapping
+from betty.validators.sequence import is_sequence
 
 if TYPE_CHECKING:
     from betty.data import DataDefinition, ResolvableDataDefinition
@@ -61,11 +61,10 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
 
     def _load(self, portable: PortableData, /) -> KeyedCollectionT:
         if self._order_dump:
-            values = assert_sequence(self._value_porter.load)(portable)
+            values = is_sequence(values=self._value_porter.load)(portable)
         else:
             values = [
-                self._value_porter.load_keyed(*x)
-                for x in assert_mapping()(portable).items()
+                self._value_porter.load_keyed(*x) for x in is_mapping(portable).items()
             ]
         return self.new(values)
 

@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.assertions.int import assert_int
 from betty.data import DataDefinition
 from betty.porters.callback import CallbackPorter
+from betty.validators.int import is_int
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
@@ -29,5 +29,5 @@ class IntDefinition(DataDefinition[int]):
         super().__init__(
             label=label,
             description=description,
-            porter=CallbackPorter[int](assert_int(), int),
+            porter=CallbackPorter[int](is_int, int),
         )

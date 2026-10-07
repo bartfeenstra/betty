@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty import load
 from betty.app import App
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console import Command, CommandDefinition
 from betty.console.project import add_project_argument
 from betty.factory import Manufacturable
 from betty.job import Context
@@ -14,6 +14,7 @@ from betty.project import generate
 if TYPE_CHECKING:
     import argparse
 
+    from betty.console import CommandFunction
     from betty.project import Project
 
 

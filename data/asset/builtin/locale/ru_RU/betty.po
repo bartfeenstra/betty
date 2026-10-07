@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-25 19:03+0100\n"
+"POT-Creation-Date: 2026-10-09 09:29+0100\n"
 "PO-Revision-Date: 2026-07-15 15:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ru_RU\n"
@@ -59,9 +59,6 @@ msgstr ""
 msgid "A localizable string"
 msgstr ""
 
-msgid "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
-msgstr ""
-
 msgid "A person's presence at an event."
 msgstr ""
 
@@ -98,6 +95,9 @@ msgstr ""
 msgid "All caches cleared."
 msgstr "Все кэши очищены."
 
+msgid "All of the problems must be fixed."
+msgstr ""
+
 msgid "All rights reserved"
 msgstr "Все права защищены"
 
@@ -116,6 +116,9 @@ msgstr "Амстердам"
 
 #, python-brace-format
 msgid "An IETF BCP 47 language tag, such as {example_language_tag}."
+msgstr ""
+
+msgid "An identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
 msgstr ""
 
 #, python-brace-format
@@ -155,13 +158,8 @@ msgstr ""
 msgid "Associates"
 msgstr ""
 
-#, python-brace-format
-msgid "At least {expected} items are required, but found {actual}."
-msgstr "Требуется как минимум {expected} элементов, но найдено {actual}."
-
-#, python-brace-format
-msgid "At most {expected} items are allowed, but found {actual}."
-msgstr "Разрешено не более {expected} элементов, но найдено {actual}."
+msgid "At least one of the problems must be fixed."
+msgstr ""
 
 msgid "At which URL will your site be published?"
 msgstr "По какому адресу (URL) будет опубликован ваш сайт?"
@@ -465,10 +463,6 @@ msgstr "Не удалось распаковать {file_path} как сжаты
 msgid "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
 msgstr "Не удалось найти ни одного из следующих файлов конфигурации в {project_directory_path}: {configuration_file_names}."
 
-#, python-brace-format
-msgid "Could not find the file {file_path}."
-msgstr "Не удалось найти файл {file_path}."
-
 msgid "Counties"
 msgstr ""
 
@@ -660,10 +654,6 @@ msgstr ""
 msgid "Events"
 msgstr "События"
 
-#, python-brace-format
-msgid "Exactly {expected} items are required, but found {actual}."
-msgstr "Требуются именно {expected} элементов, но найдено {actual}."
-
 msgid "Exclude"
 msgstr ""
 
@@ -847,11 +837,7 @@ msgid "Invalid YAML: {error}."
 msgstr "Недопустимый YAML: {error}."
 
 #, python-brace-format
-msgid "Invalid argument {argument}: {error}"
-msgstr ""
-
-#, python-brace-format
-msgid "Invalid option {value}."
+msgid "Invalid argument {argument}: {{error}}"
 msgstr ""
 
 #, python-brace-format
@@ -909,6 +895,9 @@ msgid "Last modified on %(last_modified)s"
 msgstr "Последнее изменение %(last_modified)s"
 
 msgid "Last page"
+msgstr ""
+
+msgid "Learn more"
 msgstr ""
 
 msgid "License"
@@ -1148,6 +1137,9 @@ msgid "Occupation"
 msgstr "Занятие"
 
 msgid "Occupations"
+msgstr ""
+
+msgid "One of the problems must be fixed."
 msgstr ""
 
 #, python-brace-format
@@ -1701,8 +1693,24 @@ msgstr[2] "У них было %(child_count)s детей."
 msgid "This field is required."
 msgstr "Это поле является обязательным."
 
+msgid "This field is unknown."
+msgstr ""
+
 msgid "This information is unavailable to protect people's privacy."
 msgstr "Эта информация скрыта в целях защиты личных данных."
+
+msgid "This is not a directory."
+msgstr ""
+
+msgid "This is not a file."
+msgstr ""
+
+msgid "This is not a valid URL."
+msgstr ""
+
+#, python-brace-format
+msgid "This is not a valid hexadecimal color, such as {color}."
+msgstr ""
 
 msgid "This is not valid Gramps XML."
 msgstr "Это недопустимый файл XML Gramps."
@@ -1746,6 +1754,24 @@ msgstr "Это должно быть значение none/null."
 
 #, python-brace-format
 msgid "This must be {length} characters long."
+msgstr ""
+
+msgid "This must consist of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
+msgstr ""
+
+#, python-brace-format
+msgid "This must have a length of at least {length}."
+msgstr ""
+
+#, python-brace-format
+msgid "This must have a length of at most {length}."
+msgstr ""
+
+#, python-brace-format
+msgid "This must have a length of {length}."
+msgstr ""
+
+msgid "This path does not exist."
 msgstr ""
 
 msgid "This person's name is unknown."
@@ -1796,11 +1822,7 @@ msgid "Unknown"
 msgstr "Неизвестно"
 
 #, python-brace-format
-msgid "Unknown key: {unknown_key}."
-msgstr "Неизвестный ключ: {unknown_key}."
-
-#, python-brace-format
-msgid "Unknown plugin {plugin}."
+msgid "Unknown option {value}."
 msgstr ""
 
 msgid "Unknowns"
@@ -1868,6 +1890,9 @@ msgstr "Как называется ваш проект на языке {locale}
 msgid "What is your project's machine name?"
 msgstr "Каково машиночитаемое имя вашего проекта?"
 
+msgid "Where"
+msgstr ""
+
 msgid "Where do you want to save your project's configuration file?"
 msgstr "Где вы хотите сохранить конфигурационный файл вашего проекта?"
 
@@ -1882,6 +1907,9 @@ msgid "Whether to use clean URLs: {clean_example} instead of {unclean_example}."
 msgstr ""
 
 msgid "Which language should your project site be generated in? Enter a language code."
+msgstr ""
+
+msgid "Why"
 msgstr ""
 
 msgid "Width"
@@ -2754,10 +2782,6 @@ msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
 
 #, python-brace-format
-msgid "{invalid_color} is not a valid hexadecimal color, such as {example_color}."
-msgstr ""
-
-#, python-brace-format
 msgid "{invalid_locale} is not a valid IETF BCP 47 language tag."
 msgstr "{invalid_locale} не является допустимым языковым тегом IETF BCP 47."
 
@@ -2772,23 +2796,11 @@ msgid "{most}, or {last}"
 msgstr "{most}, или {last}"
 
 #, python-brace-format
-msgid "{path} is not a directory."
-msgstr "{path} не является каталогом."
-
-#, python-brace-format
 msgid "{plugin_type} configuration"
 msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type} {plugin} is not configurable, but configuration was given."
-msgstr ""
-
-#, python-brace-format
-msgid "{url} is not a valid URL."
-msgstr ""
-
-#, python-brace-format
-msgid "{value} is not a valid machine name."
 msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"

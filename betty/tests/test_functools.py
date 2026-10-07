@@ -9,12 +9,13 @@ from betty.functools import (
     DecoratedCallable,
     Do,
     LazyReCallable,
-    Pipeline,
+    Pipe,
     Result,
     ResultUnavailable,
     Suppressed,
     map_suppress,
     passthrough,
+    raise_,
     suppress,
     unique,
 )
@@ -337,17 +338,27 @@ class TestLazyReCallable:
         assert sut() is value
 
 
-class TestPipeline:
+class TestPipe:
     def test___call__(self) -> None:
-        sut = Pipeline[int, int](lambda value: value)
+        sut = Pipe[int, int](lambda value: value)
         assert sut(123) == 123
 
     def test___or__(self) -> None:
-        sut = Pipeline[int, int](lambda value: value)
+        sut = Pipe[int, int](lambda value: value)
         sut |= lambda value: 2 * value
         assert sut(123) == 246
 
     def test_pipe(self) -> None:
-        sut = Pipeline[int, int](lambda value: value)
+        sut = Pipe[int, int](lambda value: value)
         sut = sut.pipe(lambda value: 2 * value)
         assert sut(123) == 246
+
+
+def test_raise_() -> None:
+    class _Exception(Exception):
+        pass
+
+    exception = _Exception()
+    with pytest.raises(_Exception) as exc_info:
+        raise_(exception)
+    assert exc_info.value is exception
