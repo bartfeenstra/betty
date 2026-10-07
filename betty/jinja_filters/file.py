@@ -4,6 +4,8 @@ The ``file`` Jinja filter.
 
 from __future__ import annotations
 
+from asyncio import to_thread
+from shutil import copyfile
 from typing import TYPE_CHECKING, Self, final, override
 from urllib.parse import quote
 
@@ -12,7 +14,6 @@ from jinja2 import pass_context
 from betty.factory import Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
-from betty.os import link_or_copy
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -59,6 +60,9 @@ class File(JinjaFilter, Manufacturable):
             file_destination_path = (
                 self._www_directory / "file" / file.id / "file" / file.name
             )
-            await link_or_copy(file.path, file_destination_path)
+            await to_thread(
+                file_destination_path.parent.mkdir, parents=True, exist_ok=True
+            )
+            await to_thread(copyfile, file.path, file_destination_path)
 
         return f"betty-static:///file/{quote(file.id)}/file/{quote(file.name)}"
