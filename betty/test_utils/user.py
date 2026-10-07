@@ -16,7 +16,7 @@ from betty.user import NoDefault, Severity, User, UserTimeoutError
 
 if TYPE_CHECKING:
     from collections.abc import (
-        AsyncIterator,
+        AsyncGenerator,
         Collection,
         Iterable,
         Mapping,
@@ -170,7 +170,7 @@ class StaticUser(User):
     @asynccontextmanager
     async def progress(
         self, message: ResolvableLocalizable, /
-    ) -> AsyncIterator[Progress]:
+    ) -> AsyncGenerator[Progress]:
         yield NoOpProgress()
 
     @override

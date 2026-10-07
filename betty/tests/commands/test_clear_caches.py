@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncGenerator, Callable
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from json import dumps
 from pathlib import Path
@@ -34,7 +34,7 @@ class TestClearCaches:
         @asynccontextmanager
         async def _assert_app_cache_directories(
             expected: bool, user: User | None = None, /
-        ) -> AsyncIterator[App]:
+        ) -> AsyncGenerator[App]:
             app_cache_directory = tmp_path / "app-cache"
 
             app_binary_file_cache_directory = tmp_path / "app-binary-file-cache"
@@ -82,7 +82,7 @@ class TestClearCaches:
         @asynccontextmanager
         async def _assert_project_cache_directories(
             expected: bool, app: App, /
-        ) -> AsyncIterator[Project]:
+        ) -> AsyncGenerator[Project]:
             project_directory = tmp_path / "project"
 
             project_directory.mkdir()

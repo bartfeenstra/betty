@@ -130,7 +130,7 @@ from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStor
 from betty.stores.no_op import NoOpStore
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterable, Sequence
+    from collections.abc import AsyncGenerator, Iterable, Sequence
     from pathlib import Path
 
     from betty.asset import AssetDirectoryDefinition
@@ -443,7 +443,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
-    ) -> AsyncIterator[Self]:
+    ) -> AsyncGenerator[Self]:
         """
         Creat a new, isolated, temporary project.
 

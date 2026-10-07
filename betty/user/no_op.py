@@ -13,7 +13,7 @@ from betty.user import NoDefault, Severity, User, UserTimeoutError
 
 if TYPE_CHECKING:
     import logging
-    from collections.abc import AsyncIterator
+    from collections.abc import AsyncGenerator
 
     from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
@@ -46,7 +46,7 @@ class NoOpUser(User):
     @asynccontextmanager
     async def progress(
         self, message: ResolvableLocalizable, /
-    ) -> AsyncIterator[Progress]:
+    ) -> AsyncGenerator[Progress]:
         yield NoOpProgress()
 
     @override

@@ -6,7 +6,15 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Final, TextIO, cast, final, overload, override
+from typing import (
+    TYPE_CHECKING,
+    Final,
+    TextIO,
+    cast,
+    final,
+    overload,
+    override,
+)
 
 from rich.console import Console
 from rich.markup import escape
@@ -21,7 +29,7 @@ from betty.rich import Theme
 from betty.user import NoDefault, Severity, User
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Mapping
+    from collections.abc import AsyncGenerator, Mapping
 
     from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
@@ -93,7 +101,7 @@ class RichUser(User):
     @asynccontextmanager
     async def progress(
         self, message: ResolvableLocalizable, /
-    ) -> AsyncIterator[Progress]:
+    ) -> AsyncGenerator[Progress]:
         if self.shows(Severity.CONFIRM):
             with _RichProgress(
                 TextColumn("[progress.description]{task.description}"),

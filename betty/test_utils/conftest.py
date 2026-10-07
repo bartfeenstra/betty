@@ -25,11 +25,7 @@ __all__ = [
 ]
 import re
 import tarfile
-from collections.abc import (
-    Awaitable,
-    MutableMapping,
-    MutableSequence,
-)
+from collections.abc import AsyncGenerator, Awaitable, MutableMapping, MutableSequence
 from contextlib import asynccontextmanager
 from io import BytesIO
 from json import dumps
@@ -68,10 +64,7 @@ if TYPE_CHECKING:
     from betty.entity.collection.pool import EntityPool
     from betty.link import LinkDefinition
     from betty.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
-    from betty.load import (
-        ManufacturableLoader,
-        ManufacturableEnricher,
-    )
+    from betty.load import ManufacturableLoader, ManufacturableEnricher
     from betty.locale import ResolvableLocale
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
@@ -81,9 +74,7 @@ if TYPE_CHECKING:
     from betty.portable import PortableData, PortableMapping
     from betty.server import ManufacturableServer
     from betty.service_level import Plugins
-    from betty.service_provider import (
-        ManufacturableServiceProvider,
-    )
+    from betty.service_provider import ManufacturableServiceProvider
     from betty.services.plugin import SupportedPlugins
 
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
@@ -161,7 +152,7 @@ def isolated_app_factory(
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         user: User | None = None,
-    ) -> AsyncIterator[App]:
+    ) -> AsyncGenerator[App]:
         async with App.new_isolated(
             binary_file_cache_directory=binary_file_cache_directory,
             cache=cache,
@@ -249,7 +240,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
-    ) -> AsyncIterator[Project]:
+    ) -> AsyncGenerator[Project]:
         async with Project.new_isolated(
             ancestry=ancestry,
             app=app or isolated_app,
@@ -504,7 +495,7 @@ async def _assert_template(
     service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
     links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
     loaders: Iterable[ManufacturableLoader] = (),
-) -> AsyncIterator[tuple[str, Project]]:
+) -> AsyncGenerator[tuple[str, Project]]:
     async with isolated_project_factory(
         assets=assets,
         debug=True,

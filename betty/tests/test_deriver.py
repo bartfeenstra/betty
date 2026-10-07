@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
+from collections.abc import AsyncGenerator, Callable, Iterable
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from typing import TYPE_CHECKING, final, override
 
@@ -11,17 +11,11 @@ from betty.deriver import Deriver
 from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.presence import Presence
-from betty.event_type import (
-    EventType,
-    EventTypeDefinition,
-    ShouldExistEventType,
-)
+from betty.event_type import EventType, EventTypeDefinition, ShouldExistEventType
 from betty.project import Project
 from betty.roles.subject import Subject
 from betty.test_utils.entity import record_added
-from betty.test_utils.locale.localizable import (
-    DUMMY_COUNTABLE_LOCALIZABLE,
-)
+from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -205,7 +199,7 @@ class TestDeriver:
         @asynccontextmanager
         async def _new_project(
             event_types: Iterable[ResolvableDiscovery[EventTypeDefinition]],
-        ) -> AsyncIterator[Project]:
+        ) -> AsyncGenerator[Project]:
             async with isolated_project_factory(
                 plugins={EventTypeDefinition: event_types}
             ) as project:

@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator, Iterator, Sequence
+from collections.abc import AsyncGenerator, Iterator, Sequence
 from contextlib import asynccontextmanager
 from typing import Any, override
 
@@ -22,7 +22,7 @@ class TestMemoryStore(_TestMemoryStore):
     @asynccontextmanager
     async def _new_sut(
         self, *, scopes: Sequence[str] = ()
-    ) -> AsyncIterator[MemoryStore[Any]]:
+    ) -> AsyncGenerator[MemoryStore[Any]]:
         yield MemoryStore(scopes=scopes)
 
 
@@ -31,5 +31,5 @@ class TestTransientMemoryStore(_TestMemoryStore, TransientStoreTestBase[Any]):
     @asynccontextmanager
     async def _new_sut(
         self, *, scopes: Sequence[str] = ()
-    ) -> AsyncIterator[TransientMemoryStore[Any]]:
+    ) -> AsyncGenerator[TransientMemoryStore[Any]]:
         yield TransientMemoryStore(scopes=scopes)

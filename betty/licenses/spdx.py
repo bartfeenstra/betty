@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 import tarfile
 from asyncio import gather, to_thread
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Generator, Iterable, Mapping, Sequence
 from contextlib import contextmanager
 from io import BytesIO
 from json import loads
@@ -223,7 +223,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
             )
 
     @contextmanager
-    def _catch_json_errors(self) -> Iterator[None]:
+    def _catch_json_errors(self) -> Generator[None]:
         try:
             yield
         except (AssertionError, LookupError) as error:

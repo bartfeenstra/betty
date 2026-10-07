@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator, Iterator, Sequence
+from collections.abc import AsyncGenerator, Iterator, Sequence
 from contextlib import asynccontextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -31,7 +31,7 @@ class TestPickledFileStore(_TestPickledFileStore):
     @asynccontextmanager
     async def _new_sut(
         self, *, scopes: Sequence[str] = ()
-    ) -> AsyncIterator[PickledFileStore[Any]]:
+    ) -> AsyncGenerator[PickledFileStore[Any]]:
         with TemporaryDirectory() as cache_directory:
             yield PickledFileStore(cache_directory, scopes=scopes)
 
@@ -41,7 +41,7 @@ class TestTransientPickledFileStore(_TestPickledFileStore, TransientStoreTestBas
     @asynccontextmanager
     async def _new_sut(
         self, *, scopes: Sequence[str] = ()
-    ) -> AsyncIterator[TransientPickledFileStore[Any]]:
+    ) -> AsyncGenerator[TransientPickledFileStore[Any]]:
         with TemporaryDirectory() as cache_directory:
             yield TransientPickledFileStore(cache_directory, scopes=scopes)
 
@@ -94,7 +94,7 @@ class TestBinaryFileStore(_TestBinaryFileStore):
     @asynccontextmanager
     async def _new_sut(
         self, *, scopes: Sequence[str] = ()
-    ) -> AsyncIterator[BinaryFileStore]:
+    ) -> AsyncGenerator[BinaryFileStore]:
         with TemporaryDirectory() as cache_directory:
             yield BinaryFileStore(cache_directory, scopes=scopes)
 
@@ -104,6 +104,6 @@ class TestTransientBinaryFileStore(_TestBinaryFileStore, TransientStoreTestBase[
     @asynccontextmanager
     async def _new_sut(
         self, *, scopes: Sequence[str] = ()
-    ) -> AsyncIterator[TransientBinaryFileStore]:
+    ) -> AsyncGenerator[TransientBinaryFileStore]:
         with TemporaryDirectory() as cache_directory:
             yield TransientBinaryFileStore(cache_directory, scopes=scopes)

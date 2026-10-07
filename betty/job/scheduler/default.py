@@ -5,7 +5,7 @@ Betty's default job scheduler.
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import AsyncGenerator, Iterable
 from contextlib import asynccontextmanager
 from graphlib import CycleError, TopologicalSorter
 from typing import TYPE_CHECKING, cast, final, override
@@ -27,7 +27,6 @@ from betty.user import Severity
 
 if TYPE_CHECKING:
     from collections.abc import (
-        AsyncIterator,
         Awaitable,
         Callable,
         MutableMapping,
@@ -236,7 +235,7 @@ class DefaultScheduler(Scheduler):
             await self.context.progress.done(len(job_ids))
 
     @asynccontextmanager
-    async def _cancel_on_exception(self) -> AsyncIterator[None]:
+    async def _cancel_on_exception(self) -> AsyncGenerator[None]:
         try:
             yield
         except BaseException as exception:
