@@ -17,7 +17,7 @@ from betty.localizer import default_localizer
 from betty.test_utils import AbstractMethod
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Generator
 
     from betty.entity.collection import EntityCollection
 
@@ -135,7 +135,7 @@ class DummyNonPublicFacingEntityOne(Entity):
 @contextmanager
 def record_added[EntityT: Entity](
     entities: EntityCollection[EntityT], /
-) -> Iterator[MultipleTypesEntityCollection[EntityT]]:
+) -> Generator[MultipleTypesEntityCollection[EntityT]]:
     """
     Record all entities that are added to a collection.
     """

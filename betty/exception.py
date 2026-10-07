@@ -13,7 +13,7 @@ from betty.localizer import default_localizer
 from betty.locator.operator import Operators
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Generator, Sequence
 
     from betty.localized import LocalizedStr
     from betty.localizer import Localizer
@@ -30,7 +30,7 @@ def do_raise(exception: BaseException, /) -> Never:
 
 
 @contextmanager
-def reraise_with_locator(*locators: Locator) -> Iterator[None]:
+def reraise_with_locator(*locators: Locator) -> Generator[None]:
     """
     Re-raise a human-facing exception with the given locators.
     """

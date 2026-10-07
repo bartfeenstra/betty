@@ -22,7 +22,7 @@ from betty.store import StoreItem, StoreItemValueSetter, TransientStore
 from betty.stores._base import _CommonStoreBase, _CommonStoreBaseState
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Sequence
+    from collections.abc import AsyncGenerator, Sequence
     from pathlib import Path
 
     from betty.pathlib import StrPath
@@ -145,7 +145,7 @@ class _FileStore[ItemValueT](_CommonStoreBase[ItemValueT]):
     @asynccontextmanager
     async def hasset(
         self, key: str, *, suffix: str | None = None
-    ) -> AsyncIterator[StoreItemValueSetter[ItemValueT] | None]:
+    ) -> AsyncGenerator[StoreItemValueSetter[ItemValueT] | None]:
         if await self.has(key, suffix=suffix):
             yield None
             return
@@ -160,7 +160,7 @@ class _FileStore[ItemValueT](_CommonStoreBase[ItemValueT]):
     @asynccontextmanager
     async def getset(
         self, key: str, *, suffix: str | None = None
-    ) -> AsyncIterator[StoreItemValueSetter[ItemValueT] | StoreItem[ItemValueT]]:
+    ) -> AsyncGenerator[StoreItemValueSetter[ItemValueT] | StoreItem[ItemValueT]]:
         if item := await self.get(key):
             yield item
             return

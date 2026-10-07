@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.entity.collection.multiple import MultipleTypesEntityCollection
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Generator, Iterable
 
     from betty.entity import Entity
 
@@ -26,7 +26,7 @@ class EntityPool(MultipleTypesEntityCollection):
         super().__init__(*entities)
 
     @contextmanager
-    def unchecked(self) -> Iterator[None]:
+    def unchecked(self) -> Generator[None]:
         """
         Disable the addition entities' associates when adding those entities to the ancestry.
 

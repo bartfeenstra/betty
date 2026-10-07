@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 from betty.store import StoreItem, StoreItemValueSetter, TransientStore
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator
+    from collections.abc import AsyncGenerator
 
 
 @final
@@ -34,7 +34,7 @@ class NoOpStore(TransientStore[Any]):
     @asynccontextmanager
     async def hasset(
         self, key: str, /
-    ) -> AsyncIterator[StoreItemValueSetter[Any] | None]:
+    ) -> AsyncGenerator[StoreItemValueSetter[Any] | None]:
         yield self._setter
         return
 
@@ -56,7 +56,7 @@ class NoOpStore(TransientStore[Any]):
     @asynccontextmanager
     async def getset(
         self, key: str, /
-    ) -> AsyncIterator[StoreItemValueSetter[Any] | StoreItem[Any]]:
+    ) -> AsyncGenerator[StoreItemValueSetter[Any] | StoreItem[Any]]:
         yield self._setter
         return
 

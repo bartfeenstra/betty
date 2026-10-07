@@ -10,7 +10,7 @@ from betty.concurrent import Ledger, ThreadSafeLock
 from betty.store import Store, StoreItem, StoreItemValueSetter
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Sequence
+    from collections.abc import AsyncGenerator, Sequence
 
 
 class _StaticStoreItem[ItemValueT](StoreItem[ItemValueT]):
@@ -61,7 +61,7 @@ class _CommonStoreBase[ItemValueT](Store[ItemValueT]):
     @asynccontextmanager
     async def hasset(
         self, key: str, /
-    ) -> AsyncIterator[StoreItemValueSetter[ItemValueT] | None]:
+    ) -> AsyncGenerator[StoreItemValueSetter[ItemValueT] | None]:
         if await self.has(key):
             yield None
             return
@@ -75,7 +75,7 @@ class _CommonStoreBase[ItemValueT](Store[ItemValueT]):
     @asynccontextmanager
     async def getset(
         self, key: str, /
-    ) -> AsyncIterator[StoreItemValueSetter[ItemValueT] | StoreItem[ItemValueT]]:
+    ) -> AsyncGenerator[StoreItemValueSetter[ItemValueT] | StoreItem[ItemValueT]]:
         if item := await self.get(key):
             yield item
             return

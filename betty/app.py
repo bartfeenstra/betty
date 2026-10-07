@@ -48,7 +48,7 @@ from betty.user import User
 from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Callable, Iterable
+    from collections.abc import AsyncGenerator, Callable, Iterable
     from pathlib import Path
 
     import aiohttp
@@ -150,7 +150,7 @@ class App(RequirableServiceLevel, HasPluginServices):
 
     @classmethod
     @asynccontextmanager
-    async def new_from_environment(cls) -> AsyncIterator[Self]:
+    async def new_from_environment(cls) -> AsyncGenerator[Self]:
         """
         Create a new application from the environment.
         """
@@ -188,7 +188,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         user: User | None = None,
-    ) -> AsyncIterator[Self]:
+    ) -> AsyncGenerator[Self]:
         """
         Create a new, isolated, temporary application.
 

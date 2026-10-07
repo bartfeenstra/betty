@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Final, final, override
 from betty.locator import Locator
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, MutableSequence, Sequence
+    from collections.abc import Generator, MutableSequence, Sequence
 
     from betty.functools import Pipe
 
@@ -42,7 +42,7 @@ class Operator(Locator, metaclass=ABCMeta):
         pass
 
     @contextmanager
-    def _catch(self) -> Iterator[None]:
+    def _catch(self) -> Generator[None]:
         try:
             yield
         except Exception as error:

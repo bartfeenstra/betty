@@ -26,7 +26,12 @@ from betty.locator.operator import Index, Key, OperatorError, Operators
 from betty.media_type import MediaType
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterator, Mapping, MutableMapping
+    from collections.abc import (
+        AsyncGenerator,
+        Generator,
+        Mapping,
+        MutableMapping,
+    )
 
     from aiohttp import ClientResponse, ClientSession
 
@@ -87,7 +92,7 @@ class Client:
         self._user = user
 
     @contextmanager
-    def _human_facing_exception_to_client_error(self) -> Iterator[None]:
+    def _human_facing_exception_to_client_error(self) -> Generator[None]:
         try:
             yield
         except HumanFacingException as error:
@@ -96,7 +101,7 @@ class Client:
             raise ClientError(str(error)) from error
 
     @asynccontextmanager
-    async def _get(self, url: str) -> AsyncIterator[ClientResponse]:
+    async def _get(self, url: str) -> AsyncGenerator[ClientResponse]:
         async with self._http_client.get(url) as response:
             if response.status != 200:
                 raise ClientError(
