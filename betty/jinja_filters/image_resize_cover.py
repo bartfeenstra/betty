@@ -7,6 +7,7 @@ from __future__ import annotations
 import warnings
 from _asyncio import get_running_loop
 from io import BytesIO
+from shutil import copyfile
 from typing import TYPE_CHECKING, Self, final, override
 from urllib.parse import quote
 
@@ -24,7 +25,6 @@ from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.jinja_filters.file import File as FileFilter
 from betty.media_types.svg import SVG
-from betty.os import _link_or_copy
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -193,12 +193,12 @@ def _execute_filter_image(
 
     # If no customizations are needed, work straight from the source.
     if size is None and file.suffix == destination_file.suffix:
-        _link_or_copy(file, destination_file)
+        copyfile(file, destination_file)
         return
 
     try:
         # Try using a previously cached image.
-        _link_or_copy(cache_file, destination_file)
+        copyfile(cache_file, destination_file)
     except FileNotFoundError:
         # Apply customizations, and cache the customized image.
         original_image = converted_image = image_loader(file)
@@ -214,4 +214,4 @@ def _execute_filter_image(
         finally:
             original_image.close()
             del original_image
-        _link_or_copy(cache_file, destination_file)
+        copyfile(cache_file, destination_file)

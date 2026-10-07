@@ -4,10 +4,11 @@ Jobs to generate project logos.
 
 from __future__ import annotations
 
+from asyncio import to_thread
+from shutil import copyfile
 from typing import TYPE_CHECKING, final, override
 
 from betty.job import Job
-from betty.os import link_or_copy
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -26,7 +27,8 @@ class GenerateLogo(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        await link_or_copy(
+        await to_thread(
+            copyfile,
             self._project.logo,
             self._project.www_directory / ("logo" + self._project.logo.suffix),
         )
