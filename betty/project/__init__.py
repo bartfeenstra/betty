@@ -583,7 +583,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         """
         The privatizer.
         """
-        return Privatizer(self.lifetime_threshold, user=self.upstream.user)
+        return Privatizer(self.lifetime_threshold, ui=self.upstream.ui)
 
     async def new_document(
         self,

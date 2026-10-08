@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from betty.job.executor.asyncio import AsyncExecutor
 from betty.job.scheduler.default import DefaultScheduler
-from betty.user.no_op import NoOpUser
+from betty.uis.no_op import NoOpUi
 
 if TYPE_CHECKING:
     from betty.job import Job
@@ -18,7 +18,7 @@ async def do(*jobs: Job) -> None:
     """
     Do a number of jobs.
     """
-    scheduler = DefaultScheduler(user=NoOpUser())
+    scheduler = DefaultScheduler(ui=NoOpUi())
     async with AsyncExecutor(scheduler):
         await scheduler.add(*jobs)
         async with scheduler:

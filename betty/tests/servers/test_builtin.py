@@ -7,7 +7,7 @@ from requests import Response
 
 from betty.functools import Do
 from betty.servers.builtin import BuiltinServer
-from betty.test_utils.user import StaticUser
+from betty.test_utils.user.ui import StaticUi
 
 
 class TestBuiltinServer:
@@ -28,7 +28,7 @@ class TestBuiltinServer:
         with open(www_directory / "index.html", "w", encoding="utf-8") as f:
             f.write(content)
         async with BuiltinServer(
-            www_directory, root_path=root_path, user=StaticUser()
+            www_directory, root_path=root_path, ui=StaticUi()
         ) as server:
 
             def _assert_response(response: Response) -> None:

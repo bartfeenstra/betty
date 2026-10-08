@@ -25,7 +25,7 @@ from betty.service_providers.raspberry_mint import RaspberryMint
 from betty.service_providers.trees import Trees
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.wiki import Wiki as WikiExtension
-from betty.user import NoDefault
+from betty.user.ui import NoDefault
 
 if TYPE_CHECKING:
     import argparse
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.localizable import Localizable
-    from betty.user import User
+    from betty.user.ui import Ui
 
 
 @final
@@ -61,7 +61,7 @@ class New(Manufacturable, Command):
         serializers = await gather(*self._app.serializers)
         configuration = _new_default_configuration()
 
-        configuration_file = await self._app.user.ask_input(
+        configuration_file = await self._app.ui.ask_input(
             _("Where do you want to save your project's configuration file?"),
             assertion=assert_path(),
         )
@@ -69,7 +69,7 @@ class New(Manufacturable, Command):
             configuration_file /= f"betty{serializers[0].media_type().extensions[0]}"
 
         configuration.locales = [
-            await self._app.user.ask_input(
+            await self._app.ui.ask_input(
                 _(
                     "Which language should your project site be generated in? Enter a language code."
                 ),
@@ -77,11 +77,11 @@ class New(Manufacturable, Command):
                 assertion=assert_locale,
             )
         ]
-        while await self._app.user.ask_confirmation(
+        while await self._app.ui.ask_confirmation(
             _("Do you want to add another locale?")
         ):
             configuration.locales.add(
-                await self._app.user.ask_input(
+                await self._app.ui.ask_input(
                     _(
                         "Which language should your project site be generated in? Enter a language code."
                     ),
@@ -92,10 +92,10 @@ class New(Manufacturable, Command):
         default_locale = locales[0]
 
         configuration.title = await _user_input_static_translations(
-            self._app.user, locales, _("What is your project called in {locale}?")
+            self._app.ui, locales, _("What is your project called in {locale}?")
         )
 
-        configuration.name = await self._app.user.ask_input(
+        configuration.name = await self._app.ui.ask_input(
             _("What is your project's machine name?"),
             default=MachineName.machinify(
                 configuration.title.localize(
@@ -106,14 +106,14 @@ class New(Manufacturable, Command):
         )
 
         configuration.author = await _user_input_static_translations(
-            self._app.user, locales, _("What is the project author called in {locale}?")
+            self._app.ui, locales, _("What is the project author called in {locale}?")
         )
 
-        configuration.url = await self._app.user.ask_input(
+        configuration.url = await self._app.ui.ask_input(
             _("At which URL will your site be published?"), default=configuration.url
         )
 
-        if await self._app.user.ask_confirmation(
+        if await self._app.ui.ask_confirmation(
             _("Do you want to load a Gramps family tree?")
         ):
             configuration.loaders.add(
@@ -122,7 +122,7 @@ class New(Manufacturable, Command):
                     GrampsData(
                         family_trees=[
                             FamilyTree(
-                                await self._app.user.ask_input(
+                                await self._app.ui.ask_input(
                                     _(
                                         "What is the path to your exported Gramps family tree file?"
                                     ),
@@ -138,10 +138,10 @@ class New(Manufacturable, Command):
 
 
 async def _user_input_static_translations(
-    user: User, locales: Sequence[Locale], question: Localizable
+    ui: Ui, locales: Sequence[Locale], question: Localizable
 ) -> StaticTranslations:
     return StaticTranslations({
-        locale: await user.ask_input(
+        locale: await ui.ask_input(
             question.format(locale=locale.get_display_name() or to_language_tag(locale))
         )
         for locale in locales

@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 
     from aiohttp import ClientResponse, ClientSession
 
-    from betty.user import User
+    from betty.user.ui import Ui
 
 
 class ClientError(HumanFacingException, RuntimeError):
@@ -83,13 +83,11 @@ class Client:
     Fetch information from the Wikipedia Query API.
     """
 
-    def __init__(
-        self, *, download_directory: Path, http_client: ClientSession, user: User
-    ):
+    def __init__(self, *, download_directory: Path, http_client: ClientSession, ui: Ui):
         self._download_directory = download_directory
         self._http_client = http_client
         self._images: MutableMapping[str, Image | None] = {}
-        self._user = user
+        self._ui = ui
 
     @contextmanager
     def _human_facing_exception_to_client_error(self) -> Generator[None]:

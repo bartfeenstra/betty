@@ -6,7 +6,7 @@ import pytest
 
 from betty.file import write
 from betty.subprocess import CalledSubprocessError, SubprocessError, run_process
-from betty.test_utils.user import StaticUser
+from betty.test_utils.user.ui import StaticUi
 from betty.user import Severity
 
 
@@ -39,7 +39,7 @@ _parameterize_shell = pytest.mark.parametrize("shell", [True, False])
 
 @_parameterize_shell
 async def test_run_process__without_errors(shell: bool) -> None:
-    process = await run_process(["true"], shell=shell, user=StaticUser())
+    process = await run_process(["true"], shell=shell, ui=StaticUi())
     assert isinstance(process, Process)
 
 
@@ -56,8 +56,8 @@ print('Hello, Stdout!')
 print('Hello, Stderr!', file=stderr)
 """,
     )
-    user = StaticUser(severity=Severity.DEBUG)
-    await run_process(["python", str(tmp_path / "process.py")], shell=shell, user=user)
+    user = StaticUi(severity=Severity.DEBUG)
+    await run_process(["python", str(tmp_path / "process.py")], shell=shell, ui=user)
     user.assert_message("stdout:\nHello, Stdout!", Severity.DEBUG)
     user.assert_message("stderr:\nHello, Stderr!", Severity.DEBUG)
 
@@ -66,7 +66,7 @@ print('Hello, Stderr!', file=stderr)
 async def test_run_process__with_errors_without_output(
     shell: bool, tmp_path: Path
 ) -> None:
-    user = StaticUser()
+    user = StaticUi()
     script_path = tmp_path / "test.py"
     python_script = """
 import sys
@@ -76,7 +76,7 @@ sys.exit(1)"""
         await run_process(
             [which("python"), "-W", "ignore", str(script_path)],  # ty:ignore[invalid-argument-type]
             shell=shell,
-            user=user,
+            ui=user,
         )
     user.assert_not_message("stdout:\n", Severity.DEBUG)
     user.assert_not_message("stderr:\n", Severity.DEBUG)
@@ -86,7 +86,7 @@ sys.exit(1)"""
 async def test_run_process__with_errors_with_output(
     shell: bool, tmp_path: Path
 ) -> None:
-    user = StaticUser()
+    user = StaticUi()
     stdout = "Hello, stdout!"
     stderr = "Hello, stderr!"
     script_path = tmp_path / "test.py"
@@ -100,7 +100,7 @@ sys.exit(1)"""
         await run_process(
             [which("python"), "-W", "ignore", str(script_path)],  # ty:ignore[invalid-argument-type]
             shell=shell,
-            user=user,
+            ui=user,
         )
     user.assert_message(["stdout:", stdout], Severity.DEBUG)
     user.assert_message(["stderr:", stderr], Severity.DEBUG)
@@ -109,4 +109,4 @@ sys.exit(1)"""
 @_parameterize_shell
 async def test_run_process__with_command_not_found(shell: bool, tmp_path: Path) -> None:
     with pytest.raises(SubprocessError):
-        await run_process(["non-existent-command"], shell=shell, user=StaticUser())
+        await run_process(["non-existent-command"], shell=shell, ui=StaticUi())

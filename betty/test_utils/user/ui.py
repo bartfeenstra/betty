@@ -1,5 +1,5 @@
 """
-Test utilities for :py:mod:`betty.user`.
+Test utilities for :py:mod:`betty.user.ui`.
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Final, final, overload, override
 
 from betty.localizer import Localizer, default_localizer
 from betty.progresses.no_op import NoOpProgress
-from betty.user import NoDefault, Severity, User, UserTimeoutError
+from betty.user.ui import NoDefault, Ui, UiTimeoutError
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -26,12 +26,13 @@ if TYPE_CHECKING:
     from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
     from betty.progress import Progress
+    from betty.user import Severity
 
 
 @final
-class StaticUser(User):
+class StaticUi(Ui):
     """
-    A static user with predefined responses.
+    A static user interface with predefined responses.
     """
 
     localizer: Final[Localizer] = default_localizer
@@ -41,7 +42,7 @@ class StaticUser(User):
         *,
         confirmations: Iterable[bool | None] = (),
         inputs: Iterable[str | None] = (),
-        severity: Severity | bool = User.default_severity,
+        severity: Severity | bool = Ui.default_severity,
     ):
         self._confirmations = iter(confirmations)
         self._inputs = iter(inputs)
@@ -209,7 +210,7 @@ class StaticUser(User):
         value = next(self._inputs)
         if value is None:
             if default is NoDefault:
-                raise UserTimeoutError(
+                raise UiTimeoutError(
                     "Neither a predefined response nor a call default were provided."
                 )
             return default

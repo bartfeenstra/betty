@@ -19,7 +19,7 @@ from betty.plugin.discovery import ResolvableDiscovery, discover
 from betty.service_level import ServiceLevel
 from betty.stores.file import TransientBinaryFileStore
 from betty.test_utils.conftest import IsolatedAppFactory
-from betty.test_utils.user import StaticUser
+from betty.test_utils.user.ui import StaticUi
 
 if TYPE_CHECKING:
     from betty.portable import PortableMapping
@@ -188,7 +188,7 @@ class TestSpdxLicenseDiscoverer:
             sut = SpdxLicenseDiscoverer(
                 http_client=http_client,
                 binary_file_cache=binary_file_cache,
-                user=StaticUser(),
+                ui=StaticUi(),
             )
             await self.assert_without_licenses(await sut.discover())
 
@@ -199,7 +199,7 @@ class TestSpdxLicenseDiscoverer:
             sut = SpdxLicenseDiscoverer(
                 http_client=http_client,
                 binary_file_cache=binary_file_cache,
-                user=StaticUser(),
+                ui=StaticUi(),
             )
             await self.assert_with_licenses(await sut.discover())
 

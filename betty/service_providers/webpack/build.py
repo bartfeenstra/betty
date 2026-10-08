@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from betty.jinja import Environment
     from betty.job import Context
     from betty.pathlib import StrPath
-    from betty.user import User
+    from betty.user.ui import Ui
 
 _NPM_PROJECT_DIRECTORY: Final[Path] = webpack_entry_point_directory / "webpack"
 
@@ -126,13 +126,13 @@ class Builder:
         jinja: Environment,
         root: str,
         *,
-        user: User,
+        ui: Ui,
     ) -> None:
         self._entry_point_providers = entry_point_providers
         self._debug = debug
         self._jinja = jinja
         self._root = root
-        self._user = user
+        self._ui = ui
 
     async def _prepare_betty(self, npm_project_directory: Path) -> None:
         await to_thread(
@@ -337,13 +337,13 @@ class Builder:
 
     async def _npm_install(self, npm_project_directory: Path) -> None:
         await npm.npm(
-            ("install", "--production"), cwd=npm_project_directory, user=self._user
+            ("install", "--production"), cwd=npm_project_directory, ui=self._ui
         )
 
     async def _webpack_build(
         self, npm_project_directory: Path, webpack_build_directory: Path
     ) -> None:
-        await npm.npm(("run", "webpack"), cwd=npm_project_directory, user=self._user)
+        await npm.npm(("run", "webpack"), cwd=npm_project_directory, ui=self._ui)
 
         # Ensure there is always a main.css. This makes for easy and unconditional importing.
         await to_thread(

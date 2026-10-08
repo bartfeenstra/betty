@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from betty.app import App
     from betty.console.command import CommandFunction
     from betty.serialize import Serializer
-    from betty.user import User
+    from betty.user.ui import Ui
 
 
 class ConfigurationFileNotFound(HumanFacingException):
@@ -50,12 +50,12 @@ async def add_project_argument(
         "-p",
         "--project",
         dest="project_configuration_file",
-        help=app.user.localizer.translate._(
+        help=app.ui.localizer.translate._(
             "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
         ).format(
             default=f"betty.{'|'.join([extension[1:] for serializer in serializers for extension in serializer.media_type().extensions])}"
         ),
-        type=assertion_to_argument_type(assert_path(), localizer=app.user.localizer),
+        type=assertion_to_argument_type(assert_path(), localizer=app.ui.localizer),
     )
 
     async def _command_function_with_project_argument(
@@ -94,7 +94,7 @@ async def _read_project_configuration(
         for try_configuration_file in try_configuration_files:
             with suppress(FileNotFound):
                 return await _read_project_configuration_file(
-                    try_configuration_file, serializers, app.user
+                    try_configuration_file, serializers, app.ui
                 )
         raise ConfigurationFileNotFound(
             _(
@@ -112,21 +112,21 @@ async def _read_project_configuration(
     return await _read_project_configuration_file(
         (project_directory / provided_configuration_file).expanduser().resolve(),
         serializers,
-        app.user,
+        app.ui,
     )
 
 
 async def _read_project_configuration_file(
-    configuration_file: Path, serializers: Iterable[Serializer], user: User
+    configuration_file: Path, serializers: Iterable[Serializer], ui: Ui
 ) -> tuple[ProjectData, Path]:
     assert_configuration = assert_load_file(serializers=serializers)
     try:
         portable = assert_configuration(configuration_file)
     except HumanFacingException as error:
-        await user.message(error, Severity.DEBUG)
+        await ui.message(error, Severity.DEBUG)
         raise
     else:
-        await user.message(
+        await ui.message(
             _("Loaded the configuration from {configuration_file_path}.").format(
                 configuration_file_path=str(configuration_file)
             ),

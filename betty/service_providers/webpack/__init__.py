@@ -72,5 +72,5 @@ class Webpack(Generator, ServiceProvider[Project], Manufacturable):
             self.services.debug,
             await self.services.jinja,
             self.services.root_path,
-            user=self.services.upstream.user,
+            ui=self.services.upstream.ui,
         )

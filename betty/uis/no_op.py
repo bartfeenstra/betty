@@ -1,5 +1,5 @@
 """
-User sessions that do nothing.
+User interfaces that do nothing.
 """
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Final, final, overload, override
 
 from betty.localizer import Localizer, default_localizer
 from betty.progresses.no_op import NoOpProgress
-from betty.user import NoDefault, Severity, User, UserTimeoutError
+from betty.user.ui import NoDefault, Ui, UiTimeoutError
 
 if TYPE_CHECKING:
     import logging
@@ -18,12 +18,13 @@ if TYPE_CHECKING:
     from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
     from betty.progress import Progress
+    from betty.user import Severity
 
 
 @final
-class NoOpUser(User):
+class NoOpUi(Ui):
     """
-    A user session that does nothing.
+    A user interface that does nothing.
     """
 
     localizer: Final[Localizer] = default_localizer
@@ -53,7 +54,7 @@ class NoOpUser(User):
     async def ask_confirmation(
         self, statement: ResolvableLocalizable, /, *, default: bool = False
     ) -> bool:
-        raise UserTimeoutError
+        raise UiTimeoutError
 
     @overload
     async def ask_input(
@@ -79,4 +80,4 @@ class NoOpUser(User):
 
     @override
     async def ask_input(self, question, /, *, assertion=None, default=NoDefault):
-        raise UserTimeoutError
+        raise UiTimeoutError

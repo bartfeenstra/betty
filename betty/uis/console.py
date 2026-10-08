@@ -1,22 +1,14 @@
 """
-Console user sessions.
+Console user interfaces.
 """
 
 from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
-from typing import (
-    TYPE_CHECKING,
-    Final,
-    TextIO,
-    cast,
-    final,
-    overload,
-    override,
-)
+from typing import TYPE_CHECKING, Final, TextIO, cast, final, overload, override
 
-from rich.console import Console
+from rich.console import Console as RichConsole
 from rich.markup import escape
 from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsedColumn
 from rich.progress import Progress as _RichProgress
@@ -26,7 +18,8 @@ from betty.localizer import default_localizer
 from betty.progresses.no_op import NoOpProgress
 from betty.progresses.rich import RichProgress
 from betty.rich import Theme
-from betty.user import NoDefault, Severity, User
+from betty.user import Severity
+from betty.user.ui import NoDefault, Ui
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator, Mapping
@@ -38,9 +31,9 @@ if TYPE_CHECKING:
 
 
 @final
-class RichUser(User):
+class Console(Ui):
     """
-    A Rich user session.
+    Betty's console user interface.
     """
 
     _severity_to_style: Final[Mapping[Severity, str]] = {
@@ -55,10 +48,10 @@ class RichUser(User):
         self,
         *,
         localizer: Localizer = default_localizer,
-        severity: Severity | bool = User.default_severity,
+        severity: Severity | bool = Ui.default_severity,
     ):
         super().__init__()
-        self.console: Final[Console] = Console(theme=Theme())
+        self.console: Final[RichConsole] = RichConsole(theme=Theme())
         """
         The Rich console.
         """

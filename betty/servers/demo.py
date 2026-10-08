@@ -25,7 +25,7 @@ class DemoServer(Server):
     """
 
     def __init__(self, app: App, /):
-        super().__init__(user=app.user)
+        super().__init__(ui=app.ui)
         self._app = app
         self._server: Server | None = None
         self._exit_stack = AsyncExitStack()
@@ -44,9 +44,7 @@ class DemoServer(Server):
         await self._exit_stack.enter_async_context(project)
 
         try:
-            async with project.upstream.user.progress(
-                _("Generating site…")
-            ) as progress:
+            async with project.upstream.ui.progress(_("Generating site…")) as progress:
                 await generate.generate_with_cleanup(
                     project, context=Context(progress=progress)
                 )

@@ -43,7 +43,7 @@ from betty.privacy import Privacy
 from betty.project import Project
 from betty.roles.subject import Subject
 from betty.subprocess import CalledSubprocessError
-from betty.test_utils.user import StaticUser
+from betty.test_utils.user.ui import StaticUi
 from betty.user import Severity
 
 if TYPE_CHECKING:
@@ -262,8 +262,7 @@ class TestGrampsLoader:
         )
         await sut.load_name(family_tree_name)
         m_run_process.assert_awaited_once_with(
-            [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file)],
-            user=ANY,
+            [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file)], ui=ANY
         )
 
     async def test_load_name__with_non_existent_family_tree(
@@ -283,8 +282,7 @@ class TestGrampsLoader:
         with pytest.raises(UserFacingGrampsError):
             await sut.load_name(family_tree_name)
         m_run_process.assert_awaited_once_with(
-            [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file)],
-            user=ANY,
+            [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file)], ui=ANY
         )
 
     async def _load(
@@ -2258,9 +2256,9 @@ class TestGrampsLoader:
         isolated_app_factory: IsolatedAppFactory,
         isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
-        user = StaticUser()
+        user = StaticUi()
         async with (
-            isolated_app_factory(user=user) as app,
+            isolated_app_factory(ui=user) as app,
             isolated_project_factory(app=app) as project,
         ):
             sut = GrampsLoader(project, attribute_prefix_key=self.attribute_prefix_key)

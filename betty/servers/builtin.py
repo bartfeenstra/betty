@@ -22,7 +22,7 @@ from betty.user import Severity
 
 if TYPE_CHECKING:
     from betty.pathlib import StrPath
-    from betty.user import User
+    from betty.user.ui import Ui
 
 
 class _OsError(HumanFacingException, OSError):
@@ -46,14 +46,9 @@ class BuiltinServer(Server):
     _default_port: Final[int] = 8000
 
     def __init__(
-        self,
-        www_directory: StrPath,
-        /,
-        *,
-        root_path: str | None = None,
-        user: User,
+        self, www_directory: StrPath, /, *, root_path: str | None = None, ui: Ui
     ) -> None:
-        super().__init__(user=user)
+        super().__init__(ui=ui)
         self._www_directory = www_directory
         self._root_path = root_path
         self._http_server: HTTPServer | None = None
@@ -78,7 +73,7 @@ class BuiltinServer(Server):
             www_directory = self._temporary_root_directory
         else:
             www_directory = self._www_directory
-        await self._user.message(
+        await self._ui.message(
             _("Starting Python's built-in web server…"), Severity.DEBUG
         )
         for self._port in range(  # noqa: B020

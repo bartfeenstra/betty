@@ -9,7 +9,7 @@ from aiohttp import ClientSession
 from geopy import Point
 
 from betty.media_types.svg import SVG
-from betty.test_utils.user import StaticUser
+from betty.test_utils.user.ui import StaticUi
 from betty.wiki.client import Client, ClientError, Summary
 
 if TYPE_CHECKING:
@@ -61,7 +61,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                user=StaticUser(),
+                ui=StaticUi(),
             )
             with pytest.raises(ClientError):
                 await sut.get_translations(page_language, page_name)
@@ -122,7 +122,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                user=StaticUser(),
+                ui=StaticUi(),
             )
             translations = await sut.get_translations(page_language, page_name)
         assert expected == translations
@@ -174,7 +174,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                user=StaticUser(),
+                ui=StaticUi(),
             )
             with pytest.raises(ClientError):
                 await sut.get_summary(page_language, page_name)
@@ -231,7 +231,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                user=StaticUser(),
+                ui=StaticUi(),
             )
             actual = await sut.get_summary(page_language, page_name)
         assert actual == expected
@@ -320,7 +320,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                user=StaticUser(),
+                ui=StaticUi(),
             )
             with pytest.raises(ClientError):
                 await sut.get_place_coordinates(page_language, page_name)
@@ -407,7 +407,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                user=StaticUser(),
+                ui=StaticUi(),
             )
             actual = await sut.get_place_coordinates(page_language, page_name)
         assert actual == expected
@@ -510,7 +510,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                user=StaticUser(),
+                ui=StaticUi(),
             )
             with pytest.raises(ClientError):
                 await sut.get_image(page_language, page_name)
@@ -587,7 +587,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                user=StaticUser(),
+                ui=StaticUi(),
             )
             actual = await sut.get_image(page_language, page_name)
         if expected:

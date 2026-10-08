@@ -6,17 +6,17 @@ import pytest
 
 from betty.assertions.int import assert_int
 from betty.localizer import default_localizer
-from betty.rich.user import RichUser
+from betty.uis.console import Console
 from betty.user import Severity
 
 
-class TestRichUser:
+class TestConsole:
     async def test_console(self) -> None:
-        sut = RichUser()
+        sut = Console()
         assert sut.console
 
     async def test_localizer(self) -> None:
-        sut = RichUser()
+        sut = Console()
         assert sut.localizer is default_localizer
 
     @pytest.mark.parametrize(
@@ -33,7 +33,7 @@ class TestRichUser:
         message = "Hello, world!"
         stdout = StringIO()
         with redirect_stdout(stdout):
-            RichUser(severity=severity)
+            Console(severity=severity)
             logging.getLogger().debug(message)
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
@@ -59,7 +59,7 @@ class TestRichUser:
         message = "Hello, world!"
         stdout = StringIO()
         with redirect_stdout(stdout):
-            sut = RichUser(severity=severity)
+            sut = Console(severity=severity)
             try:
                 raise _Exception(message)  # noqa: TRY301
             except _Exception:
@@ -86,7 +86,7 @@ class TestRichUser:
         message = "Hello, world!"
         stdout = StringIO()
         with redirect_stdout(stdout):
-            sut = RichUser(severity=severity)
+            sut = Console(severity=severity)
             await sut.message(message, Severity.INFO)
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
@@ -109,7 +109,7 @@ class TestRichUser:
         message = "Hello, world!"
         stdout = StringIO()
         with redirect_stdout(stdout):
-            sut = RichUser(severity=severity)
+            sut = Console(severity=severity)
             await sut.log(
                 logging.LogRecord("name", logging.INFO, __file__, 0, message, (), None)
             )
@@ -134,7 +134,7 @@ class TestRichUser:
         message = "Hello, world!"
         stdout = StringIO()
         with redirect_stdout(stdout):
-            sut = RichUser(severity=severity)
+            sut = Console(severity=severity)
             async with sut.progress(message) as progress:
                 await progress.add(2)
                 await progress.done(2)
@@ -155,7 +155,7 @@ class TestRichUser:
     )
     async def test_ask_confirmation(self, expected: bool, stdin_input: str) -> None:
         stdin = StringIO(stdin_input)
-        sut = RichUser()
+        sut = Console()
         assert await sut.ask_confirmation("", stdin=stdin) is expected
 
     @pytest.mark.parametrize(
@@ -164,7 +164,7 @@ class TestRichUser:
     )
     async def test_ask_confirmation__with_default(self, confirmation: bool) -> None:
         stdin = StringIO("")
-        sut = RichUser()
+        sut = Console()
         assert (
             await sut.ask_confirmation("", stdin=stdin, default=confirmation)
             is confirmation
@@ -173,7 +173,7 @@ class TestRichUser:
     async def test_ask_input__minimal(self) -> None:
         value = "Hello, world!"
         stdin = StringIO(f"{value}")
-        sut = RichUser()
+        sut = Console()
         assert await sut.ask_input("", stdin=stdin) == value
 
     async def test_ask_input__with_assertion(self) -> None:
@@ -181,13 +181,13 @@ class TestRichUser:
             return assert_int()(int(value))
 
         stdin = StringIO("123")
-        sut = RichUser()
+        sut = Console()
         assert await sut.ask_input("", stdin=stdin, assertion=_assertion) == 123
 
     async def test_ask_input__with_default(self) -> None:
         default = "Hello, world!"
         stdin = StringIO("")
-        sut = RichUser()
+        sut = Console()
         assert await sut.ask_input("", stdin=stdin, default=default) == default
 
     async def test_ask_input__with_assertion_and_default(self) -> None:
@@ -195,7 +195,7 @@ class TestRichUser:
             return assert_int()(int(value))
 
         stdin = StringIO("")
-        sut = RichUser()
+        sut = Console()
         assert (
             await sut.ask_input("", stdin=stdin, assertion=_assertion, default="123")
             == 123

@@ -5,7 +5,7 @@ from aiohttp import ClientError, ClientRequest, ClientResponse
 from yarl import URL
 
 from betty.http_client import ClientErrorToUserMessageMiddleware
-from betty.test_utils.user import StaticUser
+from betty.test_utils.user.ui import StaticUi
 from betty.user import Severity
 
 
@@ -19,7 +19,7 @@ class TestClientErrorToUserMessageMiddleware:
             return m_response
 
         request = ClientRequest("GET", URL("https://example.com"))
-        user = StaticUser()
+        user = StaticUi()
         sut = ClientErrorToUserMessageMiddleware(user)
         assert await sut(request, _handler) is m_response
         assert handler_called_request[0] is request
@@ -34,7 +34,7 @@ class TestClientErrorToUserMessageMiddleware:
             raise error
 
         request = ClientRequest("GET", URL("https://example.com"))
-        user = StaticUser()
+        user = StaticUi()
         sut = ClientErrorToUserMessageMiddleware(user)
         with pytest.raises(ClientError) as exc_info:
             await sut(request, _handler)

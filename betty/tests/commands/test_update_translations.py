@@ -46,7 +46,7 @@ class TestUpdateTranslations:
             str(source),
         )
         m_update_translations.assert_awaited_once_with(
-            ANY, [source], [], user=isolated_app_with_assets.user
+            ANY, [source], [], ui=isolated_app_with_assets.ui
         )
 
     async def test_configure__with_exclude(
@@ -69,7 +69,7 @@ class TestUpdateTranslations:
             *[arg for exclude in excludes for arg in ("--exclude", str(exclude))],
         )
         m_update_translations.assert_awaited_once_with(
-            ANY, [source], list(excludes), user=isolated_app_with_assets.user
+            ANY, [source], list(excludes), ui=isolated_app_with_assets.ui
         )
 
     async def test_configure__with_unknown_asset(

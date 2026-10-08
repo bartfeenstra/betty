@@ -34,27 +34,27 @@ if TYPE_CHECKING:
         Sequence,
     )
 
-    from betty.user import User
+    from betty.user.ui import Ui
 
 
 class _ScheduledJobBatch:
     def __init__(
         self,
         scheduler: Scheduler,
-        user: User,
+        ui: Ui,
         done: Callable[[Sequence[str]], Awaitable[None]],
         jobs: Sequence[Job],
         /,
     ):
         self._scheduler = scheduler
-        self._user = user
+        self._ui = ui
         self._done = done
         self._jobs = jobs
 
     async def __call__(self) -> None:
         try:
             for job in self._jobs:
-                await self._user.message(f'Doing job "{job.id}"…', Severity.DEBUG)
+                await self._ui.message(f'Doing job "{job.id}"…', Severity.DEBUG)
                 await job.do(self._scheduler)
         except BaseException as reason:
             await self._scheduler.cancel(reason)
@@ -73,14 +73,9 @@ class DefaultScheduler(Scheduler):
     Betty's default job scheduler.
     """
 
-    def __init__(
-        self,
-        *,
-        user: User,
-        context: Context | None = None,
-    ):
+    def __init__(self, *, ui: Ui, context: Context | None = None):
         super().__init__(context)
-        self._user = user
+        self._ui = ui
         self._lock = ThreadSafeLock()
         self._released = False
         self._cancelled = False
@@ -218,7 +213,7 @@ class DefaultScheduler(Scheduler):
             self._released_jobs.add(releasable_job.id)
             jobs.append(releasable_job)
         if jobs:
-            return _ScheduledJobBatch(self, self._user, self._done, jobs)
+            return _ScheduledJobBatch(self, self._ui, self._done, jobs)
         return None
 
     async def _done(self, job_ids: Sequence[str], /) -> None:

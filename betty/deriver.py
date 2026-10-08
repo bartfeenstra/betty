@@ -114,7 +114,7 @@ class Deriver:
                 created_derivations += created
                 updated_derivations += updated
             if updated_derivations > 0:
-                await self._project.upstream.user.message(
+                await self._project.upstream.ui.message(
                     _(
                         "Updated {updated_derivations} {event_type} events based on existing information."
                     ).format(
@@ -124,7 +124,7 @@ class Deriver:
                     Severity.INFO,
                 )
             if created_derivations > 0:
-                await self._project.upstream.user.message(
+                await self._project.upstream.ui.message(
                     _(
                         "Created {created_derivations} additional {event_type} events based on existing information."
                     ).format(

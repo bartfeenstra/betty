@@ -12,11 +12,11 @@ from betty.project import Project, ProjectData
 from betty.stores.file import TransientPickledFileStore
 from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
 from betty.test_utils.console import run
-from betty.test_utils.user import StaticUser
-from betty.user import User
+from betty.test_utils.user.ui import StaticUi
+from betty.user.ui import Ui
 
 type AssertAppCacheDirectories = Callable[
-    [bool, User | None], AbstractAsyncContextManager[App]
+    [bool, Ui | None], AbstractAsyncContextManager[App]
 ]
 type AssertProjectCacheDirectories = Callable[
     [bool, App], AbstractAsyncContextManager[Project]
@@ -33,7 +33,7 @@ class TestClearCaches:
     ) -> AssertAppCacheDirectories:
         @asynccontextmanager
         async def _assert_app_cache_directories(
-            expected: bool, user: User | None = None, /
+            expected: bool, ui: Ui | None = None, /
         ) -> AsyncGenerator[App]:
             app_cache_directory = tmp_path / "app-cache"
 
@@ -53,7 +53,7 @@ class TestClearCaches:
             async with isolated_app_factory(
                 binary_file_cache_directory=app_binary_file_cache_directory,
                 cache=TransientPickledFileStore(app_cache_directory),
-                user=user,
+                ui=ui,
             ) as app:
                 cache_key = "my-first-app-cache-item"
                 binary_file_cache_key = "my-first-app-binary-file-cache-item"
@@ -122,14 +122,14 @@ class TestClearCaches:
     async def test_configure__without_confirmation(
         self, assert_app_cache_directories: AssertAppCacheDirectories
     ) -> None:
-        user = StaticUser(confirmations=[False])
+        user = StaticUi(confirmations=[False])
         async with assert_app_cache_directories(True, user) as app:
             await run(app, "clear-caches")
 
     async def test_configure__with_confirmation(
         self, assert_app_cache_directories: AssertAppCacheDirectories
     ) -> None:
-        user = StaticUser(confirmations=[True])
+        user = StaticUi(confirmations=[True])
         async with assert_app_cache_directories(False, user) as app:
             await run(app, "clear-caches")
 
@@ -144,7 +144,7 @@ class TestClearCaches:
         assert_app_cache_directories: AssertAppCacheDirectories,
         assert_project_cache_directories: AssertProjectCacheDirectories,
     ) -> None:
-        user = StaticUser(confirmations=[False])
+        user = StaticUi(confirmations=[False])
         async with (
             assert_app_cache_directories(True, user) as app,
             assert_project_cache_directories(True, app) as project,
@@ -158,7 +158,7 @@ class TestClearCaches:
         assert_app_cache_directories: AssertAppCacheDirectories,
         assert_project_cache_directories: AssertProjectCacheDirectories,
     ) -> None:
-        user = StaticUser(confirmations=[True])
+        user = StaticUi(confirmations=[True])
         async with (
             assert_app_cache_directories(False, user) as app,
             assert_project_cache_directories(False, app) as project,

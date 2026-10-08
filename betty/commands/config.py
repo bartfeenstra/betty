@@ -40,11 +40,11 @@ class Config(Manufacturable, Command):
         parser.add_argument(
             "--locale",
             default=default_locale,
-            help=self._app.user.localizer.translate._(
+            help=self._app.ui.localizer.translate._(
                 "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
             ),
             type=assertion_to_argument_type(
-                assert_locale, localizer=self._app.user.localizer
+                assert_locale, localizer=self._app.ui.localizer
             ),
         )
         return self._command_function
@@ -59,7 +59,7 @@ class Config(Manufacturable, Command):
         else:
             updated_configuration = AppData()
         updated_configuration.locale = locale
-        await self._app.user.message(
+        await self._app.ui.message(
             _("Next time, Betty will talk to you in {locale}").format(
                 locale=locale.get_display_name() or to_language_tag(locale)
             ),

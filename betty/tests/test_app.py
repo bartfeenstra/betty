@@ -8,7 +8,7 @@ from babel import Locale
 from betty.app import App, AppData
 from betty.factory import Manufacturable
 from betty.test_utils.data import DataTestBase
-from betty.test_utils.user import StaticUser
+from betty.test_utils.user.ui import StaticUi
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -45,12 +45,12 @@ class TestApp:
             f.write(dumps({"locale": "nl-NL"}))
         mocker.patch("betty.app.AppData.FILE", configuration_file)
         async with App.new_from_environment() as sut:
-            assert sut.user.localizer.locale == Locale("nl", "NL")
+            assert sut.ui.localizer.locale == Locale("nl", "NL")
 
-    async def test_user(self, isolated_app_factory: IsolatedAppFactory) -> None:
-        user = StaticUser()
-        async with isolated_app_factory(user=user) as sut:
-            assert sut.user is user
+    async def test_ui(self, isolated_app_factory: IsolatedAppFactory) -> None:
+        ui = StaticUi()
+        async with isolated_app_factory(ui=ui) as sut:
+            assert sut.ui is ui
 
     async def test_http_client(self, isolated_app: App) -> None:
         assert await isolated_app.http_client is await isolated_app.http_client

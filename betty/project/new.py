@@ -28,7 +28,7 @@ async def new(
         configuration_file,
         serializers=await gather(*app.serializers),
     )
-    await app.user.message(
+    await app.ui.message(
         _("Saved your project to {configuration_file}.").format(
             configuration_file=str(configuration_file)
         ),
