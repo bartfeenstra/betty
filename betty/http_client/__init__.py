@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from aiohttp.client_middlewares import ClientHandlerType
     from aiohttp.client_reqrep import ClientRequest, ClientResponse
 
-    from betty.user import User
+    from betty.user.ui import Ui
 
 
 class ClientErrorToUserMessageMiddleware:
@@ -22,8 +22,8 @@ class ClientErrorToUserMessageMiddleware:
     Log client errors to a user.
     """
 
-    def __init__(self, user: User):
-        self._user = user
+    def __init__(self, ui: Ui):
+        self._ui = ui
 
     async def __call__(
         self, request: ClientRequest, handler: ClientHandlerType
@@ -34,5 +34,5 @@ class ClientErrorToUserMessageMiddleware:
         try:
             return await handler(request)
         except ClientError as error:
-            await self._user.message(str(error), Severity.DEBUG)
+            await self._ui.message(str(error), Severity.DEBUG)
             raise

@@ -42,7 +42,7 @@ class Docs(Manufacturable, Command):
     async def _command_function(self) -> None:
         server = documentation.DocumentationServer(
             self._app.binary_file_cache.with_scope("documentation").directory,
-            user=self._app.user,
+            ui=self._app.ui,
         )
         async with server:
             await server.show()

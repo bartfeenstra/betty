@@ -30,7 +30,6 @@ from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
 from betty.requirements.service_level import RequirableServiceLevel
-from betty.rich.user import RichUser
 from betty.sample import Sample, Samples, Size
 from betty.serialize import SerializerDefinition
 from betty.serializers.json import Json
@@ -44,8 +43,9 @@ from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
 from betty.typing import Unreachable
-from betty.user import User
-from betty.user.no_op import NoOpUser
+from betty.uis.console import Console
+from betty.uis.no_op import NoOpUi
+from betty.user.ui import Ui
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator, Callable, Iterable
@@ -98,7 +98,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         rate_limits: Iterable[RateLimitDefinition] = (),
         serializers: Iterable[ResolvableDefinition[SerializerDefinition]] = (),
         supported_plugins: SupportedPlugins = (),
-        user: User | Callable[[App], ResolvableAwaitable[User]] | None = None,
+        ui: Ui | Callable[[App], ResolvableAwaitable[Ui]] | None = None,
     ):
         cls = type(self)
         cls.binary_file_cache.override(
@@ -123,30 +123,30 @@ class App(RequirableServiceLevel, HasPluginServices):
         cls.media_types.add_init_plugins(self, *media_types)
         cls.rate_limits.add_init_plugins(self, *rate_limits)
         cls.serializers.add_init_plugins(self, *serializers)
-        self._user: User
-        if user is None:
-            self.life_cycle.on_bootstrap(self._set_default_user)
-        elif isinstance(user, User):
-            self._user = user
-            if isinstance(user, Bootstrappable | Shutdownable):
-                self.life_cycle.on_bootstrap(lambda: self.life_cycle.bind(user))
+        self._ui: Ui
+        if ui is None:
+            self.life_cycle.on_bootstrap(self._set_default_ui)
+        elif isinstance(ui, Ui):
+            self._ui = ui
+            if isinstance(ui, Bootstrappable | Shutdownable):
+                self.life_cycle.on_bootstrap(lambda: self.life_cycle.bind(ui))
         else:
-            self.life_cycle.on_bootstrap(lambda: self._set_user(user))
+            self.life_cycle.on_bootstrap(lambda: self._set_ui(ui))
 
-    async def _set_default_user(self) -> None:
-        self._user = RichUser()
+    async def _set_default_ui(self) -> None:
+        self._ui = Console()
 
-    async def _set_user(self, user: Callable[[App], ResolvableAwaitable[User]]) -> None:
-        self._user = await resolve_await(user(self))
-        if isinstance(user, Bootstrappable | Shutdownable):
-            await self.life_cycle.bind(self._user)
+    async def _set_ui(self, ui: Callable[[App], ResolvableAwaitable[Ui]], /) -> None:
+        self._ui = await resolve_await(ui(self))
+        if isinstance(ui, Bootstrappable | Shutdownable):
+            await self.life_cycle.bind(self._ui)
 
     @property
-    def user(self) -> User:
+    def ui(self) -> Ui:
         """
-        The current user session.
+        The current user interface.
         """
-        return self._user
+        return self._ui
 
     @classmethod
     @asynccontextmanager
@@ -165,17 +165,13 @@ class App(RequirableServiceLevel, HasPluginServices):
         async with cls(
             cache=TransientPickledFileStore(app_cache_directory),
             binary_file_cache=TransientBinaryFileStore(app_cache_directory),
-            user=lambda app: cls._new_from_environment_user(app, locale),
+            ui=lambda app: cls._new_from_environment_user(app, locale),
         ) as app:
             yield app
 
     @classmethod
-    async def _new_from_environment_user(
-        cls, app: App, locale: Locale | None, /
-    ) -> User:
-        return RichUser(
-            localizer=await app.localizers.get(locale or User.default_locale)
-        )
+    async def _new_from_environment_user(cls, app: App, locale: Locale | None, /) -> Ui:
+        return Console(localizer=await app.localizers.get(locale or Ui.default_locale))
 
     @classmethod
     @asynccontextmanager
@@ -187,7 +183,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         plugins: Plugins = _empty_frozen_mapping,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
-        user: User | None = None,
+        ui: Ui | None = None,
     ) -> AsyncGenerator[Self]:
         """
         Create a new, isolated, temporary application.
@@ -208,7 +204,7 @@ class App(RequirableServiceLevel, HasPluginServices):
                 cache=NoOpStore() if cache is None else cache,
                 plugins=plugins,
                 process_pool=process_pool,
-                user=NoOpUser() if user is None else user,
+                ui=NoOpUi() if ui is None else ui,
             ) as app:
                 yield app
 
@@ -236,7 +232,7 @@ class App(RequirableServiceLevel, HasPluginServices):
                 "User-Agent": f"Betty ({about.url})",
             },
             middlewares=[
-                ClientErrorToUserMessageMiddleware(self.user),
+                ClientErrorToUserMessageMiddleware(self.ui),
                 RateLimitMiddleware(self.rate_limits),
             ],
         )

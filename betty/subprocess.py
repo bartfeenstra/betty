@@ -11,13 +11,14 @@ from subprocess import PIPE
 from typing import TYPE_CHECKING, override
 
 from betty.localizables.gettext import _
-from betty.user import Severity, User
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from asyncio.subprocess import Process
     from collections.abc import Sequence
 
     from betty.pathlib import StrPath
+    from betty.user.ui import Ui
 
 
 class SubprocessError(Exception):
@@ -52,7 +53,7 @@ async def run_process(
     cwd: StrPath | None = None,
     shell: bool = False,
     *,
-    user: User,
+    ui: Ui,
 ) -> Process:
     """
     Run a command in a subprocess.
@@ -60,7 +61,7 @@ async def run_process(
     :raise betty.subprocess.SubprocessError:
     """
     command = " ".join(runnee)
-    await user.message(
+    await ui.message(
         _("Running subprocess `{command}`…").format(command=command), Severity.DEBUG
     )
 
@@ -75,22 +76,22 @@ async def run_process(
             )
         stdout, stderr = await process.communicate()
     except FileNotFoundError as error:
-        await user.message(str(error), Severity.DEBUG)
+        await ui.message(str(error), Severity.DEBUG)
         raise FileNotFound(str(error)) from None
 
-    if process.returncode != 0 or user.shows(Severity.DEBUG):
+    if process.returncode != 0 or ui.shows(Severity.DEBUG):
         stdout_str = "\n".join(stdout.decode().split(os.linesep))
         stderr_str = "\n".join(stderr.decode().split(os.linesep))
 
         if stdout_str:
-            await user.message(
+            await ui.message(
                 _("Subprocess `{command}` stdout:\n{stdout}").format(
                     command=command, stdout=stdout_str
                 ),
                 Severity.DEBUG,
             )
         if stderr_str:
-            await user.message(
+            await ui.message(
                 _("Subprocess `{command}` stderr:\n{stderr}").format(
                     command=command, stderr=stderr_str
                 ),

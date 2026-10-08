@@ -47,14 +47,14 @@ class ClearCaches(Manufacturable, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        add_yes_argument(parser, localizer=self._app.user.localizer)
+        add_yes_argument(parser, localizer=self._app.ui.localizer)
         return await add_project_argument(
             parser, self._command_function, self._app, required=False
         )
 
     async def _command_function(self, project: Project | None, yes: bool) -> None:
         if not yes:
-            yes = await self._app.user.ask_confirmation(
+            yes = await self._app.ui.ask_confirmation(
                 _("Are you sure you want to clear all caches?")
             )
         if yes:
@@ -67,4 +67,4 @@ class ClearCaches(Manufacturable, Command):
                 tasks.append(project.cache.clear())
                 tasks.append(project.binary_file_cache.clear())
             await gather(*tasks)
-            await self._app.user.message(_("All caches cleared."), Severity.CONFIRM)
+            await self._app.ui.message(_("All caches cleared."), Severity.CONFIRM)

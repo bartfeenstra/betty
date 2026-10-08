@@ -31,11 +31,11 @@ class ProjectBuiltinServer(Server, Manufacturable):
     """
 
     def __init__(self, project: Project, /) -> None:
-        super().__init__(user=project.upstream.user)
+        super().__init__(ui=project.upstream.ui)
         self._server = BuiltinServer(
             project.www_directory,
             root_path=project.root_path,
-            user=project.upstream.user,
+            ui=project.upstream.ui,
         )
         self._www_directory = project.www_directory
 

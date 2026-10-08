@@ -56,13 +56,13 @@ class UpdateTranslations(Manufacturable, Command):
         parser.add_argument(
             "output",
             type=assertion_to_argument_type(
-                _assert_asset, localizer=self._app.user.localizer
+                _assert_asset, localizer=self._app.ui.localizer
             ),
         )
         parser.add_argument(
             "inputs",
             type=assertion_to_argument_type(
-                assert_directory(), localizer=self._app.user.localizer
+                assert_directory(), localizer=self._app.ui.localizer
             ),
             nargs="+",
         )
@@ -70,7 +70,7 @@ class UpdateTranslations(Manufacturable, Command):
             "--exclude",
             action="append",
             type=assertion_to_argument_type(
-                assert_directory(), localizer=self._app.user.localizer
+                assert_directory(), localizer=self._app.ui.localizer
             ),
             default=[],
             dest="excludes",
@@ -84,5 +84,5 @@ class UpdateTranslations(Manufacturable, Command):
         excludes: tuple[Path],
     ) -> None:
         await gettext.update_translations(
-            output.assets, inputs, excludes, user=self._app.user
+            output.assets, inputs, excludes, ui=self._app.ui
         )

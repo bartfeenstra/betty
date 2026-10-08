@@ -17,7 +17,7 @@ from betty.media_type import MediaType
 from betty.media_types.html import HTML
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.user.no_op import NoOpUser
+from betty.uis.no_op import NoOpUi
 from betty.wiki.client import Client, Image, Summary
 from betty.wiki.populator import Populator
 
@@ -50,7 +50,7 @@ class TestPopulator:
             localizers,
             m_client,
             WikipediaContributors(DUMMY_LOCALIZABLE),
-            user=NoOpUser(),
+            ui=NoOpUi(),
         )
         await sut.populate(link)
         localizer_en = await localizers.get("en")
@@ -101,7 +101,7 @@ class TestPopulator:
             localizers,
             m_client,
             WikipediaContributors(DUMMY_LOCALIZABLE),
-            user=NoOpUser(),
+            ui=NoOpUi(),
         )
         await sut.populate(link)
         localizer_en = await localizers.get("en")
@@ -130,7 +130,7 @@ class TestPopulator:
             localizers,
             m_client,
             WikipediaContributors(DUMMY_LOCALIZABLE),
-            user=NoOpUser(),
+            ui=NoOpUi(),
         )
         await sut.populate(link)
 
@@ -149,7 +149,7 @@ class TestPopulator:
             LocalizerRepository(),
             m_client,
             WikipediaContributors(DUMMY_LOCALIZABLE),
-            user=NoOpUser(),
+            ui=NoOpUi(),
         )
         await sut.populate(entity)
 
@@ -179,7 +179,7 @@ class TestPopulator:
             LocalizerRepository(),
             m_client,
             WikipediaContributors(DUMMY_LOCALIZABLE),
-            user=NoOpUser(),
+            ui=NoOpUi(),
         )
         await sut.populate(place)
 
@@ -215,7 +215,7 @@ class TestPopulator:
             LocalizerRepository(),
             m_client,
             WikipediaContributors(DUMMY_LOCALIZABLE),
-            user=NoOpUser(),
+            ui=NoOpUi(),
         )
         await sut.populate(has_file_references_and_links)
 

@@ -54,13 +54,13 @@ class NewTranslation(Manufacturable, Command):
         parser.add_argument(
             "output",
             type=assertion_to_argument_type(
-                _assert_asset, localizer=self._app.user.localizer
+                _assert_asset, localizer=self._app.ui.localizer
             ),
         )
         parser.add_argument(
             "locale",
             type=assertion_to_argument_type(
-                assert_locale, localizer=self._app.user.localizer
+                assert_locale, localizer=self._app.ui.localizer
             ),
         )
         return self._command_function
@@ -68,4 +68,4 @@ class NewTranslation(Manufacturable, Command):
     async def _command_function(
         self, output: AssetDirectoryDefinition, locale: Locale
     ) -> None:
-        await gettext.new_translation(output, locale, user=self._app.user)
+        await gettext.new_translation(output, locale, ui=self._app.ui)

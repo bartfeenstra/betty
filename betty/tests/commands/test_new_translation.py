@@ -45,7 +45,7 @@ class TestNewTranslation:
             "dummy",
             locale,
         )
-        m_new_translation.assert_awaited_once_with(ANY, Locale(locale), user=ANY)
+        m_new_translation.assert_awaited_once_with(ANY, Locale(locale), ui=ANY)
 
     async def test_configure__with_unknown_asset(
         self, isolated_app_with_assets: App

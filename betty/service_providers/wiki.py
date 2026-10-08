@@ -37,7 +37,7 @@ class Wiki(ServiceProvider[Project], Manufacturable):
                 "wiki-client"
             ).directory,
             http_client=await self.services.upstream.http_client,
-            user=self.services.upstream.user,
+            ui=self.services.upstream.ui,
         )
 
     @service
@@ -54,5 +54,5 @@ class Wiki(ServiceProvider[Project], Manufacturable):
             self.services.localizers,
             http_client,
             copyright_notice,
-            user=self.services.upstream.user,
+            ui=self.services.upstream.ui,
         )

@@ -14,20 +14,22 @@ from sphinx.ext.autodoc import MethodDocumenter
 
 from betty.dirs import root_directory
 from betty.exception import HumanFacingException
-from betty.user import Severity, User
+from betty.user import Severity
 
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from betty.user.ui import Ui
+
 
 async def _ensure_www_directory(
-    output_directory: Path, cache_directory: Path, *, user: User
+    output_directory: Path, cache_directory: Path, *, ui: Ui
 ) -> None:
     if not output_directory.exists():
-        await _build(output_directory, cache_directory, user=user)
+        await _build(output_directory, cache_directory, ui=ui)
 
 
-async def _build(output_directory: Path, cache_directory: Path, *, user: User) -> None:
+async def _build(output_directory: Path, cache_directory: Path, *, ui: Ui) -> None:
     output_directory.mkdir(exist_ok=True, parents=True)
     # sphinx-apidoc must output to the documentation directory, but because we do not want
     # to 'pollute' that with generated files that must not be committed, do our work in a
@@ -41,7 +43,7 @@ async def _build(output_directory: Path, cache_directory: Path, *, user: User) -
         outdir=str(output_directory),
         parallel=multiprocessing.cpu_count(),
         srcdir=str(source_directory),
-        verbosity=9 if user.shows(Severity.DEBUG) else 0,
+        verbosity=9 if ui.shows(Severity.DEBUG) else 0,
         warningiserror=True,
     )
     # Work around a bug in Sphinx where MethodDocumenter.can_document_member would erroneously consider our descriptors

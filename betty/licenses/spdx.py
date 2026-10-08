@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from betty.portable import PortableData, PortableSequence
     from betty.service_level import ServiceLevel
     from betty.stores.file import TransientBinaryFileStore
-    from betty.user import User
+    from betty.user.ui import Ui
 
 _spdx_license_id_pattern: Final[re.Pattern[str]] = re.compile(r"[^a-z0-9-]")
 
@@ -62,11 +62,11 @@ class SpdxLicenseDiscoverer(Manufacturable):
         self,
         *,
         http_client: ClientSession,
-        user: User,
+        ui: Ui,
         binary_file_cache: TransientBinaryFileStore,
     ):
         self._http_client = http_client
-        self._user = user
+        self._ui = ui
         self._cache_directory = (
             binary_file_cache
             .with_scope("spdx-licenses")
@@ -81,7 +81,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
         return cls(
             binary_file_cache=app.binary_file_cache.with_scope("spdx"),
             http_client=await app.http_client,
-            user=app.user,
+            ui=app.ui,
         )
 
     @classmethod
@@ -102,7 +102,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
                 spdx_licenses_response = await self._http_client.get(self.url)
                 spdx_licenses_data_tar = await spdx_licenses_response.read()
             except ClientError:
-                await self._user.message(
+                await self._ui.message(
                     _("Betty could not load the SPDX licenses"), Severity.WARN
                 )
                 return [lambda _: ()]

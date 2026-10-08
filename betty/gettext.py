@@ -35,18 +35,18 @@ if TYPE_CHECKING:
     from betty.asset import AssetDirectoryDefinition, AssetRepository
     from betty.pathlib import StrPath
     from betty.stores.file import TransientBinaryFileStore
-    from betty.user import User
+    from betty.user.ui import Ui
 
 
 async def _new_translation(
-    output: AssetDirectoryDefinition, locale: Locale, *, user: User
+    output: AssetDirectoryDefinition, locale: Locale, *, ui: Ui
 ) -> None:
     from betty.localizables.gettext import _
 
     po_file = output.assets / "locale" / str(locale) / "betty.po"
     with redirect_stdout(StringIO()):
         if po_file.exists():
-            await user.message(
+            await ui.message(
                 _("Translations for {locale} already exist at {po_file_path}.").format(
                     locale=to_language_tag(locale), po_file_path=str(po_file)
                 ),
@@ -67,7 +67,7 @@ async def _new_translation(
             "-D",
             "betty",
         )
-        await user.message(
+        await ui.message(
             _("Translations for {locale} initialized at {po_file_path}.").format(
                 locale=to_language_tag(locale), po_file_path=str(po_file)
             ),
@@ -132,16 +132,16 @@ async def _update_translations(output: StrPath, inputs: Iterable[StrPath]) -> No
 
 
 async def new_translation(
-    output: AssetDirectoryDefinition, locale: Locale, *, user: User
+    output: AssetDirectoryDefinition, locale: Locale, *, ui: Ui
 ) -> None:
     """
     Create a new translation.
     """
-    await _new_translation(output, locale, user=user)
+    await _new_translation(output, locale, ui=ui)
 
 
 async def update_translations(
-    output: StrPath, inputs: Iterable[StrPath], excludes: Iterable[StrPath], user: User
+    output: StrPath, inputs: Iterable[StrPath], excludes: Iterable[StrPath], ui: Ui
 ) -> None:
     """
     Update translations.

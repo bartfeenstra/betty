@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from betty.entity import Entity
     from betty.entity.collection.pool import EntityPool
     from betty.localizer import LocalizerRepository
-    from betty.user import User
+    from betty.user.ui import Ui
     from betty.wiki.client import Client, Image
 
 
@@ -54,7 +54,7 @@ class Populator:
         client: Client,
         copyright_notice: CopyrightNotice,
         *,
-        user: User,
+        ui: Ui,
     ):
         self._ancestry = ancestry
         self._locales = locales
@@ -63,7 +63,7 @@ class Populator:
         self._image_files: MutableMapping[Image, File] = {}
         self._image_files_locks: Mapping[Image, Lock] = defaultdict(ThreadSafeLock)
         self._copyright_notice = copyright_notice
-        self._user = user
+        self._ui = ui
 
     async def populate(self, entity: Entity) -> None:
         """
@@ -96,7 +96,7 @@ class Populator:
                 await self._client.get_translations(page_language, page_name)
             )
         except ClientError as error:
-            await self._user.message(error, Severity.WARN)
+            await self._ui.message(error, Severity.WARN)
             return
         if page_translations:
             # For convenience, we add the original page language and name to the available translations.
@@ -138,7 +138,7 @@ class Populator:
         try:
             summary = await self._client.get_summary(page_language, page_name)
         except ClientError as error:
-            await self._user.message(error, Severity.WARN)
+            await self._ui.message(error, Severity.WARN)
             return None
         return summary.title
 
@@ -166,7 +166,7 @@ class Populator:
                     page_language, page_name
                 )
             except ClientError as error:
-                await self._user.message(error, Severity.WARN)
+                await self._ui.message(error, Severity.WARN)
                 return
             if coordinates:
                 place.coordinates = coordinates
@@ -196,7 +196,7 @@ class Populator:
             try:
                 image = await self._client.get_image(page_language, page_name)
             except ClientError as error:
-                await self._user.message(error, Severity.WARN)
+                await self._ui.message(error, Severity.WARN)
                 return
             if not image:
                 return

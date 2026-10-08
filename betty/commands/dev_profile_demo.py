@@ -23,14 +23,14 @@ if TYPE_CHECKING:
 
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.service_level import ServiceLevel
-    from betty.user import User
+    from betty.user.ui import Ui
 
 
-async def _target(user: User) -> None:
+async def _target(ui: Ui) -> None:
     async with App.new_isolated() as app:
         with TemporaryDirectory() as project_directory:
             project = await create_project(app, project_directory)
-            async with project, user.progress("Generating site…") as progress:
+            async with project, ui.progress("Generating site…") as progress:
                 await generate_with_cleanup(project, context=Context(progress=progress))
 
 
@@ -160,19 +160,19 @@ class DevProfileDemo(Manufacturable, Command):
             stats = yappi.get_func_stats()
             stats.add([stats_file])
             _print(stats, sort_column, sort_direction)
-            await self._app.user.message(
+            await self._app.ui.message(
                 f"Showing existing stats from {stats_file}", Severity.INFO
             )
         else:
             await to_thread(stats_file.parent.mkdir, exist_ok=True, parents=True)
             yappi.set_clock_type(clock_type)  # Use set_clock_type("wall") for wall time
             yappi.start()
-            await _target(self._app.user)
+            await _target(self._app.ui)
             yappi.stop()
             stats = yappi.get_func_stats()
             stats.save(stats_file)
             _print(stats, sort_column, sort_direction)
-            await self._app.user.message(
+            await self._app.ui.message(
                 f"Showing newly generated stats from {stats_file}", Severity.INFO
             )
 

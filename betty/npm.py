@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.pathlib import StrPath
-    from betty.user import User
+    from betty.user.ui import Ui
 
 
 @final
@@ -37,7 +37,7 @@ class NpmUnavailable(UnmetRequirement, RuntimeError):
 
 
 async def npm(
-    arguments: Sequence[str], cwd: StrPath | None = None, *, user: User
+    arguments: Sequence[str], cwd: StrPath | None = None, *, ui: Ui
 ) -> aiosubprocess.Process:
     """
     Run an npm command.
@@ -49,7 +49,7 @@ async def npm(
             # Use a shell on Windows so subprocess can find the executables it needs (see
             # https://bugs.python.org/issue17023).
             shell=sys.platform.startswith("win32"),
-            user=user,
+            ui=ui,
         )
     except FileNotFoundError:
         raise NpmUnavailable() from None

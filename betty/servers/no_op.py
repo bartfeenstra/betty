@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any, final, override
 
 from betty.server import Server
-from betty.test_utils.user import StaticUser
+from betty.test_utils.user.ui import StaticUi
 
 
 @final
@@ -17,7 +17,7 @@ class NoOpServer(Server):
     """
 
     def __init__(self, *_: Any, **__: Any):
-        super().__init__(user=StaticUser())
+        super().__init__(ui=StaticUi())
 
     @override
     @property

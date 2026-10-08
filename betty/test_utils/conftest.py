@@ -79,7 +79,7 @@ if TYPE_CHECKING:
 
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.store import TransientStore
-    from betty.user import User
+    from betty.user.ui import Ui
 
 
 @pytest.fixture(autouse=True)
@@ -129,7 +129,7 @@ class IsolatedAppFactory(Protocol):
         plugins: Plugins = _empty_frozen_mapping,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
-        user: User | None = None,
+        ui: Ui | None = None,
     ) -> AbstractAsyncContextManager[App]:
         raise Unreachable
 
@@ -151,14 +151,14 @@ def isolated_app_factory(
         plugins: Plugins = _empty_frozen_mapping,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
-        user: User | None = None,
+        ui: Ui | None = None,
     ) -> AsyncGenerator[App]:
         async with App.new_isolated(
             binary_file_cache_directory=binary_file_cache_directory,
             cache=cache,
             process_pool=process_pool or fixture_process_pool,
             plugins=plugins,
-            user=user,
+            ui=ui,
         ) as app:
             yield app
 

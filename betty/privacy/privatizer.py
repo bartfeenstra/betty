@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.attrs.privacy import HasPrivacy
-    from betty.user import User
+    from betty.user.ui import Ui
 
 type _Expirable = Person | Event | Date | None
 
@@ -40,9 +40,9 @@ class Privatizer:
     Privatize resources.
     """
 
-    def __init__(self, lifetime_threshold: int, *, user: User):
+    def __init__(self, lifetime_threshold: int, *, ui: Ui):
         self._lifetime_threshold = lifetime_threshold
-        self._user = user
+        self._ui = ui
         self._seen: MutableSequence[HasPrivacy] = []
 
     async def privatize(self, subject: HasPrivacy) -> None:
@@ -209,7 +209,7 @@ class Privatizer:
                 return
 
         person.private = True
-        await self._user.message(
+        await self._ui.message(
             _(
                 "Privatized person {privatized_person_id} ({privatized_person}) because they are likely still alive."
             ).format(
@@ -235,7 +235,7 @@ class Privatizer:
                 return
 
         place.private = True
-        await self._user.message(
+        await self._ui.message(
             _(
                 "Privatized place {privatized_place_id} ({privatized_place}) because it is not associated with any public information."
             ).format(
@@ -305,7 +305,7 @@ class Privatizer:
             self._seen.remove(target)
 
         if isinstance(target, Entity) and isinstance(reason, Entity):
-            await self._user.message(
+            await self._ui.message(
                 _(
                     "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
                 ).format(

@@ -18,7 +18,9 @@ from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
-from betty.user import Severity, User, UserHandler
+from betty.user import Severity
+from betty.user.logging import UiHandler
+from betty.user.ui import Ui
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -115,13 +117,13 @@ async def _create_command_parser(
     command_parser: argparse.ArgumentParser = subparsers.add_parser(
         command.definition.id,
         aliases=command.definition.aliases,
-        description=command.definition.label.localize(app.user.localizer),
+        description=command.definition.label.localize(app.ui.localizer),
         exit_on_error=False,
         formatter_class=formatter_class,
     )
     command_parser.set_defaults(
         __command_func=await command.configure(command_parser),
-        __show_severity=User.default_severity,
+        __show_severity=Ui.default_severity,
         __show_logs=False,
         __show_tracebacks=False,
     )
@@ -132,7 +134,7 @@ async def _create_command_parser(
         dest="__show_severity",
         action="store_const",
         const=Severity.ERROR,
-        help=app.user.localizer.translate._(
+        help=app.ui.localizer.translate._(
             "Do not show any output, except error messages"
         ),
     )
@@ -142,7 +144,7 @@ async def _create_command_parser(
         dest="__show_severity",
         action="store_const",
         const=Severity.WARN,
-        help=app.user.localizer.translate._(
+        help=app.ui.localizer.translate._(
             "Do not show any output, except error and warning messages"
         ),
     )
@@ -152,7 +154,7 @@ async def _create_command_parser(
         dest="__show_severity",
         action="store_const",
         const=Severity.INFO,
-        help=app.user.localizer.translate._("Also show detailed information messages"),
+        help=app.ui.localizer.translate._("Also show detailed information messages"),
     )
     verbosity_group.add_argument(
         "-vv",
@@ -160,19 +162,19 @@ async def _create_command_parser(
         dest="__show_severity",
         action="store_const",
         const=Severity.DEBUG,
-        help=app.user.localizer.translate._("Also show debug messages"),
+        help=app.ui.localizer.translate._("Also show debug messages"),
     )
     command_parser.add_argument(
         "--show-logs",
         dest="__show_logs",
         action="store_true",
-        help=app.user.localizer.translate._("Show log messages"),
+        help=app.ui.localizer.translate._("Show log messages"),
     )
     command_parser.add_argument(
         "--show-tracebacks",
         dest="__show_tracebacks",
         action="store_true",
-        help=app.user.localizer.translate._("Show tracebacks for all exceptions"),
+        help=app.ui.localizer.translate._("Show tracebacks for all exceptions"),
     )
 
     return command_parser
@@ -234,21 +236,21 @@ async def _create_list_commands_action_class(
 
 
 async def _create_parser(app: App, /) -> argparse.ArgumentParser:
-    argument_parser_class = _create_parser_class(localizer=app.user.localizer)
-    formatter_class = _create_formatter_class(localizer=app.user.localizer)
+    argument_parser_class = _create_parser_class(localizer=app.ui.localizer)
+    formatter_class = _create_formatter_class(localizer=app.ui.localizer)
     parser = argument_parser_class(
         exit_on_error=False, formatter_class=formatter_class, prog="betty"
     )
     parser.add_argument(
         "--commands",
         action=await _create_list_commands_action_class(
-            app, localizer=app.user.localizer
+            app, localizer=app.ui.localizer
         ),
         default=argparse.SUPPRESS,
-        help=app.user.localizer.translate._("Show all available commands"),
+        help=app.ui.localizer.translate._("Show all available commands"),
     )
     subparsers = parser.add_subparsers(
-        title=app.user.localizer.translate._("Subcommands")
+        title=app.ui.localizer.translate._("Subcommands")
     )
     async for command_plugin in app.plugins[CommandDefinition]:
         await _create_command_parser(app, subparsers, command_plugin, formatter_class)
@@ -265,7 +267,7 @@ async def main(app: App, args: Sequence[str], /) -> None:
     try:
         namespace = parser.parse_args(args)
     except argparse.ArgumentError as error:
-        await app.user.message(
+        await app.ui.message(
             _("Invalid argument {argument}: {error}").format(
                 argument=str(error.argument_name), error=error.message
             ),
@@ -275,33 +277,33 @@ async def main(app: App, args: Sequence[str], /) -> None:
     try:
         command_func = cast(CommandFunction, namespace.__command_func)
     except AttributeError:
-        await app.user.message(
+        await app.ui.message(
             _("It appears you called Betty without a command or arguments"),
             Severity.WARN,
         )
         parser.print_help()
         raise SystemExit(SystemExitCode.ERROR_CONSOLE_USAGE) from None
-    app.user.severity = namespace.__show_severity
+    app.ui.severity = namespace.__show_severity
     command_func = partial(call_command_func, command_func, namespace)
     try:
         if namespace.__show_logs:
-            async with UserHandler(app.user):
+            async with UiHandler(app.ui):
                 await command_func()
         else:
             await command_func()
     except HumanFacingException as error:
         if namespace.__show_tracebacks:
-            await app.user.exception()
-        await app.user.message(error, Severity.ERROR)
+            await app.ui.exception()
+        await app.ui.message(error, Severity.ERROR)
         raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
     except (CancelledError, KeyboardInterrupt):
         if namespace.__show_tracebacks:
-            await app.user.exception()
-        await app.user.message(_("Quitting…"), Severity.CONFIRM)
+            await app.ui.exception()
+        await app.ui.message(_("Quitting…"), Severity.CONFIRM)
         raise SystemExit(SystemExitCode.USER_QUIT) from None
     except Exception:
-        await app.user.exception()
-        await app.user.message(
+        await app.ui.exception()
+        await app.ui.message(
             _(
                 "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
             ).format(url=about.url_report_issue),

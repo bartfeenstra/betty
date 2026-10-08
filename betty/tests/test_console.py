@@ -149,7 +149,7 @@ class TestVerbosity:
             if severity is not None:
                 args.append(severity)
             await run(app, *args)
-            assert app.user.severity is expected
+            assert app.ui.severity is expected
 
 
 async def test_call_command_func() -> None:

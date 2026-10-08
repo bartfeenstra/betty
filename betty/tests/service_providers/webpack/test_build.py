@@ -12,7 +12,7 @@ from betty.project import Project
 from betty.service_level import ServiceLevel
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
 from betty.service_providers.webpack.build import Builder, EntryPointProvider
-from betty.test_utils.user import StaticUser
+from betty.test_utils.user.ui import StaticUi
 
 
 @ServiceProviderDefinition("dummy", label="-")
@@ -64,7 +64,7 @@ class TestBuilder:
             debug,
             await isolated_project.jinja,
             root_path,
-            user=StaticUser(),
+            ui=StaticUi(),
         )
         # Build twice, to test with warm caches as well.
         await sut.build(tmp_path, context=context)
@@ -102,7 +102,7 @@ class TestBuilder:
             False,
             m_jinja,
             "",
-            user=StaticUser(),
+            ui=StaticUi(),
         )
         with pytest.raises(NpmUnavailable):
             await sut.build(tmp_path, context=context)

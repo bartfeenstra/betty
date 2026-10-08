@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
-    from betty.user import User
+    from betty.user.ui import Ui
 
 
 class ServerNotStarted(RuntimeError):
@@ -46,8 +46,8 @@ class Server(HasDefinition["ServerDefinition"], metaclass=ABCMeta):
     A web server.
     """
 
-    def __init__(self, *, user: User):
-        self._user = user
+    def __init__(self, *, ui: Ui):
+        self._ui = ui
 
     @abstractmethod
     async def start(self) -> None:
@@ -59,7 +59,7 @@ class Server(HasDefinition["ServerDefinition"], metaclass=ABCMeta):
         """
         Show the served site to the user.
         """
-        await self._user.message(
+        await self._ui.message(
             _("Serving your site at {url}…").format(
                 url=self.public_url,
             ),

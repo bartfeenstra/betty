@@ -44,8 +44,7 @@ class PrivatizeAncestry(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        user = self._project.upstream.user
-
+        ui = self._project.upstream.ui
         newly_privatized: MutableMapping[MachineName, int] = defaultdict(lambda: 0)
         entities: MutableSequence[Intersection[HasPrivacy, Entity]] = []
         for entity in self._project.ancestry:
@@ -62,7 +61,7 @@ class PrivatizeAncestry(Job):
                 newly_privatized[entity.definition.id] += 1
 
         if newly_privatized[Person.definition.id] > 0:
-            await user.message(
+            await ui.message(
                 _(
                     "Privatized {count} people because they are likely still alive."
                 ).format(
@@ -72,7 +71,7 @@ class PrivatizeAncestry(Job):
             )
         for entity_type_id in set(newly_privatized) - {Person.definition.id}:
             if newly_privatized[entity_type_id] > 0:
-                await user.message(
+                await ui.message(
                     ngettext(
                         "Privatized {count} {entity_type} entity, because it is associated with private information.",
                         "Privatized {count} {entity_type} entities, because they are associated with private information.",
