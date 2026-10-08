@@ -28,7 +28,7 @@ from betty.localizable import (
 from betty.localizables.gettext import _
 from betty.localizables.markup import JoinAnd, Paragraphs, UnorderedList, do_you_mean
 from betty.localized import LocalizedStr
-from betty.locator.operator import Key
+from betty.operator import Key
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping

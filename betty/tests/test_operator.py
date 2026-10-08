@@ -3,23 +3,11 @@ from typing import Any, override
 
 import pytest
 
-from betty.locator import Locator
-from betty.locator.operator import (
-    Attr,
-    Index,
-    Key,
-    Operator,
-    OperatorError,
-    Operators,
-    _Operator,
-)
+from betty.localizables.plain import Plain
+from betty.localizer import default_localizer
+from betty.operator import Attr, Chain, Index, Key, Operator, OperatorError, _Operator
 from betty.typing import Unreachable
-
-
-class DummyLocator(Locator):
-    @override
-    def format(self) -> str:
-        return "DUMMY"
+from betty.user.location import format_
 
 
 class TestAttr:
@@ -97,14 +85,14 @@ class TestKey:
         assert data == {}
 
 
-class TestOperators:
+class TestChain:
     def test___hash__(self) -> None:
-        assert hash(Operators()) == hash(Operators())
-        assert hash(Operators()) != hash(Operators(Index(0)))
+        assert hash(Chain()) == hash(Chain())
+        assert hash(Chain()) != hash(Chain(Index(0)))
 
     def test___eq__(self) -> None:
-        assert Operators() == Operators()
-        assert Operators() != Operators(Index(0))
+        assert Chain() == Chain()
+        assert Chain() != Chain(Index(0))
 
     @pytest.mark.parametrize(
         ("expected", "operators"),
@@ -123,10 +111,25 @@ class TestOperators:
         ],
     )
     def test_format(self, expected: str, operators: Sequence[Operator]) -> None:
-        assert Operators(*operators).format() == expected
+        assert Chain(*operators).format() == expected
+
+    def test_get(self) -> None:
+        assert (
+            Chain(Index(1), Index(0)).get([[], ["my-first-value"]]) == "my-first-value"
+        )
+
+    def test_set(self) -> None:
+        data = [[], ["my-first-value"]]
+        Chain(Index(1), Index(0)).set(data, "my-second-value")
+        assert data[1][0] == "my-second-value"
+
+    def test_delete(self) -> None:
+        data = [[], ["my-first-value"]]
+        Chain(Index(1), Index(0)).delete(data)
+        assert data[1] == []
 
     @pytest.mark.parametrize(
-        ("expected", "operators"),
+        ("expected", "locators"),
         [
             (
                 "",
@@ -135,39 +138,23 @@ class TestOperators:
             (
                 "DUMMY\ndata.my_first_attr.my_second_attr\nDUMMY\ndata.my_third_attr.my_fourth_attr",
                 [
-                    DummyLocator(),
+                    Plain("DUMMY"),
                     Attr("my_first_attr"),
                     Attr("my_second_attr"),
-                    DummyLocator(),
+                    Plain("DUMMY"),
                     Attr("my_third_attr"),
                     Attr("my_fourth_attr"),
                 ],
             ),
         ],
     )
-    def test_reduce(self, expected: str, operators: Sequence[Operator]) -> None:
+    def test_reduce(self, expected: str, locators: Sequence[Operator]) -> None:
         assert (
-            "\n".join([
-                operator.format() for operator in Operators.reduce(*operators)
-            ]).format()
+            "\n".join(
+                format_(*Chain.reduce(*locators), localizer=default_localizer)
+            ).format()
             == expected
         )
-
-    def test_get(self) -> None:
-        assert (
-            Operators(Index(1), Index(0)).get([[], ["my-first-value"]])
-            == "my-first-value"
-        )
-
-    def test_set(self) -> None:
-        data = [[], ["my-first-value"]]
-        Operators(Index(1), Index(0)).set(data, "my-second-value")
-        assert data[1][0] == "my-second-value"
-
-    def test_delete(self) -> None:
-        data = [[], ["my-first-value"]]
-        Operators(Index(1), Index(0)).delete(data)
-        assert data[1] == []
 
 
 class OperatorTest_Operator(_Operator):

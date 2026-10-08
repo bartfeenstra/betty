@@ -10,7 +10,7 @@ from betty.attr import Attr
 from betty.classtools import TypeABCMeta
 from betty.data import Data
 from betty.datas.aggregate.record import RecordDefinition
-from betty.locator.operator import Attr as AttrOperator
+from betty.operator import Attr as AttrOperator
 from betty.prop import HasProps
 
 

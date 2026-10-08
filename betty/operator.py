@@ -8,12 +8,13 @@ from abc import ABCMeta, abstractmethod
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Final, final, override
 
-from betty.locator import Locator
+from typing_extensions import disjoint_base
 
 if TYPE_CHECKING:
     from collections.abc import Generator, MutableSequence, Sequence
 
     from betty.functools import Pipe
+    from betty.user.location import Locator
 
 
 @final
@@ -26,12 +27,19 @@ class OperatorError(ValueError):
         super().__init__(f"Cannot access {selector.format()}")
 
 
-class Operator(Locator, metaclass=ABCMeta):
+@disjoint_base
+class Operator(metaclass=ABCMeta):
     """
     Indicate and interact with an aggregate data element.
     """
 
     __slots__ = ()
+
+    @abstractmethod
+    def format(self) -> str:
+        """
+        Format the operator to a string.
+        """
 
     @abstractmethod
     def __hash__(self) -> int:
@@ -93,9 +101,9 @@ class Operator(Locator, metaclass=ABCMeta):
 
 
 @final
-class Operators(Operator):
+class Chain(Operator):
     """
-    Combine multiple operators into one.
+    Chain multiple operators into one.
     """
 
     __slots__ = ("_operators",)
@@ -117,29 +125,6 @@ class Operators(Operator):
     def format(self) -> str:
         return "".join(["data", *[operator.format() for operator in self._operators]])
 
-    @classmethod
-    def reduce(cls, *locators: Locator) -> Sequence[Locator]:
-        """
-        Reduce all consecutive instances of py:class:`betty.locator.operator.Operator` to a single instance of this class.
-
-        All other locators are kept verbatim.
-        """
-        reduced_locators: MutableSequence[Locator] = []
-        reducing_operators = []
-        for locator in locators:
-            if isinstance(locator, Operators):
-                reducing_operators.extend(locator._operators)
-            elif isinstance(locator, Operator):
-                reducing_operators.append(locator)
-            else:
-                if reducing_operators:
-                    reduced_locators.append(Operators(*reducing_operators))
-                    reducing_operators.clear()
-                reduced_locators.append(locator)
-        if reducing_operators:
-            reduced_locators.append(Operators(*reducing_operators))
-        return reduced_locators
-
     @override
     def _get(self, data: Any, /) -> Any:
         for operator in self._operators:
@@ -157,6 +142,29 @@ class Operators(Operator):
         for operator in self._operators[:-1]:
             data = operator.get(data)
         self._operators[-1].delete(data)
+
+    @classmethod
+    def reduce(cls, *locators: Locator) -> Sequence[Locator]:
+        """
+        Reduce all consecutive instances of py:class:`betty.operator.Operator` into :py:class:`betty.operator.Chain`.
+
+        All other locators are kept verbatim.
+        """
+        reduced_locators: MutableSequence[Locator] = []
+        reducing_operators = []
+        for locator in locators:
+            if isinstance(locator, cls):
+                reducing_operators.extend(locator._operators)
+            elif isinstance(locator, Operator):
+                reducing_operators.append(locator)
+            else:
+                if reducing_operators:
+                    reduced_locators.append(cls(*reducing_operators))
+                    reducing_operators.clear()
+                reduced_locators.append(locator)
+        if reducing_operators:
+            reduced_locators.append(cls(*reducing_operators))
+        return tuple(reduced_locators)
 
 
 class _Operator[OperatorT](Operator):

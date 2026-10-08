@@ -4,7 +4,7 @@ An API for linking to web resources.
 
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.localizable import (
@@ -15,22 +15,16 @@ from betty.localizable import (
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.url import HasUrl
 
 if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
 
 
-class Link(metaclass=ABCMeta):
+class Link(HasUrl):
     """
     A link to a web resource.
     """
-
-    @property
-    @abstractmethod
-    def url(self) -> Localizable:
-        """
-        The URL the link points to.
-        """
 
     @property
     @abstractmethod
@@ -79,9 +73,11 @@ class StaticLink(Link):
     A static link.
     """
 
-    def __init__(self, url: ResolvableLocalizable, label: ResolvableLocalizable):
+    def __init__(
+        self, url: ResolvableLocalizable, label: ResolvableLocalizable | None = None, /
+    ):
         self._url = resolve_localizable(url)
-        self._label = resolve_localizable(label)
+        self._label = self._url if label is None else resolve_localizable(label)
 
     @override
     @property

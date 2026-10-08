@@ -16,7 +16,7 @@ from betty.datas.bool import BoolDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.datas.str import StrDefinition
 from betty.localizables.plain import Plain
-from betty.locator.operator import Attr
+from betty.operator import Attr
 from betty.portable import Porter
 from betty.portable.error import NotPortable
 from betty.porters.fields import FieldsPorter

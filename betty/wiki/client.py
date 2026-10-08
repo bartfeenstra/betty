@@ -20,10 +20,10 @@ from betty.assertions.str import assert_str
 from betty.exception import HumanFacingException, reraise_with_locator
 from betty.file import write
 from betty.hashid import hashid
+from betty.link import StaticLink
 from betty.localizables.gettext import _
-from betty.locator import Url
-from betty.locator.operator import Index, Key, OperatorError, Operators
 from betty.media_type import MediaType
+from betty.operator import Chain, Index, Key, OperatorError
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -120,9 +120,9 @@ class Client:
         data = await self._get_json(url)
         with (
             self._human_facing_exception_to_client_error(),
-            reraise_with_locator(Url(url)),
+            reraise_with_locator(StaticLink(url)),
         ):
-            return Operators(Key("query"), Key("pages"), Index(0)).get(
+            return Chain(Key("query"), Key("pages"), Index(0)).get(
                 data, assert_mapping(None, assert_str())
             )
 
@@ -157,14 +157,12 @@ class Client:
 
         with (
             self._human_facing_exception_to_client_error(),
-            reraise_with_locator(Url(url)),
+            reraise_with_locator(StaticLink(url)),
         ):
             api_data = await self._get_json(url)
 
-            title = Operators(Key("titles"), Key("normalized")).get(
-                api_data, assert_str()
-            )
-            extract = Operators(
+            title = Chain(Key("titles"), Key("normalized")).get(api_data, assert_str())
+            extract = Chain(
                 Key("extract_html") if "extract_html" in api_data else Key("extract")
             ).get(api_data, assert_str())
         return Summary(
@@ -194,9 +192,9 @@ class Client:
         image_info_selectors = (Key("imageinfo"), Index(0))
         with (
             self._human_facing_exception_to_client_error(),
-            reraise_with_locator(Url(url)),
+            reraise_with_locator(StaticLink(url)),
         ):
-            image_info = Operators(*image_info_selectors).get(
+            image_info = Chain(*image_info_selectors).get(
                 image_info_api_data, assert_mapping()
             )
             with reraise_with_locator(*image_info_selectors):
@@ -239,7 +237,7 @@ class Client:
 
         with (
             self._human_facing_exception_to_client_error(),
-            reraise_with_locator(Url(url)),
+            reraise_with_locator(StaticLink(url)),
         ):
             globe = Key("globe").get(coordinates, assert_str())
             if globe != "earth":

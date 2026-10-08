@@ -6,7 +6,7 @@ from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.str import StrDefinition
 from betty.localizables.plain import Plain
-from betty.locator.operator import Attr as AttrSelector
+from betty.operator import Attr
 
 
 @dataclass(frozen=True)
@@ -26,7 +26,7 @@ class TestObjectDefinition:
             cls=ObjectDefinitionTestObject,
             label="-",
             fields={
-                AttrSelector(field_name): FieldDefinition(StrDefinition(label="-")),
+                Attr(field_name): FieldDefinition(StrDefinition(label="-")),
             },
         )
         value = "Hello, world!"
@@ -39,7 +39,7 @@ class TestObjectDefinition:
             cls=ObjectDefinitionTestObject,
             label="-",
             fields={
-                AttrSelector(field_name): FieldDefinition(StrDefinition(label="-")),
+                Attr(field_name): FieldDefinition(StrDefinition(label="-")),
             },
             manufacturer=ObjectDefinitionTestFactoryObject,
         )
@@ -54,7 +54,7 @@ class TestObjectDefinition:
             cls=ObjectDefinitionTestObject,
             label="-",
             fields={
-                AttrSelector(field_name): FieldDefinition(StrDefinition(label="-")),
+                Attr(field_name): FieldDefinition(StrDefinition(label="-")),
             },
         )
         value = "Hello, world!"

@@ -7,7 +7,7 @@ import pytest
 from betty.assertions.sequence import assert_sequence
 from betty.assertions.str import assert_str
 from betty.exception import HumanFacingException
-from betty.locator.operator import Index
+from betty.operator import Index
 
 if TYPE_CHECKING:
     from betty.functools import Pipe
