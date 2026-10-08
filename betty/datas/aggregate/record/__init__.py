@@ -16,7 +16,7 @@ from betty.data import (
     resolve_data_definition,
 )
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.locator.operator import Attr, Key
+from betty.operator import Attr, Key
 from betty.portable.error import NotPortable
 
 if TYPE_CHECKING:

@@ -1,14 +1,11 @@
 import pytest
 
-from betty.exception import (
-    HumanFacingException,
-    do_raise,
-    reraise_with_locator,
-)
+from betty.exception import HumanFacingException, do_raise, reraise_with_locator
 from betty.locale import default_locale_tag
 from betty.localizables.static import StaticTranslations
 from betty.localizer import Localizer, default_localizer
-from betty.locator.operator import Attr, Key
+from betty.operator import Attr, Key
+from betty.user.location import format_
 
 
 def test_do_raise() -> None:
@@ -57,7 +54,9 @@ class TestHumanFacingException:
     def test_with_locator__and_locators(self) -> None:
         sut = HumanFacingException(StaticTranslations("Something went wrong!"))
         sut.with_locator(Attr("my_first_locator"))
-        assert [locator.format() for locator in sut.locators] == [".my_first_locator"]
+        assert format_(*sut.locators, localizer=default_localizer) == (
+            ".my_first_locator",
+        )
 
 
 def test_reraise_with_locator__without_exception() -> None:

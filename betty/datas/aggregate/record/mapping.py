@@ -8,7 +8,7 @@ from collections.abc import Mapping
 from typing import Any, final
 
 from betty.datas.aggregate.record import RecordDefinition
-from betty.locator.operator import Key
+from betty.operator import Key
 
 
 @final

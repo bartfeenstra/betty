@@ -42,7 +42,7 @@ from betty.jobs._generate_raspberry_mint_search_index import (
 from betty.jobs.generate_logo import GenerateLogo
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, do_you_mean
-from betty.locator.operator import Attr, Key
+from betty.operator import Attr, Key
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.project.generate import Generator

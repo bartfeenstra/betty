@@ -12,7 +12,7 @@ from betty.assertions.mapping import assert_mapping
 from betty.exception import reraise_with_locator
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, do_you_mean
-from betty.locator.operator import Key
+from betty.operator import Key
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

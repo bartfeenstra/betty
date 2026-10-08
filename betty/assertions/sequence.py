@@ -10,7 +10,7 @@ from typing import Any, overload
 from betty.assertions.type import assert_type
 from betty.exception import reraise_with_locator
 from betty.functools import Pipe, Pipeline
-from betty.locator.operator import Index
+from betty.operator import Index
 
 
 @overload

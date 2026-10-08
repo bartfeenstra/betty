@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.localizable import ResolvableLocalizable
-    from betty.locator import Locator
     from betty.service import ServiceManager
+    from betty.user.location import Locator
 
 
 class UnmetServiceRequirement(UnmetRequirement):

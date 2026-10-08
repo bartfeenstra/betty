@@ -403,12 +403,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/localized.py": {
         "Localized": MissingReason.ABSTRACT,
     },
-    "betty/locator/__init__.py": {
-        "Locator": MissingReason.ABSTRACT,
-    },
-    "betty/locator/operator.py": {
-        "Operator": MissingReason.ABSTRACT,
-    },
     "betty/machine_name.py": {
         "MachineName": {
             "persistent": MissingReason.COVERED_ELSEWHERE,
@@ -490,6 +484,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/npm.py": {
         "npm": MissingReason.SHOULD_BE_COVERED,
         "NpmUnavailable": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/operator.py": {
+        "Operator": MissingReason.ABSTRACT,
     },
     "betty/path.py": MissingReason.SHOULD_BE_COVERED,
     "betty/multiprocessing.py": MissingReason.STATIC_CONTENT_ONLY,
@@ -725,6 +722,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/typing.py": {
         "Intersection": MissingReason.STATIC_CONTENT_ONLY,
         "Not": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/url.py": {
+        "HasUrl": MissingReason.ABSTRACT,
     },
     "betty/url_generator.py": {
         "GenerationError": MissingReason.ABSTRACT,

@@ -10,14 +10,14 @@ from typing import TYPE_CHECKING, Never, override
 from betty.localizable import Localizable, ResolvableLocalizable
 from betty.localizables.markup import Lines, UnorderedList
 from betty.localizer import default_localizer
-from betty.locator.operator import Operators
+from betty.user.location import format_, reduce
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
     from betty.localized import LocalizedStr
     from betty.localizer import Localizer
-    from betty.locator import Locator
+    from betty.user.location import Locator
 
 
 def do_raise(exception: BaseException, /) -> Never:
@@ -70,10 +70,9 @@ class HumanFacingException(Exception, Localizable):
     def localize(self, localizer: Localizer, /) -> LocalizedStr:
         return Lines(
             self._localizable_message,
-            UnorderedList(*[
-                operator.format()
-                for operator in Operators.reduce(*reversed(self.locators))
-            ]),
+            UnorderedList(
+                *format_(*reduce(*reversed(self.locators)), localizer=localizer)
+            ),
         ).localize(localizer)
 
     @property
