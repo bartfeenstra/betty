@@ -2256,12 +2256,12 @@ class TestGrampsLoader:
         isolated_app_factory: IsolatedAppFactory,
         isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
-        user = StaticUi()
+        ui = StaticUi()
         async with (
-            isolated_app_factory(ui=user) as app,
+            isolated_app_factory(ui=ui) as app,
             isolated_project_factory(app=app) as project,
         ):
             sut = GrampsLoader(project, attribute_prefix_key=self.attribute_prefix_key)
             assert await sut.load_locale(locale) == expected
             if expected is None:
-                user.assert_message(locale, Severity.WARN)
+                ui.assert_message(locale, Severity.WARN)

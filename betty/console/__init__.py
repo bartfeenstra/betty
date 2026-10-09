@@ -10,7 +10,7 @@ from abc import abstractmethod
 from asyncio import CancelledError, run
 from enum import IntEnum
 from functools import partial
-from typing import TYPE_CHECKING, Any, Final, Literal, cast, final, override
+from typing import TYPE_CHECKING, Any, Final, Literal, Never, cast, final, override
 
 import rich_argparse
 
@@ -324,7 +324,7 @@ async def _create_parser(app: App, /) -> argparse.ArgumentParser:
     return parser
 
 
-async def main(app: App, args: Sequence[str], /) -> None:
+async def main(app: App, args: Sequence[str], /) -> Never:
     """
     Launch Betty's console.
 
@@ -395,12 +395,15 @@ async def _main_from_environment() -> None:
 
 async def call_command_func(
     command_func: CommandFunction, namespace: argparse.Namespace, /
-) -> None:
+) -> ExitCode:
     """
     Call a command function.
     """
-    await command_func(**{
-        name: value
-        for name, value in vars(namespace).items()
-        if not name.startswith("_")
-    })
+    return (
+        await command_func(**{
+            name: value
+            for name, value in vars(namespace).items()
+            if not name.startswith("_")
+        })
+        or ExitCode.OK
+    )

@@ -30,7 +30,7 @@ class TestNew:
         machine_name = "my-first-project"
         author = "My First Author"
         url = "https://exampleexampleexample.com/example"
-        user = StaticUi(
+        ui = StaticUi(
             confirmations=[
                 None,
                 None,
@@ -44,7 +44,7 @@ class TestNew:
                 url,
             ],
         )
-        async with isolated_app_factory(ui=user) as app:
+        async with isolated_app_factory(ui=ui) as app:
             await run(app, "new")
             configuration = _assert_new(configuration_file)
         assert configuration.title.localize(default_localizer) == title
@@ -60,7 +60,7 @@ class TestNew:
         machine_name = "my-first-project"
         author = "My First Author"
         url = "https://exampleexampleexample.com/example"
-        user = StaticUi(
+        ui = StaticUi(
             confirmations=[
                 None,
                 None,
@@ -75,7 +75,7 @@ class TestNew:
             ],
         )
         configuration_file = tmp_path / "betty.json"
-        async with isolated_app_factory(ui=user) as app:
+        async with isolated_app_factory(ui=ui) as app:
             await run(app, "new")
             _assert_new(configuration_file)
 
@@ -86,7 +86,7 @@ class TestNew:
     ) -> None:
         configuration_file = tmp_path / "betty.json"
         locale = "nl-NL"
-        user = StaticUi(
+        ui = StaticUi(
             confirmations=[
                 None,
                 None,
@@ -100,7 +100,7 @@ class TestNew:
                 "https://exampleexampleexample.com/example",
             ],
         )
-        async with isolated_app_factory(ui=user) as app:
+        async with isolated_app_factory(ui=ui) as app:
             await run(app, "new")
             configuration = _assert_new(configuration_file)
         assert configuration.name == "mijn-eerste-project"
@@ -116,7 +116,7 @@ class TestNew:
         configuration_file = tmp_path / "betty.json"
         default_locale = Locale("nl", "NL")
         other_locale = Locale("en", "US")
-        user = StaticUi(
+        ui = StaticUi(
             confirmations=[
                 True,
                 None,
@@ -134,7 +134,7 @@ class TestNew:
                 "https://exampleexampleexample.com/example",
             ],
         )
-        async with isolated_app_factory(ui=user) as app:
+        async with isolated_app_factory(ui=ui) as app:
             await run(app, "new")
             configuration = _assert_new(configuration_file)
         assert configuration.name == "mijn-eerste-project"
@@ -147,7 +147,7 @@ class TestNew:
     ) -> None:
         configuration_file = tmp_path / "betty.json"
         name = "project-first-my"
-        user = StaticUi(
+        ui = StaticUi(
             confirmations=[
                 None,
                 None,
@@ -161,7 +161,7 @@ class TestNew:
                 "https://exampleexampleexample.com/example",
             ],
         )
-        async with isolated_app_factory(ui=user) as app:
+        async with isolated_app_factory(ui=ui) as app:
             await run(app, "new")
             configuration = _assert_new(configuration_file)
         assert configuration.name == name
@@ -171,7 +171,7 @@ class TestNew:
     ) -> None:
         configuration_file = tmp_path / "betty.json"
         gramps_family_tree_file = tmp_path / "gramps"
-        user = StaticUi(
+        ui = StaticUi(
             confirmations=[
                 None,
                 True,
@@ -186,7 +186,7 @@ class TestNew:
                 str(gramps_family_tree_file),
             ],
         )
-        async with isolated_app_factory(ui=user) as app:
+        async with isolated_app_factory(ui=ui) as app:
             await run(app, "new")
             configuration = _assert_new(configuration_file)
             assert Gramps in configuration.loaders
