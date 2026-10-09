@@ -6,25 +6,16 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from contextlib import AbstractContextManager, contextmanager
-from enum import Enum
-from typing import TYPE_CHECKING, Any, ClassVar, Final, Self, final, override
+from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
-from betty.localizables.gettext import _
-from betty.user.error import UserFacingError
+from betty.user.error import Rel, UserFacingError, UserFacingErrorGroup
 from betty.user.location import HasLocation
 
 if TYPE_CHECKING:
-    from collections.abc import (
-        Callable,
-        Generator,
-        Iterable,
-        Iterator,
-        Mapping,
-        MutableSequence,
-    )
+    from collections.abc import Callable, Generator, Iterable, MutableSequence
     from types import TracebackType
 
-    from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.localizable import ResolvableLocalizable
     from betty.user.location import Locator
 
 
@@ -61,29 +52,10 @@ class Invalid[ValueT = Any](UserFacingError, ValueError):
 
 
 @final
-class InvalidGroup[ValueT](Invalid[ValueT]):
+class InvalidGroup[ValueT](UserFacingErrorGroup, Invalid[ValueT]):
     """
-    Group one or more errors together.
+    Group one or more validation errors together.
     """
-
-    @final
-    class Rel(Enum):
-        """
-        An error group relationship.
-
-        When grouping errors, the relationship indicates whether one, any, or all of the errors must be addressed for
-        validation to pass.
-        """
-
-        ONE = "one"
-        ANY = "any"
-        ALL = "all"
-
-    _messages: ClassVar[Mapping[Rel, Localizable]] = {
-        Rel.ONE: _("One of the problems must be fixed."),
-        Rel.ANY: _("At least one of the problems must be fixed."),
-        Rel.ALL: _("All of the problems must be fixed."),
-    }
 
     def __init__(
         self,
@@ -93,37 +65,15 @@ class InvalidGroup[ValueT](Invalid[ValueT]):
         location: Iterable[Locator] = (),
         rel: Rel = Rel.ALL,
     ):
-        errors = (error, *errors)
-        super().__init__(value, self._messages[rel], location=location)
-        self._errors = errors
-        for error_ in errors:
-            error_.locate(*location)
-        self.rel: Final[InvalidGroup.Rel] = rel
-        """
-        The relationship between the errors.
-        """
-
-    def __iter__(self) -> Iterator[Invalid]:
-        return iter(self._errors)
-
-    def __getitem__(self, index: int, /) -> Invalid:
-        return self._errors[index]
-
-    @override
-    def locate(self, *location: Locator) -> None:
-        super().locate(*location)
-        for error in self:
-            error.locate(*location)
+        super().__init__((error, *errors), value, location=location, rel=rel)
 
 
 class _Collector(HasLocation, AbstractContextManager, metaclass=ABCMeta):
-    def __init__(
-        self, value: Any, location: Iterable[Locator], rel: InvalidGroup.Rel, /
-    ):
+    def __init__(self, value: Any, location: Iterable[Locator], rel: Rel, /):
         super().__init__(location=location)
         self._errors: MutableSequence[Invalid] = []
         self._value = value
-        self.rel: Final[InvalidGroup.Rel] = rel
+        self.rel: Final[Rel] = rel
 
     @final
     def __enter__(self) -> Self:
@@ -153,11 +103,7 @@ class _Collector(HasLocation, AbstractContextManager, metaclass=ABCMeta):
 
     @final
     def collect(
-        self,
-        value: Any,
-        *,
-        location: Iterable[Locator] = (),
-        rel: InvalidGroup.Rel = InvalidGroup.Rel.ALL,
+        self, value: Any, *, location: Iterable[Locator] = (), rel: Rel = Rel.ALL
     ) -> _Collector:
         return _NestedCollector(value, self, location, rel)
 
@@ -195,7 +141,7 @@ class _NestedCollector(_Collector):
         value: Any,
         parent: _Collector,
         location: Iterable[Locator],
-        rel: InvalidGroup.Rel,
+        rel: Rel,
     ):
         super().__init__(value, location, rel)
         self._parent = parent
@@ -206,10 +152,7 @@ class _NestedCollector(_Collector):
 
 
 def collect(
-    value: Any,
-    *,
-    location: Iterable[Locator] = (),
-    rel: InvalidGroup.Rel = InvalidGroup.Rel.ALL,
+    value: Any, *, location: Iterable[Locator] = (), rel: Rel = Rel.ALL
 ) -> _RootCollector:
     """
     Collect errors before raising them as an :py:class:`betty.validation.InvalidGroup`.

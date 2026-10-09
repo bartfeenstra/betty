@@ -31,6 +31,7 @@ from betty.progresses.no_op import NoOpProgress
 from betty.progresses.rich import RichProgress
 from betty.rich import Theme
 from betty.user import Severity
+from betty.user.location import format_
 from betty.user.ui import NoDefault, Ui
 
 if TYPE_CHECKING:
@@ -94,6 +95,12 @@ class Console(Ui):
     async def exception(self) -> None:
         self.console.print_exception(show_locals=self.shows(Severity.DEBUG))
 
+    def _format_error(
+        self, error: UserFacingError, message: ResolvableLocalizable = "{error}", /
+    ) -> None:
+        # @todo
+        raise NotImplementedError
+
     @override
     async def error(
         self, error: UserFacingError, message: ResolvableLocalizable = "{error}", /
@@ -103,7 +110,7 @@ class Console(Ui):
         # @todo
         # @todo Extract single Invalid formatting into a separate function.
         # @todo Then, here, support formatting InvalidGroup as well.
-        # @todo
+        # @tod oerror
         # @todo
         messages: MutableSequence[Any] = [
             self.localizer.localize(message).format(
@@ -112,8 +119,9 @@ class Console(Ui):
         ]
         if error.location:
             messages.append(Markdown("# " + self.localizer.localize(_("Where"))))
-            # @todo
-            messages.append("???????")
+            # @todo Format as Rich text, not as a plain string.
+            for locator in format_(*error.location, localizer=self.localizer):
+                messages.append("- " + locator)
         if error.hint:
             messages.append(Markdown("# " + self.localizer.localize(_("Why"))))
             messages.append(error.hint)
@@ -123,7 +131,7 @@ class Console(Ui):
                 f"[link={error.url}]{self.localizer.localize(_('Read more'))}[/link]"
             )
         self._print(
-            *messages,
+            *self._format_error(error),
             style=self._severity_to_style[Severity.ERROR],
         )
 
