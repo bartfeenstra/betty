@@ -8,12 +8,12 @@ from typing import Any, final
 
 from betty.functools import Pipe
 from betty.localizables.gettext import _
-from betty.validators import _StaticMessageInvalid
+from betty.validators import _StaticInvalid
 from betty.validators.len import IsLen, IsMaxLen, IsMinLen
 
 
 @final
-class NotAStr(_StaticMessageInvalid):
+class NotAStr(_StaticInvalid):
     """
     Raised when a value is not a ``str``.
     """

@@ -28,7 +28,7 @@ class _InvalidLength[ValueT: Sized](Invalid[ValueT]):
         *,
         location: Iterable[Locator] = (),
     ):
-        super().__init__(value, message, location=location)
+        super().__init__(value, location=location, message=message)
         self.min_len: Final[int | None] = min_len
         self.max_len: Final[int | None] = max_len
 

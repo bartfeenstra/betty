@@ -30,7 +30,7 @@ class AlwaysInvalid(Invalid):
         message: ResolvableLocalizable = "This is always invalid.",
         location: Iterable[Locator] = (),
     ):
-        super().__init__(value, message, location=location)
+        super().__init__(value, location=location, message=message)
 
 
 @overload

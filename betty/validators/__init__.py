@@ -15,14 +15,26 @@ if TYPE_CHECKING:
     from betty.user.location import Locator
 
 
-class _StaticMessageInvalid(Invalid):
+class _StaticInvalid(Invalid):
     _message: ResolvableLocalizable
+    _hint: ResolvableLocalizable | None = None
+    _url: ResolvableLocalizable | None = None
 
     def __init__(
         self,
         value: Any,
         /,
-        *,
+        *args: Any,
+        hint: ResolvableLocalizable | None = None,
         location: Iterable[Locator] = (),
+        message: ResolvableLocalizable | None = None,
+        url: ResolvableLocalizable | None = None,
+        **kwargs: Any,
     ):
-        super().__init__(value, self._message)
+        super().__init__(
+            value,
+            hint=self._hint if hint is None else hint,
+            location=location,
+            message=self._message if message is None else message,
+            url=self._url if url is None else url,
+        )

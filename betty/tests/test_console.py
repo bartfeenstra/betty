@@ -79,7 +79,7 @@ async def test_main__with_unknown_command(isolated_app: App) -> None:
         (ExitCode.OK, _NoOpCommand.definition),
         (
             ExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(UserFacingError(DUMMY_LOCALIZABLE)),
+            _create_raising_command(UserFacingError(message=DUMMY_LOCALIZABLE)),
         ),
         (ExitCode.USER_QUIT, _create_raising_command(CancelledError())),
         (ExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
@@ -101,7 +101,7 @@ async def test_main__with_user_facing_exception(
         (ExitCode.OK, _NoOpCommand.definition),
         (
             ExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(UserFacingError(DUMMY_LOCALIZABLE)),
+            _create_raising_command(UserFacingError(message=DUMMY_LOCALIZABLE)),
         ),
         (ExitCode.USER_QUIT, _create_raising_command(CancelledError())),
         (ExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),

@@ -81,7 +81,7 @@ class TestConsole:
         stdout = StringIO()
         sut = Console()
         with redirect_stdout(stdout):
-            await sut.error(_Error(message))
+            await sut.error(_Error(message=message))
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
         assert message in stdout_str

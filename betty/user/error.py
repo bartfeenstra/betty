@@ -5,12 +5,13 @@ Error handling.
 from __future__ import annotations
 
 from enum import Enum
+from textwrap import indent
 from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 
 from betty.localizable import Localizable, ResolvableLocalizable
 from betty.localizables.gettext import _
 from betty.localizer import Localizer, default_localizer
-from betty.user.location import HasLocation, Locator, format_
+from betty.user.location import HasLocation, Locator, format_, reduce
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping
@@ -25,8 +26,8 @@ class UserFacingError(HasLocation, Localizable, Exception):
 
     def __init__(
         self,
-        message: ResolvableLocalizable,
         *args: Any,
+        message: ResolvableLocalizable,
         hint: ResolvableLocalizable | None = None,
         location: Iterable[Locator] = (),
         url: ResolvableLocalizable | None = None,
@@ -37,23 +38,20 @@ class UserFacingError(HasLocation, Localizable, Exception):
         self.hint: Final[ResolvableLocalizable | None] = hint
         self.url: Final[ResolvableLocalizable | None] = url
 
-    @final
     @override
     def __str__(self) -> str:
-        # @todo UserFacingErrorGroup's contained errors should be shown as well.
-        # @todo Do what in UserFacingErrorGroup itself?
-        message_str = default_localizer.localize(self.message)
+        str_ = default_localizer.localize(self.message)
         if self.location:
-            message_str += "\n\nWhere\n-----\n"
-            for locator in format_(*self.location, localizer=default_localizer):
-                message_str += "- " + locator
+            str_ += "\n\n# Where"
+            for locator in format_(
+                *reversed(reduce(*self.location)), localizer=default_localizer
+            ):
+                str_ += "\n- " + locator
         if self.hint:
-            message_str += "\n\nWhy\n---\n" + default_localizer.localize(self.hint)
+            str_ += "\n\n# Why\n" + default_localizer.localize(self.hint)
         if self.url:
-            message_str += "\n\nLearn more\n----------\n" + default_localizer.localize(
-                self.url
-            )
-        return message_str
+            str_ += "\n\n# Learn more\n" + default_localizer.localize(self.url)
+        return str_
 
     @final
     @override
@@ -87,10 +85,10 @@ class UserFacingErrorGroup(UserFacingError):
     Group one or more errors together.
     """
 
-    __messages: ClassVar[Mapping[Rel, Localizable]] = {
-        Rel.ONE: _("One of the problems must be fixed."),
-        Rel.ANY: _("At least one of the problems must be fixed."),
-        Rel.ALL: _("All of the problems must be fixed."),
+    __hints: ClassVar[Mapping[Rel, Localizable]] = {
+        Rel.ONE: _("One of the errors must be fixed."),
+        Rel.ANY: _("At least one of the errors must be fixed."),
+        Rel.ALL: _("All of the errors must be fixed."),
     }
 
     def __init__(
@@ -99,12 +97,18 @@ class UserFacingErrorGroup(UserFacingError):
         *args: Any,
         hint: ResolvableLocalizable | None = None,
         location: Iterable[Locator] = (),
+        message: ResolvableLocalizable | None = None,
         rel: Rel = Rel.ALL,
         url: ResolvableLocalizable | None = None,
         **kwargs: Any,
     ):
         super().__init__(
-            self.__messages[rel], *args, hint=hint, location=location, url=url, **kwargs
+            *args,
+            message=_("One or more errors occurred") if message is None else message,
+            hint=self.__hints[rel] if hint is None else hint,
+            location=location,
+            url=url,
+            **kwargs,
         )
         self.__errors = tuple(errors)
         for error_ in self:
@@ -113,6 +117,14 @@ class UserFacingErrorGroup(UserFacingError):
         """
         The relationship between the errors.
         """
+
+    @final
+    @override
+    def __str__(self) -> str:
+        str_ = super().__str__()
+        for grouped_error in self:
+            str_ += "\n-" + indent(str(grouped_error), "  ")[1:]
+        return str_
 
     @final
     def __iter__(self) -> Iterator[UserFacingError]:

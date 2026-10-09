@@ -12,7 +12,7 @@ from betty.functools import Pipe
 from betty.localizables.gettext import _
 from betty.operator import Key
 from betty.validation import collect
-from betty.validators import _StaticMessageInvalid
+from betty.validators import _StaticInvalid
 from betty.validators.always import is_always_valid
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 @final
-class NotAMapping(_StaticMessageInvalid):
+class NotAMapping(_StaticInvalid):
     """
     Raised when a value is not a mapping.
     """

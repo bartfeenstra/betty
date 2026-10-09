@@ -9,13 +9,13 @@ from typing import Any, final
 
 from betty.importlib import fully_qualified_name
 from betty.localizables.gettext import _
-from betty.validators import _StaticMessageInvalid
+from betty.validators import _StaticInvalid
 from betty.validators.if_else import is_if_else
 from betty.validators.str import is_str
 
 
 @final
-class NotAPath(_StaticMessageInvalid):
+class NotAPath(_StaticInvalid):
     """
     Raised when a value is not a :py:class:`pathlib.Path`.
     """
@@ -36,7 +36,7 @@ Validate that a value is a path to a file or directory on disk that may or may n
 
 
 @final
-class NotFound(_StaticMessageInvalid, FileNotFoundError):
+class NotFound(_StaticInvalid, FileNotFoundError):
     """
     Raised when a path cannot be found.
     """
@@ -45,7 +45,7 @@ class NotFound(_StaticMessageInvalid, FileNotFoundError):
 
 
 @final
-class NotADirectory(_StaticMessageInvalid, NotADirectoryError):
+class NotADirectory(_StaticInvalid, NotADirectoryError):
     """
     Raised when a value is not a directory path.
     """
@@ -68,7 +68,7 @@ Validate that a value is a directory path.
 
 
 @final
-class NotAFile(_StaticMessageInvalid, IsADirectoryError):
+class NotAFile(_StaticInvalid, IsADirectoryError):
     """
     Raised when a value is not a file path.
     """

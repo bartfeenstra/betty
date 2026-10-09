@@ -15,7 +15,7 @@ def test_validator_to_argument_type__with_error() -> None:
     message = "Hello, world!"
 
     def _validator(_: str) -> None:
-        raise Invalid(None, message)
+        raise Invalid(None, message=message)
 
     with pytest.raises(UserFacingArgumentError, match=message):
         validator_to_argument_type(_validator)("Value")

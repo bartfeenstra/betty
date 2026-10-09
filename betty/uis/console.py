@@ -6,23 +6,17 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Final,
-    TextIO,
-    cast,
-    final,
-    overload,
-    override,
-)
+from typing import TYPE_CHECKING, Any, Final, TextIO, cast, final, overload, override
 
 from rich.console import Console as RichConsole
+from rich.console import Group
 from rich.markdown import Markdown
 from rich.markup import escape
+from rich.padding import Padding
 from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsedColumn
 from rich.progress import Progress as _RichProgress
 from rich.prompt import Confirm, Prompt
+from rich.segment import Segment
 
 from betty.localizable import Localizable
 from betty.localizables.gettext import _
@@ -31,11 +25,12 @@ from betty.progresses.no_op import NoOpProgress
 from betty.progresses.rich import RichProgress
 from betty.rich import Theme
 from betty.user import Severity
+from betty.user.error import UserFacingErrorGroup
 from betty.user.location import format_
 from betty.user.ui import NoDefault, Ui
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator, Mapping, MutableSequence
+    from collections.abc import AsyncGenerator, Iterable, Mapping
 
     from betty.localizable import ResolvableLocalizable
     from betty.localizer import Localizer
@@ -97,42 +92,37 @@ class Console(Ui):
 
     def _format_error(
         self, error: UserFacingError, message: ResolvableLocalizable = "{error}", /
-    ) -> None:
-        # @todo
-        raise NotImplementedError
+    ) -> Iterable[Any]:
+        yield self.localizer.localize(message).format(
+            error=self.localizer.localize(error)
+        )
+        if error.location:
+            yield Markdown("# " + self.localizer.localize(_("Where")))
+            # @todo Format as Rich text, not as a plain string.
+            for locator in format_(*error.location, localizer=self.localizer):
+                yield Markdown("- " + locator)
+        if error.hint:
+            yield Markdown("# " + self.localizer.localize(_("Why")))
+            yield error.hint
+        if error.url:
+            # @todo Do we need a heading as well as a link title?
+            # @todo What if we refactor Error.url into Error.link, which is a betty.link.Link?
+            # @todo Only if we want to allow additional link labels?
+            # @todo
+            # @todo
+            yield Markdown("# " + self.localizer.localize(_("Learn more")))
+            yield f"[link={error.url}]{self.localizer.localize(_('Read more'))}[/link]"
+        if isinstance(error, UserFacingErrorGroup):
+            yield Segment.line()
+            for grouped_error in error:
+                yield Padding(Group(*self._format_error(grouped_error)), (99, 0, 0, 0))
 
     @override
     async def error(
         self, error: UserFacingError, message: ResolvableLocalizable = "{error}", /
     ) -> None:
-        # @todo Add test coverage
-        # @todo
-        # @todo
-        # @todo Extract single Invalid formatting into a separate function.
-        # @todo Then, here, support formatting InvalidGroup as well.
-        # @tod oerror
-        # @todo
-        messages: MutableSequence[Any] = [
-            self.localizer.localize(message).format(
-                error=self.localizer.localize(error)
-            )
-        ]
-        if error.location:
-            messages.append(Markdown("# " + self.localizer.localize(_("Where"))))
-            # @todo Format as Rich text, not as a plain string.
-            for locator in format_(*error.location, localizer=self.localizer):
-                messages.append("- " + locator)
-        if error.hint:
-            messages.append(Markdown("# " + self.localizer.localize(_("Why"))))
-            messages.append(error.hint)
-        if error.url:
-            messages.append(Markdown("# " + self.localizer.localize(_("Learn more"))))
-            messages.append(
-                f"[link={error.url}]{self.localizer.localize(_('Read more'))}[/link]"
-            )
         self._print(
-            *self._format_error(error),
-            style=self._severity_to_style[Severity.ERROR],
+            *self._format_error(error), style=self._severity_to_style[Severity.ERROR]
         )
 
     @override

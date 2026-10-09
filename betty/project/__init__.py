@@ -125,7 +125,7 @@ from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
-from betty.validators import _StaticMessageInvalid
+from betty.validators import _StaticInvalid
 from betty.validators.int import is_int
 from betty.validators.url import is_url
 
@@ -623,7 +623,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
 
 
 @final
-class InvalidProjectLocaleAlias(_StaticMessageInvalid):
+class InvalidProjectLocaleAlias(_StaticInvalid):
     """
     Raise when a project locale alias is invalid.
     """

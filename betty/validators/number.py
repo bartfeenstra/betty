@@ -36,11 +36,13 @@ def _is_number[NumberT: float | int](
     value: NumberT = type_(value)
     if min_ is not None and value < min_:
         raise TooLow(
-            value, _("This must be at least {minimum}.").format(minimum=str(min_))
+            value,
+            message=_("This must be at least {minimum}.").format(minimum=str(min_)),
         )
     if max_ is not None and value > max_:
         raise TooHigh(
-            value, _("This must be at most {maximum}.").format(maximum=str(max_))
+            value,
+            message=_("This must be at most {maximum}.").format(maximum=str(max_)),
         )
     return value
 

@@ -89,18 +89,18 @@ class Client:
         try:
             yield
         except Invalid as error:
-            raise ClientError(error) from error
+            raise ClientError(message=error) from error
         except OperatorError as error:
-            raise ClientError(str(error)) from error
+            raise ClientError(message=str(error)) from error
 
     @asynccontextmanager
     async def _get(self, url: str) -> AsyncGenerator[ClientResponse]:
         async with self._http_client.get(url) as response:
             if response.status != 200:
                 raise ClientError(
-                    _("HTTP {http_status_code} response returned by {url}").format(
-                        http_status_code=str(response.status), url=url
-                    )
+                    message=_(
+                        "HTTP {http_status_code} response returned by {url}"
+                    ).format(http_status_code=str(response.status), url=url)
                 )
             yield response
 
@@ -109,7 +109,9 @@ class Client:
             try:
                 return await response.json()
             except JSONDecodeError as error:
-                raise ClientError(f"Invalid JSON returned by {url}: {error}") from error
+                raise ClientError(
+                    message=f"Invalid JSON returned by {url}: {error}"
+                ) from error
 
     async def _get_query_api_data(self, url: str) -> Mapping[str, Any]:
         data = await self._get_json(url)

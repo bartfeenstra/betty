@@ -8,11 +8,11 @@ from typing import Any, final
 
 from betty.functools import Pipe
 from betty.localizables.gettext import _
-from betty.validators import _StaticMessageInvalid
+from betty.validators import _StaticInvalid
 
 
 @final
-class NotNone(_StaticMessageInvalid):
+class NotNone(_StaticInvalid):
     """
     Raised when a value is not ``None``.
     """

@@ -16,7 +16,7 @@ class TestNoOpUi:
 
     async def test_error(self) -> None:
         sut = NoOpUi()
-        await sut.error(UserFacingError(""))
+        await sut.error(UserFacingError(message=""))
 
     async def test_message(self) -> None:
         sut = NoOpUi()

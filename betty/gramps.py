@@ -156,9 +156,9 @@ class GrampsError(Exception):
     """
 
 
-class LocalizableGrampsError(UserFacingError, GrampsError):
+class UserFacingGrampsError(UserFacingError, GrampsError):
     """
-    A localizable Gramps API error.
+    A user-facing Gramps API error.
     """
 
 
@@ -385,8 +385,8 @@ class GrampsLoader:
                 ui=self._project.upstream.ui,
             )
         except subprocess.CalledSubprocessError as error:
-            raise LocalizableGrampsError(
-                _("Gramps exited with the following error:\n{error}").format(
+            raise UserFacingGrampsError(
+                message=_("Gramps exited with the following error:\n{error}").format(
                     error=error.stderr
                 )
             ) from None
@@ -428,10 +428,10 @@ class GrampsLoader:
         if file.suffix in _gramps_extensions_import:
             return await self._load_file_gramps_import(file)
 
-        raise LocalizableGrampsError(
-            _("Only the following file types can be loaded: {file_extensions}").format(
-                file_extensions=JoinOr(*sorted(_gramps_extensions))
-            )
+        raise UserFacingGrampsError(
+            message=_(
+                "Only the following file types can be loaded: {file_extensions}"
+            ).format(file_extensions=JoinOr(*sorted(_gramps_extensions)))
         )
 
     async def _load_file_gramps_import(self, file: Path) -> None:
@@ -456,10 +456,10 @@ class GrampsLoader:
         except FileNotFoundError:
             raise NotFound(gramps) from None
         except OSError as error:
-            raise LocalizableGrampsError(
-                _("Could not extract {file_path} as a gzip file  (*.gz).").format(
-                    file_path=str(gramps)
-                )
+            raise UserFacingGrampsError(
+                message=_(
+                    "Could not extract {file_path} as a gzip file  (*.gz)."
+                ).format(file_path=str(gramps))
             ) from error
 
     async def load_gpkg(self, gpkg: StrPath, /) -> None:
@@ -475,8 +475,8 @@ class GrampsLoader:
             except FileNotFoundError:
                 raise NotFound(gpkg) from None
             except (OSError, tarfile.ReadError) as error:
-                raise LocalizableGrampsError(
-                    _(
+                raise UserFacingGrampsError(
+                    message=_(
                         "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
                     ).format(file_path=str(gpkg))
                 ) from error
@@ -504,7 +504,7 @@ class GrampsLoader:
                 "ElementTree.ElementTree", etree.ElementTree(etree.fromstring(xml))
             )
         except etree.ParseError as error:
-            raise LocalizableGrampsError(str(error)) from error
+            raise UserFacingGrampsError(message=str(error)) from error
         await self._load_tree(tree)
 
     async def _load_tree(self, tree: ElementTree.ElementTree) -> None:
@@ -525,11 +525,11 @@ class GrampsLoader:
             database.tag,
         )
         if match is None:
-            raise LocalizableGrampsError(_("This is not valid Gramps XML."))
+            raise UserFacingGrampsError(message=_("This is not valid Gramps XML."))
         version = (int(match.group(2)), int(match.group(3)), int(match.group(4)))
         if not self._supports_xml_version(version):
-            raise LocalizableGrampsError(
-                _(
+            raise UserFacingGrampsError(
+                message=_(
                     "Gramps XML must be compatible with version {supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is not supported."
                 ).format(
                     supported_gramps_xml_version=f"{self._supported_gramps_xml_version[0]}.{self._supported_gramps_xml_version[1]}.{self._supported_gramps_xml_version[2]}",
@@ -775,8 +775,8 @@ class GrampsLoader:
         if media is not None:
             file_path = media / file_path
         if not file_path.is_absolute():
-            raise LocalizableGrampsError(
-                _(
+            raise UserFacingGrampsError(
+                message=_(
                     "Cannot load Gramps file {file} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a {gramps_setting} to your family tree, and export it again."
                 ).format(
                     file=file_id,
@@ -790,8 +790,8 @@ class GrampsLoader:
                 )
             )
         if not await to_thread(file_path.is_file):
-            raise LocalizableGrampsError(
-                _(
+            raise UserFacingGrampsError(
+                message=_(
                     "Cannot load Gramps file {file}, because {file_path} is not a file."
                 ).format(file=file_id, file_path=str(file_path))
             )

@@ -16,16 +16,32 @@ from betty.user.error import UserFacingError
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable
 
+    from betty.localizable import ResolvableLocalizable
     from betty.service_level import ServiceLevel
+    from betty.user.location import Locator
 
 
 type Requirement[CheckT] = Callable[[ServiceLevel], Awaitable[CheckT] | CheckT]
 
 
-class UnmetRequirement(UserFacingError):
+class UnmetRequirement(UserFacingError, RuntimeError):
     """
     Raised when a requirement is not met.
     """
+
+    def __init__(
+        self,
+        message: ResolvableLocalizable,
+        /,
+        *args: Any,
+        hint: ResolvableLocalizable | None = None,
+        location: Iterable[Locator] = (),
+        url: ResolvableLocalizable | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(
+            *args, hint=hint, location=location, message=message, url=url, **kwargs
+        )
 
 
 type Requires[CheckT] = Iterable[Requirement[CheckT]]

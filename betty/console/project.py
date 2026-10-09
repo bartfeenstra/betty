@@ -15,7 +15,7 @@ from betty.localizables.markup import JoinOr
 from betty.portable.file import is_load_file
 from betty.project import Project, ProjectData
 from betty.user import Severity
-from betty.validation import Invalid
+from betty.validation import Invalid, collect
 from betty.validators.path import NotFound, is_path
 
 if TYPE_CHECKING:
@@ -104,9 +104,10 @@ async def _read_project_configuration(
                 )
             except NotFound:
                 pass
+        # @todo raise InvalidGroup(rel=Rel.ONE) instead?
         raise NotAProjectDirectory(
             project_directory,
-            _(
+            message=_(
                 "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
             ).format(
                 configuration_file_names=JoinOr(
@@ -118,22 +119,30 @@ async def _read_project_configuration(
                 project_directory_path=str(project_directory),
             ),
         )
-    return await _read_project_configuration_file(
-        (project_directory / provided_configuration_file).expanduser().resolve(),
-        serializers,
-        app.ui,
+    project_configuration_file = (
+        (project_directory / provided_configuration_file).expanduser().resolve()
     )
+    with (
+        collect(
+            project_configuration_file, location=[project_configuration_file]
+        ) as errors,
+        errors.catch(),
+    ):
+        return await _read_project_configuration_file(
+            project_configuration_file, serializers, app.ui
+        )
 
 
 async def _read_project_configuration_file(
     configuration_file: Path, serializers: Iterable[Serializer], ui: Ui
 ) -> tuple[ProjectData, Path]:
+    config = ProjectData.definition.porter.load(
+        is_load_file(serializers=serializers)(configuration_file)
+    )
     await ui.message(
         _("Loaded the configuration from {configuration_file_path}.").format(
             configuration_file_path=str(configuration_file)
         ),
         Severity.INFO,
     )
-    return ProjectData.definition.porter.load(
-        is_load_file(serializers=serializers)(configuration_file)
-    ), configuration_file
+    return config, configuration_file

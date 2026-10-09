@@ -7,11 +7,11 @@ from __future__ import annotations
 from typing import Any, final
 
 from betty.localizables.gettext import _
-from betty.validators import _StaticMessageInvalid
+from betty.validators import _StaticInvalid
 
 
 @final
-class NotABool(_StaticMessageInvalid):
+class NotABool(_StaticInvalid):
     """
     Raised when a value is not a ``bool``.
     """

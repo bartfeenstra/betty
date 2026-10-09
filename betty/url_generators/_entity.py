@@ -44,7 +44,7 @@ class _EntityUrlGenerator[ResourceT](UrlGenerator[ResourceT]):
         query: Mapping[str, Sequence[str]] = _empty_frozen_mapping,
     ) -> str:
         if media_type is None:
-            raise MissingMediaType()
+            raise MissingMediaType(None)
         media_type = resolve_media_type(media_type)
         media_type = match_media_type(
             media_type, (HTML.media_type, JSON_LD.media_type, JSON.media_type)

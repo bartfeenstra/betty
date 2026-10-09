@@ -37,18 +37,27 @@ class Invalid[ValueT = Any](UserFacingError, ValueError):
     def __init__(
         self,
         value: ValueT,
-        message: ResolvableLocalizable,
         /,
         *args: Any,
+        message: ResolvableLocalizable,
+        hint: ResolvableLocalizable | None = None,
         location: Iterable[Locator] = (),
+        url: ResolvableLocalizable | None = None,
         **kwargs: Any,
     ):
-        super().__init__(message, *args, location=location, **kwargs)
+        super().__init__(
+            *args, hint=hint, location=location, message=message, url=url, **kwargs
+        )
         self.value: Final[ValueT] = value
         """
         The invalid value at the time it was invalidated. It may be of a different type or value than was passed on to
         the validator.
         """
+
+    @final
+    @override
+    def __str__(self) -> str:
+        return "# Valuen" + repr(self.value) + "\n\n" + super().__str__()
 
 
 @final
@@ -62,10 +71,21 @@ class InvalidGroup[ValueT](UserFacingErrorGroup, Invalid[ValueT]):
         value: ValueT,
         error: Invalid,
         *errors: Invalid,
+        hint: ResolvableLocalizable | None = None,
+        message: ResolvableLocalizable | None = None,
         location: Iterable[Locator] = (),
+        url: ResolvableLocalizable | None = None,
         rel: Rel = Rel.ALL,
     ):
-        super().__init__((error, *errors), value, location=location, rel=rel)
+        super().__init__(
+            (error, *errors),
+            value,
+            hint=hint,
+            location=location,
+            message=message,
+            rel=rel,
+            url=url,
+        )
 
 
 class _Collector(HasLocation, AbstractContextManager, metaclass=ABCMeta):
@@ -123,15 +143,15 @@ class _Collector(HasLocation, AbstractContextManager, metaclass=ABCMeta):
             self.clear()
 
     @abstractmethod
-    def _finish(self, errors: InvalidGroup, /) -> None:
+    def _finish(self, error: InvalidGroup, /) -> None:
         pass
 
 
 @final
 class _RootCollector(_Collector):
     @override
-    def _finish(self, errors: InvalidGroup, /) -> None:
-        raise errors
+    def _finish(self, error: InvalidGroup, /) -> None:
+        raise error
 
 
 @final
@@ -147,8 +167,8 @@ class _NestedCollector(_Collector):
         self._parent = parent
 
     @override
-    def _finish(self, errors: InvalidGroup, /) -> None:
-        self._parent.add(errors)
+    def _finish(self, error: InvalidGroup, /) -> None:
+        self._parent.add(error)
 
 
 def collect(

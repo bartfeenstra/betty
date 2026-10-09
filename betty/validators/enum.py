@@ -10,14 +10,16 @@ from typing import Any, final
 from betty.functools import Pipe
 from betty.localizables.gettext import _
 from betty.localizables.markup import do_you_mean
-from betty.validation import Invalid
+from betty.validators import _StaticInvalid
 
 
 @final
-class UnknownOption(Invalid):
+class UnknownOption(_StaticInvalid):
     """
     Raised when a value cannot be validated against an enum.
     """
+
+    _message = _("Unknown option.")
 
 
 def is_enum[EnumT: Enum](options: type[EnumT], /) -> Pipe[Any, EnumT]:
@@ -30,9 +32,7 @@ def is_enum[EnumT: Enum](options: type[EnumT], /) -> Pipe[Any, EnumT]:
             return options(value)
         except ValueError:
             raise UnknownOption(
-                value,
-                _("Unknown option {value}.").format(value=str(value)),
-                hint=do_you_mean(*[option.value for option in options]),
+                value, hint=do_you_mean(*[option.value for option in options])
             ) from None
 
     return Pipe(_is_enum)

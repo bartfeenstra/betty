@@ -7,12 +7,12 @@ from __future__ import annotations
 from typing import Any, final
 
 from betty.localizables.gettext import _
-from betty.validators import _StaticMessageInvalid
+from betty.validators import _StaticInvalid
 from betty.validators.number import IsNumber
 
 
 @final
-class NotAnInt(_StaticMessageInvalid):
+class NotAnInt(_StaticInvalid):
     """
     Raised when a value is not an ``int``.
     """

@@ -8,12 +8,12 @@ from typing import final
 from urllib.parse import urlsplit, urlunsplit
 
 from betty.localizables.gettext import _
-from betty.validators import _StaticMessageInvalid
+from betty.validators import _StaticInvalid
 from betty.validators.str import is_str
 
 
 @final
-class NotAUrl(_StaticMessageInvalid):
+class NotAUrl(_StaticInvalid):
     """
     Raised when a value is not a valid URL.
     """
@@ -22,7 +22,7 @@ class NotAUrl(_StaticMessageInvalid):
 
 
 @final
-class MissingHost(_StaticMessageInvalid):
+class MissingHost(_StaticInvalid):
     """
     Raised when a URL does not include a host.
     """
