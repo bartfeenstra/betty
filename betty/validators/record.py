@@ -67,12 +67,13 @@ def is_record(
         with collect(value) as errors:
             if not allow_extra:
                 known_keys = {x.name for x in fields}
+                omitted_keys = known_keys - set(value)
                 unknown_keys = set(value.keys()) - known_keys
                 for unknown_key in unknown_keys:
                     errors.add(
                         UnknownField(
                             value,
-                            hint=do_you_mean(*(f'"{x}"' for x in sorted(known_keys))),
+                            hint=do_you_mean(*(f'"{x}"' for x in sorted(omitted_keys))),
                             location=[Key(unknown_key)],
                         )
                     )

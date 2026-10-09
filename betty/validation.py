@@ -57,7 +57,7 @@ class Invalid[ValueT = Any](UserFacingError, ValueError):
     @final
     @override
     def __str__(self) -> str:
-        return "# Valuen" + repr(self.value) + "\n\n" + super().__str__()
+        return "# Value:\n" + repr(self.value) + "\n\n" + super().__str__()
 
 
 @final

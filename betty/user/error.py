@@ -42,15 +42,15 @@ class UserFacingError(HasLocation, Localizable, Exception):
     def __str__(self) -> str:
         str_ = default_localizer.localize(self.message)
         if self.location:
-            str_ += "\n\n# Where"
+            str_ += "\n\n# Where:"
             for locator in format_(
                 *reversed(reduce(*self.location)), localizer=default_localizer
             ):
                 str_ += "\n- " + locator
         if self.hint:
-            str_ += "\n\n# Why\n" + default_localizer.localize(self.hint)
+            str_ += "\n\n# Why:\n" + default_localizer.localize(self.hint)
         if self.url:
-            str_ += "\n\n# Learn more\n" + default_localizer.localize(self.url)
+            str_ += "\n\n# Learn more:\n" + default_localizer.localize(self.url)
         return str_
 
     @final
@@ -104,7 +104,7 @@ class UserFacingErrorGroup(UserFacingError):
     ):
         super().__init__(
             *args,
-            message=_("One or more errors occurred") if message is None else message,
+            message=_("One or more errors occurred.") if message is None else message,
             hint=self.__hints[rel] if hint is None else hint,
             location=location,
             url=url,
@@ -122,6 +122,7 @@ class UserFacingErrorGroup(UserFacingError):
     @override
     def __str__(self) -> str:
         str_ = super().__str__()
+        str_ += "\n\n# Errors:"
         for grouped_error in self:
             str_ += "\n-" + indent(str(grouped_error), "  ")[1:]
         return str_
