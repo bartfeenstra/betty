@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-09 09:29+0100\n"
+"POT-Creation-Date: 2026-10-10 12:29+0100\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -95,7 +95,7 @@ msgstr "மாற்றுப்பெயர்"
 msgid "All caches cleared."
 msgstr "அனைத்து தற்காலிக சேமிப்புகளும் அழிக்கப்பட்டன."
 
-msgid "All of the problems must be fixed."
+msgid "All of the errors must be fixed."
 msgstr ""
 
 msgid "All rights reserved"
@@ -158,7 +158,7 @@ msgstr "சொத்து அடைவு"
 msgid "Associates"
 msgstr ""
 
-msgid "At least one of the problems must be fixed."
+msgid "At least one of the errors must be fixed."
 msgstr ""
 
 msgid "At which URL will your site be published?"
@@ -831,16 +831,17 @@ msgstr "தகவலர்/தகவலாள்"
 msgid "Informants"
 msgstr "செய்தி தருபவர்கள்"
 
-#, python-brace-format
-msgid "Invalid JSON: {error}."
-msgstr "தவறான JSON: {error}."
+msgid "Invalid JSON"
+msgstr ""
 
-#, python-brace-format
-msgid "Invalid YAML: {error}."
-msgstr "தவறான YAML: {error}."
+msgid "Invalid YAML"
+msgstr ""
 
 #, python-brace-format
 msgid "Invalid argument {argument}: {{error}}"
+msgstr ""
+
+msgid "Invalid media type"
 msgstr ""
 
 #, python-brace-format
@@ -1059,6 +1060,9 @@ msgstr "காணவில்லை"
 msgid "Missing `{{count}}` placeholder in {locale} plural translations"
 msgstr "{locale} பன்மை மொழிபெயர்ப்புகளில் `{{count}}` ஒதுக்கிட இல்லை"
 
+msgid "Missing media type"
+msgstr ""
+
 #, python-brace-format
 msgid "Missing plural tag(s) {plural_tags} for {locale} translations."
 msgstr "{locale} மொழிபெயர்ப்புகளுக்கு பன்மை குறி(கள்) {plural_tags} இல்லை."
@@ -1142,7 +1146,10 @@ msgstr "தொழில்"
 msgid "Occupations"
 msgstr "தொழில்கள்"
 
-msgid "One of the problems must be fixed."
+msgid "One of the errors must be fixed."
+msgstr ""
+
+msgid "One or more errors occurred."
 msgstr ""
 
 #, python-brace-format
@@ -1824,16 +1831,14 @@ msgstr "அங்கீகரிக்கப்படாதது"
 msgid "Unknown"
 msgstr "தெரியவில்லை"
 
-#, python-brace-format
-msgid "Unknown option {value}."
+msgid "Unknown option."
 msgstr ""
 
 msgid "Unknowns"
 msgstr "தெரியாதவர்கள்"
 
-#, python-brace-format
-msgid "Unsupported file {unsupported}. Supported types are: {supported}."
-msgstr "ஆதரிக்கப்படாத கோப்பு {unsupported}. ஆதரிக்கப்படும் வகைகள்: {supported}."
+msgid "Unsupported media type"
+msgstr ""
 
 msgid "Update all existing translations for Betty itself"
 msgstr "பெட்டிக்காக ஏற்கனவே உள்ள அனைத்து மொழிபெயர்ப்புகளையும் புதுப்பிக்கவும்"
@@ -2693,6 +2698,10 @@ msgstr "{individual_name} {affiliation_name}"
 #, python-brace-format
 msgid "{invalid_locale} is not a valid IETF BCP 47 language tag."
 msgstr "{invalid_locale} என்பது சரியான IETF BCP 47 மொழி குறிச்சொல் அல்ல."
+
+#, python-brace-format
+msgid "{media_type} ({media_type_label})"
+msgstr ""
 
 #, python-brace-format
 msgctxt "localizable-join-and-many"

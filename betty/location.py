@@ -1,5 +1,5 @@
 """
-Describe locations of data and information in user-facing ways.
+Describe locations of data and information.
 """
 
 from __future__ import annotations
@@ -17,8 +17,22 @@ if TYPE_CHECKING:
 
 type Locator = Operator | HasLocation | HasUrl | Path
 """
-Describe a partial location of something.
+Describe part of something's location.
 """
+
+type ResolvableLocation = Operator | Iterable[Locator]
+"""
+Describe the location of something.
+"""
+
+
+def resolve_location(location: ResolvableLocation, /) -> tuple[Locator]:
+    """
+    Resolve locators to a location.
+    """
+    if isinstance(location, Operator):
+        return (location,)
+    return tuple(location)
 
 
 class HasLocation:
@@ -26,9 +40,9 @@ class HasLocation:
     An object with a location.
     """
 
-    def __init__(self, *args: Any, location: Iterable[Locator] = (), **kwargs: Any):
+    def __init__(self, *args: Any, location: ResolvableLocation = (), **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self._location = tuple(location)
+        self._location = resolve_location(location)
 
     @property
     def location(self) -> Sequence[Locator]:

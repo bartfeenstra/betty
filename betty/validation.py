@@ -8,16 +8,14 @@ from abc import ABCMeta, abstractmethod
 from contextlib import AbstractContextManager, contextmanager
 from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
+from betty.location import HasLocation, ResolvableLocation
 from betty.user.error import Rel, UserFacingError, UserFacingErrorGroup
-from betty.user.location import HasLocation
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator, Iterable, MutableSequence
+    from collections.abc import Callable, Generator, MutableSequence
     from types import TracebackType
 
     from betty.localizable import ResolvableLocalizable
-    from betty.user.location import Locator
-
 
 type Validator[InputT, OutputT] = Callable[[InputT], OutputT]
 """
@@ -41,7 +39,7 @@ class Invalid[ValueT = Any](UserFacingError, ValueError):
         *args: Any,
         message: ResolvableLocalizable,
         hint: ResolvableLocalizable | None = None,
-        location: Iterable[Locator] = (),
+        location: ResolvableLocation = (),
         url: ResolvableLocalizable | None = None,
         **kwargs: Any,
     ):
@@ -73,7 +71,7 @@ class InvalidGroup[ValueT](UserFacingErrorGroup, Invalid[ValueT]):
         *errors: Invalid,
         hint: ResolvableLocalizable | None = None,
         message: ResolvableLocalizable | None = None,
-        location: Iterable[Locator] = (),
+        location: ResolvableLocation = (),
         url: ResolvableLocalizable | None = None,
         rel: Rel = Rel.ALL,
     ):
@@ -89,7 +87,7 @@ class InvalidGroup[ValueT](UserFacingErrorGroup, Invalid[ValueT]):
 
 
 class _Collector(HasLocation, AbstractContextManager, metaclass=ABCMeta):
-    def __init__(self, value: Any, location: Iterable[Locator], rel: Rel, /):
+    def __init__(self, value: Any, location: ResolvableLocation, rel: Rel, /):
         super().__init__(location=location)
         self._errors: MutableSequence[Invalid] = []
         self._value = value
@@ -123,7 +121,7 @@ class _Collector(HasLocation, AbstractContextManager, metaclass=ABCMeta):
 
     @final
     def collect(
-        self, value: Any, *, location: Iterable[Locator] = (), rel: Rel = Rel.ALL
+        self, value: Any, *, location: ResolvableLocation = (), rel: Rel = Rel.ALL
     ) -> _Collector:
         return _NestedCollector(value, self, location, rel)
 
@@ -160,7 +158,7 @@ class _NestedCollector(_Collector):
         self,
         value: Any,
         parent: _Collector,
-        location: Iterable[Locator],
+        location: ResolvableLocation,
         rel: Rel,
     ):
         super().__init__(value, location, rel)
@@ -172,7 +170,7 @@ class _NestedCollector(_Collector):
 
 
 def collect(
-    value: Any, *, location: Iterable[Locator] = (), rel: Rel = Rel.ALL
+    value: Any, *, location: ResolvableLocation = (), rel: Rel = Rel.ALL
 ) -> _RootCollector:
     """
     Collect errors before raising them as an :py:class:`betty.validation.InvalidGroup`.

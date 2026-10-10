@@ -17,9 +17,8 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable
 
     from betty.localizable import ResolvableLocalizable
+    from betty.location import ResolvableLocation
     from betty.service_level import ServiceLevel
-    from betty.user.location import Locator
-
 
 type Requirement[CheckT] = Callable[[ServiceLevel], Awaitable[CheckT] | CheckT]
 
@@ -35,7 +34,7 @@ class UnmetRequirement(UserFacingError, RuntimeError):
         /,
         *args: Any,
         hint: ResolvableLocalizable | None = None,
-        location: Iterable[Locator] = (),
+        location: ResolvableLocation = (),
         url: ResolvableLocalizable | None = None,
         **kwargs: Any,
     ):

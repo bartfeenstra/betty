@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 from betty.localizable import Localizable, ResolvableLocalizable
 from betty.localizables.gettext import _
 from betty.localizer import Localizer, default_localizer
-from betty.user.location import HasLocation, Locator, format_, reduce
+from betty.location import HasLocation, Locator, ResolvableLocation, format_, reduce
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping
@@ -29,7 +29,7 @@ class UserFacingError(HasLocation, Localizable, Exception):
         *args: Any,
         message: ResolvableLocalizable,
         hint: ResolvableLocalizable | None = None,
-        location: Iterable[Locator] = (),
+        location: ResolvableLocation = (),
         url: ResolvableLocalizable | None = None,
         **kwargs: Any,
     ):
@@ -96,7 +96,7 @@ class UserFacingErrorGroup(UserFacingError):
         errors: Iterable[UserFacingError],
         *args: Any,
         hint: ResolvableLocalizable | None = None,
-        location: Iterable[Locator] = (),
+        location: ResolvableLocation = (),
         message: ResolvableLocalizable | None = None,
         rel: Rel = Rel.ALL,
         url: ResolvableLocalizable | None = None,

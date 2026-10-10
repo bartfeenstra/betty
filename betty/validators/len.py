@@ -5,7 +5,7 @@ Length validators.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from collections.abc import Iterable, Sized
+from collections.abc import Sized
 from typing import TYPE_CHECKING, Final, final, overload, override
 
 from betty.functools import Pipe
@@ -14,7 +14,7 @@ from betty.validation import Invalid
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
-    from betty.user.location import Locator
+    from betty.location import ResolvableLocation
 
 
 class _InvalidLength[ValueT: Sized](Invalid[ValueT]):
@@ -26,7 +26,7 @@ class _InvalidLength[ValueT: Sized](Invalid[ValueT]):
         max_len: int | None,
         /,
         *,
-        location: Iterable[Locator] = (),
+        location: ResolvableLocation = (),
     ):
         super().__init__(value, location=location, message=message)
         self.min_len: Final[int | None] = min_len

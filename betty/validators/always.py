@@ -10,10 +10,8 @@ from betty.functools import Pipe, raise_
 from betty.validation import Invalid
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.localizable import ResolvableLocalizable
-    from betty.user.location import Locator
+    from betty.location import ResolvableLocation
 
 
 @final
@@ -28,7 +26,7 @@ class AlwaysInvalid(Invalid):
         /,
         *,
         message: ResolvableLocalizable = "This is always invalid.",
-        location: Iterable[Locator] = (),
+        location: ResolvableLocation = (),
     ):
         super().__init__(value, location=location, message=message)
 
@@ -37,7 +35,7 @@ class AlwaysInvalid(Invalid):
 def is_always_invalid[ValueT](
     *,
     message: ResolvableLocalizable | None = None,
-    location: Iterable[Locator] = (),
+    location: ResolvableLocation = (),
 ) -> Pipe[Any, ValueT]:
     pass
 

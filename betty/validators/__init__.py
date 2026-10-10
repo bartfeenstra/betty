@@ -9,10 +9,8 @@ from typing import TYPE_CHECKING, Any
 from betty.validation import Invalid
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.localizable import ResolvableLocalizable
-    from betty.user.location import Locator
+    from betty.location import ResolvableLocation
 
 
 class _StaticInvalid(Invalid):
@@ -26,7 +24,7 @@ class _StaticInvalid(Invalid):
         /,
         *args: Any,
         hint: ResolvableLocalizable | None = None,
-        location: Iterable[Locator] = (),
+        location: ResolvableLocation = (),
         message: ResolvableLocalizable | None = None,
         url: ResolvableLocalizable | None = None,
         **kwargs: Any,

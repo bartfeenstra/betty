@@ -13,7 +13,7 @@ from typing_extensions import disjoint_base
 if TYPE_CHECKING:
     from collections.abc import Generator, MutableSequence, Sequence
 
-    from betty.user.location import Locator
+    from betty.location import Locator
     from betty.validation import Validator
 
 

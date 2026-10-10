@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-09 09:29+0100\n"
+"POT-Creation-Date: 2026-10-10 12:29+0100\n"
 "PO-Revision-Date: 2026-09-09 21:51+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language: en_GB\n"
@@ -95,7 +95,7 @@ msgstr "Alias"
 msgid "All caches cleared."
 msgstr "All caches cleared."
 
-msgid "All of the problems must be fixed."
+msgid "All of the errors must be fixed."
 msgstr ""
 
 msgid "All rights reserved"
@@ -158,7 +158,7 @@ msgstr "Asset directory"
 msgid "Associates"
 msgstr "Associates"
 
-msgid "At least one of the problems must be fixed."
+msgid "At least one of the errors must be fixed."
 msgstr ""
 
 msgid "At which URL will your site be published?"
@@ -830,16 +830,17 @@ msgstr "Informant"
 msgid "Informants"
 msgstr "Informants"
 
-#, python-brace-format
-msgid "Invalid JSON: {error}."
-msgstr "Invalid JSON: {error}."
+msgid "Invalid JSON"
+msgstr ""
 
-#, python-brace-format
-msgid "Invalid YAML: {error}."
-msgstr "Invalid YAML: {error}."
+msgid "Invalid YAML"
+msgstr ""
 
 #, python-brace-format
 msgid "Invalid argument {argument}: {{error}}"
+msgstr ""
+
+msgid "Invalid media type"
 msgstr ""
 
 #, python-brace-format
@@ -1058,6 +1059,9 @@ msgstr "Missing"
 msgid "Missing `{{count}}` placeholder in {locale} plural translations"
 msgstr "Missing `{{count}}` placeholder in {locale} plural translations"
 
+msgid "Missing media type"
+msgstr ""
+
 #, python-brace-format
 msgid "Missing plural tag(s) {plural_tags} for {locale} translations."
 msgstr "Missing plural tag(s) {plural_tags} for {locale} translations."
@@ -1141,7 +1145,10 @@ msgstr "Occupation"
 msgid "Occupations"
 msgstr "Occupations"
 
-msgid "One of the problems must be fixed."
+msgid "One of the errors must be fixed."
+msgstr ""
+
+msgid "One or more errors occurred."
 msgstr ""
 
 #, python-brace-format
@@ -1823,16 +1830,14 @@ msgstr "Unauthorised"
 msgid "Unknown"
 msgstr "Unknown"
 
-#, python-brace-format
-msgid "Unknown option {value}."
+msgid "Unknown option."
 msgstr ""
 
 msgid "Unknowns"
 msgstr "Unknowns"
 
-#, python-brace-format
-msgid "Unsupported file {unsupported}. Supported types are: {supported}."
-msgstr "Unsupported file {unsupported}. Supported types are: {supported}."
+msgid "Unsupported media type"
+msgstr ""
 
 msgid "Update all existing translations for Betty itself"
 msgstr "Update all existing translations for Betty itself"
@@ -2692,6 +2697,10 @@ msgstr "{individual_name} {affiliation_name}"
 #, python-brace-format
 msgid "{invalid_locale} is not a valid IETF BCP 47 language tag."
 msgstr "{invalid_locale} is not a valid IETF BCP 47 language tag."
+
+#, python-brace-format
+msgid "{media_type} ({media_type_label})"
+msgstr ""
 
 #, python-brace-format
 msgctxt "localizable-join-and-many"

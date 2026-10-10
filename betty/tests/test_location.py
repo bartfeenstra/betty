@@ -2,8 +2,8 @@ from pathlib import Path
 
 from betty.link import StaticLink
 from betty.localizer import default_localizer
+from betty.location import HasLocation, format_, reduce
 from betty.operator import Attr, Index, Key
-from betty.user.location import HasLocation, format_, reduce
 
 
 class TestHasLocation:

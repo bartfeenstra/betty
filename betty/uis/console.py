@@ -21,12 +21,12 @@ from rich.segment import Segment
 from betty.localizable import Localizable
 from betty.localizables.gettext import _
 from betty.localizer import default_localizer
+from betty.location import format_
 from betty.progresses.no_op import NoOpProgress
 from betty.progresses.rich import RichProgress
 from betty.rich import Theme
 from betty.user import Severity
 from betty.user.error import UserFacingErrorGroup
-from betty.user.location import format_
 from betty.user.ui import NoDefault, Ui
 
 if TYPE_CHECKING:
