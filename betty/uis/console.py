@@ -93,6 +93,9 @@ class Console(Ui):
     def _format_error(
         self, error: UserFacingError, message: ResolvableLocalizable = "{error}", /
     ) -> Iterable[Any]:
+        if isinstance(error, UserFacingErrorGroup) and len(error) == 1:
+            # @todo Finish this like UserFacingErrorGroup.__str__()
+            raise NotImplementedError
         yield self.localizer.localize(message).format(
             error=self.localizer.localize(error)
         )

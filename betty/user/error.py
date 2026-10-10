@@ -121,6 +121,12 @@ class UserFacingErrorGroup(UserFacingError):
     @final
     @override
     def __str__(self) -> str:
+        if len(self.__errors) == 1:
+            error = self.__errors[0]
+            str_ = ""
+            if not isinstance(error, UserFacingErrorGroup):
+                str_ += f"# From single grouped error\n{type(error).__name__}: "
+            return str_ + str(error)
         str_ = super().__str__()
         str_ += "\n\n# Errors:"
         for grouped_error in self:
@@ -128,12 +134,16 @@ class UserFacingErrorGroup(UserFacingError):
         return str_
 
     @final
+    def __getitem__(self, index: int, /) -> UserFacingError:
+        return self.__errors[index]
+
+    @final
     def __iter__(self) -> Iterator[UserFacingError]:
         return iter(self.__errors)
 
     @final
-    def __getitem__(self, index: int, /) -> UserFacingError:
-        return self.__errors[index]
+    def __len__(self) -> int:
+        return len(self.__errors)
 
     @final
     @override
