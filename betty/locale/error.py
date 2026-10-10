@@ -9,37 +9,39 @@ from typing import TYPE_CHECKING, Final, final
 from babel import Locale
 from babel.localedata import locale_identifiers
 
-from betty.exception import HumanFacingException
 from betty.locale import to_language_tag
 from betty.localizables.gettext import _
-from betty.localizables.markup import Paragraph, Quote, do_you_mean
+from betty.localizables.markup import Quote, do_you_mean
+from betty.user.error import UserFacingError
+from betty.validation import Invalid
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-class LocaleError(HumanFacingException, Exception):
+class LocaleError(UserFacingError):
     """
     A locale API error.
     """
 
 
 @final
-class InvalidLocale(LocaleError):
+class InvalidLocale(Invalid, LocaleError):
     """
     Raised when a value is not a valid locale.
     """
 
     def __init__(self, invalid_locale: str, /) -> None:
         super().__init__(
+            invalid_locale,
             _("{invalid_locale} is not a valid IETF BCP 47 language tag.").format(
                 invalid_locale=Quote(invalid_locale)
-            )
+            ),
         )
 
 
 @final
-class UnknownLocale(LocaleError):
+class UnknownLocale(Invalid, LocaleError):
     """
     Raised when a locale is not known by the system.
     """
@@ -56,8 +58,7 @@ class UnknownLocale(LocaleError):
             if set(locale[: locale.find("_")]) & locale_chars
         ]
         super().__init__(
-            Paragraph(
-                _("Locale {locale} is not known by your system.").format(locale=locale),
-                do_you_mean(*available_locales),
-            )
+            locale,
+            _("Locale {locale} is not known by your system.").format(locale=locale),
+            hint=do_you_mean(*available_locales),
         )

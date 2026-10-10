@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty import dirs
 from betty.about import is_development
 from betty.app import App
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console import Command, CommandDefinition
 from betty.demo.generate import generate_with_cleanup
 from betty.demo.project import create_project
 from betty.factory import Manufacturable
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
     from yappi import YFuncStats
 
+    from betty.console import CommandFunction
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.service_level import ServiceLevel
     from betty.user.ui import Ui

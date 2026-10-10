@@ -13,8 +13,8 @@ from sphinx.application import Sphinx
 from sphinx.ext.autodoc import MethodDocumenter
 
 from betty.dirs import root_directory
-from betty.exception import HumanFacingException
 from betty.user import Severity
+from betty.user.error import UserFacingError
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -60,4 +60,4 @@ async def _build(output_directory: Path, cache_directory: Path, *, ui: Ui) -> No
     finally:
         MethodDocumenter.can_document_member = original_can_document_member  # ty:ignore[invalid-assignment]
     if sphinx_app.statuscode != 0:
-        raise HumanFacingException("Sphinx failed.")
+        raise UserFacingError("Sphinx failed.")

@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.assertions.mapping import assert_mapping
 from betty.portable import KeyedPorter, PortableData, PortableMapping, Porter
 from betty.porters.proxy import ProxyPorter
+from betty.validators.mapping import is_mapping
 
 
 @final
@@ -23,11 +23,9 @@ class KeyedMappingPorter[DataT, PortableDataT: PortableMapping = PortableMapping
         super().__init__(proxied=proxied)
         self._key = key
 
-    _load_keyed = assert_mapping()
-
     @override
     def load_keyed(self, key: str, data: PortableData, /) -> DataT:
-        return self.load({**self._load_keyed(data), self._key: key})
+        return self.load({**is_mapping(data), self._key: key})
 
     @override
     def dump_keyed(self, data: DataT, /) -> tuple[str, PortableMapping]:

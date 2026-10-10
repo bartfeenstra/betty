@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-25 19:03+0100\n"
+"POT-Creation-Date: 2026-10-10 12:29+0100\n"
 "PO-Revision-Date: 2026-09-10 11:25+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -17,7 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.9.1\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -60,9 +59,6 @@ msgstr "Een hexadecimale kleur, zoals {example_color}"
 msgid "A localizable string"
 msgstr "Een lokaliseerbare tekenreeks"
 
-msgid "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
-msgstr "Een machinenaam is een identificator van maximaal 250 tekens, bestaande uit kleine letters, cijfers, en niet-opeenvolgense koppeltekens (-)."
-
 msgid "A person's presence at an event."
 msgstr "De aanwezigheid van een persoon bij een gebeurtenis."
 
@@ -99,6 +95,9 @@ msgstr "Alias"
 msgid "All caches cleared."
 msgstr "Alle caches geleegd."
 
+msgid "All of the errors must be fixed."
+msgstr ""
+
 msgid "All rights reserved"
 msgstr "Alle rechten voorbehouden"
 
@@ -118,6 +117,9 @@ msgstr "Amsterdam"
 #, python-brace-format
 msgid "An IETF BCP 47 language tag, such as {example_language_tag}."
 msgstr "Een IETF BCP 47 taal-tag, zoals {example_language_tag}."
+
+msgid "An identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
+msgstr ""
 
 #, python-brace-format
 msgid "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
@@ -156,13 +158,8 @@ msgstr "Assetmap"
 msgid "Associates"
 msgstr "Associates"
 
-#, python-brace-format
-msgid "At least {expected} items are required, but found {actual}."
-msgstr "Minimaal {expected} items zijn vereist, maar er waren er {actual} gevonden."
-
-#, python-brace-format
-msgid "At most {expected} items are allowed, but found {actual}."
-msgstr "Maximaal {expected} items zijn toegestaan, maar er waren er {actual} gevonden."
+msgid "At least one of the errors must be fixed."
+msgstr ""
 
 msgid "At which URL will your site be published?"
 msgstr "Op welke URL wordt je site gepubliceerd?"
@@ -466,10 +463,6 @@ msgstr "Kan het bestand {file_path} niet als een ge-gzipt tar-bestand (*.tar.gz)
 msgid "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
 msgstr "Kon geen van de volgende configuratiebestanden vinden in {project_directory_path}: {configuration_file_names}."
 
-#, python-brace-format
-msgid "Could not find the file {file_path}."
-msgstr "Kan het bestand {file_path} niet vinden."
-
 msgid "Counties"
 msgstr "Counties"
 
@@ -661,10 +654,6 @@ msgstr "Gebeurtenistypes"
 msgid "Events"
 msgstr "Gebeurtenissen"
 
-#, python-brace-format
-msgid "Exactly {expected} items are required, but found {actual}."
-msgstr "Precies {expected} items zijn vereist, maar er waren er {actual} gevonden."
-
 msgid "Exclude"
 msgstr "Uitsluiten"
 
@@ -841,21 +830,18 @@ msgstr "Informant"
 msgid "Informants"
 msgstr "Informanten"
 
-#, python-brace-format
-msgid "Invalid JSON: {error}."
-msgstr "Ongeldige JSON: {error}."
+msgid "Invalid JSON"
+msgstr ""
+
+msgid "Invalid YAML"
+msgstr ""
 
 #, python-brace-format
-msgid "Invalid YAML: {error}."
-msgstr "Ongeldige YAML: {error}."
+msgid "Invalid argument {argument}: {{error}}"
+msgstr ""
 
-#, python-brace-format
-msgid "Invalid argument {argument}: {error}"
-msgstr "Ongeldig argument {argument}: {error}"
-
-#, python-brace-format
-msgid "Invalid option {value}."
-msgstr "Ongeldige optie {value}."
+msgid "Invalid media type"
+msgstr ""
 
 #, python-brace-format
 msgid "Invalid plural tag(s) {plural_tags} for {locale} translations."
@@ -913,6 +899,9 @@ msgstr "Laatst bijgewerkt op %(last_modified)s"
 
 msgid "Last page"
 msgstr "Laatste pagina"
+
+msgid "Learn more"
+msgstr ""
 
 msgid "License"
 msgstr "Licentie"
@@ -1070,6 +1059,9 @@ msgstr "Vermist"
 msgid "Missing `{{count}}` placeholder in {locale} plural translations"
 msgstr "Ontbrekende `{{count}}`-plaatshouder in de {locale}-meervoudsvertalingen"
 
+msgid "Missing media type"
+msgstr ""
+
 #, python-brace-format
 msgid "Missing plural tag(s) {plural_tags} for {locale} translations."
 msgstr "Ontbrekende plural tag(s) {plural_tags} voor de {locale}-vertalingen."
@@ -1152,6 +1144,12 @@ msgstr "Beroep"
 
 msgid "Occupations"
 msgstr "Bezigheden"
+
+msgid "One of the errors must be fixed."
+msgstr ""
+
+msgid "One or more errors occurred."
+msgstr ""
 
 #, python-brace-format
 msgid "Only the following file types can be loaded: {file_extensions}"
@@ -1704,8 +1702,24 @@ msgstr[1] "Hen had %(child_count)s kinderen."
 msgid "This field is required."
 msgstr "Dit veld is vereist."
 
+msgid "This field is unknown."
+msgstr ""
+
 msgid "This information is unavailable to protect people's privacy."
 msgstr "Deze informatie is niet beschikbaar om mensen hun privacy te beschermen."
+
+msgid "This is not a directory."
+msgstr ""
+
+msgid "This is not a file."
+msgstr ""
+
+msgid "This is not a valid URL."
+msgstr ""
+
+#, python-brace-format
+msgid "This is not a valid hexadecimal color, such as {color}."
+msgstr ""
 
 msgid "This is not valid Gramps XML."
 msgstr "Dit is geen geldige Gramps-XML."
@@ -1750,6 +1764,24 @@ msgstr "Dit moet none/null zijn."
 #, python-brace-format
 msgid "This must be {length} characters long."
 msgstr "Dit moet {length} tekens lang zijn."
+
+msgid "This must consist of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
+msgstr ""
+
+#, python-brace-format
+msgid "This must have a length of at least {length}."
+msgstr ""
+
+#, python-brace-format
+msgid "This must have a length of at most {length}."
+msgstr ""
+
+#, python-brace-format
+msgid "This must have a length of {length}."
+msgstr ""
+
+msgid "This path does not exist."
+msgstr ""
 
 msgid "This person's name is unknown."
 msgstr "De naam van deze persoon is onbekend."
@@ -1798,20 +1830,14 @@ msgstr "Onbevoegd"
 msgid "Unknown"
 msgstr "Onbekend"
 
-#, python-brace-format
-msgid "Unknown key: {unknown_key}."
-msgstr "Onbekende sleutel: {unknown_key}."
-
-#, python-brace-format
-msgid "Unknown plugin {plugin}."
-msgstr "Onbekende plugin {plugin}."
+msgid "Unknown option."
+msgstr ""
 
 msgid "Unknowns"
 msgstr "Onbekenden"
 
-#, python-brace-format
-msgid "Unsupported file {unsupported}. Supported types are: {supported}."
-msgstr "Niet ondersteund bestand {unsupported}. Ondersteunde bestandstypes zijn: {supported}."
+msgid "Unsupported media type"
+msgstr ""
 
 msgid "Update all existing translations for Betty itself"
 msgstr "Update alle bestaande vertalingen voor Betty zelf"
@@ -1871,6 +1897,9 @@ msgstr "Hoe heet je project in het {locale}?"
 msgid "What is your project's machine name?"
 msgstr "Wat is de machinenaam van je project?"
 
+msgid "Where"
+msgstr ""
+
 msgid "Where do you want to save your project's configuration file?"
 msgstr "Waar wil je je projectconfiguratiebestand opslaan?"
 
@@ -1886,6 +1915,9 @@ msgstr "Gebruik schone URL's: {clean_example} in plaats van {unclean_example}."
 
 msgid "Which language should your project site be generated in? Enter a language code."
 msgstr "In welke taal moet de site voor je project gegenereerd worden? Voer een taalcode in."
+
+msgid "Why"
+msgstr ""
 
 msgid "Width"
 msgstr "Breedte"
@@ -2663,12 +2695,12 @@ msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
 
 #, python-brace-format
-msgid "{invalid_color} is not a valid hexadecimal color, such as {example_color}."
-msgstr "{invalid_color} is geen geldige hexadecimale kleur, zoals bijvoorbeeld {example_color}."
-
-#, python-brace-format
 msgid "{invalid_locale} is not a valid IETF BCP 47 language tag."
 msgstr "{invalid_locale} is geen geldige IETF BCP 47 taaltag."
+
+#, python-brace-format
+msgid "{media_type} ({media_type_label})"
+msgstr ""
 
 #, python-brace-format
 msgctxt "localizable-join-and-many"
@@ -2681,10 +2713,6 @@ msgid "{most}, or {last}"
 msgstr "{most}, of {last}"
 
 #, python-brace-format
-msgid "{path} is not a directory."
-msgstr "{path} is geen directory."
-
-#, python-brace-format
 msgid "{plugin_type} configuration"
 msgstr "{plugin_type}-configuratie"
 
@@ -2692,17 +2720,10 @@ msgstr "{plugin_type}-configuratie"
 msgid "{plugin_type} {plugin} is not configurable, but configuration was given."
 msgstr "{plugin_type} {plugin} is niet configureerbaar, maar er was toch configuratie gegeven."
 
-#, python-brace-format
-msgid "{url} is not a valid URL."
-msgstr "{url} is geen geldige URL."
-
-#, python-brace-format
-msgid "{value} is not a valid machine name."
-msgstr "{value} is geen geldige machinenaam."
-
 msgid "© Copyright the author, unless otherwise credited"
 msgstr "© Copyright de auteur, tenzij anders vermeld"
 
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, tenzij anders vermeld"
+

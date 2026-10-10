@@ -141,8 +141,6 @@ type StaticTranslationsMapping = Mapping[Locale | None, str]
 Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
 
 Values are a string, or a mapping of locales to translations.
-
-See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
@@ -153,8 +151,6 @@ type ResolvableStaticTranslations = (
 Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
 
 Values are a string, or a mapping of locales or language tags to translations.
-
-See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
@@ -163,8 +159,6 @@ type CountableStaticTranslationsMapping = Mapping[Locale, Mapping[str, str]]
 Countable static translations for :py:class:`betty.locale.localizable.CountableStaticTranslations`.
 
 Values are mappings of locales to mappings of CLDR plural tags to translations.
-
-See :py:func:`betty.locale.localizable.assertion.assert_countable_static_translations`.
 """
 
 
@@ -175,8 +169,6 @@ type ResolvableCountableStaticTranslations = Mapping[
 Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
 
 Values are mappings of locales or language tags to mappings of CLDR plural tags to translations.
-
-See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 

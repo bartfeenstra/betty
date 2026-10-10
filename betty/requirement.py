@@ -10,22 +10,37 @@ from functools import partial
 from typing import TYPE_CHECKING, Any, Concatenate, Self, final, overload, override
 
 from betty.asyncio import ResolvableAwaitable, resolve_await
-from betty.exception import HumanFacingException
 from betty.functools import CallableDecorator, DecoratedCallable, DecoratedCallableType
+from betty.user.error import UserFacingError
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable
 
+    from betty.localizable import ResolvableLocalizable
+    from betty.location import ResolvableLocation
     from betty.service_level import ServiceLevel
-
 
 type Requirement[CheckT] = Callable[[ServiceLevel], Awaitable[CheckT] | CheckT]
 
 
-class UnmetRequirement(HumanFacingException):
+class UnmetRequirement(UserFacingError, RuntimeError):
     """
     Raised when a requirement is not met.
     """
+
+    def __init__(
+        self,
+        message: ResolvableLocalizable,
+        /,
+        *args: Any,
+        hint: ResolvableLocalizable | None = None,
+        location: ResolvableLocation = (),
+        url: ResolvableLocalizable | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(
+            *args, hint=hint, location=location, message=message, url=url, **kwargs
+        )
 
 
 type Requires[CheckT] = Iterable[Requirement[CheckT]]

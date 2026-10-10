@@ -81,7 +81,7 @@ betty = 'betty.console:main_from_environment'
 
 [project.entry-points.'betty.plugin']
 'asset-directory' = 'betty.asset:AssetDirectoryDefinition'
-'command' = 'betty.console.command:CommandDefinition'
+'command' = 'betty.console:CommandDefinition'
 'content-builder' = 'betty.content_builder:ContentBuilderDefinition'
 'copyright-notice' = 'betty.copyright_notice:CopyrightNoticeDefinition'
 'css-resource' = 'betty.html.css:CssResourceDefinition'

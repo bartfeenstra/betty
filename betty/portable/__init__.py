@@ -56,6 +56,8 @@ class Porter[DataT, PortableDataT: PortableData = PortableData](metaclass=ABCMet
     def load(self, data: PortableData, /) -> DataT:
         """
         Load data from its portable form.
+
+        :raises betty.validation.Invalid: Raised if the portable data is invalid.
         """
 
     @abstractmethod
@@ -77,7 +79,7 @@ class KeyedPorter[DataT, PortableDataT: PortableData = PortableData](
         """
         Create a new data instance from portable data and a portable primary key.
 
-        :raises betty.exception.HumanFacingException: Raised if the portable data is invalid.
+        :raises betty.validation.Invalid: Raised if the portable data is invalid.
         """
 
     @abstractmethod

@@ -10,10 +10,19 @@ from typing import TYPE_CHECKING, cast, final, override
 from betty.localizables.gettext import _
 from betty.media_types.json import JSON
 from betty.portable import PortableData
-from betty.serialize import SerializationError, Serializer, SerializerDefinition
+from betty.serialize import InvalidSerializedData, Serializer, SerializerDefinition
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
+
+
+@final
+class InvalidJson(InvalidSerializedData):
+    """
+    Raised when something is not valid JSON.
+    """
+
+    _message = _("Invalid JSON")
 
 
 @final
@@ -32,10 +41,8 @@ class Json(Serializer):
     def load(self, serialized: str, /) -> PortableData:
         try:
             return cast(PortableData, json.loads(serialized))
-        except json.JSONDecodeError as e:
-            raise SerializationError(
-                _("Invalid JSON: {error}.").format(error=str(e))
-            ) from None
+        except json.JSONDecodeError as error:
+            raise InvalidJson(serialized) from error
 
     @override
     def dump(self, portable: PortableData, /) -> str:

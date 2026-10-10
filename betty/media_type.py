@@ -5,60 +5,96 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 from __future__ import annotations
 
 from email.message import EmailMessage
-from typing import TYPE_CHECKING, Final, Self, final, override
+from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
-from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
+from betty.localizables.markup import JoinOr
 from betty.pathlib import StrPath
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.porters.callback import CallbackPorter
+from betty.validators import _StaticInvalid
+from betty.validators.str import is_str
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.portable import PortableData
 
 
-class InvalidMediaType(ValueError):
+@final
+class MissingMediaType(_StaticInvalid):
+    """
+    Raised when a media type is missing.
+    """
+
+    _message = _("Missing media type")
+
+
+@final
+class InvalidMediaType(_StaticInvalid):
     """
     Raised when an identifier is not a valid media type.
     """
 
+    _message = _("Invalid media type")
+    _available = _("{media_type} ({media_type_label})")
 
-class UnsupportedMediaType(RuntimeError):
+    @classmethod
+    def new_for_extensions(
+        cls, value: Any, available_media_types: Iterable[MediaType], /
+    ) -> Self:
+        """
+        Create a new instance for an error where a file extension is unsupported.
+        """
+        return cls(
+            value,
+            hint=JoinOr(*[
+                cls._available.format(
+                    media_type=extension, media_type_label=media_type.definition.label
+                )
+                for media_type in available_media_types
+                for extension in media_type.extensions
+            ]),
+        )
+
+    @classmethod
+    def new_for_media_types(
+        cls, value: Any, available_media_types: Iterable[MediaType], /
+    ) -> Self:
+        """
+        Create a new instance for an error where a media type is unsupported.
+        """
+        return cls(
+            value,
+            hint=JoinOr(*[
+                cls._available.format(
+                    media_type=media_type.type,
+                    media_type_label=media_type.definition.label,
+                )
+                for media_type in available_media_types
+            ]),
+        )
+
+
+@final
+class UnsupportedMediaType(_StaticInvalid):
     """
     Raised when a media type is not supported.
     """
 
-    def __init__(self, media_type: MediaTypeIndicator, /):
-        super().__init__(f"Unsupported media type: {media_type}")
-
-
-class MissingMediaType(RuntimeError):
-    """
-    Raised when a media type is not missing.
-    """
-
-    def __init__(self):
-        super().__init__("Missing media type")
-
-
-__load = assert_str()
-
-
-def _load(portable: PortableData, /) -> MediaType:
-    return MediaType(__load(portable))
+    _message = _("Unsupported media type")
 
 
 @final
 @DataDefinition(
     label=_("Media type"),
-    porter=CallbackPorter(_load, lambda media_type: media_type._str),
+    porter=lambda _: CallbackPorter(
+        is_str | MediaType, lambda media_type: media_type._str
+    ),
 )
 class MediaType(Data):
     """
@@ -77,7 +113,7 @@ class MediaType(Data):
         # EmailMessage.get_content_type() always returns a type, and will fall back to alternatives if the header is
         # invalid.
         if not media_type.startswith(type_part):
-            raise InvalidMediaType(f'"{media_type}" is not a valid media type.')
+            raise InvalidMediaType(media_type)
         self.parameters: Mapping[str, str] = dict(message["Content-Type"].params)
         """
         The parameters, e.g. ``{"charset": "UTF-8"}`` for ``"text/html; charset=UTF-8"``.
@@ -88,7 +124,7 @@ class MediaType(Data):
         The type, e.g. ``application`` for ``application/ld+json``.
         """
         if not type_part_remainder:
-            raise InvalidMediaType("The subtype must not be empty.")
+            raise InvalidMediaType(media_type)
         plus_position = type_part_remainder.find("+")
         if plus_position > 0:
             subtype = type_part_remainder[0:plus_position]

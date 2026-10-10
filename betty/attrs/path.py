@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.assertions.path import assert_path
 from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.path import PathDefinition
+from betty.validators.path import is_path
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -30,4 +30,4 @@ def new_path_attr(
     """
     return OwnerAttr(
         FieldDefinition(PathDefinition(), label=label, description=description)
-    ).setter(assert_path())
+    ).setter(is_path)

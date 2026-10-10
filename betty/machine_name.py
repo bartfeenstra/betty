@@ -8,39 +8,47 @@ import re
 from typing import TYPE_CHECKING, Final, Self, final
 from uuid import uuid4
 
-from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
-from betty.exception import HumanFacingException
-from betty.functools import passthrough
+from betty.functools import passthrough, raise_
 from betty.localizables.gettext import _
-from betty.localizables.markup import Paragraph, Quote
 from betty.porters.callback import CallbackPorter
+from betty.validation import Invalid
+from betty.validators.str import is_str, is_str_max_len, is_str_min_len
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable
-    from betty.portable import PortableData
 
 machine_name_description: Final[Localizable] = _(
-    "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
+    "An identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
 )
-_machine_name_pattern: Final[re.Pattern[str]] = re.compile(r"^[a-z0-9\-]{1,250}$")
-_machinify_disallowed_character_pattern: Final[re.Pattern[str]] = re.compile(
-    r"[^a-z0-9\-]"
+__disallowed_character_pattern = r"[^a-z0-9\-]"
+__disallowed_hyphen_pattern = "--+"
+_disallowed_hyphen_pattern = re.compile(__disallowed_hyphen_pattern)
+_disallowed_character_pattern = re.compile(__disallowed_character_pattern)
+_disallowed_pattern = re.compile(
+    __disallowed_character_pattern + "|" + __disallowed_hyphen_pattern
 )
-_machinify_hyphen_pattern: Final[re.Pattern[str]] = re.compile(r"-{2,}")
-
-__load = assert_str()
-
-
-def _load(portable: PortableData, /) -> MachineName:
-    return MachineName(__load(portable))
+_disallowed_message = _(
+    "This must consist of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
+)
+_validate = (
+    is_str_min_len(1)
+    | is_str_max_len(250)
+    | (
+        lambda value: (
+            raise_(Invalid(value, _disallowed_message))
+            if _disallowed_pattern.search(value)
+            else value
+        )
+    )
+)
 
 
 @final
 @DataDefinition(
     label=_("Machine name"),
     description=machine_name_description,
-    porter=CallbackPorter(_load, passthrough),
+    porter=lambda _: CallbackPorter(is_str | MachineName, passthrough),
 )
 class MachineName(str, Data):
     """
@@ -56,21 +64,18 @@ class MachineName(str, Data):
 
     _persistent: bool
 
-    def __new__(  # noqa: D102
-        cls,
-        machine_name: str | None = None,
-        /,
-    ):
+    def __new__(cls, machine_name: str | None = None, /):
+        """
+        Create a new instance, or return existing machine names unchanged.
+        """
+        if isinstance(machine_name, cls):
+            return machine_name
         if machine_name is None:
-            machine_name = str(uuid4())
             persistent = False
+            machine_name = str(uuid4())
         else:
+            _validate(machine_name)
             persistent = True
-            if (
-                _machine_name_pattern.fullmatch(machine_name) is None
-                or "--" in machine_name
-            ):
-                raise InvalidMachineName(machine_name)
         new = super().__new__(cls, machine_name)
         new._persistent = persistent
         return new
@@ -86,23 +91,19 @@ class MachineName(str, Data):
         return self._persistent
 
     @classmethod
-    def resolve(cls, machine_name: ResolvableMachineName) -> MachineName:
-        """
-        Resolve a value to a machine name.
-        """
-        if isinstance(machine_name, cls):
-            return machine_name
-        return cls(machine_name)
-
-    @classmethod
     def machinify(cls, source: str, /) -> Self | None:
         """
         Attempt to convert a source string into a valid machine name.
         """
         machine_name = (
-            _machinify_hyphen_pattern.sub(
-                "-", _machinify_disallowed_character_pattern.sub("-", source.lower())
-            ).strip("-")[:250]
+            _disallowed_hyphen_pattern.sub(
+                "-",
+                (
+                    _disallowed_character_pattern.sub("-", source.lower()).strip("-")[
+                        :250
+                    ]
+                ),
+            )
             or None
         )
         if machine_name is None:
@@ -111,18 +112,3 @@ class MachineName(str, Data):
 
 
 type ResolvableMachineName = MachineName | str
-
-
-@final
-class InvalidMachineName(HumanFacingException, ValueError):
-    """
-    Raised when something is not a valid machine name.
-    """
-
-    def __init__(self, value: str, /):
-        super().__init__(
-            Paragraph(
-                _("{value} is not a valid machine name.").format(value=Quote(value)),
-                machine_name_description,
-            )
-        )

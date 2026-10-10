@@ -5,9 +5,9 @@ import pytest
 
 from betty.localizables.plain import Plain
 from betty.localizer import default_localizer
+from betty.location import format_
 from betty.operator import Attr, Chain, Index, Key, Operator, OperatorError, _Operator
 from betty.typing import Unreachable
-from betty.user.location import format_
 
 
 class TestAttr:

@@ -4,19 +4,23 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty import gettext
 from betty.app import App
-from betty.argparse import assertion_to_argument_type
-from betty.assertions.locale import assert_locale
+from betty.argparse import validator_to_argument_type
 from betty.asset import AssetDirectoryDefinition
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console import Command, CommandDefinition
 from betty.factory import Manufacturable
+from betty.functools import Pipe
 from betty.localizables.gettext import _
+from betty.machine_name import MachineName
 from betty.plugin.error import PluginNotFound
+from betty.validators.locale import is_locale
 
 if TYPE_CHECKING:
     import argparse
     from collections.abc import Mapping
 
     from babel import Locale
+
+    from betty.console import CommandFunction
 
 
 @final
@@ -37,12 +41,12 @@ class NewTranslation(Manufacturable, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        assets: Mapping[str, AssetDirectoryDefinition] = {
+        assets: Mapping[MachineName, AssetDirectoryDefinition] = {
             asset.id: asset
             async for asset in self._app.plugins[AssetDirectoryDefinition]
         }
 
-        def _assert_asset(asset_id: str) -> AssetDirectoryDefinition:
+        def _assert_asset(asset_id: MachineName) -> AssetDirectoryDefinition:
             try:
                 asset = assets[asset_id]
             except KeyError:
@@ -53,15 +57,11 @@ class NewTranslation(Manufacturable, Command):
 
         parser.add_argument(
             "output",
-            type=assertion_to_argument_type(
-                _assert_asset, localizer=self._app.ui.localizer
-            ),
+            type=validator_to_argument_type(Pipe(MachineName) | _assert_asset),
         )
         parser.add_argument(
             "locale",
-            type=assertion_to_argument_type(
-                assert_locale, localizer=self._app.ui.localizer
-            ),
+            type=validator_to_argument_type(is_locale),
         )
         return self._command_function
 

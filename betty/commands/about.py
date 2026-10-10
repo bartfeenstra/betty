@@ -9,7 +9,7 @@ from rich.table import Table
 
 from betty import about
 from betty.app import App
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console import Command, CommandDefinition
 from betty.console.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import Manufacturable
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     import argparse
     from collections.abc import MutableSequence
 
+    from betty.console import CommandFunction
     from betty.project import Project
 
 

@@ -9,23 +9,23 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from typing_extensions import disjoint_base, sentinel
 
-from betty.assertions.if_else import assert_if_else
-from betty.assertions.mapping import assert_mapping
-from betty.assertions.record import Field, assert_record
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import OwnerAttr
 from betty.data import Data, DataDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.id import ResolvableId, resolve_id
-from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
-from betty.functools import Pipeline
+from betty.functools import Pipe
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.machine_name import MachineName
 from betty.portable import KeyedPorter, OptionalPortableData, PortableData
 from betty.sample import Sample, Samples, Size
+from betty.user.error import UserFacingError
+from betty.validators.if_else import is_if_else
+from betty.validators.mapping import is_mapping
+from betty.validators.record import Field, is_record
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from betty.service_level import ServiceLevel
 
 
-class PluginManufacturerError(HumanFacingException, FactoryError):
+class PluginManufacturerError(UserFacingError, FactoryError):
     """
     Raised when a plugin manufacturer could not create a new plugin instance.
     """
@@ -143,10 +143,10 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
     def __init__(self, cls: type[PluginManufacturerT]):
         self._cls = cls
 
-    _load = assert_if_else(
-        Pipeline(MachineName.definition.porter.load)
+    _load = is_if_else(
+        Pipe(MachineName.definition.porter.load)
         | (lambda plugin_id: {"plugin": plugin_id}),
-        assert_record(
+        is_record(
             Field("plugin", MachineName.definition.porter.load),
             Field("data", optional=True),
         ),
@@ -157,11 +157,9 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
         record = self._load(data)
         return self._cls(record["plugin"], record.get("data", NoPluginData))
 
-    _load_keyed = assert_mapping()
-
     @override
     def load_keyed(self, key: str, data: PortableData, /) -> PluginManufacturerT:
-        return self.load({**self._load_keyed(data), "plugin": key})
+        return self.load({**is_mapping(data), "plugin": key})
 
     @classmethod
     def _dump_data(cls, configuration: Data | PortableData) -> PortableData:

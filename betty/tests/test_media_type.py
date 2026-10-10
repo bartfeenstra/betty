@@ -344,7 +344,7 @@ class TestUnsupportedMediaType:
 
 class TestMissingMediaType:
     def test_new(self) -> None:
-        assert str(MissingMediaType())
+        assert str(MissingMediaType(None))
 
 
 class TestMediaTypeDefinition:

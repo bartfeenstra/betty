@@ -14,31 +14,26 @@ from urllib.parse import quote, urlsplit
 
 from geopy import Point
 
-from betty.assertions.float import assert_float
-from betty.assertions.mapping import assert_mapping
-from betty.assertions.str import assert_str
-from betty.exception import HumanFacingException, reraise_with_locator
 from betty.file import write
 from betty.hashid import hashid
-from betty.link import StaticLink
 from betty.localizables.gettext import _
 from betty.media_type import MediaType
 from betty.operator import Chain, Index, Key, OperatorError
+from betty.user.error import UserFacingError
+from betty.validation import Invalid
+from betty.validators.float import is_float
+from betty.validators.mapping import is_mapping
+from betty.validators.str import is_str
 
 if TYPE_CHECKING:
-    from collections.abc import (
-        AsyncGenerator,
-        Generator,
-        Mapping,
-        MutableMapping,
-    )
+    from collections.abc import AsyncGenerator, Generator, Mapping, MutableMapping
 
     from aiohttp import ClientResponse, ClientSession
 
     from betty.user.ui import Ui
 
 
-class ClientError(HumanFacingException, RuntimeError):
+class ClientError(UserFacingError, RuntimeError):
     """
     A client error.
     """
@@ -90,22 +85,22 @@ class Client:
         self._ui = ui
 
     @contextmanager
-    def _human_facing_exception_to_client_error(self) -> Generator[None]:
+    def _invalid_to_client_error(self) -> Generator[None]:
         try:
             yield
-        except HumanFacingException as error:
-            raise ClientError(error) from error
+        except Invalid as error:
+            raise ClientError(message=error) from error
         except OperatorError as error:
-            raise ClientError(str(error)) from error
+            raise ClientError(message=str(error)) from error
 
     @asynccontextmanager
     async def _get(self, url: str) -> AsyncGenerator[ClientResponse]:
         async with self._http_client.get(url) as response:
             if response.status != 200:
                 raise ClientError(
-                    _("HTTP {http_status_code} response returned by {url}").format(
-                        http_status_code=str(response.status), url=url
-                    )
+                    message=_(
+                        "HTTP {http_status_code} response returned by {url}"
+                    ).format(http_status_code=str(response.status), url=url)
                 )
             yield response
 
@@ -114,16 +109,15 @@ class Client:
             try:
                 return await response.json()
             except JSONDecodeError as error:
-                raise ClientError(f"Invalid JSON returned by {url}: {error}") from error
+                raise ClientError(
+                    message=f"Invalid JSON returned by {url}: {error}"
+                ) from error
 
     async def _get_query_api_data(self, url: str) -> Mapping[str, Any]:
         data = await self._get_json(url)
-        with (
-            self._human_facing_exception_to_client_error(),
-            reraise_with_locator(StaticLink(url)),
-        ):
+        with self._invalid_to_client_error():
             return Chain(Key("query"), Key("pages"), Index(0)).get(
-                data, assert_mapping(None, assert_str())
+                data, is_mapping(keys=is_str)
             )
 
     async def _get_page_query_api_data(
@@ -155,16 +149,13 @@ class Client:
         """
         url = f"https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}"
 
-        with (
-            self._human_facing_exception_to_client_error(),
-            reraise_with_locator(StaticLink(url)),
-        ):
+        with self._invalid_to_client_error():
             api_data = await self._get_json(url)
 
-            title = Chain(Key("titles"), Key("normalized")).get(api_data, assert_str())
+            title = Chain(Key("titles"), Key("normalized")).get(api_data, is_str)
             extract = Chain(
                 Key("extract_html") if "extract_html" in api_data else Key("extract")
-            ).get(api_data, assert_str())
+            ).get(api_data, is_str)
         return Summary(
             page_language,
             page_name,
@@ -190,20 +181,14 @@ class Client:
         image_info_api_data = await self._get_query_api_data(url)
 
         image_info_selectors = (Key("imageinfo"), Index(0))
-        with (
-            self._human_facing_exception_to_client_error(),
-            reraise_with_locator(StaticLink(url)),
-        ):
+        with self._invalid_to_client_error():
             image_info = Chain(*image_info_selectors).get(
-                image_info_api_data, assert_mapping()
+                image_info_api_data, is_mapping
             )
-            with reraise_with_locator(*image_info_selectors):
-                image_url = Key("url").get(image_info, assert_str())
-                image_media_type = Key("mime").get(image_info, MediaType)
-                image_title = Key("canonicaltitle").get(image_info, assert_str())
-                image_wikimedia_commons_url = Key("descriptionurl").get(
-                    image_info, assert_str()
-                )
+            image_url = Key("url").get(image_info, is_str)
+            image_media_type = Key("mime").get(image_info, MediaType)
+            image_title = Key("canonicaltitle").get(image_info, is_str)
+            image_wikimedia_commons_url = Key("descriptionurl").get(image_info, is_str)
         async with self._get(image_url) as image_response:
             image_data = await image_response.read()
         image_path = (
@@ -235,13 +220,10 @@ class Client:
             # There may not be any coordinates.
             return None
 
-        with (
-            self._human_facing_exception_to_client_error(),
-            reraise_with_locator(StaticLink(url)),
-        ):
-            globe = Key("globe").get(coordinates, assert_str())
+        with self._invalid_to_client_error():
+            globe = Key("globe").get(coordinates, is_str)
             if globe != "earth":
                 return None
-            latitude = Key("lat").get(coordinates, assert_float())
-            longitude = Key("lon").get(coordinates, assert_float())
+            latitude = Key("lat").get(coordinates, is_float)
+            longitude = Key("lon").get(coordinates, is_float)
         return Point(latitude, longitude)
