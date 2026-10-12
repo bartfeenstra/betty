@@ -8,6 +8,7 @@ from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.static import Static
 from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException
+from betty.project import Project
 from betty.project.generate import generate
 from betty.service_providers.raspberry_mint import (
     RaspberryMint,
@@ -19,9 +20,7 @@ from betty.test_utils.entity import DummyEntityOne
 from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 if TYPE_CHECKING:
-    from betty.app import App
-    from betty.project import Project
-    from betty.test_utils.conftest import IsolatedProjectFactory
+    from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestRaspberryMint:
@@ -103,32 +102,22 @@ class TestRaspberryMint:
 
     @pytest.mark.order(0)
     @check_skip_webpack_entry_point_provider
-    async def test_generate(
-        self, isolated_app: App, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with (
-            isolated_project_factory(
-                app=isolated_app, service_providers=[RaspberryMint]
-            ) as project,
-            project,
-        ):
-            await generate(project)
-            assert (project.www_directory / "betty.webmanifest").is_file()
+    async def test_generate(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project() as project:
+            Project.service_providers.add_init_plugins(project, RaspberryMint)
+            async with project:
+                await generate(project)
+                assert (project.www_directory / "betty.webmanifest").is_file()
 
 
 class TestRegion:
-    async def test_all(
-        self, isolated_app: App, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with (
-            isolated_project_factory(
-                app=isolated_app,
-                generate_entity_list_html=[DummyEntityOne],
-                plugins={EntityDefinition: [DummyEntityOne]},
-            ) as project,
-            project,
-        ):
-            assert "entity-page-content--dummy-one" in await Region.all(project)
+    async def test_all(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project(
+            plugins={EntityDefinition: [DummyEntityOne]},
+        ) as project:
+            project.generate_entity_list_html = [DummyEntityOne]
+            async with project:
+                assert "entity-page-content--dummy-one" in await Region.all(project)
 
     def test_resolve__with_enum(self) -> None:
         assert Region.resolve(Region.FRONT_PAGE_CONTENT) == "front-page-content"
@@ -141,15 +130,14 @@ class TestRaspberryMintData(DataTestBase[RaspberryMintData]):
     sut_cls = RaspberryMintData
 
     async def test_validate__should_validate_featured_entities_configuration(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         sut = RaspberryMintData(regional_content={"unknown-region": []})
-        async with (
-            isolated_project_factory(service_providers=[RaspberryMint]) as project,
-            project,
-        ):
-            with pytest.raises(HumanFacingException) as exc_info:
-                await sut.validate(project)
+        async with new_isolated_project() as project:
+            Project.service_providers.add_init_plugins(project, RaspberryMint)
+            async with project:
+                with pytest.raises(HumanFacingException) as exc_info:
+                    await sut.validate(project)
         assert 'data.regional_content["unknown-region"]' in str(exc_info.value)
 
     def test_primary_color__from___init__(self) -> None:

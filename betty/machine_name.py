@@ -5,7 +5,7 @@ Machine names.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Final, Self, final
+from typing import TYPE_CHECKING, Final, Self, final, override
 from uuid import uuid4
 
 from betty.assertions.str import assert_str
@@ -78,6 +78,11 @@ class MachineName(str, Data):
     def __init__(self, machine_name: str | None = None, /):
         pass
 
+    @override
+    @property
+    def is_frozen(self) -> bool:
+        return True
+
     @property
     def persistent(self) -> bool:
         """
@@ -86,7 +91,7 @@ class MachineName(str, Data):
         return self._persistent
 
     @classmethod
-    def resolve(cls, machine_name: ResolvableMachineName) -> MachineName:
+    def resolve(cls, machine_name: str | None) -> MachineName:
         """
         Resolve a value to a machine name.
         """

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.classtools import Singleton
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _, ngettext
 from betty.role import Role, RoleDefinition
 
@@ -18,7 +18,7 @@ from betty.role import Role, RoleDefinition
     label_plural=_("Unknowns"),
     label_countable=ngettext("{count} unknown", "{count} unknowns"),
 )
-class UnknownRole(Role, Singleton):
+class UnknownRole(Role, Frozen):
     """
     .. plugin:: role:unknown.
     """

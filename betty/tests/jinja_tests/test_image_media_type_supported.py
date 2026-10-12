@@ -9,7 +9,7 @@ from betty.media_types.pdf import PDF
 from betty.media_types.svg import SVG
 
 if TYPE_CHECKING:
-    from betty.test_utils.conftest import AssertTemplateString
+    from betty.test_utils.conftest import AssertJinja
 
 
 class TestImageMediaTypeSupported:
@@ -27,15 +27,15 @@ class TestImageMediaTypeSupported:
         ],
     )
     async def test___call__(
-        self, assert_template_string: AssertTemplateString, expected: str, data: Any
+        self, assert_jinja_str: AssertJinja, expected: str, data: Any
     ) -> None:
         template = (
             "{% if data is image_media_type_supported %}true{% else %}false{% endif %}"
         )
-        async with assert_template_string(
-            template=template,
+        async with assert_jinja_str(
+            template,
             data={
                 "data": data,
             },
-        ) as (actual, _):
-            assert actual == expected
+        ) as rendered:
+            assert rendered == expected

@@ -16,16 +16,17 @@ from betty.loaders.gramps import FamilyTree, Gramps, GrampsData
 from betty.place_type import PlaceTypeManufacturer
 from betty.place_types.borough import Borough
 from betty.place_types.city import City
+from betty.project import Project
 from betty.role import RoleManufacturer
 from betty.roles.attendee import Attendee
 from betty.roles.subject import Subject
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 from betty.test_utils.data import DataTestBase
 
 
 class TestGramps:
     async def test_load__with_event_type_mapping(
-        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
+        self, new_isolated_project: NewIsolatedProject, tmp_path: Path
     ) -> None:
         family_tree_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -49,33 +50,29 @@ class TestGramps:
         with gzip.open(gramps_family_tree_path, "w") as f:
             f.write(family_tree_xml.encode("utf-8"))
 
-        async with (
-            isolated_project_factory(
-                loaders=[
-                    LoaderManufacturer(
-                        Gramps.definition,
-                        GrampsData(
-                            family_trees=[
-                                FamilyTree(
-                                    gramps_family_tree_path,
-                                    event_types={
-                                        "Birth": EventTypeManufacturer("birth")
-                                    },
-                                )
-                            ]
-                        ),
-                    )
-                ],
-            ) as project,
-            project,
-        ):
-            await load(project)
-            assert isinstance(
-                project.ancestry[Event][machinify("E0000")].event_type, Birth
+        async with new_isolated_project() as project:
+            Project.loaders.add_init_plugins(
+                project,
+                LoaderManufacturer(
+                    Gramps.definition,
+                    GrampsData(
+                        family_trees=[
+                            FamilyTree(
+                                gramps_family_tree_path,
+                                event_types={"Birth": EventTypeManufacturer("birth")},
+                            )
+                        ]
+                    ),
+                ),
             )
+            async with project:
+                await load(project)
+                assert isinstance(
+                    project.ancestry[Event][machinify("E0000")].event_type, Birth
+                )
 
     async def test_load__with_place_type_mapping(
-        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
+        self, new_isolated_project: NewIsolatedProject, tmp_path: Path
     ) -> None:
         family_tree_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -97,31 +94,29 @@ class TestGramps:
         with gzip.open(gramps_family_tree_path, "w") as f:
             f.write(family_tree_xml.encode("utf-8"))
 
-        async with (
-            isolated_project_factory(
-                loaders=[
-                    LoaderManufacturer(
-                        Gramps.definition,
-                        GrampsData(
-                            family_trees=[
-                                FamilyTree(
-                                    gramps_family_tree_path,
-                                    place_types={"City": PlaceTypeManufacturer("city")},
-                                )
-                            ]
-                        ),
-                    )
-                ],
-            ) as project,
-            project,
-        ):
-            await load(project)
-            assert isinstance(
-                project.ancestry[Place][machinify("P0001")].place_type, City
+        async with new_isolated_project() as project:
+            Project.loaders.add_init_plugins(
+                project,
+                LoaderManufacturer(
+                    Gramps.definition,
+                    GrampsData(
+                        family_trees=[
+                            FamilyTree(
+                                gramps_family_tree_path,
+                                place_types={"City": PlaceTypeManufacturer("city")},
+                            )
+                        ]
+                    ),
+                ),
             )
+            async with project:
+                await load(project)
+                assert isinstance(
+                    project.ancestry[Place][machinify("P0001")].place_type, City
+                )
 
     async def test_load__with_role_map(
-        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
+        self, new_isolated_project: NewIsolatedProject, tmp_path: Path
     ) -> None:
         family_tree_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -151,32 +146,32 @@ class TestGramps:
         with gzip.open(gramps_family_tree_path, "w") as f:
             f.write(family_tree_xml.encode("utf-8"))
 
-        async with (
-            isolated_project_factory(
-                loaders=[
-                    LoaderManufacturer(
-                        Gramps.definition,
-                        GrampsData(
-                            family_trees=[
-                                FamilyTree(
-                                    gramps_family_tree_path,
-                                    roles={"MyFirstRole": RoleManufacturer("subject")},
-                                )
-                            ]
-                        ),
-                    )
-                ],
-            ) as project,
-            project,
-        ):
-            await load(project)
-            assert isinstance(
-                next(iter(project.ancestry[Person][machinify("I0000")].presences)).role,
-                Subject,
+        async with new_isolated_project() as project:
+            Project.loaders.add_init_plugins(
+                project,
+                LoaderManufacturer(
+                    Gramps.definition,
+                    GrampsData(
+                        family_trees=[
+                            FamilyTree(
+                                gramps_family_tree_path,
+                                roles={"MyFirstRole": RoleManufacturer("subject")},
+                            )
+                        ]
+                    ),
+                ),
             )
+            async with project:
+                await load(project)
+                assert isinstance(
+                    next(
+                        iter(project.ancestry[Person][machinify("I0000")].presences)
+                    ).role,
+                    Subject,
+                )
 
     async def test_load__with_multiple_family_trees(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         family_tree_one_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -282,37 +277,35 @@ class TestGramps:
             with gzip.open(gramps_family_tree_two, "w") as f:
                 f.write(family_tree_two_xml.encode("utf-8"))
 
-            async with (
-                isolated_project_factory(
-                    loaders=[
-                        LoaderManufacturer(
-                            Gramps.definition,
-                            GrampsData(
-                                family_trees=[
-                                    FamilyTree(gramps_family_tree_one),
-                                    FamilyTree(gramps_family_tree_two),
-                                ]
-                            ),
-                        )
-                    ],
-                ) as project,
-                project,
-            ):
-                await load(project)
-                assert machinify("I0001") in project.ancestry[Person]
-                assert machinify("I0002") in project.ancestry[Person]
-                assert machinify("P0001") in project.ancestry[Place]
-                assert machinify("P0002") in project.ancestry[Place]
-                assert machinify("E0001") in project.ancestry[Event]
-                assert machinify("E0002") in project.ancestry[Event]
-                assert machinify("S0001") in project.ancestry[Source]
-                assert machinify("S0002") in project.ancestry[Source]
-                assert machinify("R0001") in project.ancestry[Source]
-                assert machinify("R0002") in project.ancestry[Source]
-                assert machinify("C0001") in project.ancestry[Citation]
-                assert machinify("C0002") in project.ancestry[Citation]
-                assert machinify("N0001") in project.ancestry[Note]
-                assert machinify("N0002") in project.ancestry[Note]
+            async with new_isolated_project() as project:
+                Project.loaders.add_init_plugins(
+                    project,
+                    LoaderManufacturer(
+                        Gramps.definition,
+                        GrampsData(
+                            family_trees=[
+                                FamilyTree(gramps_family_tree_one),
+                                FamilyTree(gramps_family_tree_two),
+                            ]
+                        ),
+                    ),
+                )
+                async with project:
+                    await load(project)
+                    assert machinify("I0001") in project.ancestry[Person]
+                    assert machinify("I0002") in project.ancestry[Person]
+                    assert machinify("P0001") in project.ancestry[Place]
+                    assert machinify("P0002") in project.ancestry[Place]
+                    assert machinify("E0001") in project.ancestry[Event]
+                    assert machinify("E0002") in project.ancestry[Event]
+                    assert machinify("S0001") in project.ancestry[Source]
+                    assert machinify("S0002") in project.ancestry[Source]
+                    assert machinify("R0001") in project.ancestry[Source]
+                    assert machinify("R0002") in project.ancestry[Source]
+                    assert machinify("C0001") in project.ancestry[Citation]
+                    assert machinify("C0002") in project.ancestry[Citation]
+                    assert machinify("N0001") in project.ancestry[Note]
+                    assert machinify("N0002") in project.ancestry[Note]
 
 
 class TestFamilyTree(DataTestBase[FamilyTree]):

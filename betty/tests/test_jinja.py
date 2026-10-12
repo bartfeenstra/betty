@@ -12,15 +12,17 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.project import Project
-    from betty.test_utils.conftest import IsolatedProjectFactory
+    from betty.test_utils.conftest import NewIsolatedProject
 
 
 async def test_new_environment__with_debug(
-    isolated_project_factory: IsolatedProjectFactory,
+    new_isolated_project: NewIsolatedProject,
 ) -> None:
-    async with isolated_project_factory(debug=True) as project, project:
-        sut = await new_environment(project)
-        assert "jinja2.ext.DebugExtension" in sut.extensions
+    async with new_isolated_project() as project:
+        project.debug = True
+        async with project:
+            sut = await new_environment(project)
+            assert "jinja2.ext.DebugExtension" in sut.extensions
 
 
 async def test_make_copy_function__www_directory(

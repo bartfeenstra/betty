@@ -1,26 +1,22 @@
 from markupsafe import Markup
 
-from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.html.attributes import Attributes
-from betty.test_utils.conftest import AssertTemplateFile
+from betty.test_utils.conftest import AssertJinja
 
 
-async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
-    async with assert_template_file(
-        data={
-            "accordion_items": [],
-        },
-        assets={raspberry_mint},
-        template="component/accordion.html.j2",
-    ) as (actual, _):
-        assert actual == ""
+async def test_minimal(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
+    async with assert_raspberry_mint_jinja_file(
+        "component/accordion.html.j2", data={"accordion_items": []}
+    ) as rendered:
+        assert rendered == ""
 
 
-async def test_with_items(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_items(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     accordion_heading_element = "h2"
     header = "Hello, world!"
     body = "<p>Lorem ipsum dolor sit amet</p>"
-    async with assert_template_file(
+    async with assert_raspberry_mint_jinja_file(
+        "component/accordion.html.j2",
         data={
             "accordion_heading_element": accordion_heading_element,
             "accordion_items": [
@@ -30,17 +26,18 @@ async def test_with_items(assert_template_file: AssertTemplateFile) -> None:
                 },
             ],
         },
-        assets={raspberry_mint},
-        template="component/accordion.html.j2",
-    ) as (actual, _):
-        assert f"<{accordion_heading_element}" in actual
-        assert header in actual
-        assert body in actual
+    ) as rendered:
+        assert f"<{accordion_heading_element}" in rendered
+        assert header in rendered
+        assert body in rendered
 
 
-async def test_with_html_attributes(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_html_attributes(
+    assert_raspberry_mint_jinja_file: AssertJinja,
+) -> None:
     html_class = "my-first-class"
-    async with assert_template_file(
+    async with assert_raspberry_mint_jinja_file(
+        "component/accordion.html.j2",
         data={
             "accordion_heading_element": "h2",
             "accordion_items": [
@@ -51,7 +48,5 @@ async def test_with_html_attributes(assert_template_file: AssertTemplateFile) ->
             ],
             "attributes": Attributes(html_class=[html_class]),
         },
-        assets={raspberry_mint},
-        template="component/accordion.html.j2",
-    ) as (actual, _):
-        assert html_class in actual
+    ) as rendered:
+        assert html_class in rendered

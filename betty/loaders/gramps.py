@@ -20,6 +20,7 @@ from betty.definition.cls import ClsDefinition
 from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, Manufacturable
+from betty.frosties.attr import AttrFreezable
 from betty.gramps import (
     DEFAULT_EVENT_TYPE_MAPPING,
     DEFAULT_PLACE_TYPE_MAPPING,
@@ -105,7 +106,7 @@ def _new_plugin_mapping_attr[
         )
     ),
 )
-class FamilyTree(Object):
+class FamilyTree(Object, AttrFreezable):
     """
     A Gramps family tree.
 
@@ -233,7 +234,7 @@ class FamilyTree(Object):
         ),
     ),
 )
-class GrampsData(Object):
+class GrampsData(Object, AttrFreezable):
     """
     Configuration for the :py:class:`betty.loaders.gramps.Gramps` extension.
 

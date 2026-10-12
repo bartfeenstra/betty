@@ -1,15 +1,10 @@
-from betty.asset_directories.raspberry_mint import raspberry_mint
-from betty.test_utils.conftest import AssertTemplateFile
+from betty.test_utils.conftest import AssertJinja
 
 
-async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
+async def test_minimal(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     url = "https://example.com/per/ma.link"
-    async with assert_template_file(
-        data={
-            "url": url,
-        },
-        assets={raspberry_mint},
-        template="component/permalink.html.j2",
-    ) as (actual, _):
-        assert "<a " in actual
-        assert url in actual
+    async with assert_raspberry_mint_jinja_file(
+        "component/permalink.html.j2", data={"url": url}
+    ) as rendered:
+        assert "<a " in rendered
+        assert url in rendered

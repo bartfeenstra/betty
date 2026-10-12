@@ -8,82 +8,67 @@ from betty.entities.place import Place
 from betty.entities.place_name import PlaceName
 
 if TYPE_CHECKING:
-    from betty.test_utils.conftest import AssertTemplateFile
-from betty.asset_directories.raspberry_mint import raspberry_mint
+    from betty.test_utils.conftest import AssertJinja
 
 
-async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
+async def test_minimal(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     place = Place()
     expected = f'<span lang="und" dir="auto">Place {place.id}</span>'
-    async with assert_template_file(
-        data={
-            "entity": place,
-        },
-        assets={raspberry_mint},
-        template="entity/label--place.html.j2",
-    ) as (actual, _):
-        assert actual == expected
+    async with assert_raspberry_mint_jinja_file(
+        "entity/label--place.html.j2", data={"entity": place}
+    ) as rendered:
+        assert rendered == expected
 
 
-async def test_with_persistent_id(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_persistent_id(
+    assert_raspberry_mint_jinja_file: AssertJinja,
+) -> None:
     place = Place(id="my-first-place")
     expected = f'<a href="/place/{place.id}/index.html"><span lang="und" dir="auto">Place my-first-place</span></a>'
-    async with assert_template_file(
-        data={
-            "entity": place,
-        },
-        assets={raspberry_mint},
-        template="entity/label--place.html.j2",
-    ) as (actual, _):
-        assert actual == expected
+    async with assert_raspberry_mint_jinja_file(
+        "entity/label--place.html.j2", data={"entity": place}
+    ) as rendered:
+        assert rendered == expected
 
 
-async def test_with_name(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_name(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     place = Place(names=[PlaceName("The Place")])
     expected = '<span lang="und" dir="auto">The Place</span>'
-    async with assert_template_file(
-        data={
-            "entity": place,
-        },
-        assets={raspberry_mint},
-        template="entity/label--place.html.j2",
-    ) as (actual, _):
-        assert actual == expected
+    async with assert_raspberry_mint_jinja_file(
+        "entity/label--place.html.j2", data={"entity": place}
+    ) as rendered:
+        assert rendered == expected
 
 
-async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
+async def test_embedded(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     place = Place(
         id="my-first-place",
         names=[PlaceName("The Place")],
     )
     expected = '<span lang="und" dir="auto">The Place</span>'
-    async with assert_template_file(
-        data={
-            "entity": place,
-            "embedded": True,
-        },
-        assets={raspberry_mint},
-        template="entity/label--place.html.j2",
-    ) as (actual, _):
-        assert actual == expected
+    async with assert_raspberry_mint_jinja_file(
+        "entity/label--place.html.j2", data={"entity": place, "embedded": True}
+    ) as rendered:
+        assert rendered == expected
 
 
-async def test_with_place_context(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_place_context(
+    assert_raspberry_mint_jinja_file: AssertJinja,
+) -> None:
     place = Place(id="my-first-place")
 
     expected = '<span lang="und" dir="auto">Place my-first-place</span>'
-    async with assert_template_file(
+    async with assert_raspberry_mint_jinja_file(
+        "entity/label--place.html.j2",
         data={
             "entity": place,
             "document": Document(entity_contexts=EntityContexts(place)),
         },
-        assets={raspberry_mint},
-        template="entity/label--place.html.j2",
-    ) as (actual, _):
-        assert actual == expected
+    ) as rendered:
+        assert rendered == expected
 
 
-async def test_with_date_context(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_date_context(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     place = Place(
         names=[
             PlaceName(
@@ -98,12 +83,8 @@ async def test_with_date_context(assert_template_file: AssertTemplateFile) -> No
     )
 
     expected = '<span lang="und" dir="auto">The New Place</span>'
-    async with assert_template_file(
-        data={
-            "entity": place,
-            "date_context": Date(1970, 1, 1),
-        },
-        assets={raspberry_mint},
-        template="entity/label--place.html.j2",
-    ) as (actual, _):
-        assert actual == expected
+    async with assert_raspberry_mint_jinja_file(
+        "entity/label--place.html.j2",
+        data={"entity": place, "date_context": Date(1970, 1, 1)},
+    ) as rendered:
+        assert rendered == expected

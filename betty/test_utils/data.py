@@ -12,6 +12,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.data import Data
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
+from betty.frosties.classtools import Frozen
 from betty.importlib import fully_qualified_name
 from betty.localizables.plain import Plain
 from betty.localizer import default_localizer
@@ -111,7 +112,7 @@ class DataTestBase[DataT: Data]:
 
 
 @ObjectDefinition(label=Plain("Dummy data"))
-class DummyData(Object):
+class DummyData(Object, Frozen):
     """
     A dummy :py:class:`betty.data.Data` implementation.
     """

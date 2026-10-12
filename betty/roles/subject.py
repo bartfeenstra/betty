@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import final
 
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _, ngettext
 from betty.role import Role, RoleDefinition
 
@@ -17,7 +18,7 @@ from betty.role import Role, RoleDefinition
     label_plural=_("Subjects"),
     label_countable=ngettext("{count} subject", "{count} subjects"),
 )
-class Subject(Role):
+class Subject(Role, Frozen):
     """
     .. plugin:: role:subject.
 

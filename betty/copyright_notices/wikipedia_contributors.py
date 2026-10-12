@@ -12,6 +12,7 @@ import aiohttp
 from betty.app import App
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.factory import Manufacturable
+from betty.frosties.classtools import Frozen
 from betty.locale import default_locale, resolve_locale
 from betty.locale.error import LocaleError
 from betty.localizable import (
@@ -30,7 +31,7 @@ def _copyright_url(language: str, page: str) -> str:
 
 @final
 @CopyrightNoticeDefinition("wikipedia-contributors", label=_("Wikipedia contributors"))
-class WikipediaContributors(Manufacturable, CopyrightNotice):
+class WikipediaContributors(Manufacturable, CopyrightNotice, Frozen):
     """
     .. plugin:: copyright-notice:wikipedia-contributors.
     """

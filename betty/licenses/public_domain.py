@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.frosties.classtools import Frozen
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
 
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 
 @final
 @LicenseDefinition("public-domain", label=_("Public domain"))
-class PublicDomain(License):
+class PublicDomain(License, Frozen):
     """
     .. plugin:: license:public-domain.
     """

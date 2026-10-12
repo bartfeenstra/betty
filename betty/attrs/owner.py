@@ -5,8 +5,9 @@ Attributes that store data in owner instance attributes.
 from __future__ import annotations
 
 from collections.abc import Callable, Collection, Iterable
-from typing import TYPE_CHECKING, Any, Final, final, override
+from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
+from betty.attr import Attr
 from betty.attrs.common import CommonAttr, OptionableCommonAttr
 from betty.attrs.default import DefaultAttr
 from betty.attrs.optional import OptionalAttr
@@ -16,12 +17,17 @@ from betty.datas.aggregate.collection import (
     CollectionDefinition,
     MutableCollectionDefinition,
 )
-from betty.freezer import is_frozen
+from betty.frosty import is_frozen
 from betty.prop import HasProps
 from betty.props.setter import SetterProp
 
 if TYPE_CHECKING:
     from betty.datas.aggregate.record import ResolvableFieldDefinition
+
+
+type ResolvableOwnerFrozen[OwnerT: HasProps, AttrT: Attr] = (
+    bool | Callable[[OwnerT, AttrT], bool]
+)
 
 
 class __Owner[
@@ -34,17 +40,28 @@ class __Owner[
         self,
         field: ResolvableFieldDefinition[OwnerT, GetT, DefinitionT],
         *args: Any,
-        frozen: bool = False,
+        frozen: ResolvableOwnerFrozen[OwnerT, Self] = False,
         **kwargs: Any,
     ):
         super().__init__(field, *args, **kwargs)
-        self._frozen: Final[bool] = frozen
+        self.__frozen: Final[ResolvableOwnerFrozen[OwnerT, Self]] = frozen
+
+    @final
+    def _frozen(self, owner: OwnerT, /) -> bool:
+        if isinstance(self.__frozen, bool):
+            return self.__frozen
+        return self.__frozen(owner, self)
+
+    @final
+    @override
+    def freeze(self, owner: OwnerT, /) -> None:
+        if not self._frozen(owner):
+            return
+        super().freeze(owner)
 
     @final
     def _is_mutable(self, owner: OwnerT, /) -> bool:
-        if self._frozen or is_frozen(owner):
-            return not owner.is_initialized
-        return True
+        return self._frozen(owner) and not owner.is_initialized or not is_frozen(owner)
 
     @final
     @override

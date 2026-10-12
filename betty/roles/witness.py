@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import final
 
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _, ngettext
 from betty.role import Role, RoleDefinition
 
@@ -18,7 +19,7 @@ from betty.role import Role, RoleDefinition
     label_countable=ngettext("{count} witness", "{count} witnesses"),
     description=_("A formal witness to an event."),
 )
-class Witness(Role):
+class Witness(Role, Frozen):
     """
     .. plugin:: role:witness.
     """

@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.event_type import EventTypeDefinition, ShouldExistEventType
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _, ngettext
 
 if TYPE_CHECKING:
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
     label_plural=_("Births"),
     label_countable=ngettext("{count} birth", "{count} births"),
 )
-class Birth(ShouldExistEventType):
+class Birth(ShouldExistEventType, Frozen):
     """
     .. plugin:: event-type:birth.
     """

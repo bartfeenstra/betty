@@ -9,6 +9,7 @@ from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.enrichers.populate_links import PopulateLinks
 from betty.factory import DataManufacturable, Manufacturable
+from betty.frosties.attr import AttrFreezable
 from betty.jobs.populate_wiki_entity import PopulateWikiEntity
 from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
@@ -28,7 +29,7 @@ if TYPE_CHECKING:
         lambda: Sample(WikiData(populate_images=False), label="Full", size=Size.FULL),
     ),
 )
-class WikiData(Object):
+class WikiData(Object, AttrFreezable):
     """
     Configuration for the :py:class:`betty.enrichers.wiki.Wiki` enricher.
 

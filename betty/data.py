@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Self, final
 from betty.definition import HasDefinition
 from betty.definition.cls import OptionalClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.frosty import Frosty
 from betty.functools import LazyReCallable
 from betty.portable import Porter
 from betty.portable.error import NotPortable
@@ -82,7 +83,9 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         return self.__samples(self)
 
 
-class Data[DefinitionT: DataDefinition = DataDefinition](HasDefinition[DefinitionT]):
+class Data[DefinitionT: DataDefinition = DataDefinition](
+    HasDefinition[DefinitionT], Frosty
+):
     """
     A class that defines data for its instances.
     """

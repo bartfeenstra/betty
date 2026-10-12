@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 
 @final
 @CopyrightNoticeDefinition("public-domain", label=_("Public domain"))
-class PublicDomain(CopyrightNotice):
+class PublicDomain(CopyrightNotice, Frozen):
     """
     .. plugin:: copyright-notice:public-domain.
     """

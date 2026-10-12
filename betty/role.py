@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, final
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
+from betty.frosty import Frosty
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class Role(Object["RoleDefinition"]):
+class Role(Object["RoleDefinition"], Frosty):
     """
     A person's role at an event.
     """
