@@ -19,9 +19,9 @@ if TYPE_CHECKING:
     import logging
     from contextlib import AbstractAsyncContextManager
 
-    from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
     from betty.localizer import Localizer
+    from betty.pipeline import Pipe
     from betty.progress import Progress
 
 NoDefault = sentinel("NoDefault")

@@ -9,28 +9,28 @@ from typing import Any, overload
 
 from betty.assertions.type import assert_type
 from betty.exception import reraise_with_locator
-from betty.functools import Pipe
 from betty.operator import Key
+from betty.pipeline import Inlet, Pipeline
 
 
 @overload
 def assert_mapping(
     value_assertion: None = None, key_assertion: None = None, /
-) -> Pipe[Any, Mapping[Any, Any]]:
+) -> Pipeline[Any, Mapping[Any, Any]]:
     pass
 
 
 @overload
 def assert_mapping[ReturnT](
     value_assertion: Callable[[Any], ReturnT], key_assertion: None = None, /
-) -> Pipe[Any, Mapping[Any, ReturnT]]:
+) -> Pipeline[Any, Mapping[Any, ReturnT]]:
     pass
 
 
 @overload
 def assert_mapping[AssertionKeyT](
     value_assertion: None, key_assertion: Callable[[Any], AssertionKeyT], /
-) -> Pipe[Any, Mapping[AssertionKeyT, Any]]:
+) -> Pipeline[Any, Mapping[AssertionKeyT, Any]]:
     pass
 
 
@@ -39,7 +39,7 @@ def assert_mapping[ReturnT, AssertionKeyT](
     value_assertion: Callable[[Any], ReturnT],
     key_assertion: Callable[[Any], AssertionKeyT],
     /,
-) -> Pipe[Any, Mapping[AssertionKeyT, ReturnT]]:
+) -> Pipeline[Any, Mapping[AssertionKeyT, ReturnT]]:
     pass
 
 
@@ -71,4 +71,4 @@ def assert_mapping[ReturnT, AssertionKeyT](
             asserted_mapping[asserted_value_key] = asserted_value_value
         return asserted_mapping
 
-    return Pipe(_assert_mapping)
+    return Inlet(_assert_mapping)

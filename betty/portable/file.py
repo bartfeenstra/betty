@@ -18,14 +18,14 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
-    from betty.functools import Pipe
     from betty.pathlib import StrPath
+    from betty.pipeline import Pipeline
     from betty.portable import PortableData
 
 
 def assert_load_file(
     *, serializers: Iterable[Serializer]
-) -> Pipe[StrPath, PortableData]:
+) -> Pipeline[StrPath, PortableData]:
     """
     An assertion to load a dump from a file.
     """

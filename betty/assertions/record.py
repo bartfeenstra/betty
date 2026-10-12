@@ -17,7 +17,7 @@ from betty.operator import Key
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
 
-    from betty.functools import Pipe
+    from betty.pipeline import Pipeline
 
 
 @final
@@ -36,7 +36,7 @@ class Field[ValueT, ReturnT]:
 
 def assert_record(
     *fields: Field[Any, Any], allow_extra: bool = False
-) -> Pipe[Any, Mapping[str, Any]]:
+) -> Pipeline[Any, Mapping[str, Any]]:
     """
     Assert that a value is a record: a key-value mapping of arbitrary value types, with a known structure.
 

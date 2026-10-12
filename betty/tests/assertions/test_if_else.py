@@ -9,7 +9,7 @@ from betty.exception import HumanFacingException
 from betty.tests.test_assertions import _always_invalid, _always_valid
 
 if TYPE_CHECKING:
-    from betty.functools import Pipe
+    from betty.pipeline import Pipe
 
 
 @pytest.mark.parametrize(

@@ -9,19 +9,19 @@ from typing import Any, overload
 
 from betty.assertions.type import assert_type
 from betty.exception import reraise_with_locator
-from betty.functools import Pipe
 from betty.operator import Index
+from betty.pipeline import Inlet, Pipeline
 
 
 @overload
-def assert_sequence(value_assertion: None = None, /) -> Pipe[Any, Sequence[Any]]:
+def assert_sequence(value_assertion: None = None, /) -> Pipeline[Any, Sequence[Any]]:
     pass
 
 
 @overload
 def assert_sequence[ReturnT](
     value_assertion: Callable[[Any], ReturnT], /
-) -> Pipe[Any, Sequence[ReturnT]]:
+) -> Pipeline[Any, Sequence[ReturnT]]:
     pass
 
 
@@ -44,4 +44,4 @@ def assert_sequence[ReturnT](
                 asserted_sequence.append(value_assertion(value_value))
         return asserted_sequence
 
-    return Pipe(_assert_sequence)
+    return Inlet(_assert_sequence)
