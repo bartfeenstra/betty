@@ -56,17 +56,17 @@ print('Hello, Stdout!')
 print('Hello, Stderr!', file=stderr)
 """,
     )
-    user = StaticUi(severity=Severity.DEBUG)
-    await run_process(["python", str(tmp_path / "process.py")], shell=shell, ui=user)
-    user.assert_message("stdout:\nHello, Stdout!", Severity.DEBUG)
-    user.assert_message("stderr:\nHello, Stderr!", Severity.DEBUG)
+    ui = StaticUi(severity=Severity.DEBUG)
+    await run_process(["python", str(tmp_path / "process.py")], shell=shell, ui=ui)
+    ui.assert_message("stdout:\nHello, Stdout!", Severity.DEBUG)
+    ui.assert_message("stderr:\nHello, Stderr!", Severity.DEBUG)
 
 
 @_parameterize_shell
 async def test_run_process__with_errors_without_output(
     shell: bool, tmp_path: Path
 ) -> None:
-    user = StaticUi()
+    ui = StaticUi()
     script_path = tmp_path / "test.py"
     python_script = """
 import sys
@@ -76,17 +76,17 @@ sys.exit(1)"""
         await run_process(
             [which("python"), "-W", "ignore", str(script_path)],  # ty:ignore[invalid-argument-type]
             shell=shell,
-            ui=user,
+            ui=ui,
         )
-    user.assert_not_message("stdout:\n", Severity.DEBUG)
-    user.assert_not_message("stderr:\n", Severity.DEBUG)
+    ui.assert_not_message("stdout:\n", Severity.DEBUG)
+    ui.assert_not_message("stderr:\n", Severity.DEBUG)
 
 
 @_parameterize_shell
 async def test_run_process__with_errors_with_output(
     shell: bool, tmp_path: Path
 ) -> None:
-    user = StaticUi()
+    ui = StaticUi()
     stdout = "Hello, stdout!"
     stderr = "Hello, stderr!"
     script_path = tmp_path / "test.py"
@@ -100,10 +100,10 @@ sys.exit(1)"""
         await run_process(
             [which("python"), "-W", "ignore", str(script_path)],  # ty:ignore[invalid-argument-type]
             shell=shell,
-            ui=user,
+            ui=ui,
         )
-    user.assert_message(["stdout:", stdout], Severity.DEBUG)
-    user.assert_message(["stderr:", stderr], Severity.DEBUG)
+    ui.assert_message(["stdout:", stdout], Severity.DEBUG)
+    ui.assert_message(["stderr:", stderr], Severity.DEBUG)
 
 
 @_parameterize_shell

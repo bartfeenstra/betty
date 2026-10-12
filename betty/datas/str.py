@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.assertions.str import assert_str
 from betty.data import DataDefinition
 from betty.porters.callback import CallbackPorter
+from betty.validators.str import is_str
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
@@ -29,5 +29,5 @@ class StrDefinition(DataDefinition[str]):
         super().__init__(
             label=label,
             description=description,
-            porter=CallbackPorter(assert_str(), str),
+            porter=CallbackPorter(is_str, str),
         )

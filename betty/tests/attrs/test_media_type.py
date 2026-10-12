@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.attrs.media_type import HasMediaType, new_media_type_attr
+from betty.attrs.media_type import Media, new_media_type_attr
 from betty.media_type import MediaType, MediaTypeDefinition
 from betty.media_types.plain_text import PLAIN_TEXT
 from betty.prop import HasProps
@@ -24,9 +24,9 @@ def test_new_media_type_attr__set() -> None:
     assert owner.media_type is media_type
 
 
-class TestHasMediaType:
+class TestMedia:
     def test_media_type(self) -> None:
-        sut = HasMediaType()
+        sut = Media()
         assert sut.media_type is None
 
     @pytest.mark.parametrize(
@@ -34,13 +34,13 @@ class TestHasMediaType:
         [
             (
                 {},
-                HasMediaType(),
+                Media(),
             ),
             (
                 {
                     "mediaType": "text/plain",
                 },
-                HasMediaType(media_type=PLAIN_TEXT),
+                Media(media_type=PLAIN_TEXT),
             ),
         ],
     )
@@ -48,6 +48,6 @@ class TestHasMediaType:
         self,
         assert_dumps_linked_data: AssertDumpsLinkedData,
         expected: PortableMapping,
-        sut: HasMediaType,
+        sut: Media,
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected

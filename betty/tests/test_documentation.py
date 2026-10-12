@@ -9,7 +9,7 @@ from sphinx.errors import ExtensionError
 from sphinx.util import import_object
 
 from betty.app import App
-from betty.console.command import CommandDefinition
+from betty.console import CommandDefinition
 from betty.dirs import root_directory
 from betty.localizer import default_localizer
 from betty.test_utils.documentation import PluginDocumentationTestBase

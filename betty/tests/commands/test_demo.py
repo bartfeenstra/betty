@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.console import SystemExitCode
+from betty.console import ExitCode
 from betty.project import Project
 from betty.servers.no_op import NoOpServer
 from betty.test_utils.console import run
@@ -21,7 +21,7 @@ class TestDemo:
         )
         mocker.patch("betty.servers.demo.DemoServer", new=NoOpServer)
 
-        await run(isolated_app, "demo", expected_exit_code=SystemExitCode.USER_QUIT)
+        await run(isolated_app, "demo", exit_code=ExitCode.USER_QUIT)
 
     async def test_configure__with_path(
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path

@@ -11,7 +11,7 @@ from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.associations.to_many import ToMany, ToManyAssociates
 from betty.attrs.description import HasDescription
-from betty.attrs.media_type import HasMediaType
+from betty.attrs.media_type import Media
 from betty.attrs.path import new_path_attr
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.entities.file_reference import FileReference
@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     label_plural=_("Files"),
     label_countable=ngettext("{count} file", "{count} files"),
 )
-class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
+class File(HasDescription, HasLinks, Media, HasNotes, HasCitations):
     """
     .. plugin:: entity:file.
     """

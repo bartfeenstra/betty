@@ -15,18 +15,14 @@ from shutil import rmtree
 from tempfile import mkdtemp
 from typing import TYPE_CHECKING, Final, final, override
 
-from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
+from betty.os import NoAvailablePort
 from betty.server import Server, ServerNotStarted
 from betty.user import Severity
 
 if TYPE_CHECKING:
     from betty.pathlib import StrPath
     from betty.user.ui import Ui
-
-
-class _OsError(HumanFacingException, OSError):
-    pass
 
 
 @final
@@ -94,9 +90,7 @@ class BuiltinServer(Server):
                 )
                 break
         if self._http_server is None:
-            raise _OsError(
-                _("Cannot find an available port to bind the web server to.")
-            )
+            raise NoAvailablePort
         self._thread = threading.Thread(target=self._serve)
         self._thread.start()
 

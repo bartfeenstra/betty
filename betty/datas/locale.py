@@ -9,12 +9,12 @@ from typing import TYPE_CHECKING, final
 from babel import Locale
 
 from betty import samples
-from betty.assertions.locale import assert_locale
 from betty.data import DataDefinition
 from betty.locale import to_language_tag
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph
 from betty.porters.callback import CallbackPorter
+from betty.validators.locale import is_locale
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
@@ -39,5 +39,5 @@ class LocaleDefinition(DataDefinition[Locale]):
         super().__init__(
             label=label or _("Locale"),
             description=_description,
-            porter=CallbackPorter[Locale](assert_locale, to_language_tag),
+            porter=CallbackPorter[Locale](is_locale, to_language_tag),
         )

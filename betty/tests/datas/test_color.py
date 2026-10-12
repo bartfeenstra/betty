@@ -1,8 +1,10 @@
 import pytest
 
 from betty.datas.color import ColorDefinition
-from betty.exception import HumanFacingException
 from betty.portable import PortableData
+from betty.validation import Invalid
+from betty.validators.color import NotAHex
+from betty.validators.str import NotAStr
 
 
 class TestColorDefinition:
@@ -11,16 +13,18 @@ class TestColorDefinition:
         assert ColorDefinition().porter.load(color) == color
 
     @pytest.mark.parametrize(
-        "portable",
+        ("expected", "portable"),
         [
-            True,
-            False,
-            "#",
-            "#aaaaaaa",
+            (NotAStr, True),
+            (NotAStr, False),
+            (NotAHex, "#"),
+            (NotAHex, "#aaaaaaa"),
         ],
     )
-    def test_load__with_invalid_portable(self, portable: PortableData) -> None:
-        with pytest.raises(HumanFacingException):
+    def test_load__with_invalid_portable(
+        self, expected: type[Invalid], portable: PortableData
+    ) -> None:
+        with pytest.raises(expected):
             ColorDefinition().porter.load(portable)
 
     def test_dump(self) -> None:

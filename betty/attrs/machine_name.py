@@ -26,7 +26,7 @@ def new_machine_name_attr(
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
     frozen: bool = False,
-) -> OptionableCommonAttr[HasProps, MachineName, ResolvableMachineName]:
+) -> OptionableCommonAttr[HasProps, MachineName, ResolvableMachineName | None]:
     """
     Create an attribute containing a machine name.
     """
@@ -39,4 +39,4 @@ def new_machine_name_attr(
             else description,
         ),
         frozen=frozen,
-    ).setter(MachineName.resolve)
+    ).setter(MachineName)

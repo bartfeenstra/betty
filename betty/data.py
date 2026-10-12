@@ -60,7 +60,7 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         The porter for the data.
         """
         if not (porter := self.try_porter):
-            raise NotPortable(f"{self!r} does not have a porter.")
+            raise NotPortable(message=f"{self!r} does not have a porter.")
         return porter
 
     @final

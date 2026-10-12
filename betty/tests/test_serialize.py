@@ -4,12 +4,8 @@ import pytest
 
 from betty.media_type import MediaType
 from betty.portable import PortableData
-from betty.serialize import (
-    SerializationError,
-    Serializer,
-    SerializerDefinition,
-    serializer_for,
-)
+from betty.serialize import Serializer, SerializerDefinition, serializer_for
+from betty.validators.media_type import UnsupportedMediaType
 
 
 class _Serializer(Serializer):
@@ -44,5 +40,5 @@ def test_serializer_for__with_supported_type() -> None:
 
 
 def test_serializer_for_with_unsupported_type() -> None:
-    with pytest.raises(SerializationError):
+    with pytest.raises(UnsupportedMediaType):
         serializer_for([], ".unknown")

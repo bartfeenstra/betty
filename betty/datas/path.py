@@ -7,10 +7,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import final
 
-from betty.assertions.path import assert_path
 from betty.data import DataDefinition
 from betty.localizables.gettext import _
 from betty.porters.callback import CallbackPorter
+from betty.validators.path import is_path
 
 
 @final
@@ -20,6 +20,4 @@ class PathDefinition(DataDefinition[Path]):
     """
 
     def __init__(self):
-        super().__init__(
-            label=_("Path"), porter=CallbackPorter[Path](assert_path(), str)
-        )
+        super().__init__(label=_("Path"), porter=CallbackPorter[Path](is_path, str))

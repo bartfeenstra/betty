@@ -5,14 +5,9 @@ Complex/markup localizables.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from textwrap import indent
-from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
+from typing import TYPE_CHECKING, ClassVar, Final, final, override
 
-from betty.localizable import (
-    Localizable,
-    ResolvableLocalizable,
-    resolve_localizable,
-)
+from betty.localizable import Localizable, ResolvableLocalizable, resolve_localizable
 from betty.localizables.gettext import _, pgettext
 from betty.localized import LocalizedStr
 
@@ -22,11 +17,13 @@ if TYPE_CHECKING:
     from betty.localizer import Localizer
 
 join_separator: Final[Localizable] = pgettext("localizable-join-separator", ", ")
-join_and: Final[Localizable] = pgettext("localizable-join-and", "{first} and {second}")
+join_and_two: Final[Localizable] = pgettext(
+    "localizable-join-and", "{first} and {second}"
+)
 join_and_many: Final[Localizable] = pgettext(
     "localizable-join-and-many", "{most}, and {last}"
 )
-join_or: Final[Localizable] = pgettext("localizable-join-or", "{first} or {second}")
+join_or_two: Final[Localizable] = pgettext("localizable-join-or", "{first} or {second}")
 join_or_many: Final[Localizable] = pgettext(
     "localizable-join-or-many", "{most}, or {last}"
 )
@@ -48,10 +45,11 @@ class LocalizableSequence(metaclass=ABCMeta):
 
 
 class _LocalizableSequence(LocalizableSequence):
-    __slots__ = ("_localizables",)
+    __slots__ = ("_localizables", "_sort")
 
-    def __init__(self, *localizables: ResolvableLocalizable):
+    def __init__(self, *localizables: ResolvableLocalizable, sort: bool = False):
         self._localizables = tuple(map(resolve_localizable, localizables))
+        self._sort = sort
 
     @override
     @property
@@ -65,11 +63,7 @@ class _Join(_LocalizableSequence, Localizable):
     @override
     def localize(self, localizer: Localizer, /) -> LocalizedStr:
         return LocalizedStr(
-            self._separator.join(
-                localized
-                for part in self.localizables
-                if (localized := part.localize(localizer))
-            ),
+            self._separator.join(map(localizer.localize, self.localizables)),
             locale=localizer.locale,
         )
 
@@ -92,93 +86,8 @@ class Paragraph(_Join):
     _separator: ClassVar[str] = " "
 
 
-@final
-class Lines(_Join):
-    """
-    Represent multiple localizables as multiple lines of text.
-    """
-
-    _separator: ClassVar[str] = "\n"
-
-
-@final
-class Paragraphs(_Join):
-    """
-    Represent multiple localizables as multiple paragraphs of text.
-    """
-
-    _separator: ClassVar[str] = "\n\n"
-
-
-class _List(_LocalizableSequence, Localizable):
-    _template_left_to_right: Final[str] = "{prefix} {localized}"
-    _template_right_to_left: Final[str] = "{localized} {prefix}"
-
-    @override
-    def localize(self, localizer: Localizer, /) -> LocalizedStr:
-        if not self.localizables:
-            return LocalizedStr("")
-        localizeds = []
-        prefixes = []
-        prefix_lengths = []
-        if localizer.locale.character_order == "right-to-left":
-            template = self._template_right_to_left
-        else:
-            template = self._template_left_to_right
-        for index, localizable in enumerate(self._localizables):
-            localizeds.append(localizable.localize(localizer))
-            prefix = self._get_prefix(localizer, index)
-            prefixes.append(prefix)
-            prefix_lengths.append(len(prefix))
-        max_prefix_length = max(prefix_lengths) + 1
-        return LocalizedStr(
-            "\n".join(
-                template.format(
-                    localized=indent(localized, " " * max_prefix_length)[
-                        len(prefixes[index]) + 1 :
-                    ],
-                    prefix=self._get_prefix(localizer, index),
-                )
-                for index, localized in enumerate(localizeds)
-            )
-        )
-
-    @abstractmethod
-    def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
-        pass
-
-
-@final
-class OrderedList(_List):
-    """
-    Represent multiple localizables in an ordered list.
-    """
-
-    _prefix_template_left_to_right: Final[str] = "{index}."
-    _prefix_template_right_to_left: Final[str] = ".{index}"
-
-    @override
-    def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
-        if localizer.locale.character_order == "right-to-left":
-            template = self._prefix_template_right_to_left
-        else:
-            template = self._prefix_template_left_to_right
-        return template.format(index=index + 1)
-
-
-@final
-class UnorderedList(_List):
-    """
-    Represent multiple localizables in an unordered list.
-    """
-
-    @override
-    def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
-        return "-"
-
-
 class _NaturalJoin(_LocalizableSequence, Localizable):
-    _join: ClassVar[Localizable]
+    _join_two: ClassVar[Localizable]
     _join_many: ClassVar[Localizable]
 
     @final
@@ -190,12 +99,12 @@ class _NaturalJoin(_LocalizableSequence, Localizable):
             case 1:
                 return self.localizables[0].localize(localizer)
             case 2:
-                return self._join.format(
+                return self._join_two.format(
                     first=self._localizables[0], second=self._localizables[1]
                 ).localize(localizer)
         return self._join_many.format(
             most=join_separator.localize(localizer).join(
-                part.localize(localizer) for part in self.localizables[0:-1]
+                map(localizer.localize, self.localizables[0:-1])
             ),
             last=self.localizables[-1],
         ).localize(localizer)
@@ -207,7 +116,7 @@ class JoinAnd(_NaturalJoin):
     An enumeration where all of the localizables are applicable.
     """
 
-    _join: ClassVar[Localizable] = join_and
+    _join_two: ClassVar[Localizable] = join_and_two
     _join_many: ClassVar[Localizable] = join_and_many
 
 
@@ -217,7 +126,7 @@ class JoinOr(_NaturalJoin):
     An enumeration where any of the localizables may be applicable.
     """
 
-    _join: ClassVar[Localizable] = join_or
+    _join_two: ClassVar[Localizable] = join_or_two
     _join_many: ClassVar[Localizable] = join_or_many
 
 
@@ -244,12 +153,12 @@ class Quote(_Template):
     _template: ClassVar[Localizable] = pgettext("localizable-quote", '"{text}"')
 
 
-def do_you_mean(*available_options: Any) -> Localizable:
+def do_you_mean(*available_options: ResolvableLocalizable) -> Localizable:
     """
     Produce a message listing available options.
     """
     if available_options:
         return _("Do you mean {available_options}?").format(
-            available_options=JoinOr(*sorted(map(str, available_options)))
+            available_options=JoinOr(*available_options, sort=True)
         )
     return _("There are no available options.")

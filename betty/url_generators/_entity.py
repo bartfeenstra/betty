@@ -8,14 +8,13 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.collections import _empty_frozen_mapping
 from betty.media_type import (
-    MissingMediaType,
-    match_media_type,
     resolve_media_type,
 )
 from betty.media_types.html import HTML
 from betty.media_types.json import JSON
 from betty.media_types.json_ld import JSON_LD
 from betty.url_generator import UrlGenerator
+from betty.validators.media_type import is_media_type
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -44,11 +43,9 @@ class _EntityUrlGenerator[ResourceT](UrlGenerator[ResourceT]):
         query: Mapping[str, Sequence[str]] = _empty_frozen_mapping,
     ) -> str:
         if media_type is None:
-            raise MissingMediaType()
+            raise ValueError("Missing media type")
         media_type = resolve_media_type(media_type)
-        media_type = match_media_type(
-            media_type, (HTML.media_type, JSON_LD.media_type, JSON.media_type)
-        )
+        media_type = is_media_type(media_type, media_types=(HTML, JSON_LD, JSON))
         if media_type == HTML:
             if not locale:
                 locale = self._path_url_generator.default_locale

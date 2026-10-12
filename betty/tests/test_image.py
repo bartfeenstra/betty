@@ -8,7 +8,7 @@ from betty.image import (
     Pixel,
     Size,
     image_file_path_format,
-    is_supported_media_type,
+    is_image_type,
     resize_cover,
 )
 from betty.media_type import MediaType
@@ -28,8 +28,8 @@ from betty.media_types.svg import SVG
         (False, MediaType("application/json")),
     ],
 )
-async def test_is_supported_media_type(expected: bool, media_type: MediaType) -> None:
-    assert is_supported_media_type(media_type) == expected
+async def test_is_image_type(expected: bool, media_type: MediaType) -> None:
+    assert is_image_type(media_type) == expected
 
 
 @pytest.mark.parametrize(

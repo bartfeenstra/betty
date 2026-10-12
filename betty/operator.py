@@ -11,9 +11,10 @@ from typing import TYPE_CHECKING, Any, Final, final, override
 from typing_extensions import disjoint_base
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator, MutableSequence, Sequence
+    from collections.abc import Generator, MutableSequence, Sequence
 
-    from betty.user.location import Locator
+    from betty.location import Locator
+    from betty.validation import Validator
 
 
 @final
@@ -56,7 +57,7 @@ class Operator(metaclass=ABCMeta):
             raise OperatorError(self) from error
 
     @final
-    def get[T](self, data: Any, assertion: Callable[[Any], T] | None = None, /) -> T:
+    def get[T](self, data: Any, validator: Validator[Any, T] | None = None, /) -> T:
         """
         Get the value for this operator.
 
@@ -64,7 +65,7 @@ class Operator(metaclass=ABCMeta):
         """
         with self._catch():
             data = self._get(data)
-        return assertion(data) if assertion else data
+        return validator(data) if validator else data
 
     @abstractmethod
     def _get(self, data: Any, /) -> Any:
@@ -107,8 +108,8 @@ class Chain(Operator):
 
     __slots__ = ("_operators",)
 
-    def __init__(self, *operators: Operator):
-        self._operators = tuple(operators)
+    def __init__(self, operator: Operator, *operators: Operator):
+        self._operators = (operator, *operators)
 
     @override
     def __hash__(self) -> int:

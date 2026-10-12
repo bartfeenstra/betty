@@ -11,8 +11,7 @@ from betty.asset import AssetDirectoryDefinition
 from betty.commands.new_translation import (
     NewTranslation,
 )
-from betty.console import SystemExitCode
-from betty.console.command import CommandDefinition
+from betty.console import CommandDefinition, ExitCode
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 
@@ -55,7 +54,7 @@ class TestNewTranslation:
             "new-translation",
             "unknown-asset-id",
             "nl-NL",
-            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+            exit_code=ExitCode.ERROR_USAGE,
         )
 
     async def test_configure__with_invalid_locale(
@@ -66,5 +65,5 @@ class TestNewTranslation:
             "new-translation",
             "dummy",
             "",
-            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+            exit_code=ExitCode.ERROR_USAGE,
         )

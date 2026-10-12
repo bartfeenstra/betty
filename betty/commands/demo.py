@@ -4,7 +4,7 @@ import asyncio
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console import Command, CommandDefinition
 from betty.demo import generate
 from betty.demo.project import create_project
 from betty.factory import Manufacturable
@@ -14,6 +14,8 @@ from betty.servers import demo
 
 if TYPE_CHECKING:
     import argparse
+
+    from betty.console import CommandFunction
 
 
 @final

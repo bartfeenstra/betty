@@ -4,7 +4,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.console import SystemExitCode
+from betty.console import ExitCode
 from betty.file import write
 from betty.project import ProjectData
 from betty.servers.no_op import NoOpServer
@@ -32,7 +32,7 @@ class TestServe:
             "serve",
             "--project",
             str(tmp_path / "betty.json"),
-            expected_exit_code=SystemExitCode.USER_QUIT,
+            exit_code=ExitCode.USER_QUIT,
         )
 
     async def test_configure__with_explicit_server(
@@ -57,5 +57,5 @@ class TestServe:
             str(tmp_path / "betty.json"),
             "--server",
             "builtin",
-            expected_exit_code=SystemExitCode.USER_QUIT,
+            exit_code=ExitCode.USER_QUIT,
         )

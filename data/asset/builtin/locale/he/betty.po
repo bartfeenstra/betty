@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-25 19:03+0100\n"
+"POT-Creation-Date: 2026-10-12 00:28+0100\n"
 "PO-Revision-Date: 2026-07-15 13:30+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: he\n"
@@ -59,9 +59,6 @@ msgstr ""
 msgid "A localizable string"
 msgstr ""
 
-msgid "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
-msgstr ""
-
 msgid "A person's presence at an event."
 msgstr ""
 
@@ -98,6 +95,9 @@ msgstr ""
 msgid "All caches cleared."
 msgstr ""
 
+msgid "All of the errors must be fixed."
+msgstr ""
+
 msgid "All rights reserved"
 msgstr "כל הזכויות שמורות"
 
@@ -116,6 +116,9 @@ msgstr "אמסטרדם"
 
 #, python-brace-format
 msgid "An IETF BCP 47 language tag, such as {example_language_tag}."
+msgstr ""
+
+msgid "An identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
 msgstr ""
 
 #, python-brace-format
@@ -155,12 +158,7 @@ msgstr ""
 msgid "Associates"
 msgstr ""
 
-#, python-brace-format
-msgid "At least {expected} items are required, but found {actual}."
-msgstr ""
-
-#, python-brace-format
-msgid "At most {expected} items are allowed, but found {actual}."
+msgid "At least one of the errors must be fixed."
 msgstr ""
 
 msgid "At which URL will your site be published?"
@@ -294,7 +292,7 @@ msgstr ""
 msgid "Cannot add more than one manufacturer for the {plugin} {plugin_type} plugin to the {service} service."
 msgstr ""
 
-msgid "Cannot find an available port to bind the web server to."
+msgid "Cannot find an available networking port."
 msgstr ""
 
 #, python-brace-format
@@ -459,14 +457,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
-msgstr ""
-
-#, python-brace-format
-msgid "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
-msgstr ""
-
-#, python-brace-format
-msgid "Could not find the file {file_path}."
 msgstr ""
 
 msgid "Counties"
@@ -660,10 +650,6 @@ msgstr ""
 msgid "Events"
 msgstr ""
 
-#, python-brace-format
-msgid "Exactly {expected} items are required, but found {actual}."
-msgstr ""
-
 msgid "Exclude"
 msgstr ""
 
@@ -838,28 +824,21 @@ msgstr ""
 msgid "Informants"
 msgstr ""
 
-#, python-brace-format
-msgid "Invalid JSON: {error}."
+msgid "Invalid JSON"
+msgstr ""
+
+msgid "Invalid YAML"
 msgstr ""
 
 #, python-brace-format
-msgid "Invalid YAML: {error}."
+msgid "Invalid argument {argument}: {{error}}"
 msgstr ""
 
-#, python-brace-format
-msgid "Invalid argument {argument}: {error}"
-msgstr ""
-
-#, python-brace-format
-msgid "Invalid option {value}."
+msgid "Invalid media type"
 msgstr ""
 
 #, python-brace-format
 msgid "Invalid plural tag(s) {plural_tags} for {locale} translations."
-msgstr ""
-
-#, python-brace-format
-msgid "Invalid region {invalid_region}."
 msgstr ""
 
 msgid "It appears you called Betty without a command or arguments"
@@ -909,6 +888,9 @@ msgid "Last modified on %(last_modified)s"
 msgstr ""
 
 msgid "Last page"
+msgstr ""
+
+msgid "Learn more"
 msgstr ""
 
 msgid "License"
@@ -979,10 +961,6 @@ msgid "Locale"
 msgstr ""
 
 msgid "Locale aliases must not contain slashes."
-msgstr ""
-
-#, python-brace-format
-msgid "Locale {locale} is not known by your system."
 msgstr ""
 
 msgid "Locales"
@@ -1148,6 +1126,9 @@ msgid "Occupation"
 msgstr ""
 
 msgid "Occupations"
+msgstr ""
+
+msgid "One of the errors must be fixed."
 msgstr ""
 
 #, python-brace-format
@@ -1500,6 +1481,9 @@ msgstr ""
 msgid "Skip interactions and answer {yes} to all questions."
 msgstr ""
 
+msgid "Some errors occurred."
+msgstr ""
+
 msgid "Someone performed public speaking at the event."
 msgstr ""
 
@@ -1643,8 +1627,7 @@ msgstr ""
 msgid "The place that is enclosed by the other place"
 msgstr ""
 
-#, python-brace-format
-msgid "The server at {url} was unreachable after starting."
+msgid "The server was unreachable after starting."
 msgstr ""
 
 msgid "The source this citation references."
@@ -1697,10 +1680,32 @@ msgstr[1] ""
 msgid "This field is required."
 msgstr ""
 
+msgid "This field is unknown."
+msgstr ""
+
 msgid "This information is unavailable to protect people's privacy."
 msgstr ""
 
+msgid "This is not a directory."
+msgstr ""
+
+msgid "This is not a file."
+msgstr ""
+
+msgid "This is not a valid IETF BCP 47 language tag."
+msgstr ""
+
+msgid "This is not a valid URL."
+msgstr ""
+
+#, python-brace-format
+msgid "This is not a valid hexadecimal color, such as {color}."
+msgstr ""
+
 msgid "This is not valid Gramps XML."
+msgstr ""
+
+msgid "This locale is not known by your system."
 msgstr ""
 
 msgid "This must be a boolean."
@@ -1742,6 +1747,24 @@ msgstr ""
 
 #, python-brace-format
 msgid "This must be {length} characters long."
+msgstr ""
+
+msgid "This must consist of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
+msgstr ""
+
+#, python-brace-format
+msgid "This must have a length of at least {length}."
+msgstr ""
+
+#, python-brace-format
+msgid "This must have a length of at most {length}."
+msgstr ""
+
+#, python-brace-format
+msgid "This must have a length of {length}."
+msgstr ""
+
+msgid "This path does not exist."
 msgstr ""
 
 msgid "This person's name is unknown."
@@ -1791,19 +1814,19 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#, python-brace-format
-msgid "Unknown key: {unknown_key}."
+msgid "Unknown option."
 msgstr ""
 
-#, python-brace-format
-msgid "Unknown plugin {plugin}."
+msgid "Unknown region."
 msgstr ""
 
 msgid "Unknowns"
 msgstr ""
 
-#, python-brace-format
-msgid "Unsupported file {unsupported}. Supported types are: {supported}."
+msgid "Unsupported file type"
+msgstr ""
+
+msgid "Unsupported media type"
 msgstr ""
 
 msgid "Update all existing translations for Betty itself"
@@ -1864,6 +1887,9 @@ msgstr ""
 msgid "What is your project's machine name?"
 msgstr ""
 
+msgid "Where"
+msgstr ""
+
 msgid "Where do you want to save your project's configuration file?"
 msgstr ""
 
@@ -1878,6 +1904,9 @@ msgid "Whether to use clean URLs: {clean_example} instead of {unclean_example}."
 msgstr ""
 
 msgid "Which language should your project site be generated in? Enter a language code."
+msgstr ""
+
+msgid "Why"
 msgstr ""
 
 msgid "Width"
@@ -2656,12 +2685,8 @@ msgid "{individual_name} {affiliation_name}"
 msgstr ""
 
 #, python-brace-format
-msgid "{invalid_color} is not a valid hexadecimal color, such as {example_color}."
+msgid "{media_type} ({media_type_label})"
 msgstr ""
-
-#, python-brace-format
-msgid "{invalid_locale} is not a valid IETF BCP 47 language tag."
-msgstr "{invalid_locale} אינה תגית שפה תקנית מסוג IETF BCP 47."
 
 #, python-brace-format
 msgctxt "localizable-join-and-many"
@@ -2674,23 +2699,11 @@ msgid "{most}, or {last}"
 msgstr ""
 
 #, python-brace-format
-msgid "{path} is not a directory."
-msgstr "{path} זאת לא תיקייה."
-
-#, python-brace-format
 msgid "{plugin_type} configuration"
 msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type} {plugin} is not configurable, but configuration was given."
-msgstr ""
-
-#, python-brace-format
-msgid "{url} is not a valid URL."
-msgstr ""
-
-#, python-brace-format
-msgid "{value} is not a valid machine name."
 msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"

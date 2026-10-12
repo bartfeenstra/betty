@@ -14,6 +14,7 @@ from betty.functools import (
     Suppressed,
     map_suppress,
     passthrough,
+    raise_,
     suppress,
     unique,
 )
@@ -334,3 +335,13 @@ class TestLazyReCallable:
         sut = LazyReCallable(_callable)
         assert sut() is value
         assert sut() is value
+
+
+def test_raise_() -> None:
+    class _Exception(Exception):
+        pass
+
+    exception = _Exception()
+    with pytest.raises(_Exception) as exc_info:
+        raise_(exception)
+    assert exc_info.value is exception
