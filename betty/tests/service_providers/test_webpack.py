@@ -22,13 +22,19 @@ class TestWebpack:
         m_build.return_value = webpack_build_directory
 
         await write(webpack_build_directory / self._SENTINEL, self._SENTINEL)
-        async with isolated_project_factory(service_providers=[Webpack]) as project:
+        async with (
+            isolated_project_factory(service_providers=[Webpack]) as project,
+            project,
+        ):
             await generate(project)
             assert await read(project.www_directory / self._SENTINEL) == self._SENTINEL
 
     async def test_builder(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(service_providers=[Webpack]) as project:
+        async with (
+            isolated_project_factory(service_providers=[Webpack]) as project,
+            project,
+        ):
             webpack = await project.service_providers[Webpack]
             assert await webpack.builder is await webpack.builder

@@ -26,9 +26,10 @@ class TestFileReferees:
     async def test_build_template__without_referees(
         self, resource: object, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(
-            supported_plugins=[FileReferees]
-        ) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[FileReferees]) as project,
+            project,
+        ):
             sut = await FileReferees.new(project)
         assert await sut.build(document=Document(resource)) is None
 
@@ -38,9 +39,10 @@ class TestFileReferees:
         referee = DummyHasFileReferences()
         resource = File(__file__)
         FileReference(referee, resource)
-        async with isolated_project_factory(
-            supported_plugins=[FileReferees]
-        ) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[FileReferees]) as project,
+            project,
+        ):
             sut = await FileReferees.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None

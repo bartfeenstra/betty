@@ -307,7 +307,7 @@ class TestGrampsLoader:
 
     @pytest.fixture
     async def load_project(self) -> AsyncIterator[Project]:
-        async with Project.new_isolated(name=self.project_name) as project:
+        async with Project.new_isolated(name=self.project_name) as project, project:
             yield project
 
     @pytest.fixture

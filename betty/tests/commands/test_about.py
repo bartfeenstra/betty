@@ -10,14 +10,14 @@ from betty.uis.console import Console
 
 class TestAbout:
     async def test_configure(self, isolated_app_factory: IsolatedAppFactory) -> None:
-        async with isolated_app_factory(ui=Console()) as app:
+        async with isolated_app_factory(ui=Console()) as app, app:
             result = await run(app, "about")
             assert "Betty" in result.stdout
 
     async def test_configure__with_project(
         self, isolated_app_factory: IsolatedAppFactory, tmp_path: Path
     ) -> None:
-        async with isolated_app_factory(ui=Console()) as app:
+        async with isolated_app_factory(ui=Console()) as app, app:
             configuration = ProjectData(title="Betty", url="https://example.com")
             await write(
                 tmp_path / "betty.json",

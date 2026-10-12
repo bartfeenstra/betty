@@ -26,9 +26,12 @@ class TestGenerateEntityTypesHtml:
         entity_type: type[Entity],
         isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
-        async with isolated_project_factory(
-            generate_entity_list_html=[entity_type]
-        ) as project:
+        async with (
+            isolated_project_factory(
+                generate_entity_list_html=[entity_type]
+            ) as project,
+            project,
+        ):
             await do(GenerateEntityTypesHtml(project=project))
 
             await assert_betty_html(project, f"/{entity_type.definition.id}/index.html")
@@ -36,9 +39,12 @@ class TestGenerateEntityTypesHtml:
     async def test_do__with_pager(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(
-            generate_entity_list_html=[Place],
-        ) as project:
+        async with (
+            isolated_project_factory(
+                generate_entity_list_html=[Place],
+            ) as project,
+            project,
+        ):
             place_one = Place(id="my-first-place")
             place_two = Place(id="my-second-place")
             project.ancestry.add(place_one, place_two)

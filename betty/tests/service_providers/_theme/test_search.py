@@ -22,19 +22,22 @@ class TestIndex:
     async def dummy_project(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> AsyncIterator[Project]:
-        async with isolated_project_factory(
-            locales=(
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
+        async with (
+            isolated_project_factory(
+                locales=(
+                    ProjectLocale(
+                        "en-US",
+                        alias="en",
+                    ),
+                    ProjectLocale(
+                        "nl-NL",
+                        alias="nl",
+                    ),
                 ),
-                ProjectLocale(
-                    "nl-NL",
-                    alias="nl",
-                ),
-            ),
-            service_providers=[RaspberryMint],
-        ) as project:
+                service_providers=[RaspberryMint],
+            ) as project,
+            project,
+        ):
             yield project
 
     async def test_build_empty(self, dummy_project: Project) -> None:

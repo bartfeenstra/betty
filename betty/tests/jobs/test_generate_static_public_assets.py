@@ -7,18 +7,21 @@ from betty.test_utils.job import do
 
 class TestGenerateStaticPublicAssets:
     async def test_do(self, isolated_project_factory: IsolatedProjectFactory) -> None:
-        async with isolated_project_factory(
-            locales=[
-                ProjectLocale(
-                    "nl-NL",
-                    alias="nl",
-                ),
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                ),
-            ],
-        ) as project:
+        async with (
+            isolated_project_factory(
+                locales=[
+                    ProjectLocale(
+                        "nl-NL",
+                        alias="nl",
+                    ),
+                    ProjectLocale(
+                        "en-US",
+                        alias="en",
+                    ),
+                ],
+            ) as project,
+            project,
+        ):
             await do(GenerateStaticPublicAssets(project=project))
 
             with open(

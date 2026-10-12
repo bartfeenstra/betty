@@ -106,9 +106,12 @@ class TestRaspberryMint:
     async def test_generate(
         self, isolated_app: App, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(
-            app=isolated_app, service_providers=[RaspberryMint]
-        ) as project:
+        async with (
+            isolated_project_factory(
+                app=isolated_app, service_providers=[RaspberryMint]
+            ) as project,
+            project,
+        ):
             await generate(project)
             assert (project.www_directory / "betty.webmanifest").is_file()
 
@@ -117,11 +120,14 @@ class TestRegion:
     async def test_all(
         self, isolated_app: App, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(
-            app=isolated_app,
-            generate_entity_list_html=[DummyEntityOne],
-            plugins={EntityDefinition: [DummyEntityOne]},
-        ) as project:
+        async with (
+            isolated_project_factory(
+                app=isolated_app,
+                generate_entity_list_html=[DummyEntityOne],
+                plugins={EntityDefinition: [DummyEntityOne]},
+            ) as project,
+            project,
+        ):
             assert "entity-page-content--dummy-one" in await Region.all(project)
 
     def test_resolve__with_enum(self) -> None:
@@ -138,9 +144,10 @@ class TestRaspberryMintData(DataTestBase[RaspberryMintData]):
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         sut = RaspberryMintData(regional_content={"unknown-region": []})
-        async with isolated_project_factory(
-            service_providers=[RaspberryMint]
-        ) as project:
+        async with (
+            isolated_project_factory(service_providers=[RaspberryMint]) as project,
+            project,
+        ):
             with pytest.raises(HumanFacingException) as exc_info:
                 await sut.validate(project)
         assert 'data.regional_content["unknown-region"]' in str(exc_info.value)

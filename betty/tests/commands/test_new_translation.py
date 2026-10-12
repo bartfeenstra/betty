@@ -24,12 +24,15 @@ class TestNewTranslation:
     ) -> AsyncIterator[App]:
         _DUMMY = AssetDirectoryDefinition("dummy", assets=tmp_path)
 
-        async with isolated_app_factory(
-            plugins={
-                CommandDefinition: [NewTranslation],
-                AssetDirectoryDefinition: [_DUMMY],
-            }
-        ) as app:
+        async with (
+            isolated_app_factory(
+                plugins={
+                    CommandDefinition: [NewTranslation],
+                    AssetDirectoryDefinition: [_DUMMY],
+                }
+            ) as app,
+            app,
+        ):
             yield app
 
     async def test_configure__minimal(

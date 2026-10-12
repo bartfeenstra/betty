@@ -115,7 +115,7 @@ async def isolated_app(
     """
     Create a new, isolated, temporary :py:class:`betty.app.App`.
     """
-    async with App.new_isolated(process_pool=process_pool) as app:
+    async with App.new_isolated(process_pool=process_pool) as app, app:
         yield app
 
 
@@ -170,7 +170,7 @@ async def isolated_project(isolated_app: App) -> AsyncIterator[Project]:
     """
     Create a new, isolated, temporary :py:class:`betty.project.Project`.
     """
-    async with Project.new_isolated(app=isolated_app) as project:
+    async with Project.new_isolated(app=isolated_app) as project, project:
         yield project
 
 
@@ -496,14 +496,17 @@ async def _assert_template(
     links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
     loaders: Iterable[ManufacturableLoader] = (),
 ) -> AsyncGenerator[tuple[str, Project]]:
-    async with isolated_project_factory(
-        assets=assets,
-        debug=True,
-        enrichers=enrichers,
-        service_providers=service_providers,
-        links=links,
-        loaders=loaders,
-    ) as project:
+    async with (
+        isolated_project_factory(
+            assets=assets,
+            debug=True,
+            enrichers=enrichers,
+            service_providers=service_providers,
+            links=links,
+            loaders=loaders,
+        ) as project,
+        project,
+    ):
         if data is None:
             data = {}
         if "document" not in data:
@@ -691,7 +694,7 @@ async def assert_linked_data_dump() -> AssertLinkedDataDump:
         schema: Callable[[Project], Awaitable[Schema]] | Schema,
         portable: Callable[[Project], Awaitable[PortableDataT]] | PortableDataT,
     ) -> PortableDataT:
-        async with Project.new_isolated() as project:
+        async with Project.new_isolated() as project, project:
             actual = await portable(project) if callable(portable) else portable  # ty:ignore[invalid-await]
 
             # Validate the raw dump.

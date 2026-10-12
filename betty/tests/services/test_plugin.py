@@ -12,9 +12,7 @@ from betty.services.plugin import (
     PluginServiceManager,
     ResolvableServiceLevelHasPluginServices,
 )
-from betty.services.plugin.definition.collection.keyed import (
-    PluginDefinitionsService,
-)
+from betty.services.plugin.definition.collection.keyed import PluginDefinitionsService
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginManufacturer,
@@ -224,7 +222,9 @@ class _PluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):
     my_first_service = _PluginServiceManagerTestSut()
 
     def __init__(self, *plugins: ResolvableDefinition[DummyPluginDefinition]):
-        super().__init__(services=ServiceLevel())
+        super().__init__(
+            services=ServiceLevel(plugins={DummyPluginDefinition: plugins})
+        )
         type(self).my_first_service.add_init_plugins(self, *plugins)
 
 
@@ -261,18 +261,19 @@ class TestPluginServiceManager:
         ) == [DummyPluginOne]
 
     async def test_get_plugins__with_plugins(self) -> None:
-        owner = _PluginServiceManagerTestOwner()
-        await _PluginServiceManagerTestOwner.my_first_service.init_plugins(
-            owner, DummyPluginOne
-        )
-        assert list(
-            _PluginServiceManagerTestOwner.my_first_service.get_plugins(owner)
-        ) == [DummyPluginOne]
+        async with _PluginServiceManagerTestOwner() as owner:
+            await _PluginServiceManagerTestOwner.my_first_service.init_plugins(
+                owner, DummyPluginOne
+            )
+            assert list(
+                _PluginServiceManagerTestOwner.my_first_service.get_plugins(owner)
+            ) == [DummyPluginOne]
 
     async def test_get_plugins__without_plugins(self) -> None:
-        owner = _PluginServiceManagerTestOwner()
-        await _PluginServiceManagerTestOwner.my_first_service.init_plugins(owner)
-        assert not _PluginServiceManagerTestOwner.my_first_service.get_plugins(owner)
+        async with _PluginServiceManagerTestOwner() as owner:
+            assert not _PluginServiceManagerTestOwner.my_first_service.get_plugins(
+                owner
+            )
 
     def test_pre_init_owner(self) -> None:
         owner = _PluginServiceManagerTestOwner()

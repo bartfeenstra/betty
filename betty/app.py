@@ -199,14 +199,13 @@ class App(RequirableServiceLevel, HasPluginServices):
                 exit_stack.push_async_callback(
                     to_thread, rmtree, binary_file_cache_directory
                 )
-            async with cls(
+            yield cls(
                 binary_file_cache=TransientBinaryFileStore(binary_file_cache_directory),
                 cache=NoOpStore() if cache is None else cache,
                 plugins=plugins,
                 process_pool=process_pool,
                 ui=NoOpUi() if ui is None else ui,
-            ) as app:
-                yield app
+            )
 
     @service
     def localizers(self) -> LocalizerRepository:

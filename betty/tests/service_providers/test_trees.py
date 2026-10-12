@@ -12,9 +12,10 @@ class TestTrees:
     async def test_generate(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(
-            debug=True, service_providers=[Trees]
-        ) as project:
+        async with (
+            isolated_project_factory(debug=True, service_providers=[Trees]) as project,
+            project,
+        ):
             await generate(project)
             with open(
                 project.www_directory / "js" / "webpack" / "trees.js",

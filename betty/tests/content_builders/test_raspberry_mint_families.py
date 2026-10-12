@@ -21,7 +21,10 @@ class TestFamilies:
     async def test_build_template__without_person(
         self, resource: object, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(supported_plugins=[Families]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[Families]) as project,
+            project,
+        ):
             sut = await Families.new(project)
         assert await sut.build(document=Document(resource)) is None
 
@@ -31,7 +34,10 @@ class TestFamilies:
         parent = Person(id="parent")
         resource = Person(id="resource", parents=[parent])
         child = Person(id="child", parents=[resource])
-        async with isolated_project_factory(supported_plugins=[Families]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[Families]) as project,
+            project,
+        ):
             project.ancestry.add(resource)
             sut = await Families.new(project)
             actual = await sut.build(document=Document(resource))

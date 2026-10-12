@@ -48,20 +48,26 @@ class TestProject:
     async def test_bootstrap__should_initialize_service_providers(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(
-            plugins={ServiceProviderDefinition: [_DummyServiceProvider]},
-            service_providers=[_DummyServiceProvider],
-        ) as sut:
+        async with (
+            isolated_project_factory(
+                plugins={ServiceProviderDefinition: [_DummyServiceProvider]},
+                service_providers=[_DummyServiceProvider],
+            ) as sut,
+            sut,
+        ):
             service_provider = await sut.service_providers[_DummyServiceProvider]
             assert service_provider.bootstrapped
 
     async def test_service_providers(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(
-            plugins={ServiceProviderDefinition: [_DummyServiceProvider]},
-            service_providers=[_DummyServiceProvider],
-        ) as sut:
+        async with (
+            isolated_project_factory(
+                plugins={ServiceProviderDefinition: [_DummyServiceProvider]},
+                service_providers=[_DummyServiceProvider],
+            ) as sut,
+            sut,
+        ):
             assert _DummyServiceProvider in sut.service_providers
 
     async def test_ancestry__with___init___ancestry(
@@ -80,13 +86,13 @@ class TestProject:
     async def test_assets(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory() as sut:
+        async with isolated_project_factory() as sut, sut:
             assert len(sut.asset_directories.directories) == 2
 
     async def test_jinja(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory() as sut:
+        async with isolated_project_factory() as sut, sut:
             await sut.jinja
 
     async def test_localizers(
@@ -109,7 +115,7 @@ class TestProject:
     async def test_renderer(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory() as sut:
+        async with isolated_project_factory() as sut, sut:
             await sut.renderer
 
     async def test_url_generator(
@@ -132,13 +138,13 @@ class TestProject:
     async def test_copyright_notice(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory() as sut:
+        async with isolated_project_factory() as sut, sut:
             assert await sut.copyright_notice is await sut.copyright_notice
 
     async def test_license(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory() as sut:
+        async with isolated_project_factory() as sut, sut:
             assert await sut.license is await sut.license
 
     async def test_privatizer(
@@ -150,7 +156,7 @@ class TestProject:
     async def test_new_document(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory() as sut:
+        async with isolated_project_factory() as sut, sut:
             await sut.new_document()
 
     async def test_directory(
@@ -197,7 +203,7 @@ class TestProject:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         author = "Bart"
-        async with isolated_project_factory(author=author) as project:
+        async with isolated_project_factory(author=author) as project, project:
             assert project.author is not None
             assert project.author.localize(default_localizer) == author
 

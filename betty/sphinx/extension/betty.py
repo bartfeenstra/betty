@@ -54,7 +54,7 @@ type _Plugins = Mapping[MachineName, Mapping[MachineName, PluginDefinition]]
 
 
 async def _get_plugins() -> _Plugins:
-    async with Project.new_isolated() as project:
+    async with Project.new_isolated() as project, project:
         return {
             plugin_type: {
                 plugin.id: plugin async for plugin in project.plugins[plugin_type]
@@ -72,7 +72,7 @@ def _cmp_formats(left: Serializer, right: Serializer) -> int:
 
 
 async def _get_serializers() -> Sequence[Serializer]:
-    async with App.new_isolated() as app:
+    async with App.new_isolated() as app, app:
         return sorted(
             await gather(*app.serializers),
             key=cmp_to_key(_cmp_formats),

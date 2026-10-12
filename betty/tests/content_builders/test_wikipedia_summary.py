@@ -12,9 +12,10 @@ class TestWikipediaSummary:
     async def test_build_template__without_has_links_resource(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(
-            supported_plugins=[WikipediaSummary]
-        ) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[WikipediaSummary]) as project,
+            project,
+        ):
             sut = await WikipediaSummary.new(project)
             assert await sut.build(document=Document()) is None
 
@@ -28,9 +29,10 @@ class TestWikipediaSummary:
             "en", "Amsterdam", "My First Summary", summary_content
         )
         resource = DummyHasLinks(links=[Link(url)])
-        async with isolated_project_factory(
-            supported_plugins=[WikipediaSummary]
-        ) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[WikipediaSummary]) as project,
+            project,
+        ):
             project.ancestry.add(resource)
             sut = await WikipediaSummary.new(project)
             actual = await sut.build(document=Document(resource))

@@ -10,18 +10,21 @@ from betty.test_utils.jinja import assert_betty_html
 async def test_generate__html_lang(
     isolated_project_factory: IsolatedProjectFactory,
 ) -> None:
-    async with isolated_project_factory(
-        locales=(
-            ProjectLocale(
-                "en-US",
-                alias="en",
+    async with (
+        isolated_project_factory(
+            locales=(
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                ),
+                ProjectLocale(
+                    "nl-NL",
+                    alias="nl",
+                ),
             ),
-            ProjectLocale(
-                "nl-NL",
-                alias="nl",
-            ),
-        ),
-    ) as project:
+        ) as project,
+        project,
+    ):
         await generate(project)
         with open(
             await assert_betty_html(project, "/nl/index.html"), encoding="utf-8"
@@ -33,18 +36,21 @@ async def test_generate__html_lang(
 async def test_generate__links(
     isolated_project_factory: IsolatedProjectFactory,
 ) -> None:
-    async with isolated_project_factory(
-        locales=(
-            ProjectLocale(
-                "nl-NL",
-                alias="nl",
+    async with (
+        isolated_project_factory(
+            locales=(
+                ProjectLocale(
+                    "nl-NL",
+                    alias="nl",
+                ),
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                ),
             ),
-            ProjectLocale(
-                "en-US",
-                alias="en",
-            ),
-        ),
-    ) as project:
+        ) as project,
+        project,
+    ):
         await generate(project)
         with open(
             await assert_betty_html(project, "/nl/index.html"), encoding="utf-8"
@@ -75,18 +81,21 @@ async def test_generate__links(
 async def test_generate__links_for_entity_pages(
     isolated_project_factory: IsolatedProjectFactory,
 ) -> None:
-    async with isolated_project_factory(
-        locales=(
-            ProjectLocale(
-                "nl-NL",
-                alias="nl",
+    async with (
+        isolated_project_factory(
+            locales=(
+                ProjectLocale(
+                    "nl-NL",
+                    alias="nl",
+                ),
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
+                ),
             ),
-            ProjectLocale(
-                "en-US",
-                alias="en",
-            ),
-        ),
-    ) as project:
+        ) as project,
+        project,
+    ):
         person = Person(id="my-first-person")
         project.ancestry.add(person)
         await generate(project)
