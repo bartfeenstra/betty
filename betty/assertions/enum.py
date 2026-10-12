@@ -8,12 +8,12 @@ from enum import Enum
 from typing import Any
 
 from betty.assertions import _HumanFacingValueError
-from betty.functools import Pipe
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, do_you_mean
+from betty.pipeline import Inlet, Pipeline
 
 
-def assert_enum[EnumT: Enum](options: type[EnumT]) -> Pipe[Any, EnumT]:
+def assert_enum[EnumT: Enum](options: type[EnumT]) -> Pipeline[Any, EnumT]:
     """
     Assert that a value is allowed by an enum, and return the enum value.
     """
@@ -29,4 +29,4 @@ def assert_enum[EnumT: Enum](options: type[EnumT]) -> Pipe[Any, EnumT]:
                 )
             ) from None
 
-    return Pipe(_assert_enum)
+    return Inlet(_assert_enum)

@@ -15,8 +15,8 @@ if TYPE_CHECKING:
     import logging
     from collections.abc import AsyncGenerator
 
-    from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
+    from betty.pipeline import Pipe
     from betty.progress import Progress
     from betty.user import Severity
 

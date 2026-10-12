@@ -10,7 +10,7 @@ from betty.exception import HumanFacingException
 from betty.operator import Key
 
 if TYPE_CHECKING:
-    from betty.functools import Pipe
+    from betty.pipeline import Pipe
 
 
 @pytest.mark.parametrize(

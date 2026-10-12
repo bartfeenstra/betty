@@ -23,8 +23,8 @@ if TYPE_CHECKING:
         MutableSequence,
     )
 
-    from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
+    from betty.pipeline import Pipe
     from betty.progress import Progress
     from betty.user import Severity
 

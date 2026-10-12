@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, Any
 
 from betty.assertions.str import assert_str
 from betty.exception import HumanFacingException
-from betty.functools import Pipe
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, Quote, do_you_mean
+from betty.pipeline import Inlet, Pipeline
 from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 def assert_plugin[DefinitionT: PluginDefinition](
     available_plugins: Collection[DefinitionT],
-) -> Pipe[Any, DefinitionT]:
+) -> Pipeline[Any, DefinitionT]:
     """
     Assert that a value is a plugin ID.
     """
@@ -38,4 +38,4 @@ def assert_plugin[DefinitionT: PluginDefinition](
             )
         ) from None
 
-    return Pipe(_assert)
+    return Inlet(_assert)

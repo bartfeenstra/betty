@@ -9,13 +9,13 @@ from typing import Any
 from betty.assertions import _HumanFacingValueError
 from betty.assertions.if_else import assert_if_else
 from betty.assertions.type import assert_type
-from betty.functools import Pipe
 from betty.localizables.gettext import _
+from betty.pipeline import Inlet, Pipeline
 
 
 def _assert_number(
     minimum: float | None = None, maximum: float | None = None
-) -> Pipe[float, float]:
+) -> Pipeline[float, float]:
     def __assert_number(value: float) -> float:
         if minimum is not None and value < minimum:
             raise _HumanFacingValueError(
@@ -27,12 +27,12 @@ def _assert_number(
             )
         return value
 
-    return Pipe(__assert_number)
+    return Inlet(__assert_number)
 
 
 def assert_number(
     *, minimum: float | None = None, maximum: float | None = None
-) -> Pipe[Any, float]:
+) -> Pipeline[Any, float]:
     """
     Assert that a value is a number (a Python ``int`` or ``float``).
     """
