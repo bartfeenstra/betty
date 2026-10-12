@@ -14,10 +14,10 @@ from betty.localizables.markup import Quote
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from betty.functools import Pipeline
+    from betty.functools import Pipe
 
 
-def assert_directory() -> Pipeline[Any, Path]:
+def assert_directory() -> Pipe[Any, Path]:
     """
     Assert that a value is a path to an existing directory.
     """

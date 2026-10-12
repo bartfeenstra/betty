@@ -22,9 +22,8 @@ from betty.user import Severity
 from betty.user.ui import NoDefault, Ui
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator, Mapping
+    from collections.abc import AsyncGenerator, Callable, Mapping
 
-    from betty.functools import Pipe
     from betty.localizable import ResolvableLocalizable
     from betty.localizer import Localizer
     from betty.progress import Progress
@@ -144,7 +143,7 @@ class Console(Ui):
         question: ResolvableLocalizable,
         /,
         *,
-        assertion: Pipe[str, T],
+        assertion: Callable[[str], T],
         default: str | NoDefault = NoDefault,
         stdin: TextIO | None = None,
     ) -> T:

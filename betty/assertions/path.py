@@ -12,10 +12,10 @@ from betty.assertions.isinstance import assert_isinstance
 from betty.assertions.str import assert_str
 
 if TYPE_CHECKING:
-    from betty.functools import Pipeline
+    from betty.functools import Pipe
 
 
-def assert_path() -> Pipeline[Any, Path]:
+def assert_path() -> Pipe[Any, Path]:
     """
     Assert that a value is a path to a file or directory on disk that may or may not exist.
     """

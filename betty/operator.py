@@ -11,9 +11,8 @@ from typing import TYPE_CHECKING, Any, Final, final, override
 from typing_extensions import disjoint_base
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, MutableSequence, Sequence
+    from collections.abc import Callable, Generator, MutableSequence, Sequence
 
-    from betty.functools import Pipe
     from betty.user.location import Locator
 
 
@@ -57,7 +56,7 @@ class Operator(metaclass=ABCMeta):
             raise OperatorError(self) from error
 
     @final
-    def get[T](self, data: Any, assertion: Pipe[Any, T] | None = None, /) -> T:
+    def get[T](self, data: Any, assertion: Callable[[Any], T] | None = None, /) -> T:
         """
         Get the value for this operator.
 

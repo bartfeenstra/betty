@@ -12,10 +12,10 @@ from betty.error import FileNotFound
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from betty.functools import Pipeline
+    from betty.functools import Pipe
 
 
-def assert_file() -> Pipeline[Any, Path]:
+def assert_file() -> Pipe[Any, Path]:
     """
     Assert that a value is a path to an existing file.
     """

@@ -4,28 +4,30 @@ Sequence data assertions.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from typing import Any, overload
 
 from betty.assertions.type import assert_type
 from betty.exception import reraise_with_locator
-from betty.functools import Pipe, Pipeline
+from betty.functools import Pipe
 from betty.operator import Index
 
 
 @overload
-def assert_sequence(value_assertion: None = None, /) -> Pipeline[Any, Sequence[Any]]:
+def assert_sequence(value_assertion: None = None, /) -> Pipe[Any, Sequence[Any]]:
     pass
 
 
 @overload
 def assert_sequence[ReturnT](
-    value_assertion: Pipe[Any, ReturnT], /
-) -> Pipeline[Any, Sequence[ReturnT]]:
+    value_assertion: Callable[[Any], ReturnT], /
+) -> Pipe[Any, Sequence[ReturnT]]:
     pass
 
 
-def assert_sequence[ReturnT](value_assertion: Pipe[Any, ReturnT] | None = None, /):
+def assert_sequence[ReturnT](
+    value_assertion: Callable[[Any], ReturnT] | None = None, /
+):
     """
     Assert that a value is a sequence.
 
@@ -42,4 +44,4 @@ def assert_sequence[ReturnT](value_assertion: Pipe[Any, ReturnT] | None = None, 
                 asserted_sequence.append(value_assertion(value_value))
         return asserted_sequence
 
-    return Pipeline(_assert_sequence)
+    return Pipe(_assert_sequence)
