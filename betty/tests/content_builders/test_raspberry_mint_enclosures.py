@@ -21,7 +21,10 @@ class TestEnclosures:
     async def test_build_template__without_enclosures(
         self, resource: object, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(supported_plugins=[Enclosures]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[Enclosures]) as project,
+            project,
+        ):
             sut = await Enclosures.new(project)
         assert await sut.build(document=Document(resource)) is None
 
@@ -31,7 +34,10 @@ class TestEnclosures:
         encloses = Place()
         resource = Place()
         Enclosure(encloses=encloses, enclosed_by=resource)
-        async with isolated_project_factory(supported_plugins=[Enclosures]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[Enclosures]) as project,
+            project,
+        ):
             sut = await Enclosures.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None

@@ -9,7 +9,10 @@ class TestSeeAlso:
     async def test_build_template__without_has_links(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(supported_plugins=[SeeAlso]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[SeeAlso]) as project,
+            project,
+        ):
             sut = await SeeAlso.new(project)
             provided_content = await sut.build(document=Document(object()))
         assert provided_content is None
@@ -18,7 +21,10 @@ class TestSeeAlso:
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         resource = Person()
-        async with isolated_project_factory(supported_plugins=[SeeAlso]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[SeeAlso]) as project,
+            project,
+        ):
             sut = await SeeAlso.new(project)
             assert await sut.build(document=Document(resource)) is None
 
@@ -27,7 +33,10 @@ class TestSeeAlso:
     ) -> None:
         url = "betty:///my-first-page"
         resource = Person(links=[Link(url)])
-        async with isolated_project_factory(supported_plugins=[SeeAlso]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[SeeAlso]) as project,
+            project,
+        ):
             sut = await SeeAlso.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None

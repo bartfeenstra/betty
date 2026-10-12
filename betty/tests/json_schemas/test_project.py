@@ -37,7 +37,10 @@ class TestProjectSchema(SchemaTestBase):
         request: pytest.FixtureRequest,
     ) -> SchemaTestBaseSut:
         url, clean_urls = request.param
-        async with isolated_project_factory(clean_urls=clean_urls, url=url) as project:
+        async with (
+            isolated_project_factory(clean_urls=clean_urls, url=url) as project,
+            project,
+        ):
             return (
                 await ProjectSchema.new(project),
                 [

@@ -24,23 +24,26 @@ def file() -> str:
 async def test_regional_content_front_page_summary(
     file: str, isolated_project_factory: IsolatedProjectFactory
 ) -> None:
-    async with isolated_project_factory(
-        service_providers=[
-            ServiceProviderManufacturer(
-                RaspberryMint,
-                RaspberryMintData(
-                    regional_content={
-                        Region.FRONT_PAGE_SUMMARY: [
-                            ContentBuilderManufacturer(
-                                Render,
-                                RenderData("Hello, world!"),
-                            ),
-                        ]
-                    }
-                ),
-            )
-        ],
-    ) as project:
+    async with (
+        isolated_project_factory(
+            service_providers=[
+                ServiceProviderManufacturer(
+                    RaspberryMint,
+                    RaspberryMintData(
+                        regional_content={
+                            Region.FRONT_PAGE_SUMMARY: [
+                                ContentBuilderManufacturer(
+                                    Render,
+                                    RenderData("Hello, world!"),
+                                ),
+                            ]
+                        }
+                    ),
+                )
+            ],
+        ) as project,
+        project,
+    ):
         environment = await project.jinja
         actual = await environment.from_string(file).render_async(
             document=await project.new_document()
@@ -51,23 +54,26 @@ async def test_regional_content_front_page_summary(
 async def test_regional_content_front_page_content(
     file: str, isolated_project_factory: IsolatedProjectFactory
 ) -> None:
-    async with isolated_project_factory(
-        service_providers=[
-            ServiceProviderManufacturer(
-                RaspberryMint,
-                RaspberryMintData(
-                    regional_content={
-                        Region.FRONT_PAGE_CONTENT: [
-                            ContentBuilderManufacturer(
-                                Render,
-                                RenderData("Hello, world!"),
-                            ),
-                        ]
-                    }
-                ),
-            )
-        ],
-    ) as project:
+    async with (
+        isolated_project_factory(
+            service_providers=[
+                ServiceProviderManufacturer(
+                    RaspberryMint,
+                    RaspberryMintData(
+                        regional_content={
+                            Region.FRONT_PAGE_CONTENT: [
+                                ContentBuilderManufacturer(
+                                    Render,
+                                    RenderData("Hello, world!"),
+                                ),
+                            ]
+                        }
+                    ),
+                )
+            ],
+        ) as project,
+        project,
+    ):
         environment = await project.jinja
         actual = await environment.from_string(file).render_async(
             document=await project.new_document()

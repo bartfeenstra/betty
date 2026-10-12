@@ -14,9 +14,12 @@ class TestIncompleteTranslationWarning:
     async def test_build_template__with_default_locale(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(
-            supported_plugins=[IncompleteTranslationWarning]
-        ) as project:
+        async with (
+            isolated_project_factory(
+                supported_plugins=[IncompleteTranslationWarning]
+            ) as project,
+            project,
+        ):
             sut = await IncompleteTranslationWarning.new(project)
             actual = await sut.build(document=Document())
         assert actual is None
@@ -29,11 +32,13 @@ class TestIncompleteTranslationWarning:
     ) -> None:
         async with (
             isolated_app_factory() as app,
+            app,
             isolated_project_factory(
                 app=app,
                 locales=["nl"],
                 supported_plugins=[IncompleteTranslationWarning],
             ) as project,
+            project,
         ):
             sut = await IncompleteTranslationWarning.new(project)
             actual = await sut.build(

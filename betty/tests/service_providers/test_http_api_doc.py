@@ -21,7 +21,10 @@ class TestHttpApiDoc:
     async def test_generate(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(service_providers=[HttpApiDoc]) as project:
+        async with (
+            isolated_project_factory(service_providers=[HttpApiDoc]) as project,
+            project,
+        ):
             await generate(project)
             assert (project.www_directory / "api" / "index.html").is_file()
             assert (
@@ -32,7 +35,10 @@ class TestHttpApiDoc:
 class TestSwaggerUi:
     @pytest.fixture(scope="session")
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
-        async with Project.new_isolated(service_providers=[HttpApiDoc]) as project:
+        async with (
+            Project.new_isolated(service_providers=[HttpApiDoc]) as project,
+            project,
+        ):
             await generate(project)
             async with await project_builtin.ProjectBuiltinServer.new(
                 project

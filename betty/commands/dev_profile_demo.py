@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 
 async def _target(ui: Ui) -> None:
-    async with App.new_isolated() as app:
+    async with App.new_isolated() as app, app:
         with TemporaryDirectory() as project_directory:
             project = await create_project(app, project_directory)
             async with project, ui.progress("Generating site…") as progress:

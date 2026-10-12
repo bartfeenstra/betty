@@ -21,7 +21,7 @@ class TestWiki:
             "betty.jobs.populate_wiki_entity.PopulateWikiEntity.do"
         )
 
-        async with isolated_project_factory(enrichers=[Wiki]) as project:
+        async with isolated_project_factory(enrichers=[Wiki]) as project, project:
             entity = Link("https://example.com")
             project.ancestry.add(entity)
             await load(project)

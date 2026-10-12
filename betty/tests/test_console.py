@@ -83,7 +83,7 @@ async def test_main__with_user_facing_exception(
     command: CommandDefinition,
     isolated_app_factory: IsolatedAppFactory,
 ) -> None:
-    async with isolated_app_factory(plugins={CommandDefinition: [command]}) as app:
+    async with isolated_app_factory(plugins={CommandDefinition: [command]}) as app, app:
         await run(app, command.id, expected_exit_code=expected)
 
 
@@ -142,9 +142,10 @@ class TestVerbosity:
         isolated_app_factory: IsolatedAppFactory,
         severity: str | None,
     ) -> None:
-        async with isolated_app_factory(
-            plugins={CommandDefinition: [_NoOpCommand]}
-        ) as app:
+        async with (
+            isolated_app_factory(plugins={CommandDefinition: [_NoOpCommand]}) as app,
+            app,
+        ):
             args = ["no-op"]
             if severity is not None:
                 args.append(severity)

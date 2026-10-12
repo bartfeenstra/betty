@@ -453,12 +453,13 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         async with AsyncExitStack() as exit_stack:
             if app is None:
                 app = await exit_stack.enter_async_context(App.new_isolated())
+                await exit_stack.enter_async_context(app)
             if directory is None:
                 directory: StrPath = await to_thread(mkdtemp)  # ty:ignore[invalid-assignment]
                 exit_stack.push_async_callback(
                     to_thread, rmtree, directory, ignore_errors=True
                 )
-            async with cls(
+            yield cls(
                 directory,
                 ancestry=ancestry,
                 app=app,
@@ -482,8 +483,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
                 supported_plugins=supported_plugins,
                 title=title or "Betty",
                 url=url or "https://example.com",
-            ) as project:
-                yield project
+            )
 
     def localize_www_directory(self, locale: Locale) -> Path:
         """

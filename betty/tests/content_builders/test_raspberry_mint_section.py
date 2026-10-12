@@ -43,7 +43,10 @@ class TestSection:
     async def test_build_template__without_content(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(supported_plugins=[Section]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[Section]) as project,
+            project,
+        ):
             sut = await Section.new(
                 project,
                 SectionData(
@@ -56,7 +59,10 @@ class TestSection:
     async def test_build_template__with_content(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(supported_plugins=[Section]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[Section]) as project,
+            project,
+        ):
             sut = await Section.new(
                 project,
                 SectionData(
@@ -75,7 +81,10 @@ class TestSection:
     async def test_build_template__with_name(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(supported_plugins=[Section]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[Section]) as project,
+            project,
+        ):
             sut = await Section.new(
                 project,
                 SectionData(
@@ -94,7 +103,10 @@ class TestSection:
     async def test_build_template__with_visually_hide_heading(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(supported_plugins=[Section]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[Section]) as project,
+            project,
+        ):
             sut = await Section.new(
                 project,
                 SectionData(

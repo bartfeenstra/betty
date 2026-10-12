@@ -135,7 +135,7 @@ class PluginServiceManager[
         """
         Add one or more plugins to initialize.
         """
-        owner.assert_not_initialized()
+        owner.assert_not_bootstrapped()
         self.__get_init_plugins(owner).extend(plugins)
 
     @final
@@ -177,7 +177,7 @@ class PluginServiceManager[
         """
         Get the initialized plugins.
         """
-        owner.assert_initialized()
+        owner.assert_bootstrapped()
         return getattr(owner, f"_plugin_service_plugins_{self.ownership.name}")
 
     @abstractmethod

@@ -24,7 +24,10 @@ class TestSearchUi:
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
         person = Person(id="my-first-person")
         PersonName(individual=self.individual_name, person=person)
-        async with Project.new_isolated(service_providers=[RaspberryMint]) as project:
+        async with (
+            Project.new_isolated(service_providers=[RaspberryMint]) as project,
+            project,
+        ):
             project.ancestry[Person].add(person)
             await generate(project)
             async with await project_builtin.ProjectBuiltinServer.new(

@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 async def test_new_environment__with_debug(
     isolated_project_factory: IsolatedProjectFactory,
 ) -> None:
-    async with isolated_project_factory(debug=True) as project:
+    async with isolated_project_factory(debug=True) as project, project:
         sut = await new_environment(project)
         assert "jinja2.ext.DebugExtension" in sut.extensions
 

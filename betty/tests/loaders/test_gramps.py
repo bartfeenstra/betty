@@ -49,21 +49,26 @@ class TestGramps:
         with gzip.open(gramps_family_tree_path, "w") as f:
             f.write(family_tree_xml.encode("utf-8"))
 
-        async with isolated_project_factory(
-            loaders=[
-                LoaderManufacturer(
-                    Gramps.definition,
-                    GrampsData(
-                        family_trees=[
-                            FamilyTree(
-                                gramps_family_tree_path,
-                                event_types={"Birth": EventTypeManufacturer("birth")},
-                            )
-                        ]
-                    ),
-                )
-            ],
-        ) as project:
+        async with (
+            isolated_project_factory(
+                loaders=[
+                    LoaderManufacturer(
+                        Gramps.definition,
+                        GrampsData(
+                            family_trees=[
+                                FamilyTree(
+                                    gramps_family_tree_path,
+                                    event_types={
+                                        "Birth": EventTypeManufacturer("birth")
+                                    },
+                                )
+                            ]
+                        ),
+                    )
+                ],
+            ) as project,
+            project,
+        ):
             await load(project)
             assert isinstance(
                 project.ancestry[Event][machinify("E0000")].event_type, Birth
@@ -92,21 +97,24 @@ class TestGramps:
         with gzip.open(gramps_family_tree_path, "w") as f:
             f.write(family_tree_xml.encode("utf-8"))
 
-        async with isolated_project_factory(
-            loaders=[
-                LoaderManufacturer(
-                    Gramps.definition,
-                    GrampsData(
-                        family_trees=[
-                            FamilyTree(
-                                gramps_family_tree_path,
-                                place_types={"City": PlaceTypeManufacturer("city")},
-                            )
-                        ]
-                    ),
-                )
-            ],
-        ) as project:
+        async with (
+            isolated_project_factory(
+                loaders=[
+                    LoaderManufacturer(
+                        Gramps.definition,
+                        GrampsData(
+                            family_trees=[
+                                FamilyTree(
+                                    gramps_family_tree_path,
+                                    place_types={"City": PlaceTypeManufacturer("city")},
+                                )
+                            ]
+                        ),
+                    )
+                ],
+            ) as project,
+            project,
+        ):
             await load(project)
             assert isinstance(
                 project.ancestry[Place][machinify("P0001")].place_type, City
@@ -143,21 +151,24 @@ class TestGramps:
         with gzip.open(gramps_family_tree_path, "w") as f:
             f.write(family_tree_xml.encode("utf-8"))
 
-        async with isolated_project_factory(
-            loaders=[
-                LoaderManufacturer(
-                    Gramps.definition,
-                    GrampsData(
-                        family_trees=[
-                            FamilyTree(
-                                gramps_family_tree_path,
-                                roles={"MyFirstRole": RoleManufacturer("subject")},
-                            )
-                        ]
-                    ),
-                )
-            ],
-        ) as project:
+        async with (
+            isolated_project_factory(
+                loaders=[
+                    LoaderManufacturer(
+                        Gramps.definition,
+                        GrampsData(
+                            family_trees=[
+                                FamilyTree(
+                                    gramps_family_tree_path,
+                                    roles={"MyFirstRole": RoleManufacturer("subject")},
+                                )
+                            ]
+                        ),
+                    )
+                ],
+            ) as project,
+            project,
+        ):
             await load(project)
             assert isinstance(
                 next(iter(project.ancestry[Person][machinify("I0000")].presences)).role,
@@ -271,19 +282,22 @@ class TestGramps:
             with gzip.open(gramps_family_tree_two, "w") as f:
                 f.write(family_tree_two_xml.encode("utf-8"))
 
-            async with isolated_project_factory(
-                loaders=[
-                    LoaderManufacturer(
-                        Gramps.definition,
-                        GrampsData(
-                            family_trees=[
-                                FamilyTree(gramps_family_tree_one),
-                                FamilyTree(gramps_family_tree_two),
-                            ]
-                        ),
-                    )
-                ],
-            ) as project:
+            async with (
+                isolated_project_factory(
+                    loaders=[
+                        LoaderManufacturer(
+                            Gramps.definition,
+                            GrampsData(
+                                family_trees=[
+                                    FamilyTree(gramps_family_tree_one),
+                                    FamilyTree(gramps_family_tree_two),
+                                ]
+                            ),
+                        )
+                    ],
+                ) as project,
+                project,
+            ):
                 await load(project)
                 assert machinify("I0001") in project.ancestry[Person]
                 assert machinify("I0002") in project.ancestry[Person]

@@ -32,7 +32,10 @@ class TestColorStyle:
     async def test_build_template__without_content(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(supported_plugins=[ColorStyle]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[ColorStyle]) as project,
+            project,
+        ):
             sut = await ColorStyle.new(
                 project,
                 ColorStyleData(
@@ -45,7 +48,10 @@ class TestColorStyle:
     async def test_build_template__with_content(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(supported_plugins=[ColorStyle]) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[ColorStyle]) as project,
+            project,
+        ):
             sut = await ColorStyle.new(
                 project,
                 ColorStyleData(

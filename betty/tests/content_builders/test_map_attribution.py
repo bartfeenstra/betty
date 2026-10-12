@@ -7,9 +7,10 @@ class TestMapAttribution:
     async def test_build_template(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(
-            supported_plugins=[MapAttribution]
-        ) as project:
+        async with (
+            isolated_project_factory(supported_plugins=[MapAttribution]) as project,
+            project,
+        ):
             sut = await MapAttribution.new(project)
             actual = await sut.build(document=Document())
         assert actual

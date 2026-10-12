@@ -18,9 +18,10 @@ class TestMaps:
     async def test_generate(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(
-            debug=True, service_providers=[Maps]
-        ) as project:
+        async with (
+            isolated_project_factory(debug=True, service_providers=[Maps]) as project,
+            project,
+        ):
             await generate(project)
             with open(
                 project.www_directory / "js" / "webpack" / "maps.js",

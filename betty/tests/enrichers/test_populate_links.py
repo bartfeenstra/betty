@@ -19,7 +19,6 @@ class TestPopulateLinks:
         http_client_mock: aioresponses,
         isolated_project_factory: IsolatedProjectFactory,
     ) -> None:
-
         link_url = "https://example.com"
         link_page_title = "Hello, world!"
         link_page_html = (
@@ -31,7 +30,10 @@ class TestPopulateLinks:
             headers={"Content-Type": "text/html"},
         )
 
-        async with isolated_project_factory(enrichers=[PopulateLinks]) as project:
+        async with (
+            isolated_project_factory(enrichers=[PopulateLinks]) as project,
+            project,
+        ):
             link = Link("https://example.com")
             project.ancestry.add(link)
             await load(project)

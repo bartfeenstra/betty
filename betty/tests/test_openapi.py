@@ -16,7 +16,7 @@ class TestSpecification:
     async def test_build(
         self, clean_urls: bool, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
-        async with isolated_project_factory(clean_urls=clean_urls) as project:
+        async with isolated_project_factory(clean_urls=clean_urls) as project, project:
             sut = Specification(project)
             specification = await sut.build()
         OpenapiSchema().validate(specification)

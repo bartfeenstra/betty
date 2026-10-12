@@ -59,12 +59,17 @@ class MapsTestBase:
         """
         Serve a test page with a map, navigate to it, and return the Playwright Page fixture.
         """
-        async with Project.new_isolated(
-            service_providers=[
-                Maps,
-                *map(ServiceProviderManufacturer.resolve, self.get_other_extensions()),
-            ],
-        ) as project:
+        async with (
+            Project.new_isolated(
+                service_providers=[
+                    Maps,
+                    *map(
+                        ServiceProviderManufacturer.resolve, self.get_other_extensions()
+                    ),
+                ],
+            ) as project,
+            project,
+        ):
             project.ancestry.add(
                 Place(
                     id=_place_id,

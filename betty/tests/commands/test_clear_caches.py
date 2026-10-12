@@ -50,11 +50,14 @@ class TestClearCaches:
             legacy_cache_item = legacy_cache_directory / "item"
             legacy_cache_item.touch()
 
-            async with isolated_app_factory(
-                binary_file_cache_directory=app_binary_file_cache_directory,
-                cache=TransientPickledFileStore(app_cache_directory),
-                ui=ui,
-            ) as app:
+            async with (
+                isolated_app_factory(
+                    binary_file_cache_directory=app_binary_file_cache_directory,
+                    cache=TransientPickledFileStore(app_cache_directory),
+                    ui=ui,
+                ) as app,
+                app,
+            ):
                 cache_key = "my-first-app-cache-item"
                 binary_file_cache_key = "my-first-app-binary-file-cache-item"
 
@@ -95,9 +98,12 @@ class TestClearCaches:
                 ),
             )
 
-            async with isolated_project_factory(
-                app=app, cache=None, directory=project_directory
-            ) as project:
+            async with (
+                isolated_project_factory(
+                    app=app, cache=None, directory=project_directory
+                ) as project,
+                project,
+            ):
                 cache_key = "my-first-project-cache-item"
                 binary_file_cache_key = "my-first-project-binary-file-cache-item"
 
