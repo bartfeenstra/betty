@@ -9,7 +9,11 @@ from typing import TYPE_CHECKING, Any
 from betty.attrs.owner import OwnerAttr
 from betty.classtools.init import Init
 from betty.datas.aggregate.record import FieldDefinition
-from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
+from betty.media_type import (
+    MediaType,
+    ResolvableMediaType,
+    resolve_media_type,
+)
 
 if TYPE_CHECKING:
     from betty.attrs.common import OptionableCommonAttr
@@ -27,6 +31,7 @@ def new_media_type_attr(
     ).setter(resolve_media_type)
 
 
+# @todo Can we somehow make this subclass betty.media_type.HasMediaType?
 class HasMediaType(Init):
     """
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.

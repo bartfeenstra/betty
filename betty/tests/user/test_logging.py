@@ -33,10 +33,10 @@ class TestUiHandler:
         logger = _TestUserHandlerLogger(self.__class__.__name__)
         logging.disable()
         logger.setLevel(logging.NOTSET)
-        user = StaticUi()
+        ui = StaticUi()
         message = "Hello, world!"
-        sut = UiHandler(user)
+        sut = UiHandler(ui)
         logger.addHandler(sut)
         async with sut:
             logger.log(log_level, message)
-        user.assert_log(message)
+        ui.assert_log(message)

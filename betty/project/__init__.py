@@ -20,8 +20,6 @@ from babel import Locale
 
 from betty.about import version_major
 from betty.app import App
-from betty.assertions.int import assert_int
-from betty.assertions.url import assert_url
 from betty.attrs.locale import new_locale_attr
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.machine_name import new_machine_name_attr
@@ -60,13 +58,13 @@ from betty.document import Document, DocumentProviderDefinition
 from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.event_type import EventTypeDefinition
-from betty.exception import HumanFacingException
 from betty.freezers.attr import AttrFreezable
 from betty.gender import GenderDefinition
 from betty.gettext import TranslationsRepository
 from betty.hashid import hashid
 from betty.html.css import CssResourceDefinition
 from betty.html.js import JsResourceDefinition
+from betty.image import is_image_type
 from betty.jinja.filter import JinjaFilterDefinition
 from betty.jinja.test import JinjaTestDefinition
 from betty.license import (
@@ -96,6 +94,7 @@ from betty.localizables.markup import Quote
 from betty.localizer import Localizer, LocalizerRepository
 from betty.machine_name import MachineName, ResolvableMachineName
 from betty.pathlib import resolve_path
+from betty.pipeline import Vent
 from betty.place_type import PlaceTypeDefinition
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter
@@ -121,6 +120,11 @@ from betty.services.plugin.instance.single import PluginInstanceService
 from betty.services.simple import service
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
+from betty.validation import Invalid
+from betty.validators import InvalidValue
+from betty.validators.int import is_int
+from betty.validators.option import is_option
+from betty.validators.url import is_url
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator, Iterable, Sequence
@@ -134,6 +138,15 @@ if TYPE_CHECKING:
     from betty.services.plugin import SupportedPlugins
     from betty.store import TransientStore
     from betty.url_generator import UrlGenerator
+
+
+@final
+class InvalidProjectLocaleAlias(InvalidValue):
+    """
+    Raise when a project locale alias is invalid.
+    """
+
+    _message = _("Locale aliases must not contain slashes.")
 
 
 @final
@@ -172,7 +185,7 @@ class ProjectLocale(Object, AttrFreezable):
         super().__init__()
         self.locale = locale
         if alias is not None and "/" in alias:
-            raise HumanFacingException(_("Locale aliases must not contain slashes."))
+            raise Invalid(alias, message=_("Locale aliases must not contain slashes."))
         self.alias = alias
         self.slug: Final[str] = alias or to_language_tag(self.locale)
         """
@@ -256,7 +269,7 @@ class _ProjectConfig(Init):
                 ),
             )
         )
-        .setter(assert_int(minimum=1))
+        .setter(is_int(min=1))
         .default(lambda: _ProjectConfig.default_lifetime_threshold)
     )
     """
@@ -293,8 +306,12 @@ class _ProjectConfig(Init):
     The configured locales.
     """
 
-    logo = new_path_attr(label=_("Logo")).default(
-        lambda: builtin_asset_directory / "public" / "static" / "betty-512x512.png"
+    logo = (
+        new_path_attr(label=_("Logo"))
+        .setter(Vent(is_image_type))
+        .default(
+            lambda: builtin_asset_directory / "public" / "static" / "betty-512x512.png"
+        )
     )
     """
     The project logo.MachineName)
@@ -307,7 +324,7 @@ class _ProjectConfig(Init):
 
     per_page = (
         OwnerAttr(IntDefinition(label=_("Items per page")))
-        .setter(assert_int(minimum=1))
+        .setter(is_int(min=1))
         .default(lambda: _ProjectConfig.default_per_page)
     )
     """
@@ -326,7 +343,7 @@ class _ProjectConfig(Init):
                 "The absolute, public URL at which the site will be published."
             ),
         )
-    ).setter(assert_url())
+    ).setter(is_url(scheme=is_option("http", "https")))
     """
     The project's public URL.
     """
@@ -684,6 +701,7 @@ class Project(
         """
         The WWW directory path.
         """
+
         self._plugin_discoveries = _plugin_discoveries
         self._cache_directory = self.directory / ".cache" / version_major
 

@@ -8,11 +8,6 @@ from asyncio import gather
 from collections.abc import Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.assertions.enum import assert_enum
-from betty.assertions.if_else import assert_if_else
-from betty.assertions.int import assert_int
-from betty.assertions.mapping import assert_mapping
-from betty.assertions.sequence import assert_sequence
 from betty.asset_directories import raspberry_mint
 from betty.attrs.owner import OwnerAttr
 from betty.classtools.init import Init
@@ -41,6 +36,11 @@ from betty.porters.callback import CallbackPorter
 from betty.project import Project
 from betty.sample import Sample, Samples, Size
 from betty.service_providers.raspberry_mint import Breakpoint, JustifyContent
+from betty.validators.enum import is_enum
+from betty.validators.group import is_any
+from betty.validators.int import is_int
+from betty.validators.mapping import is_mapping
+from betty.validators.sequence import is_sequence
 
 if TYPE_CHECKING:
     from typing import Final
@@ -68,37 +68,31 @@ def _resolve_columns_width(width: ResolvableColumnsWidth) -> ColumnsWidth:
 class _ColumnsConfig(Init):
     _default_width: Final[ColumnsWidth] = {Breakpoint.XS: [12]}
 
-    _load_width = assert_int() | (lambda value: [value])
-    _load_widths = assert_sequence(assert_int()) | list
-    width = (
-        OwnerAttr(
-            DictDefinition(
-                key=EnumDefinition(Breakpoint, label=_("Breakpoint")),
-                value=ListDefinition(
-                    label=_("Column widths"),
-                    value=IntDefinition(label=_("Column width")),
-                ),
-                label=_("Breakpoints"),
-                porter=CallbackPorter(
-                    assert_if_else(
-                        assert_if_else(_load_width, _load_widths)
-                        | (lambda value: Dict({Breakpoint.XS: value})),
-                        assert_mapping(
-                            assert_if_else(_load_width, _load_widths),
-                            assert_enum(Breakpoint),
-                        )
-                        | Dict,
+    _load_width = is_int | (lambda value: [value])
+    _load_widths = is_sequence(values=is_int) | list
+    width = OwnerAttr(
+        DictDefinition(
+            key=EnumDefinition(Breakpoint, label=_("Breakpoint")),
+            value=ListDefinition(
+                label=_("Column widths"), value=IntDefinition(label=_("Column width"))
+            ),
+            label=_("Breakpoints"),
+            porter=CallbackPorter(
+                is_any(
+                    is_any(_load_width, _load_widths)
+                    | (lambda value: {Breakpoint.XS: value}),
+                    is_mapping(
+                        keys=is_enum(Breakpoint),
+                        values=is_any(_load_width, _load_widths),
                     ),
-                    lambda data: {
-                        breakpoint.value: widths
-                        for breakpoint, widths in data.items()  # noqa: A001
-                    },
-                ),
-            )
+                )
+                | Dict,
+                lambda data: {
+                    breakpoint_.value: widths for breakpoint_, widths in data.items()
+                },
+            ),
         )
-        .setter(_resolve_columns_width)
-        .default(lambda: _ColumnsConfig._default_width)
-    )
+    ).default(lambda: ColumnsConfig._default_width)
     """
     The column widths.
     """

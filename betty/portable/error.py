@@ -6,18 +6,19 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.exception import HumanFacingException
+from betty.error import Error
 
 
+# @todo Does this need to be in a submodule still?
 @final
-class NotPortable(HumanFacingException):
+class NotPortable(Error):
     """
     Raised when data is not portable.
     """
 
 
 @final
-class NotDumpable(HumanFacingException):
+class NotDumpable(Error):
     """
     Raised when data is not dumpable.
     """

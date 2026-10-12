@@ -24,7 +24,7 @@ import tarfile
 from contextlib import AsyncExitStack, asynccontextmanager
 from io import BytesIO
 from json import dumps
-from typing import TYPE_CHECKING, Any, Final, Protocol, final
+from typing import TYPE_CHECKING, Any, Final, Never, Protocol, final
 
 import pytest
 import pytest_asyncio
@@ -33,7 +33,6 @@ from jinja2 import Environment, Template
 
 from betty.app import App
 from betty.collections.mapping.dict import empty_frozen_dict
-from betty.exception import do_raise
 from betty.licenses.spdx import SpdxLicenseDiscoverer
 from betty.project import Project
 from betty.stores.file import TransientBinaryFileStore
@@ -181,8 +180,12 @@ async def page(context: BrowserContext) -> Page:
     """
     A Playwright Page instance.
     """
+
+    def _raise(exception: BaseException, /) -> Never:
+        raise exception
+
     page = await context.new_page()
-    page.on("pageerror", do_raise)
+    page.on("pageerror", _raise)
     return page
 
 

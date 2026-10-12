@@ -23,10 +23,11 @@ if TYPE_CHECKING:
         MutableSequence,
     )
 
+    from betty.error import Error
     from betty.localizer import AnyLocalizable
-    from betty.pipeline import Pipe
     from betty.progress import Progress
-    from betty.user import Severity
+    from betty.user.ui import Severity
+    from betty.validation import Validator
 
 
 @final
@@ -47,6 +48,7 @@ class StaticUi(Ui):
         self._confirmations = iter(confirmations)
         self._inputs = iter(inputs)
         self._exceptions: MutableSequence[BaseException] = []
+        self._errors: MutableSequence[Error] = []
         self._messages: Mapping[Severity, MutableSequence[AnyLocalizable]] = (
             defaultdict(list)
         )
@@ -85,11 +87,21 @@ class StaticUi(Ui):
             fragments, "an exception", list(map(str, self._exceptions))
         )
 
+    def assert_error(self, fragments: str | Iterable[str]) -> None:
+        """
+        Assert that an error message was sent.
+        """
+        self._assert_message(
+            fragments,
+            "an error",
+            [default_localizer.localize(message) for message in self._errors],
+        )
+
     def assert_message(
         self, fragments: str | Iterable[str], severity: Severity, /
     ) -> None:
         """
-        Assert that an error message was sent.
+        Assert that a message was sent.
         """
         self._assert_message(
             fragments,
@@ -128,6 +140,16 @@ class StaticUi(Ui):
         """
         self._assert_fragments(fragments, "exception", list(map(str, self._exceptions)))
 
+    def assert_not_error(self, fragments: str | Iterable[str], /) -> None:
+        """
+        Assert that no error message was sent.
+        """
+        self._assert_fragments(
+            fragments,
+            "error",
+            [default_localizer.localize(message) for message in self._errors],
+        )
+
     def assert_not_message(
         self, fragments: str | Iterable[str], severity: Severity, /
     ) -> None:
@@ -158,6 +180,10 @@ class StaticUi(Ui):
         self._exceptions.append(exception)
 
     @override
+    async def error(self, error: Error, message: AnyLocalizable = "{error}", /) -> None:
+        self._errors.append(error)
+
+    @override
     async def message(self, message: AnyLocalizable, severity: Severity, /) -> None:
         self._messages[severity].append(message)
 
@@ -185,7 +211,7 @@ class StaticUi(Ui):
         question: AnyLocalizable,
         /,
         *,
-        assertion: None = None,
+        validator: None = None,
         default: str | NoDefault = NoDefault,
     ) -> str:
         pass
@@ -196,13 +222,13 @@ class StaticUi(Ui):
         question: AnyLocalizable,
         /,
         *,
-        assertion: Pipe[str, T],
+        validator: Validator[str, T],
         default: str | NoDefault = NoDefault,
     ) -> T:
         pass
 
     @override
-    async def ask_input(self, question, /, *, assertion=None, default=NoDefault):
+    async def ask_input(self, question, /, *, validator=None, default=NoDefault):
         value = next(self._inputs)
         if value is None:
             if default is NoDefault:
@@ -210,6 +236,6 @@ class StaticUi(Ui):
                     "Neither a predefined response nor a call default were provided."
                 )
             return default
-        if assertion is None:
+        if validator is None:
             return value
-        return assertion(value)
+        return validator(value)

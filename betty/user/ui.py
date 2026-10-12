@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     import logging
     from contextlib import AbstractAsyncContextManager
 
+    from betty.error import Error
     from betty.localizer import AnyLocalizable, Localizer
     from betty.pipeline import Pipe
     from betty.progress import Progress
@@ -83,6 +84,14 @@ class Ui(metaclass=ABCMeta):
         """
 
     @abstractmethod
+    async def error(self, error: Error, message: AnyLocalizable = "{error}", /) -> None:
+        """
+        Send a message about a user-facing error to the user.
+
+        These messages have a severity of :py:attr:`betty.user.Severity.ERROR`.
+        """
+
+    @abstractmethod
     async def message(self, message: AnyLocalizable, severity: Severity, /) -> None:
         """
         Send a message to the user.
@@ -118,7 +127,7 @@ class Ui(metaclass=ABCMeta):
         question: AnyLocalizable,
         /,
         *,
-        assertion: None = None,
+        validator: None = None,
         default: str | NoDefault = NoDefault,
     ) -> str:
         pass
@@ -129,13 +138,13 @@ class Ui(metaclass=ABCMeta):
         question: AnyLocalizable,
         /,
         *,
-        assertion: Pipe[str, T],
+        validator: Pipe[str, T],
         default: str | NoDefault = NoDefault,
     ) -> T:
         pass
 
     @abstractmethod
-    async def ask_input(self, question, /, *, assertion=None, default=NoDefault):
+    async def ask_input(self, question, /, *, validator=None, default=NoDefault):
         """
         Ask the user to input text.
 

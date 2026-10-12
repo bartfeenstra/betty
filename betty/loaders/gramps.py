@@ -19,7 +19,6 @@ from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.definition.cls import ClsDefinition
 from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
-from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, Manufacturable
 from betty.freezers.attr import AttrFreezable
 from betty.gramps import (
@@ -40,6 +39,7 @@ from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.role import ResolvableRoleManufacturer, RoleManufacturer
 from betty.sample import Sample, Samples, Size
+from betty.validation import Invalid
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -171,10 +171,12 @@ class FamilyTree(Object, AttrFreezable):
             return self.file
         if self.name is not None:
             return self.name
-        raise HumanFacingException(
-            _("Family tree configuration must either have a {file} or a {name}").format(
-                file=Quote("file"), name=Quote("name")
-            )
+        # @todo custom error class
+        raise Invalid(
+            self,
+            message=_(
+                "Family tree configuration must either have a {file} or a {name}"
+            ).format(file=Quote("file"), name=Quote("name")),
         )
 
 

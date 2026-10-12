@@ -102,7 +102,7 @@ class FieldDefinition[OwnerT, DataT, DefinitionT: DataDefinition = DataDefinitio
         The porter for the data.
         """
         if self._porter is None:
-            raise NotPortable(f"{self!r} does not have a porter.")
+            raise NotPortable(message=f"{self!r} does not have a porter.")
         return self._porter
 
     @property

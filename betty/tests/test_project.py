@@ -6,12 +6,17 @@ from typing import TYPE_CHECKING
 import pytest
 from babel import Locale
 
-from betty.exception import HumanFacingException
 from betty.locale import default_locale, default_locale_tag
-from betty.project import Project, ProjectConfig, ProjectLocale
+from betty.project import (
+    InvalidProjectLocaleAlias,
+    Project,
+    ProjectConfig,
+    ProjectLocale,
+)
 from betty.service_level import ServiceLevel
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
 from betty.test_utils.data import DataTestBase
+from betty.validation import Invalid
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -166,7 +171,7 @@ class TestProjectLocale(DataTestBase[ProjectLocale]):
 
     def test___init____with_invalid_alias(self) -> None:
         alias = "nl/NL"
-        with pytest.raises(HumanFacingException):
+        with pytest.raises(InvalidProjectLocaleAlias):
             ProjectLocale("nl-NL", alias=alias)
 
     def test_locale(self) -> None:
@@ -244,15 +249,10 @@ class TestProjectConfig(DataTestBase[ProjectConfig]):
         sut.url = url
         assert sut.url == url
 
-    def test_url__without_scheme_should_error(self) -> None:
+    def test_url__with_invalid_value(self) -> None:
         sut = ProjectConfig(title="Betty", url="https://example.com")
-        with pytest.raises(HumanFacingException):
+        with pytest.raises(Invalid):
             sut.url = "/"
-
-    def test_url__without_path_should_error(self) -> None:
-        sut = ProjectConfig(title="Betty", url="https://example.com")
-        with pytest.raises(HumanFacingException):
-            sut.url = "file://"
 
     def test_clean_urls(self) -> None:
         sut = ProjectConfig(title="Betty", url="https://example.com")

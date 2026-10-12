@@ -15,7 +15,6 @@ from betty.attrs.media_type import HasMediaType
 from betty.attrs.path import new_path_attr
 from betty.entities.file_reference import FileReference
 from betty.entity import EntityDefinition
-from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 
@@ -38,9 +37,7 @@ if TYPE_CHECKING:
     label_plural=_("Files"),
     label_countable=ngettext("{count} file", "{count} files"),
 )
-class File(
-    AttrFreezable, HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations
-):
+class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
     """
     .. plugin:: entity:file.
     """

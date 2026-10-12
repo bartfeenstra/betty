@@ -17,7 +17,6 @@ from betty.association import (
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.entity import Entity, EntityDefinition
-from betty.freezers.attr import AttrFreezable
 from betty.freezers.init import FrozenOnInit
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.locale.localizable import dummy_countable_localizable
@@ -72,7 +71,7 @@ class _Association[AssociateT: Entity = Entity](
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _NamedEntity(AttrFreezable, Entity):
+class _NamedEntity(Entity):
     association = _Association["_TypedEntity"](
         "betty.tests.test_association:_TypedEntity"
     )
@@ -84,7 +83,7 @@ class _NamedEntity(AttrFreezable, Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _TypedEntity(AttrFreezable, Entity):
+class _TypedEntity(Entity):
     association = _Association[_NamedEntity](_NamedEntity)
 
 
@@ -94,7 +93,7 @@ class _TypedEntity(AttrFreezable, Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _BiNamedEntity(AttrFreezable, Entity):
+class _BiNamedEntity(Entity):
     association = _Association["_BiTypedEntity"](
         "betty.tests.test_association:_BiTypedEntity", "association"
     )
@@ -106,17 +105,17 @@ class _BiNamedEntity(AttrFreezable, Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _BiTypedEntity(AttrFreezable, Entity):
+class _BiTypedEntity(Entity):
     association = _Association(_BiNamedEntity, _BiNamedEntity.association)
 
 
-class _AssociateDeclaresBidirectionalityOwner(AttrFreezable, Entity):
+class _AssociateDeclaresBidirectionalityOwner(Entity):
     association = _Association["_AssociateDeclaresBidirectionalityAssociate"](
         "betty.tests.test_association:_AssociateDeclaresBidirectionalityAssociate"
     )
 
 
-class _AssociateDeclaresBidirectionalityAssociate(AttrFreezable, Entity):
+class _AssociateDeclaresBidirectionalityAssociate(Entity):
     association = _Association(
         _AssociateDeclaresBidirectionalityOwner,
         _AssociateDeclaresBidirectionalityOwner.association,
@@ -165,7 +164,7 @@ class TestAssociation:
             label_plural="-",
             label_countable=dummy_countable_localizable,
         )
-        class _Entity(AttrFreezable, Entity):
+        class _Entity(Entity):
             association = IsNoResolverAssociation(_TypedEntity)
 
         _Entity.association.assert_not_resolver(_Entity(), _TypedEntity())
@@ -181,7 +180,7 @@ class TestAssociation:
             label_plural="-",
             label_countable=dummy_countable_localizable,
         )
-        class _Entity(AttrFreezable, Entity):
+        class _Entity(Entity):
             association = IsResolverAssociation(_TypedEntity)
 
         with pytest.raises(UnresolvedAssociate):
@@ -258,7 +257,7 @@ def test_resolve_associates(mocker: MockerFixture) -> None:
         label_plural="-",
         label_countable=dummy_countable_localizable,
     )
-    class _Entity(AttrFreezable, Entity):
+    class _Entity(Entity):
         association = mocker.MagicMock(spec=Association)
         association.field = FieldDefinition(DataDefinition(label="-"))
         association.resolve.return_value = associate

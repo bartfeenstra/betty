@@ -4,12 +4,9 @@ from contextlib import chdir
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import pytest
-
 from betty.app import App
 from betty.commands.project import add_project_argument
 from betty.console import CommandResult, call_command_func
-from betty.exception import HumanFacingException
 from betty.file import write
 from betty.project import Project
 from betty.sys import ExitCode
@@ -77,5 +74,8 @@ async def test_add_project_argument__without_argument_without_file(
     )
     namespace = parser.parse_args([])
     assert namespace.project_configuration_file is None
-    with chdir(tmp_path), pytest.raises(HumanFacingException):
-        assert await call_command_func(command_function, namespace) is ExitCode.OK
+    with chdir(tmp_path):
+        assert (
+            await call_command_func(command_function, namespace)
+            is ExitCode.ERROR_UNEXPECTED_RECOVERABLE
+        )

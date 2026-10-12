@@ -18,6 +18,7 @@ from betty.attrs.locale import new_locale_attr
 from betty.collections.mapping.dict import empty_frozen_dict
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
+from betty.file import read
 from betty.freezers.attr import AttrFreezable
 from betty.gettext import TranslationsRepository
 from betty.http_client import (
@@ -31,7 +32,6 @@ from betty.localizables.gettext import _
 from betty.localizer import LocalizerRepository
 from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
-from betty.portable.file import assert_load_file
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.sample import Sample, Samples, Size
 from betty.serialize import SerializerDefinition
@@ -133,7 +133,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         """
         if AppConfig.file.exists():
             data = AppConfig.definition.porter.load(
-                assert_load_file(serializers=[Json()])(AppConfig.file),
+                Json().load(await read(AppConfig.file))
             )
             locale = data.locale
         else:

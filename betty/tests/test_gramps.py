@@ -30,7 +30,6 @@ from betty.event_types.unknown import UnknownEventType
 from betty.genders.non_binary import NonBinary
 from betty.genders.unknown import UnknownGender
 from betty.gramps import (
-    GrampsFileNotFound,
     GrampsLoader,
     LoaderUsedAlready,
     UserFacingGrampsError,
@@ -48,6 +47,7 @@ from betty.subprocess import CalledSubprocessError
 from betty.test_utils.user.ui import StaticUi
 from betty.typing import Unreachable
 from betty.user import Severity
+from betty.validators.path import NotFound
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Mapping
@@ -161,7 +161,7 @@ class TestGrampsLoader:
             EntityPool(),
             attribute_prefix_key=self.attribute_prefix_key,
         )
-        with pytest.raises(GrampsFileNotFound):
+        with pytest.raises(NotFound):
             await sut.load_gramps(tmp_path / "non-existent-file")
 
     async def test_load_gpkg(self, isolated_project: Project, tmp_path: Path) -> None:
@@ -186,7 +186,7 @@ class TestGrampsLoader:
             EntityPool(),
             attribute_prefix_key=self.attribute_prefix_key,
         )
-        with pytest.raises(GrampsFileNotFound):
+        with pytest.raises(NotFound):
             await sut.load_gpkg(tmp_path / "non-existent-file")
 
     async def test_load_file__with_gramps(
@@ -2262,9 +2262,9 @@ class TestGrampsLoader:
         new_isolated_app: NewIsolatedApp,
         new_isolated_project: NewIsolatedProject,
     ) -> None:
-        user = StaticUi()
+        ui = StaticUi()
         async with (
-            new_isolated_app(ui=user) as app,
+            new_isolated_app(ui=ui) as app,
             new_isolated_project(app=app) as project,
         ):
             sut = GrampsLoader(
@@ -2272,4 +2272,4 @@ class TestGrampsLoader:
             )
             assert await sut.load_locale(locale) == expected
             if expected is None:
-                user.assert_message(locale, Severity.WARN)
+                ui.assert_message(locale, Severity.WARN)

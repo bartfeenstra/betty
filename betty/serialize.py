@@ -10,10 +10,11 @@ from typing import TYPE_CHECKING, final
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.exception import HumanFacingException
+from betty.error import Error
 from betty.localizables.gettext import _, ngettext
-from betty.localizables.markup import JoinOr, Quote
 from betty.plugin import PluginDefinition, PluginTypeDefinition
+from betty.validators import InvalidValue
+from betty.validators.media_type import UnsupportedFileType
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -25,9 +26,15 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class SerializationError(HumanFacingException):
+class SerializationError(Error):
     """
     Raised when an error occurs during (de)serialization.
+    """
+
+
+class InvalidSerializedData(InvalidValue):
+    """
+    Raised when serialized source data is invalid, and cannot be loaded.
     """
 
 
@@ -91,24 +98,15 @@ class SerializerDefinition(
 
 
 def serializer_for(
-    available_serializers: Iterable[Serializer], extension: str, /
+    available_serializers: Iterable[Serializer], file_name: str, /
 ) -> Serializer:
     """
     Get the serializer for the given file extension.
     """
     for available_serializer in available_serializers:
-        if extension in available_serializer.media_type().extensions:
-            return available_serializer
-    raise SerializationError(
-        _("Unsupported file {unsupported}. Supported types are: {supported}.").format(
-            unsupported=Quote(extension),
-            supported=JoinOr(*[
-                _("{extension} ({available_type})").format(
-                    extension=extension,
-                    available_type=available_serializer.definition.label,
-                )
-                for available_serializer in available_serializers
-                for extension in available_serializer.media_type().extensions
-            ]),
-        )
+        for available_extension in available_serializer.media_type().extensions:
+            if file_name.endswith(available_extension):
+                return available_serializer
+    raise UnsupportedFileType(
+        file_name, (serializer.media_type() for serializer in available_serializers)
     )

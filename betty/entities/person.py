@@ -14,7 +14,6 @@ from betty.associations.to_many import ToMany, ToManyAssociates
 from betty.entities.person_name import PersonName
 from betty.entities.presence import Presence
 from betty.entity import EntityDefinition
-from betty.freezers.attr import AttrFreezable
 from betty.functools import unique
 from betty.genders.unknown import UnknownGender
 from betty.localizables.gettext import _, ngettext
@@ -39,7 +38,7 @@ if TYPE_CHECKING:
     label_plural=_("People"),
     label_countable=ngettext("{count} person", "{count} people"),
 )
-class Person(AttrFreezable, HasFileReferences, HasCitations, HasNotes, HasLinks):
+class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
     """
     .. plugin:: entity:person.
     """

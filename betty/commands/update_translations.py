@@ -4,14 +4,14 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty import gettext
 from betty.app import App
-from betty.argparse import assertion_to_argument_type
-from betty.assertions.directory import assert_directory
+from betty.argparse import validator_to_argument_type
 from betty.asset import AssetDirectoryDefinition
 from betty.console import Command, CommandDefinition, CommandResult
 from betty.factory import Manufacturable
 from betty.job import Context
 from betty.localizables.gettext import _
 from betty.plugin.error import PluginNotFound
+from betty.validators.path import is_directory
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser
@@ -22,10 +22,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition(
-    "update-translations",
-    label=_("Update existing translations"),
-)
+@CommandDefinition("update-translations", label=_("Update existing translations"))
 class UpdateTranslations(Manufacturable, Command):
     """
     .. plugin:: command:update-translations.
@@ -56,25 +53,14 @@ class UpdateTranslations(Manufacturable, Command):
                 ) from None
             return asset
 
+        parser.add_argument("output", type=validator_to_argument_type(_assert_asset))
         parser.add_argument(
-            "output",
-            type=assertion_to_argument_type(
-                _assert_asset, localizer=self._app.ui.localizer
-            ),
-        )
-        parser.add_argument(
-            "inputs",
-            type=assertion_to_argument_type(
-                assert_directory(), localizer=self._app.ui.localizer
-            ),
-            nargs="+",
+            "inputs", type=validator_to_argument_type(is_directory), nargs="+"
         )
         parser.add_argument(
             "--exclude",
             action="append",
-            type=assertion_to_argument_type(
-                assert_directory(), localizer=self._app.ui.localizer
-            ),
+            type=validator_to_argument_type(is_directory),
             default=[],
             dest="excludes",
         )
