@@ -8,6 +8,7 @@ from typing import Self, final, override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.factory import Manufacturable
+from betty.frosties.classtools import Frozen
 from betty.localizable import (
     Localizable,
     ResolvableLocalizable,
@@ -19,7 +20,7 @@ from betty.project import Project
 
 @final
 @CopyrightNoticeDefinition("project-author", label=_("Project author"))
-class ProjectAuthor(Manufacturable, CopyrightNotice):
+class ProjectAuthor(Manufacturable, CopyrightNotice, Frozen):
     """
     .. plugin:: copyright-notice:project-author.
     """

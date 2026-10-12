@@ -1,48 +1,39 @@
-from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.document import Document, EntityContexts
 from betty.entities.source import Source
-from betty.test_utils.conftest import AssertTemplateFile
+from betty.test_utils.conftest import AssertJinja
 
 
-async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
+async def test_minimal(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     source = Source()
     expected = f'<span lang="und" dir="auto">Source {source.id}</span>'
-    async with assert_template_file(
-        "entity/source-containment-label.html.j2",
-        data={
-            "source": source,
-        },
-        assets={raspberry_mint},
-    ) as (actual, _):
-        assert actual == expected
+    async with assert_raspberry_mint_jinja_file(
+        "entity/source-containment-label.html.j2", data={"source": source}
+    ) as rendered:
+        assert rendered == expected
 
 
-async def test_with_contained_by(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_contained_by(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     contained_by_contained_by_source = Source()
     contained_by_source = Source(contained_by=contained_by_contained_by_source)
     source = Source(contained_by=contained_by_source)
     expected = f'<span lang="und" dir="auto">Source {source.id}</span>, <span lang="und" dir="auto">Source {contained_by_source.id}</span>, <span lang="und" dir="auto">Source {contained_by_contained_by_source.id}</span>'
-    async with assert_template_file(
-        "entity/source-containment-label.html.j2",
-        data={
-            "source": source,
-        },
-        assets={raspberry_mint},
-    ) as (actual, _):
-        assert actual == expected
+    async with assert_raspberry_mint_jinja_file(
+        "entity/source-containment-label.html.j2", data={"source": source}
+    ) as rendered:
+        assert rendered == expected
 
 
-async def test_with_source_context(
-    assert_template_file: AssertTemplateFile,
+async def test_with_contained_by_and_source_context(
+    assert_raspberry_mint_jinja_file: AssertJinja,
 ) -> None:
     contained_by_source = Source()
     source = Source(contained_by=contained_by_source)
     expected = f'<span lang="und" dir="auto">Source {source.id}</span>'
-    async with assert_template_file(
+    async with assert_raspberry_mint_jinja_file(
         "entity/source-containment-label.html.j2",
         data={
             "source": source,
-            "source_context": contained_by_source,
+            "document": Document(entity_contexts=EntityContexts(contained_by_source)),
         },
-        assets={raspberry_mint},
-    ) as (actual, _):
-        assert actual == expected
+    ) as rendered:
+        assert rendered == expected

@@ -11,6 +11,7 @@ from betty.attrs.machine_name import new_machine_name_attr
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition import resolve_definition
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.porters.fields import FieldsPorter
@@ -54,7 +55,7 @@ class PluginDefinitionDefinition[
 
 class PluginDefinitionData[
     DefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
-](Object[PluginDefinitionDefinition[DefinitionT]]):
+](Object[PluginDefinitionDefinition[DefinitionT]], Frozen):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.
 

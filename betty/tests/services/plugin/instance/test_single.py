@@ -34,5 +34,5 @@ class TestPluginInstanceService(PluginServiceManagerTestBase):
         owner = self._Owner(init_plugin)
         async with owner:
             plugin = await owner.my_first_service
-            assert plugin.bootstrapped
-        assert plugin.shut_down
+            assert plugin.is_bootstrapped
+        assert plugin.is_shutdown

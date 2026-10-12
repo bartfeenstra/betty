@@ -1,40 +1,40 @@
-from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.html.attributes import Attributes
-from betty.test_utils.conftest import AssertTemplateFile
+from betty.test_utils.conftest import AssertJinja
 
 
-async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
+async def test_minimal(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     label = "Check these out!"
-    async with assert_template_file(
+    async with assert_raspberry_mint_jinja_file(
+        "component/checkboxes.html.j2",
         data={
             "checkboxes": [],
             "checkboxes_label": label,
         },
-        assets={raspberry_mint},
-        template="component/checkboxes.html.j2",
-    ) as (actual, _):
-        assert label in actual
+    ) as rendered:
+        assert label in rendered
 
 
 async def test_with_checkboxes_label_visually_hidden(
-    assert_template_file: AssertTemplateFile,
+    assert_raspberry_mint_jinja_file: AssertJinja,
 ) -> None:
-    async with assert_template_file(
+    async with assert_raspberry_mint_jinja_file(
+        "component/checkboxes.html.j2",
         data={
             "checkboxes": [],
             "checkboxes_label": "Check these out!",
             "checkboxes_label_visually_hidden": True,
         },
-        assets={raspberry_mint},
-        template="component/checkboxes.html.j2",
-    ) as (actual, _):
-        assert "visually-hidden" in actual
+    ) as rendered:
+        assert "visually-hidden" in rendered
 
 
-async def test_with_minimal_items(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_minimal_items(
+    assert_raspberry_mint_jinja_file: AssertJinja,
+) -> None:
     label = "Check me out!"
     value = "Look at this treasure"
-    async with assert_template_file(
+    async with assert_raspberry_mint_jinja_file(
+        "component/checkboxes.html.j2",
         data={
             "checkboxes": [
                 {
@@ -44,15 +44,14 @@ async def test_with_minimal_items(assert_template_file: AssertTemplateFile) -> N
             ],
             "checkboxes_label": "Check these out!",
         },
-        assets={raspberry_mint},
-        template="component/checkboxes.html.j2",
-    ) as (actual, _):
-        assert label in actual
+    ) as rendered:
+        assert label in rendered
 
 
-async def test_with_full_items(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_full_items(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     html_id = "my-first-id"
-    async with assert_template_file(
+    async with assert_raspberry_mint_jinja_file(
+        "component/checkboxes.html.j2",
         data={
             "checkboxes": [
                 {
@@ -63,7 +62,5 @@ async def test_with_full_items(assert_template_file: AssertTemplateFile) -> None
             ],
             "checkboxes_label": "Check these out!",
         },
-        assets={raspberry_mint},
-        template="component/checkboxes.html.j2",
-    ) as (actual, _):
-        assert f'id="{html_id}"' in actual
+    ) as rendered:
+        assert f'id="{html_id}"' in rendered

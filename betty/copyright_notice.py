@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, final
 
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.cls import ClsDefinition
+from betty.frosty import Frosty
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class CopyrightNotice(Object["CopyrightNoticeDefinition"]):
+class CopyrightNotice(Object["CopyrightNoticeDefinition"], Frosty):
     """
     A copyright notice.
 

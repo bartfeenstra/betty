@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import final
 
+from betty.frosties.classtools import Frozen
 from betty.gender import Gender, GenderDefinition
 from betty.localizables.gettext import _, ngettext
 
@@ -17,7 +18,7 @@ from betty.localizables.gettext import _, ngettext
     label_plural=_("Women"),
     label_countable=ngettext("{count} woman", "{count} women"),
 )
-class Woman(Gender):
+class Woman(Gender, Frozen):
     """
     .. plugin:: gender:woman.
     """

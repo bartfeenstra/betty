@@ -12,19 +12,19 @@ from betty.servers.demo import DemoServer
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
-    from betty.test_utils.conftest import IsolatedAppFactory
+    from betty.test_utils.conftest import NewIsolatedApp
 
 
 @pytest.mark.usefixtures("demo_project_aioresponses")
 class TestDemoServer:
     async def test(
-        self, mocker: MockerFixture, isolated_app_factory: IsolatedAppFactory
+        self, mocker: MockerFixture, new_isolated_app: NewIsolatedApp
     ) -> None:
         m_generate_with_cleanup = mocker.patch(
             "betty.demo.generate.generate_with_cleanup"
         )
         mocker.patch("webbrowser.open_new_tab")
-        async with isolated_app_factory() as app, app, DemoServer(app) as server:
+        async with new_isolated_app() as app, app, DemoServer(app) as server:
 
             def _assert_response(response: Response) -> None:
                 assert response.status_code == 200

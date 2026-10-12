@@ -11,17 +11,16 @@ from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.event_types.residence import Residence
 from betty.load import load
+from betty.project import Project
 from betty.roles.subject import Subject
 from betty.test_utils.entity import record_added
 
 if TYPE_CHECKING:
-    from betty.test_utils.conftest import IsolatedProjectFactory
+    from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestDeriver:
-    async def test_enrich(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
+    async def test_enrich(self, new_isolated_project: NewIsolatedProject) -> None:
         person = Person(id="my-first-person")
         event = Event(
             event_type=Residence(),
@@ -29,31 +28,36 @@ class TestDeriver:
         )
         Presence(person, Subject(), event)
 
-        async with isolated_project_factory(enrichers=[Deriver]) as project, project:
+        async with new_isolated_project() as project:
             project.ancestry.add(person)
-            with record_added(project.ancestry) as added:
-                await load(project)
+            Project.enrichers.add_init_plugins(project, Deriver)
+            async with project:
+                with record_added(project.ancestry) as added:
+                    await load(project)
 
-            assert len(person.presences) == 3
-            birth = next(
-                presence
-                for presence in person.presences
-                if presence.event.event_type.definition.id == Birth.definition.id
-            )
-            assert birth is not None
-            assert birth.event is not None
-            assert isinstance(birth.event, Event)
-            assert (
-                DateRange(None, Date(1, 1, 1), end_is_boundary=True) == birth.event.date
-            )
-            end = next(
-                presence
-                for presence in person.presences
-                if presence.event.event_type.definition.id == Death.definition.id
-            )
-            assert end is not None
-            assert end.event is not None
-            assert DateRange(Date(1, 1, 1), start_is_boundary=True) == end.event.date
-            assert len(added[Event]) == 2
-            assert birth.event in added[Event]
-            assert end.event in added[Event]
+                assert len(person.presences) == 3
+                birth = next(
+                    presence
+                    for presence in person.presences
+                    if presence.event.event_type.definition.id == Birth.definition.id
+                )
+                assert birth is not None
+                assert birth.event is not None
+                assert isinstance(birth.event, Event)
+                assert (
+                    DateRange(None, Date(1, 1, 1), end_is_boundary=True)
+                    == birth.event.date
+                )
+                end = next(
+                    presence
+                    for presence in person.presences
+                    if presence.event.event_type.definition.id == Death.definition.id
+                )
+                assert end is not None
+                assert end.event is not None
+                assert (
+                    DateRange(Date(1, 1, 1), start_is_boundary=True) == end.event.date
+                )
+                assert len(added[Event]) == 2
+                assert birth.event in added[Event]
+                assert end.event in added[Event]

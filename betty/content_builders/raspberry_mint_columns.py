@@ -33,6 +33,7 @@ from betty.datas.plugin.manufacturer.sequence import (
     PluginManufacturerSequenceDefinition,
 )
 from betty.factory import DataManufacturable
+from betty.frosties.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.porters.callback import CallbackPorter
 from betty.project import Project
@@ -114,7 +115,7 @@ type ResolvableColumnsWidth = (
     ),
     manufacturer=lambda **fields: ColumnsData(*fields.pop("content"), **fields),
 )
-class ColumnsData(Object):
+class ColumnsData(Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_columns.Columns`.
 

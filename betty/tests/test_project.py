@@ -6,22 +6,17 @@ from typing import TYPE_CHECKING
 import pytest
 from babel import Locale
 
-from betty.dirs import builtin_asset_directory
-from betty.entity import EntityDefinition
-from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
 from betty.locale import default_locale, default_locale_tag
 from betty.localizables.plain import Plain
-from betty.localizer import default_localizer
 from betty.project import Project, ProjectData, ProjectLocale
 from betty.service_level import ServiceLevel
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
 from betty.test_utils.data import DataTestBase
-from betty.test_utils.entity import DummyEntityOne
 
 if TYPE_CHECKING:
     from betty.app import App
-    from betty.test_utils.conftest import IsolatedProjectFactory
+    from betty.test_utils.conftest import NewIsolatedProject
 
 
 @ServiceProviderDefinition("dummy-service-provider", label="-")
@@ -45,256 +40,117 @@ class TestProject:
         async with Project.new_isolated(app=isolated_app) as sut:
             assert sut.upstream is isolated_app
 
-    async def test_bootstrap__should_initialize_service_providers(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with (
-            isolated_project_factory(
-                plugins={ServiceProviderDefinition: [_DummyServiceProvider]},
-                service_providers=[_DummyServiceProvider],
-            ) as sut,
-            sut,
-        ):
-            service_provider = await sut.service_providers[_DummyServiceProvider]
-            assert service_provider.bootstrapped
-
-    async def test_service_providers(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with (
-            isolated_project_factory(
-                plugins={ServiceProviderDefinition: [_DummyServiceProvider]},
-                service_providers=[_DummyServiceProvider],
-            ) as sut,
-            sut,
-        ):
-            assert _DummyServiceProvider in sut.service_providers
-
-    async def test_ancestry__with___init___ancestry(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        ancestry = EntityPool()
-        async with isolated_project_factory(ancestry=ancestry) as sut:
-            assert sut.ancestry is ancestry
-
-    async def test_ancestry__without___init___ancestry(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory() as sut:
-            sut.ancestry  # noqa: B018
-
-    async def test_assets(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory() as sut, sut:
+    async def test_assets(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project() as sut, sut:
             assert len(sut.asset_directories.directories) == 2
 
-    async def test_jinja(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory() as sut, sut:
+    async def test_jinja(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project() as sut, sut:
             await sut.jinja
 
-    async def test_localizers(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory() as sut:
+    async def test_localizers(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project() as sut:
             assert sut.localizers is sut.localizers
 
-    async def test_name(self, isolated_project_factory: IsolatedProjectFactory) -> None:
-        name = "hello-world"
-        async with isolated_project_factory(name=name) as sut:
-            assert sut.name == name
-
-    async def test_name__default(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory() as sut:
-            sut.name  # noqa: B018
-
-    async def test_renderer(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory() as sut, sut:
+    async def test_renderer(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project() as sut, sut:
             await sut.renderer
 
     async def test_url_generator(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
-        async with isolated_project_factory() as sut:
+        async with new_isolated_project() as sut:
             await sut.url_generator
 
-    async def test_logo(self, isolated_project_factory: IsolatedProjectFactory) -> None:
-        logo = builtin_asset_directory / "public" / "static" / "betty-256x256.png"
-        async with isolated_project_factory(logo=logo) as sut:
-            assert sut.logo == logo
-
-    async def test_logo__default(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory() as sut:
-            assert sut.logo.exists()
-
     async def test_copyright_notice(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
-        async with isolated_project_factory() as sut, sut:
+        async with new_isolated_project() as sut, sut:
             assert await sut.copyright_notice is await sut.copyright_notice
 
-    async def test_license(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory() as sut, sut:
+    async def test_license(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project() as sut, sut:
             assert await sut.license is await sut.license
 
-    async def test_privatizer(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory() as sut:
+    async def test_privatizer(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project() as sut:
             sut.privatizer  # noqa: B018
 
-    async def test_new_document(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory() as sut, sut:
+    async def test_new_document(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project() as sut, sut:
             await sut.new_document()
 
     async def test_directory(
-        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
+        self, new_isolated_project: NewIsolatedProject, tmp_path: Path
     ) -> None:
-        async with isolated_project_factory(directory=tmp_path) as sut:
+        async with new_isolated_project(directory=tmp_path) as sut:
             assert sut.directory == tmp_path
 
     async def test_output_directory(
-        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
+        self, new_isolated_project: NewIsolatedProject, tmp_path: Path
     ) -> None:
-        async with isolated_project_factory(directory=tmp_path) as sut:
+        async with new_isolated_project(directory=tmp_path) as sut:
             assert tmp_path in sut.output_directory.parents
 
     async def test_asset_directory(
-        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
+        self, new_isolated_project: NewIsolatedProject, tmp_path: Path
     ) -> None:
-        async with isolated_project_factory(directory=tmp_path) as sut:
+        async with new_isolated_project(directory=tmp_path) as sut:
             assert tmp_path in sut.asset_directory.parents
 
     async def test_www_directory(
-        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
+        self, new_isolated_project: NewIsolatedProject, tmp_path: Path
     ) -> None:
-        async with isolated_project_factory(directory=tmp_path) as sut:
+        async with new_isolated_project(directory=tmp_path) as sut:
             assert tmp_path in sut.www_directory.parents
 
     async def test_localize_www_directory__monolingual(
-        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
+        self, new_isolated_project: NewIsolatedProject, tmp_path: Path
     ) -> None:
-        async with isolated_project_factory(directory=tmp_path) as sut:
+        async with new_isolated_project(directory=tmp_path) as sut:
             actual = sut.localize_www_directory(default_locale)
             assert tmp_path in actual.parents
             assert default_locale_tag not in str(actual)
 
     async def test_localize_www_directory__multilingual(
-        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
+        self, new_isolated_project: NewIsolatedProject, tmp_path: Path
     ) -> None:
-        async with isolated_project_factory(locales=[default_locale, "nl-NL"]) as sut:
+        async with new_isolated_project() as sut:
+            sut.locales = [default_locale, "nl-NL"]
             actual = sut.localize_www_directory(default_locale)
             assert sut.directory in actual.parents
             assert default_locale_tag in str(actual)
 
-    async def test_author(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        author = "Bart"
-        async with isolated_project_factory(author=author) as project, project:
-            assert project.author is not None
-            assert project.author.localize(default_localizer) == author
-
-    async def test_base_url(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory(
-            url="https://betty.example.com:747/my-first-site"
-        ) as sut:
+    async def test_base_url(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project() as sut:
+            sut.url = "https://betty.example.com:747/my-first-site"
             assert sut.base_url == "https://betty.example.com:747"
 
-    async def test_clean_urls(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory(clean_urls=True) as sut:
-            assert sut.clean_urls
-
-    async def test_debug(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory(debug=True) as sut:
-            assert sut.debug
-
     async def test_default_locale(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
-        async with isolated_project_factory(locales=["nl-NL", "en-US"]) as sut:
+        async with new_isolated_project() as sut:
+            sut.locales = ["nl-NL", "en-US"]
             assert str(sut.default_locale.locale) == "nl_NL"
 
-    async def test_generate_entity_list_html(
-        self, isolated_app: App, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory(
-            app=isolated_app,
-            generate_entity_list_html=[DummyEntityOne],
-            plugins={EntityDefinition: [DummyEntityOne]},
-        ) as sut:
-            assert list(await sut.generate_entity_list_html) == [
-                DummyEntityOne.definition
-            ]
-
-    async def test_lifetime_threshold(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        lifetime_threshold = 999
-        async with isolated_project_factory(
-            lifetime_threshold=lifetime_threshold
-        ) as sut:
-            assert sut.lifetime_threshold == lifetime_threshold
-
-    async def test_locales(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory(locales=["nl-NL"]) as sut:
-            assert len(sut.locales) == 1
-            assert str(next(iter(sut.locales)).locale) == "nl_NL"
-
     async def test_multilingual__without_multilingual(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
-        async with isolated_project_factory(locales=["nl-NL"]) as sut:
+        async with new_isolated_project() as sut:
+            sut.locales = ["nl-NL"]
             assert not sut.multilingual
 
     async def test_multilingual__with_multilingual(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
-        async with isolated_project_factory(locales=["nl-NL", "en-US"]) as sut:
+        async with new_isolated_project() as sut:
+            sut.locales = ["nl-NL", "en-US"]
             assert sut.multilingual
 
-    async def test_root_path(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with isolated_project_factory(
-            url="https://betty.example.com:747/my-first-site"
-        ) as sut:
+    async def test_root_path(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project() as sut:
+            sut.url = "https://betty.example.com:747/my-first-site"
             assert sut.root_path == "/my-first-site"
-
-    async def test_title(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        title = "My First Betty Site"
-        async with isolated_project_factory(title=title) as sut:
-            assert sut.title.localize(default_localizer) == title
-
-    async def test_url(self, isolated_project_factory: IsolatedProjectFactory) -> None:
-        url = "https://betty.example.com"
-        async with isolated_project_factory(url=url) as sut:
-            assert sut.url == url
-
-    async def test_asset_directories(self, isolated_project: Project) -> None:
-        assert isolated_project.asset_directories is isolated_project.asset_directories
 
     async def test_binary_file_cache(self, isolated_project: Project) -> None:
         assert isolated_project.binary_file_cache is isolated_project.binary_file_cache
@@ -302,40 +158,8 @@ class TestProject:
     async def test_cache(self, isolated_project: Project) -> None:
         assert isolated_project.cache is isolated_project.cache
 
-    async def test_css_resources(self, isolated_project: Project) -> None:
-        assert isolated_project.css_resources is isolated_project.css_resources
-
-    async def test_document_providers(self, isolated_project: Project) -> None:
-        assert (
-            isolated_project.document_providers is isolated_project.document_providers
-        )
-
-    async def test_enrichers(self, isolated_project: Project) -> None:
-        assert isolated_project.enrichers is isolated_project.enrichers
-
-    async def test_jinja_filters(self, isolated_project: Project) -> None:
-        assert isolated_project.jinja_filters is isolated_project.jinja_filters
-
-    async def test_jinja_tests(self, isolated_project: Project) -> None:
-        assert isolated_project.jinja_tests is isolated_project.jinja_tests
-
-    async def test_js_resources(self, isolated_project: Project) -> None:
-        assert isolated_project.js_resources is isolated_project.js_resources
-
-    async def test_links(self, isolated_project: Project) -> None:
-        assert isolated_project.links is isolated_project.links
-
-    async def test_loaders(self, isolated_project: Project) -> None:
-        assert isolated_project.loaders is isolated_project.loaders
-
     async def test_public_localizers(self, isolated_project: Project) -> None:
         assert isolated_project.public_localizers is isolated_project.public_localizers
-
-    async def test_renderers(self, isolated_project: Project) -> None:
-        assert isolated_project.renderers is isolated_project.renderers
-
-    async def test_servers(self, isolated_project: Project) -> None:
-        assert isolated_project.servers is isolated_project.servers
 
 
 class TestProjectLocale(DataTestBase[ProjectLocale]):
@@ -386,15 +210,6 @@ class TestProjectData(DataTestBase[ProjectData]):
     async def test_service_providers(self) -> None:
         sut = ProjectData(title="Betty", url="https://example.com")
         assert len(sut.service_providers) == 0
-
-    async def test_generate_entity_list_html(self) -> None:
-        sut = ProjectData(
-            generate_entity_list_html=[DummyEntityOne],
-            title="Betty",
-            url="https://example.com",
-        )
-        assert sut.generate_entity_list_html is not None
-        assert list(sut.generate_entity_list_html) == [DummyEntityOne.definition.id]
 
     @pytest.mark.parametrize(
         "debug",

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.event_type import EventTypeDefinition, ShouldExistEventType
 from betty.event_types.birth import Birth
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _, ngettext
 
 if TYPE_CHECKING:
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} death", "{count} deaths"),
     after={Birth},
 )
-class Death(ShouldExistEventType):
+class Death(ShouldExistEventType, Frozen):
     """
     .. plugin:: event-type:death.
     """

@@ -7,7 +7,7 @@ import pytest
 from betty.linked_data import LinkedDataDumpableWithSchemaJsonLdObject
 
 if TYPE_CHECKING:
-    from betty.test_utils.conftest import AssertTemplateString
+    from betty.test_utils.conftest import AssertJinja
 
 
 class TestLinkedDataDumpable:
@@ -20,13 +20,8 @@ class TestLinkedDataDumpable:
         ],
     )
     async def test___call__(
-        self, assert_template_string: AssertTemplateString, expected: str, data: Any
+        self, assert_jinja_str: AssertJinja, expected: str, data: Any
     ) -> None:
         template = "{% if data is linked_data_dumpable %}true{% else %}false{% endif %}"
-        async with assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
+        async with assert_jinja_str(template, data={"data": data}) as rendered:
+            assert rendered == expected

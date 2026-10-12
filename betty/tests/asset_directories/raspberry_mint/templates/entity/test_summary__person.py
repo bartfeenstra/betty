@@ -1,4 +1,3 @@
-from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.entities.citation import Citation
 from betty.entities.event import Event
 from betty.entities.person import Person
@@ -11,22 +10,18 @@ from betty.genders.non_binary import NonBinary
 from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
-from betty.test_utils.conftest import AssertTemplateFile
+from betty.test_utils.conftest import AssertJinja
 
 
-async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
+async def test_minimal(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     person = Person()
-    async with assert_template_file(
-        data={
-            "entity": person,
-        },
-        assets={raspberry_mint},
-        template="entity/summary--person.html.j2",
-    ) as (actual, _):
-        assert actual == '<div class="small"></div>'
+    async with assert_raspberry_mint_jinja_file(
+        "entity/summary--person.html.j2", data={"entity": person}
+    ) as rendered:
+        assert rendered == '<div class="small"></div>'
 
 
-async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
+async def test_embedded(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     source = Source()
     person = Person()
     PersonName(person=person, individual="Jane", citations=[Citation(source=source)])
@@ -34,20 +29,15 @@ async def test_embedded(assert_template_file: AssertTemplateFile) -> None:
     death = Event(event_type=Death(), citations=[Citation(source=source)])
     Presence(person, Subject(), birth)
     Presence(person, Subject(), death)
-    async with assert_template_file(
-        data={
-            "entity": person,
-            "embedded": True,
-        },
-        assets={raspberry_mint},
-        template="entity/summary--person.html.j2",
-    ) as (actual, _):
-        assert birth.id not in actual
-        assert death.id not in actual
-        assert "#reference" not in actual
+    async with assert_raspberry_mint_jinja_file(
+        "entity/summary--person.html.j2", data={"entity": person, "embedded": True}
+    ) as rendered:
+        assert birth.id not in rendered
+        assert death.id not in rendered
+        assert "#reference" not in rendered
 
 
-async def test_private(assert_template_file: AssertTemplateFile) -> None:
+async def test_private(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     source = Source()
     person = Person(privacy=Privacy.PRIVATE)
     PersonName(person=person, individual="Primary Name")
@@ -61,25 +51,23 @@ async def test_private(assert_template_file: AssertTemplateFile) -> None:
     death = Event(event_type=Death(), citations=[Citation(source=source)])
     Presence(person, Subject(), birth)
     Presence(person, Subject(), death)
-    async with assert_template_file(
-        data={
-            "entity": person,
-        },
-        assets={raspberry_mint},
-        template="entity/summary--person.html.j2",
-    ) as (actual, _):
-        assert individual_name not in actual
+    async with assert_raspberry_mint_jinja_file(
+        "entity/summary--person.html.j2", data={"entity": person}
+    ) as rendered:
+        assert individual_name not in rendered
         assert (
-            birth.event_type.definition.label.localize(default_localizer) not in actual
+            birth.event_type.definition.label.localize(default_localizer)
+            not in rendered
         )
         assert (
-            death.event_type.definition.label.localize(default_localizer) not in actual
+            death.event_type.definition.label.localize(default_localizer)
+            not in rendered
         )
-        assert "#reference" not in actual
+        assert "#reference" not in rendered
 
 
 async def test_with_public_alternative_name(
-    assert_template_file: AssertTemplateFile,
+    assert_raspberry_mint_jinja_file: AssertJinja,
 ) -> None:
     source = Source()
     person = Person()
@@ -90,19 +78,15 @@ async def test_with_public_alternative_name(
         individual=individual_name,
         citations=[Citation(source=source)],
     )
-    async with assert_template_file(
-        data={
-            "entity": person,
-        },
-        assets={raspberry_mint},
-        template="entity/summary--person.html.j2",
-    ) as (actual, _):
-        assert individual_name in actual
-        assert "#reference" in actual
+    async with assert_raspberry_mint_jinja_file(
+        "entity/summary--person.html.j2", data={"entity": person}
+    ) as rendered:
+        assert individual_name in rendered
+        assert "#reference" in rendered
 
 
 async def test_with_private_alternative_name(
-    assert_template_file: AssertTemplateFile,
+    assert_raspberry_mint_jinja_file: AssertJinja,
 ) -> None:
     source = Source()
     person = Person()
@@ -114,56 +98,44 @@ async def test_with_private_alternative_name(
         citations=[Citation(source=source)],
         privacy=Privacy.PRIVATE,
     )
-    async with assert_template_file(
-        data={
-            "entity": person,
-        },
-        assets={raspberry_mint},
-        template="entity/summary--person.html.j2",
-    ) as (actual, _):
-        assert individual_name not in actual
-        assert "#reference" not in actual
+    async with assert_raspberry_mint_jinja_file(
+        "entity/summary--person.html.j2", data={"entity": person}
+    ) as rendered:
+        assert individual_name not in rendered
+        assert "#reference" not in rendered
 
 
-async def test_with_birh_indicator(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_birh_indicator(
+    assert_raspberry_mint_jinja_file: AssertJinja,
+) -> None:
     source = Source()
     person = Person()
     birth = Event(event_type=Birth(), citations=[Citation(source=source)])
     Presence(person, Subject(), birth)
-    async with assert_template_file(
-        data={
-            "entity": person,
-        },
-        assets={raspberry_mint},
-        template="entity/summary--person.html.j2",
-    ) as (actual, _):
-        assert birth.event_type.definition.label.localize(default_localizer) in actual
-        assert "#reference" in actual
+    async with assert_raspberry_mint_jinja_file(
+        "entity/summary--person.html.j2", data={"entity": person}
+    ) as rendered:
+        assert birth.event_type.definition.label.localize(default_localizer) in rendered
+        assert "#reference" in rendered
 
 
-async def test_with_death_indicator(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_death_indicator(
+    assert_raspberry_mint_jinja_file: AssertJinja,
+) -> None:
     source = Source()
     person = Person()
     death = Event(event_type=Death(), citations=[Citation(source=source)])
     Presence(person, Subject(), death)
-    async with assert_template_file(
-        data={
-            "entity": person,
-        },
-        assets={raspberry_mint},
-        template="entity/summary--person.html.j2",
-    ) as (actual, _):
-        assert death.event_type.definition.label.localize(default_localizer) in actual
-        assert "#reference" in actual
+    async with assert_raspberry_mint_jinja_file(
+        "entity/summary--person.html.j2", data={"entity": person}
+    ) as rendered:
+        assert death.event_type.definition.label.localize(default_localizer) in rendered
+        assert "#reference" in rendered
 
 
-async def test_with_gender(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_gender(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     person = Person(gender=NonBinary())
-    async with assert_template_file(
-        data={
-            "entity": person,
-        },
-        assets={raspberry_mint},
-        template="entity/summary--person.html.j2",
-    ) as (actual, _):
-        assert NonBinary.definition.label.localize(default_localizer) in actual
+    async with assert_raspberry_mint_jinja_file(
+        "entity/summary--person.html.j2", data={"entity": person}
+    ) as rendered:
+        assert NonBinary.definition.label.localize(default_localizer) in rendered

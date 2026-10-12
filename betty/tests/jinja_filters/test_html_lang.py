@@ -4,7 +4,7 @@ from babel import Locale
 from betty.document import Document
 from betty.localized import LocalizedStr
 from betty.localizer import Localizer
-from betty.test_utils.conftest import AssertTemplateString
+from betty.test_utils.conftest import AssertJinja
 
 
 class TestHtmlLang:
@@ -53,19 +53,19 @@ class TestHtmlLang:
     )
     async def test___call__(
         self,
-        assert_template_string: AssertTemplateString,
+        assert_jinja_str: AssertJinja,
         expected: str,
         autoescape: bool,
         has_locale: str,
         localizer_locale: str,
     ) -> None:
         template = "{{ has_locale | html_lang }}"
-        async with assert_template_string(
-            template=template,
+        async with assert_jinja_str(
+            template,
             data={
                 "has_locale": has_locale,
                 "document": Document(localizer=Localizer(localizer_locale)),
             },
             autoescape=autoescape,
-        ) as (actual, _):
-            assert actual == expected
+        ) as rendered:
+            assert rendered == expected

@@ -20,6 +20,7 @@ from betty.definition.cls import ClsDefinition
 from betty.definition.id import ResolvableId, resolve_id
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.machine_name import MachineName
@@ -45,7 +46,7 @@ NoPluginData = sentinel("NoPluginData")
 
 @disjoint_base
 class PluginManufacturer[DefinitionT: PluginDefinition, PluginT](
-    Object["PluginManufacturerDefinition"]
+    Frozen, Object["PluginManufacturerDefinition"]
 ):
     """
     Configure a single plugin instance.
@@ -57,7 +58,10 @@ class PluginManufacturer[DefinitionT: PluginDefinition, PluginT](
     """
 
     plugin_data = OwnerAttr(
-        DataDefinition[Data | OptionalPortableData](label=_("Data"))
+        DataDefinition[Data | OptionalPortableData](label=_("Data")),
+        frozen=lambda owner, attr: (
+            owner.is_initialized and isinstance(attr.get(owner), Data)
+        ),
     )
     """
     Get the plugin's own data.

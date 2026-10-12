@@ -10,7 +10,6 @@ from contextlib import asynccontextmanager
 from graphlib import CycleError, TopologicalSorter
 from typing import TYPE_CHECKING, cast, final, override
 
-from betty.classtools import Singleton
 from betty.concurrent import ThreadSafeLock, backoff
 from betty.job import Context, Job
 from betty.job.scheduler import (
@@ -63,7 +62,7 @@ class _ScheduledJobBatch:
 
 
 @final
-class _UnknownJob(Singleton):
+class _UnknownJob:
     pass
 
 

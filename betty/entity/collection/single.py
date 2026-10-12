@@ -24,6 +24,7 @@ class SingleTypeEntityCollection[TargetT: Entity = Entity](EntityCollection[Targ
 
     @override
     def add(self, *entities: TargetT) -> None:
+        self.assert_not_frozen()
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
             self._entities.append(entity)
@@ -32,6 +33,7 @@ class SingleTypeEntityCollection[TargetT: Entity = Entity](EntityCollection[Targ
 
     @override
     def remove(self, *entities: TargetT) -> None:
+        self.assert_not_frozen()
         removed_entities = [*self._known(*entities)]
         for entity in removed_entities:
             self._entities.remove(entity)
@@ -70,3 +72,9 @@ class SingleTypeEntityCollection[TargetT: Entity = Entity](EntityCollection[Targ
         if isinstance(value, str):
             return any(entity.id == value for entity in self._entities)
         return any(entity is value for entity in self._entities)
+
+    @override
+    def _freeze(self) -> None:
+        super()._freeze()
+        for entity in self:
+            entity.freeze()

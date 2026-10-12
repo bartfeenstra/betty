@@ -1,43 +1,35 @@
-from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.html.attributes import Attributes
-from betty.test_utils.conftest import AssertTemplateFile
+from betty.test_utils.conftest import AssertJinja
 
 
-async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
+async def test_minimal(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     label = "Hit me, I am a button!"
-    async with assert_template_file(
-        data={
-            "button_label": label,
-        },
-        assets={raspberry_mint},
-        template="component/submit.html.j2",
-    ) as (actual, _):
-        assert "<input " in actual
-        assert 'type="submit"' in actual
-        assert "button-primary" in actual
-        assert label in actual
+    async with assert_raspberry_mint_jinja_file(
+        "component/submit.html.j2", data={"button_label": label}
+    ) as rendered:
+        assert "<input " in rendered
+        assert 'type="submit"' in rendered
+        assert "button-primary" in rendered
+        assert label in rendered
 
 
-async def test_secondary(assert_template_file: AssertTemplateFile) -> None:
-    async with assert_template_file(
-        data={
-            "button_label": "Hit me, I am a button!",
-            "button_secondary": True,
-        },
-        assets={raspberry_mint},
-        template="component/submit.html.j2",
-    ) as (actual, _):
-        assert "button-secondary" in actual
+async def test_secondary(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
+    async with assert_raspberry_mint_jinja_file(
+        "component/submit.html.j2",
+        data={"button_label": "Hit me, I am a button!", "button_secondary": True},
+    ) as rendered:
+        assert "button-secondary" in rendered
 
 
-async def test_with_html_attributes(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_html_attributes(
+    assert_raspberry_mint_jinja_file: AssertJinja,
+) -> None:
     html_id = "my-first-id"
-    async with assert_template_file(
+    async with assert_raspberry_mint_jinja_file(
+        "component/submit.html.j2",
         data={
             "button_label": "Hit me, I am a button!",
             "attributes": Attributes(html_id=html_id),
         },
-        assets={raspberry_mint},
-        template="component/submit.html.j2",
-    ) as (actual, _):
-        assert f'id="{html_id}"' in actual
+    ) as rendered:
+        assert f'id="{html_id}"' in rendered

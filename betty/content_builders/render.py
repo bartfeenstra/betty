@@ -11,6 +11,7 @@ from betty.attrs.media_type import new_media_type_attr
 from betty.content_builder import ContentBuilder, ContentBuilderDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.factory import DataManufacturable
+from betty.frosties.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.media_types.plain_text import PLAIN_TEXT
 from betty.project import Project
@@ -30,7 +31,7 @@ if TYPE_CHECKING:
         lambda: Sample(RenderData("Hello, world!"), label="Minimal", size=Size.MINIMAL)
     ),
 )
-class RenderData(Object):
+class RenderData(Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.content_builders.render.Render`.
 

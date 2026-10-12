@@ -40,7 +40,6 @@ class GenerateEntityTypesHtml(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        generate_entity_list_html = await self._project.generate_entity_list_html
         await gather(*[
             scheduler.add(
                 _GenerateEntityTypeHtml(
@@ -54,7 +53,7 @@ class GenerateEntityTypesHtml(Job):
             )
             async for entity_type in self._project.plugins[EntityDefinition]
             if entity_type.public_facing
-            and (entity_type.id in generate_entity_list_html)
+            and (entity_type.id in self._project.generate_entity_list_html)
             and (
                 page_count := ceil(
                     len(self._project.ancestry[entity_type]) / self._per_page
