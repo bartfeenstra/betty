@@ -250,8 +250,14 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
             "result": MissingReason.COVERED_ELSEWHERE,
         }
     },
-    "betty/freezer.py": {
-        "Frozen": MissingReason.ABSTRACT,
+    "betty/freezers/frozen.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/frozen.py": {
+        "Freezable": MissingReason.ABSTRACT,
+        "FreezableClassVar": MissingReason.ABSTRACT,
+        "Freezer": MissingReason.ABSTRACT,
+        "Frosty": MissingReason.ABSTRACT,
+        "frozen": MissingReason.COVERED_ELSEWHERE,
+        "FrozenError": MissingReason.COVERED_ELSEWHERE,
     },
     "betty/genders/man.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/genders/non_binary.py": MissingReason.STATIC_CONTENT_ONLY,
@@ -317,7 +323,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     },
     "betty/links.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/load.py": {
-        "load": MissingReason.SHOULD_BE_COVERED,
         "Loader": MissingReason.ABSTRACT,
         "LoaderDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "LoaderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
@@ -579,6 +584,20 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
         "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/project/__init__.py": {
+        "Project": {
+            "asset_directories": MissingReason.STATIC_CONTENT_ONLY,
+            "css_resources": MissingReason.STATIC_CONTENT_ONLY,
+            "document_providers": MissingReason.STATIC_CONTENT_ONLY,
+            "enrichers": MissingReason.STATIC_CONTENT_ONLY,
+            "jinja_filters": MissingReason.STATIC_CONTENT_ONLY,
+            "jinja_tests": MissingReason.STATIC_CONTENT_ONLY,
+            "js_resources": MissingReason.STATIC_CONTENT_ONLY,
+            "links": MissingReason.STATIC_CONTENT_ONLY,
+            "loaders": MissingReason.STATIC_CONTENT_ONLY,
+            "renderers": MissingReason.STATIC_CONTENT_ONLY,
+            "servers": MissingReason.STATIC_CONTENT_ONLY,
+            "service_providers": MissingReason.STATIC_CONTENT_ONLY,
+        },
         "ProjectData": {
             "copyright_notice": MissingReason.INHERITED,
             "license": MissingReason.INHERITED,
@@ -670,11 +689,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     **{
         str(path): MissingReason.INTERNAL
         for path in (Path("betty") / "test_utils").rglob("**/*.py")
-    },
-    "betty/typing.py": {
-        "FrozenDict": {
-            "__ior__": MissingReason.COVERED_ELSEWHERE,
-        }
     },
     "betty/url.py": {
         "HasUrl": MissingReason.ABSTRACT,

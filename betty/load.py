@@ -177,6 +177,8 @@ async def load(project: Project, *, context: Context | None = None) -> None:
         lambda scheduler, enricher: enricher.enrich(scheduler),
     )
 
+    project.ancestry.freeze()
+
 
 async def _do_jobs[PluginT](
     project: Project,

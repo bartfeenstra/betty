@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import final
 
+from betty.freezers.classtools import FrozenOnInit
 from betty.gender import Gender, GenderDefinition
 from betty.localizables.gettext import _, ngettext
 
@@ -19,7 +20,7 @@ from betty.localizables.gettext import _, ngettext
         "{count} person of unknown gender", "{count} people of unknown gender"
     ),
 )
-class UnknownGender(Gender):
+class UnknownGender(Gender, FrozenOnInit):
     """
     .. plugin:: gender:unknown.
     """

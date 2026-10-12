@@ -67,6 +67,7 @@ class MultipleTypesEntityCollection[TargetT: Entity = Entity](
 
     @override
     def add(self, *entities: TargetT) -> None:
+        self.assert_not_frozen()
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
             self[type(entity)].add(entity)
@@ -75,6 +76,7 @@ class MultipleTypesEntityCollection[TargetT: Entity = Entity](
 
     @override
     def remove(self, *entities: TargetT) -> None:
+        self.assert_not_frozen()
         removed_entities = [*self._known(*entities)]
         for entity in removed_entities:
             self[type(entity)].remove(entity)
@@ -83,8 +85,15 @@ class MultipleTypesEntityCollection[TargetT: Entity = Entity](
 
     @override
     def clear(self) -> None:
+        self.assert_not_frozen()
         removed_entities = (*self,)
         for collection in self._collections.values():
             collection.clear()
         if removed_entities:
             self._on_remove(*removed_entities)
+
+    @override
+    def _freeze(self) -> None:
+        super()._freeze()
+        for collection in self._collections.values():
+            collection.freeze()

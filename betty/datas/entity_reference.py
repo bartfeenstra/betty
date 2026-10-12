@@ -10,7 +10,7 @@ from betty.attrs.machine_name import new_machine_name_attr
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.id import resolve_id
 from betty.entity import Entity, EntityDefinition
-from betty.freezer import Frozen
+from betty.freezers.classtools import FrozenOnInit
 from betty.localizables.gettext import _
 from betty.sample import Sample, Samples
 
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
         lambda: Sample(EntityReference("person", "123"), label="Default"),
     ),
 )
-class EntityReference[EntityT: Entity = Entity](Object, Frozen):
+class EntityReference[EntityT: Entity = Entity](Object, FrozenOnInit):
     """
     A reference to an entity of any type.
 

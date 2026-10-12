@@ -7,6 +7,7 @@ from betty.datas.plugin.definition import (
     PluginDefinitionConfig,
     PluginDefinitionConfigDefinition,
 )
+from betty.freezers.attr import AttrFreezable
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.test_utils.locale.localizable import dummy_countable_localizable
 from betty.typing import Unreachable
@@ -23,7 +24,7 @@ class _DummyPluginDefinition(PluginDefinition, ObjectDefinition):
 
 
 @ObjectDefinition(label="-")
-class _Owner(Object):
+class _Owner(Object, AttrFreezable):
     @PluginDefinitionConfigDefinition(_DummyPluginDefinition)
     class _Item(PluginDefinitionConfig[_DummyPluginDefinition]):
         @override

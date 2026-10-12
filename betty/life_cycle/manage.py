@@ -85,13 +85,13 @@ class LifeCycleManager(LifeCycle):
 
         The life cycles within the batch will be bootstrapped and shut down concurrently.
         """
-        self.assert_not_shut_down()
+        self.assert_not_shutdown()
         shutdowners = []
         for life_cycle in life_cycles:
             if isinstance(life_cycle, Shutdownable):
-                life_cycle.assert_not_shut_down()
+                life_cycle.assert_not_shutdown()
                 shutdowners.append(life_cycle.shutdown)
-        if self.bootstrapped:
+        if self.is_bootstrapped:
             await gather(*[
                 life_cycle.bootstrap()
                 for life_cycle in life_cycles
@@ -123,7 +123,7 @@ class LifeCycleManager(LifeCycle):
 
         The callbacks within the batch will be invoked concurrently.
         """
-        self.assert_not_shut_down()
+        self.assert_not_shutdown()
         if not shutdowners:
             return
         self._shutdowners.append(shutdowners)

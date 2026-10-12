@@ -1,7 +1,7 @@
 {% set html_id = machine_name() %}
 <div class="tree" id="{{ html_id }}">
     <div class="tree-content" data-betty-person="{{ person.id }}" data-betty-people="{{ 'betty:///people.json' | url }}"></div>
-    {% with target = html_id %}
+    {% with button_full_screen_target = html_id %}
         {% include 'component/trees/control/full-screen.html.j2' %}
     {% endwith %}
 </div>

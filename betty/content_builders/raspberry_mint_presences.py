@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories import raspberry_mint
-from betty.attrs.owner import OwnerAttr
+from betty.attrs.owner import CollectionOwnerAttr
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.aggregate.collection.list import ListDefinition
@@ -15,6 +15,7 @@ from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.id import resolve_id
 from betty.entities.event import Event
 from betty.factory import DataManufacturable, Manufacturable
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.project import Project
@@ -46,19 +47,19 @@ if TYPE_CHECKING:
         ),
     ),
 )
-class PresencesData(Object):
+class PresencesData(Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_presences.Presences`.
 
     .. data:: betty.content_builders.raspberry_mint_presences:PresencesData
     """
 
-    exclude = OwnerAttr(ListDefinition(value=MachineName, label=_("Exclude"))).optional
+    exclude = CollectionOwnerAttr(ListDefinition(value=MachineName, label=_("Exclude")))
     """
     The presence roles for which to exclude presences.
     """
 
-    include = OwnerAttr(ListDefinition(value=MachineName, label=_("Include"))).optional
+    include = CollectionOwnerAttr(ListDefinition(value=MachineName, label=_("Include")))
     """
     The presence roles for which to include presences.
     """
@@ -107,7 +108,6 @@ class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
     @Project.require
     @classmethod
     async def new(cls, project: Project, data: PresencesData | None = None, /) -> Self:
-
         if data is None:
             raise NotImplementedError
         include: Iterable[ResolvableId[RoleDefinition]] | None

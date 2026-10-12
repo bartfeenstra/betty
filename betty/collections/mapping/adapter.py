@@ -13,6 +13,7 @@ from typing_extensions import sentinel
 
 from betty.collection.mapping import MutableResolvableMapping, ResolvableMapping
 from betty.collections import KeyResolvable, ValueResolvable
+from betty.freezers.attr import AttrFreezable
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
@@ -71,6 +72,7 @@ class MutableMappingAdapter[
     ResolvableValueT,
     WrappedT: MutableMapping,
 ](
+    AttrFreezable,
     ValueResolvable[ValueT, ResolvableValueT],
     MappingAdapter[KeyT, ResolvableKeyT, ValueT, WrappedT],
     MutableResolvableMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
@@ -79,14 +81,14 @@ class MutableMappingAdapter[
     Decorate another mapping to resolve any values before proxying them.
     """
 
-    __slots__ = ()
-
     def __setitem__(
         self, key: KeyT | ResolvableKeyT, value: ValueT | ResolvableValueT
     ) -> None:
+        self.assert_not_frozen()
         self.__wrapped__[self.resolve_key(key)] = self.resolve_value(value)
 
     def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
+        self.assert_not_frozen()
         del self.__wrapped__[self.resolve_key(key)]
 
     @overload
@@ -105,6 +107,7 @@ class MutableMappingAdapter[
 
     @override
     def update(self, other=None, **kwargs) -> None:
+        self.assert_not_frozen()
         items: Iterable[tuple[str, ValueT | ResolvableValueT]] = kwargs.items()
         if isinstance(other, Mapping):
             items = chain(items, other.items())
@@ -132,6 +135,7 @@ class MutableMappingAdapter[
 
     @override
     def setdefault(self, key, default=_NoMutableMappingAdapterDefault):
+        self.assert_not_frozen()
         return self.__wrapped__.setdefault(
             self.resolve_key(key),
             None
@@ -155,6 +159,7 @@ class MutableMappingAdapter[
 
     @override
     def pop(self, key, default=_NoMutableMappingAdapterDefault):
+        self.assert_not_frozen()
         key = self.resolve_key(key)
         if default is _NoMutableMappingAdapterDefault:
             return self.__wrapped__.pop(key)
@@ -162,8 +167,10 @@ class MutableMappingAdapter[
 
     @override
     def popitem(self) -> tuple[KeyT, ValueT]:
+        self.assert_not_frozen()
         return self.__wrapped__.popitem()
 
     @override
     def clear(self) -> None:
+        self.assert_not_frozen()
         self.__wrapped__.clear()

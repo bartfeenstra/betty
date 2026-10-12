@@ -12,6 +12,7 @@ from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.presence import Presence
 from betty.event_type import EventType, EventTypeDefinition, ShouldExistEventType
+from betty.freezers.classtools import FrozenOnInit
 from betty.project import Project
 from betty.roles.subject import Subject
 from betty.test_utils.entity import record_added
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
     from betty.plugin.discovery import ResolvableDiscovery
-    from betty.test_utils.conftest import IsolatedProjectFactory
+    from betty.test_utils.conftest import NewIsolatedProject
 
 type NewProject = Callable[
     [Iterable[ResolvableDiscovery[EventTypeDefinition]]],
@@ -36,7 +37,7 @@ type NewProject = Callable[
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class Isolated(EventType):
+class Isolated(EventType, FrozenOnInit):
     pass
 
 
@@ -47,7 +48,7 @@ class Isolated(EventType):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class ComesBeforeReference(EventType):
+class ComesBeforeReference(EventType, FrozenOnInit):
     pass
 
 
@@ -58,7 +59,7 @@ class ComesBeforeReference(EventType):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class ComesAfterReference(EventType):
+class ComesAfterReference(EventType, FrozenOnInit):
     pass
 
 
@@ -70,7 +71,7 @@ class ComesAfterReference(EventType):
     label_countable=dummy_countable_localizable,
     before={ComesBeforeReference},
 )
-class ComesBefore(EventType):
+class ComesBefore(EventType, FrozenOnInit):
     pass
 
 
@@ -82,7 +83,7 @@ class ComesBefore(EventType):
     label_countable=dummy_countable_localizable,
     before={ComesBeforeReference},
 )
-class ComesBeforeShouldExist(ShouldExistEventType):
+class ComesBeforeShouldExist(ShouldExistEventType, FrozenOnInit):
     @override
     @classmethod
     async def should_exist(cls, project: Project, person: Person) -> bool:
@@ -97,7 +98,7 @@ class ComesBeforeShouldExist(ShouldExistEventType):
     label_countable=dummy_countable_localizable,
     before={ComesBeforeReference},
 )
-class ComesBeforeShouldNotExist(ShouldExistEventType):
+class ComesBeforeShouldNotExist(ShouldExistEventType, FrozenOnInit):
     @override
     @classmethod
     async def should_exist(cls, project: Project, person: Person) -> bool:
@@ -113,7 +114,7 @@ class ComesBeforeShouldNotExist(ShouldExistEventType):
     before={ComesBeforeReference},
     after={ComesAfterReference},
 )
-class ComesBeforeAndAfter(EventType):
+class ComesBeforeAndAfter(EventType, FrozenOnInit):
     pass
 
 
@@ -126,7 +127,7 @@ class ComesBeforeAndAfter(EventType):
     before={ComesBeforeReference},
     after={ComesAfterReference},
 )
-class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
+class ComesBeforeAndAfterShouldExist(ShouldExistEventType, FrozenOnInit):
     @override
     @classmethod
     async def should_exist(cls, project: Project, person: Person) -> bool:
@@ -142,7 +143,7 @@ class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
     before={ComesBeforeReference},
     after={ComesAfterReference},
 )
-class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
+class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType, FrozenOnInit):
     @override
     @classmethod
     async def should_exist(cls, project: Project, person: Person) -> bool:
@@ -157,7 +158,7 @@ class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
     label_countable=dummy_countable_localizable,
     after={ComesAfterReference},
 )
-class ComesAfter(EventType):
+class ComesAfter(EventType, FrozenOnInit):
     pass
 
 
@@ -169,7 +170,7 @@ class ComesAfter(EventType):
     label_countable=dummy_countable_localizable,
     after={ComesAfterReference},
 )
-class ComesAfterShouldExist(ShouldExistEventType):
+class ComesAfterShouldExist(ShouldExistEventType, FrozenOnInit):
     @override
     @classmethod
     async def should_exist(cls, project: Project, person: Person) -> bool:
@@ -184,7 +185,7 @@ class ComesAfterShouldExist(ShouldExistEventType):
     label_countable=dummy_countable_localizable,
     after={ComesAfterReference},
 )
-class ComesAfterShouldNotExist(ShouldExistEventType):
+class ComesAfterShouldNotExist(ShouldExistEventType, FrozenOnInit):
     @override
     @classmethod
     async def should_exist(cls, project: Project, person: Person) -> bool:
@@ -193,14 +194,12 @@ class ComesAfterShouldNotExist(ShouldExistEventType):
 
 class TestDeriver:
     @pytest.fixture
-    def new_project(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> NewProject:
+    def new_project(self, new_isolated_project: NewIsolatedProject) -> NewProject:
         @asynccontextmanager
         async def _new_project(
             event_types: Iterable[ResolvableDiscovery[EventTypeDefinition]],
         ) -> AsyncGenerator[Project]:
-            async with isolated_project_factory(
+            async with new_isolated_project(
                 plugins={EventTypeDefinition: event_types}
             ) as project:
                 yield project

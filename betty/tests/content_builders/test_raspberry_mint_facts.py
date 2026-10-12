@@ -6,7 +6,7 @@ from betty.entities.citation import Citation
 from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entities.source import Source
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 from betty.test_utils.entity.associations.has_citations import DummyHasCitations
 
 
@@ -21,22 +21,22 @@ class TestFacts:
         ],
     )
     async def test_build_template__without_associated_facts(
-        self, resource: object, isolated_project_factory: IsolatedProjectFactory
+        self, resource: object, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Facts]) as project,
+            new_isolated_project(supported_plugins=[Facts]) as project,
             project,
         ):
             sut = await Facts.new(project)
         assert await sut.build(document=Document(resource)) is None
 
     async def test_build_template__with_citation(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         resource = Citation(source=Source())
         fact = DummyHasCitations(citations=[resource])
         async with (
-            isolated_project_factory(supported_plugins=[Facts]) as project,
+            new_isolated_project(supported_plugins=[Facts]) as project,
             project,
         ):
             sut = await Facts.new(project)
@@ -45,13 +45,13 @@ class TestFacts:
         assert fact.id in actual
 
     async def test_build_template__with_source(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         resource = Source()
         citation = Citation(source=resource)
         fact = DummyHasCitations(citations=[citation])
         async with (
-            isolated_project_factory(supported_plugins=[Facts]) as project,
+            new_isolated_project(supported_plugins=[Facts]) as project,
             project,
         ):
             sut = await Facts.new(project)

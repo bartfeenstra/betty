@@ -11,6 +11,7 @@ from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.event_types.divorce import Divorce
 from betty.event_types.marriage import Marriage
+from betty.freezers.classtools import FrozenOnInit
 from betty.localizables.gettext import _, ngettext
 
 
@@ -25,7 +26,7 @@ from betty.localizables.gettext import _, ngettext
     after={Birth, Marriage},
     before={Death, Divorce},
 )
-class DivorceAnnouncement(EventType):
+class DivorceAnnouncement(EventType, FrozenOnInit):
     """
     .. plugin:: event-type:divorce-announcement.
     """

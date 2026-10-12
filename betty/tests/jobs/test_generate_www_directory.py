@@ -1,6 +1,6 @@
 from betty.jobs.generate_www_directory import GenerateWwwDirectory
 from betty.project import Project, ProjectLocale
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 from betty.test_utils.job import do
 
 
@@ -10,17 +10,14 @@ class TestGenerateWwwDirectory:
         assert isolated_project.www_directory.is_dir()
 
     async def test_do__multilingual(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
-        async with (
-            isolated_project_factory(
-                locales=[
-                    ProjectLocale("nl-NL"),
-                    ProjectLocale("en-US", alias="en"),
-                ],
-            ) as project,
-            project,
-        ):
-            await do(GenerateWwwDirectory(project=project))
-            assert (project.www_directory / "en").is_dir()
-            assert (project.www_directory / "nl-NL").is_dir()
+        async with new_isolated_project() as project:
+            project.locales = [
+                ProjectLocale("nl-NL"),
+                ProjectLocale("en-US", alias="en"),
+            ]
+            async with project:
+                await do(GenerateWwwDirectory(project=project))
+                assert (project.www_directory / "en").is_dir()
+                assert (project.www_directory / "nl-NL").is_dir()

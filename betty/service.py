@@ -58,7 +58,7 @@ class ServiceManager[
 
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:
-        owner.assert_not_initialized()
+        owner.assert_not_bootstrapped()
         setattr(
             owner,
             f"_service_{self.ownership.name}",
@@ -111,5 +111,5 @@ class ServiceManager[
 
         This MUST only be called from ``instance.__init__()``.
         """
-        owner.assert_not_initialized()
+        owner.assert_not_bootstrapped()
         setattr(owner, f"_service_{self.ownership.name}_or_factory", service)

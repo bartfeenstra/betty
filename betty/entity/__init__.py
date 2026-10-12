@@ -12,8 +12,8 @@ from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
-from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.privacy import Privacy
 
@@ -27,7 +27,11 @@ if TYPE_CHECKING:
 
 
 class Entity(
-    Data["EntityDefinition"], HasPrivacy, HasAssociations, metaclass=TypeABCMeta
+    AttrFreezable,
+    Data["EntityDefinition"],
+    HasPrivacy,
+    HasAssociations,
+    metaclass=TypeABCMeta,
 ):
     """
     An entity is a uniquely identifiable data container.
@@ -49,7 +53,7 @@ class Entity(
         privacy: Privacy = Privacy.UNDETERMINED,
         **kwargs: Any,
     ):
-        self.id = MachineName() if id is None else MachineName.resolve(id)
+        self.id = id
         super().__init__(*args, privacy=privacy, **kwargs)
 
     @override

@@ -93,7 +93,7 @@ class CountableLocalizableDefinition(DataDefinition[CountableLocalizable]):
 class _CountableLocalizablePorter(Porter[CountableLocalizable]):
     load = override(
         assert_mapping(assert_mapping(assert_str(), assert_str()), assert_locale)
-        | CountableStaticTranslations  # ty: ignore[unsupported-operator]
+        | CountableStaticTranslations  # ty:ignore[unsupported-operator]
     )
 
     @override

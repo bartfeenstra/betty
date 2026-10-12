@@ -13,6 +13,7 @@ from betty.datas.definition.id import (
 )
 from betty.definition import resolve_definition
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.freezers.classtools import FrozenOnInit
 from betty.localizables.gettext import _
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
@@ -50,7 +51,7 @@ class PluginDefinitionConfigDefinition[
 
 class PluginDefinitionConfig[
     DefinitionT: Intersection[PluginDefinition, ObjectDefinition]
-](IdentifiableDefinitionConfig[DefinitionT]):
+](IdentifiableDefinitionConfig[DefinitionT], FrozenOnInit):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.
     """

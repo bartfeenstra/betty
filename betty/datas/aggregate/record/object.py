@@ -31,7 +31,7 @@ class ObjectDefinition[DataT](RecordDefinition[DataT, AttrOperator]):
 
 
 class Object[DefinitionT: ObjectDefinition = ObjectDefinition](
-    Data[DefinitionT], HasProps, metaclass=TypeABCMeta
+    HasProps, Data[DefinitionT], metaclass=TypeABCMeta
 ):
     """
     An object with attributes.

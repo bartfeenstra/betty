@@ -9,6 +9,7 @@ from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, override
 from warnings import warn
 
+from betty.freezers.attr import AttrFreezable
 from betty.localized import LocalizedStr
 from betty.localizer import AnyLocalizable, Localizer, default_localizer
 
@@ -88,13 +89,14 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
         return _FormattedCountableLocalizable(self, format_kwargs)
 
 
-class _FormattedLocalizable(Localizable):
+class _FormattedLocalizable(AttrFreezable, Localizable):
     def __init__(
         self,
         localizable: Localizable,
         format_kwargs: Mapping[str, AnyLocalizable],
         /,
     ):
+        super().__init__()
         self._localizable = localizable
         self._format_kwargs = dict(format_kwargs)
 

@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
     from pytest_mock import MockerFixture
 
-    from betty.test_utils.conftest import IsolatedAppFactory
+    from betty.test_utils.conftest import NewIsolatedApp
 
 
 class _Manufacturable(Manufacturable):
@@ -47,9 +47,9 @@ class TestApp:
         async with App.new_from_environment() as sut:
             assert sut.ui.localizer.locale == Locale("nl", "NL")
 
-    async def test_ui(self, isolated_app_factory: IsolatedAppFactory) -> None:
+    async def test_ui(self, new_isolated_app: NewIsolatedApp) -> None:
         ui = StaticUi()
-        async with isolated_app_factory(ui=ui) as sut:
+        async with new_isolated_app(ui=ui) as sut:
             assert sut.ui is ui
 
     async def test_http_client(self, isolated_app: App) -> None:

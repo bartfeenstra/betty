@@ -24,6 +24,10 @@ class ProxyProp[OwnerT: HasProps, GetT, SetT](Prop[OwnerT, GetT, SetT]):
         self.__proxied.__set_name__(owner, name)
 
     @override
+    def freeze(self, owner: OwnerT, /) -> None:
+        self.__proxied.freeze(owner)
+
+    @override
     def get(self, owner: OwnerT, /) -> GetT:
         return self.__proxied.get(owner)
 
@@ -33,7 +37,7 @@ class ProxyProp[OwnerT: HasProps, GetT, SetT](Prop[OwnerT, GetT, SetT]):
 
     @override
     def set(self, owner: OwnerT, value: SetT, /) -> None:
-        return self.__proxied.set(owner, value)
+        self.__proxied.set(owner, value)
 
     @override
     def is_deletable(self, owner: OwnerT, /) -> bool:
@@ -41,7 +45,7 @@ class ProxyProp[OwnerT: HasProps, GetT, SetT](Prop[OwnerT, GetT, SetT]):
 
     @override
     def delete(self, owner: OwnerT, /) -> None:
-        return self.__proxied.delete(owner)
+        self.__proxied.delete(owner)
 
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:

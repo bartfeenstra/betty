@@ -9,9 +9,11 @@ from typing import TYPE_CHECKING, Any, Final, override
 
 from typing_extensions import disjoint_base
 
+from betty.classtools import TypeABCMeta
 from betty.collections.catalog.dict import FrozenDictCatalog
 from betty.collections.mapping.dict import empty_frozen_dict
 from betty.definition.id import resolve_id
+from betty.freezers.life_cycle import FrozenOnBootstrap
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
@@ -43,7 +45,9 @@ class _Plugins(
 
 
 @disjoint_base
-class ServiceLevel(HasProps, ManagedLifeCycle):
+class ServiceLevel(
+    FrozenOnBootstrap, HasProps, ManagedLifeCycle, metaclass=TypeABCMeta
+):
     """
     A service level.
     """
@@ -108,8 +112,8 @@ class HasServiceLevel[ServiceLevelT: ServiceLevel = ServiceLevel]:
     """
 
     def __init__(self, *args: Any, services: ServiceLevelT, **kwargs: Any):
-        super().__init__(*args, **kwargs)
         self.services: Final[ServiceLevelT] = services
+        super().__init__(*args, **kwargs)
 
 
 type ResolvableServiceLevel[ServiceLevelT: ServiceLevel = ServiceLevel] = (

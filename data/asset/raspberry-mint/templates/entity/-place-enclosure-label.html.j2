@@ -1,5 +1,6 @@
+{%- set place_context = document.entity_contexts['place'] -%}
 {%- set enclosed_by = place.enclosed_by | negotiate_has_dates(date_context | default(none)) -%}
-{%- if enclosed_by is not none and (place_context is none or place_context != enclosed_by.enclosed_by) -%}
+{%- if enclosed_by is not none and place_context != enclosed_by.enclosed_by -%}
     {%- with entity = enclosed_by.enclosed_by -%}
         , {% include 'entity/label--place.html.j2' -%}
     {%- endwith -%}

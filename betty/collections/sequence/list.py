@@ -25,8 +25,6 @@ class List[ValueT, ResolvableValueT](
     A list.
     """
 
-    __slots__ = ("__value_resolver",)
-
     def __init__(
         self,
         values: Iterable[ValueT | ResolvableValueT] = (),
