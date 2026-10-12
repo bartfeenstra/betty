@@ -9,7 +9,7 @@ from betty.functools import (
     DecoratedCallable,
     Do,
     LazyReCallable,
-    Pipeline,
+    Pipe,
     Result,
     ResultUnavailable,
     Suppressed,
@@ -337,17 +337,33 @@ class TestLazyReCallable:
         assert sut() is value
 
 
-class TestPipeline:
+class TestPipe:
     def test___call__(self) -> None:
-        sut = Pipeline[int, int](lambda value: value)
-        assert sut(123) == 123
-
-    def test___or__(self) -> None:
-        sut = Pipeline[int, int](lambda value: value)
-        sut |= lambda value: 2 * value
-        assert sut(123) == 246
+        sut = Pipe[int, int](lambda value: value + 1)
+        assert sut(123) == 124
 
     def test_pipe(self) -> None:
-        sut = Pipeline[int, int](lambda value: value)
-        sut = sut.pipe(lambda value: 2 * value)
-        assert sut(123) == 246
+        sut = Pipe[int, int](lambda value: value + 1).pipe(lambda value: value + 3)
+        assert sut(123) == 127
+
+    def test___or__(self) -> None:
+        sut = Pipe[int, int](lambda value: value + 1) | (lambda value: value + 3)
+        assert sut(123) == 127
+
+    def test_vent(self) -> None:
+        carrier = []
+        sut = (
+            Pipe[int, int](lambda value: value + 1)
+            .vent(lambda value: carrier.append(value + 3))
+            .pipe(lambda value: value + 5)
+        )
+        assert sut(123) == 129
+        assert carrier == [127]
+
+    def test___truediv__(self) -> None:
+        carrier = []
+        sut = Pipe[int, int](lambda value: value + 1) / (
+            lambda value: carrier.append(value + 3)
+        ) | (lambda value: value + 5)
+        assert sut(123) == 129
+        assert carrier == [127]

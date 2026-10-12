@@ -10,12 +10,12 @@ from betty.assertions.number import _assert_number
 from betty.assertions.type import assert_type
 
 if TYPE_CHECKING:
-    from betty.functools import Pipeline
+    from betty.functools import Pipe
 
 
 def assert_int(
     *, minimum: float | None = None, maximum: float | None = None
-) -> Pipeline[Any, int]:
+) -> Pipe[Any, int]:
     """
     Assert that a value is a Python ``int``.
     """

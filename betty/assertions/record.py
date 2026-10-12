@@ -15,9 +15,9 @@ from betty.localizables.markup import Paragraph, do_you_mean
 from betty.operator import Key
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Callable, Mapping
 
-    from betty.functools import Pipe, Pipeline
+    from betty.functools import Pipe
 
 
 @final
@@ -28,7 +28,7 @@ class Field[ValueT, ReturnT]:
     """
 
     name: str
-    assertion: Pipe[ValueT, ReturnT] | None = None
+    assertion: Callable[[ValueT], ReturnT] | None = None
     _: KW_ONLY
     as_name: str | None = None
     optional: bool = False
@@ -36,7 +36,7 @@ class Field[ValueT, ReturnT]:
 
 def assert_record(
     *fields: Field[Any, Any], allow_extra: bool = False
-) -> Pipeline[Any, Mapping[str, Any]]:
+) -> Pipe[Any, Mapping[str, Any]]:
     """
     Assert that a value is a record: a key-value mapping of arbitrary value types, with a known structure.
 

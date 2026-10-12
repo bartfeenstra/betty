@@ -9,10 +9,10 @@ from typing import TYPE_CHECKING, Any
 from betty.assertions import _HumanFacingValueError
 
 if TYPE_CHECKING:
-    from betty.functools import Pipe
+    from collections.abc import Callable
 
 
-def assert_isinstance[ValueT](alleged_type: type[ValueT], /) -> Pipe[Any, ValueT]:
+def assert_isinstance[ValueT](alleged_type: type[ValueT], /) -> Callable[[Any], ValueT]:
     """
     Assert that a value is an instance of the given type.
 

@@ -20,7 +20,7 @@ from betty.definition.cls import ClsDefinition
 from betty.definition.id import ResolvableId, resolve_id
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, FactoryError
-from betty.functools import Pipeline
+from betty.functools import Pipe
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.machine_name import MachineName
@@ -144,7 +144,7 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
         self._cls = cls
 
     _load = assert_if_else(
-        Pipeline(MachineName.definition.porter.load)
+        Pipe(MachineName.definition.porter.load)
         | (lambda plugin_id: {"plugin": plugin_id}),
         assert_record(
             Field("plugin", MachineName.definition.porter.load),

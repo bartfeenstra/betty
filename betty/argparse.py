@@ -14,12 +14,11 @@ from betty.localizables.markup import Quote
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.functools import Pipe
     from betty.localizer import Localizer
 
 
 def assertion_to_argument_type[T](
-    assertion: Pipe[str, T], *, localizer: Localizer
+    assertion: Callable[[str], T], *, localizer: Localizer
 ) -> Callable[[str], T]:
     """
     Convert an assertion to an argparse argument type.

@@ -7,13 +7,13 @@ from __future__ import annotations
 from collections.abc import Sized
 
 from betty.assertions import _HumanFacingValueError
-from betty.functools import Pipeline
+from betty.functools import Pipe
 from betty.localizables.gettext import _
 
 
 def assert_len[SizedT: Sized](
     exact: int | None = None, *, minimum: int | None = None, maximum: int | None = None
-) -> Pipeline[SizedT, SizedT]:
+) -> Pipe[SizedT, SizedT]:
     """
     Assert the length of a value.
 
@@ -44,4 +44,4 @@ def assert_len[SizedT: Sized](
             )
         return value
 
-    return Pipeline(_assert_len)
+    return Pipe(_assert_len)

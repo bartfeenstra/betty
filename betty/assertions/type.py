@@ -10,7 +10,7 @@ from types import NoneType
 from typing import TYPE_CHECKING, Any
 
 from betty.assertions import _HumanFacingValueError
-from betty.functools import Pipeline
+from betty.functools import Pipe
 from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
@@ -35,7 +35,7 @@ _ASSERT_TYPES: Mapping[type[AssertTypeType], tuple[type[Any] | None, Localizable
 @cache
 def assert_type[AssertTypeTypeT: AssertTypeType](
     value_type: type[AssertTypeTypeT], /
-) -> Pipeline[Any, AssertTypeTypeT]:
+) -> Pipe[Any, AssertTypeTypeT]:
     """
     Assert that a value is of the specified built-in type.
     """
@@ -48,4 +48,4 @@ def assert_type[AssertTypeTypeT: AssertTypeType](
             return value
         raise _HumanFacingValueError(error_message)
 
-    return Pipeline(_assert_type)
+    return Pipe(_assert_type)

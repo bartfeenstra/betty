@@ -13,10 +13,10 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 
 if TYPE_CHECKING:
-    from betty.functools import Pipeline
+    from betty.functools import Pipe
 
 
-def assert_url() -> Pipeline[Any, str]:
+def assert_url() -> Pipe[Any, str]:
     """
     Assert that a value is a valid URL.
     """

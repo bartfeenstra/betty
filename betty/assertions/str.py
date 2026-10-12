@@ -8,7 +8,7 @@ from typing import Any
 
 from betty.assertions import _HumanFacingValueError
 from betty.assertions.type import assert_type
-from betty.functools import Pipeline
+from betty.functools import Pipe
 from betty.localizables.gettext import _
 
 
@@ -17,7 +17,7 @@ def assert_str(
     exact_length: int | None = None,
     minimum_length: int | None = None,
     maximum_length: int | None = None,
-) -> Pipeline[Any, str]:
+) -> Pipe[Any, str]:
     """
     Assert that a value is a Python ``str``.
     """
@@ -45,4 +45,4 @@ def assert_str(
             )
         return string
 
-    return Pipeline(_assert_str)
+    return Pipe(_assert_str)
