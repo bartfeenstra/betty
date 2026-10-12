@@ -12,10 +12,23 @@ import yaml
 from betty.localizables.gettext import _
 from betty.media_types.yaml import YAML
 from betty.portable import PortableData
-from betty.serialize import SerializationError, Serializer, SerializerDefinition
+from betty.serialize import (
+    InvalidSerializedData,
+    Serializer,
+    SerializerDefinition,
+)
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
+
+
+@final
+class InvalidYaml(InvalidSerializedData):
+    """
+    Raised when something is not valid YAML.
+    """
+
+    _message = _("Invalid YAML")
 
 
 @final
@@ -34,10 +47,8 @@ class Yaml(Serializer):
     def load(self, serialized: str, /) -> PortableData:
         try:
             return cast(PortableData, yaml.safe_load(serialized))
-        except yaml.YAMLError as e:
-            raise SerializationError(
-                _("Invalid YAML: {error}.").format(error=str(e))
-            ) from None
+        except yaml.YAMLError as error:
+            raise InvalidYaml(serialized) from error
 
     @override
     def dump(self, portable: PortableData, /) -> str:

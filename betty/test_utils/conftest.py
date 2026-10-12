@@ -29,7 +29,7 @@ from collections.abc import AsyncGenerator, Awaitable, MutableMapping, MutableSe
 from contextlib import asynccontextmanager
 from io import BytesIO
 from json import dumps
-from typing import TYPE_CHECKING, Any, Final, Literal, Protocol, final
+from typing import TYPE_CHECKING, Any, Final, Literal, Never, Protocol, final
 
 import pytest
 import pytest_asyncio
@@ -38,7 +38,6 @@ from jinja2 import Environment, Template
 
 from betty.app import App
 from betty.collections import _empty_frozen_mapping
-from betty.exception import do_raise
 from betty.json_schema import Schema
 from betty.licenses.spdx import SpdxLicenseDiscoverer
 from betty.multiprocessing import ProcessPoolExecutor
@@ -275,8 +274,12 @@ async def page(context: BrowserContext) -> Page:
     """
     A Playwright Page instance.
     """
+
+    def _raise(exception: BaseException, /) -> Never:
+        raise exception
+
     page = await context.new_page()
-    page.on("pageerror", do_raise)
+    page.on("pageerror", _raise)
     return page
 
 

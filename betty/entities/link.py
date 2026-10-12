@@ -10,7 +10,7 @@ from betty.associations.has_links import HasLinks
 from betty.associations.to_one import ToOne
 from betty.attrs.description import HasDescription
 from betty.attrs.localizable import new_localizable_attr
-from betty.attrs.media_type import HasMediaType
+from betty.attrs.media_type import Media
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.str import StrDefinition
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} link", "{count} links"),
     public_facing=False,
 )
-class Link(LinkType, HasMediaType, HasDescription, Entity):
+class Link(LinkType, Media, HasDescription, Entity):
     """
     .. plugin:: entity:link.
     """

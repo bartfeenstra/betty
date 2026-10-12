@@ -9,7 +9,11 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable
-from typing import Any, final, override
+from typing import TYPE_CHECKING, Any, final, override
+
+if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
 
 type Pipe[InputT, OutputT] = Callable[[InputT], OutputT]
 
@@ -71,17 +75,17 @@ class Inlet[InputT, OutputT](Pipeline[InputT, OutputT]):
 
 
 @final
-class Vent[ValueT](Pipeline[ValueT, ValueT]):
+class Vent[InputT](Pipeline[InputT, InputT]):
     """
     Create a new pipeline that does nothing, but only vents into the given pipe.
     """
 
     __slots__ = ("_into",)
 
-    def __init__(self, into: Pipe[ValueT, Any], /):
+    def __init__(self, into: Pipe[InputT, Any], /):
         self._into = into
 
     @override
-    def __call__(self, value: ValueT, /) -> ValueT:
+    def __call__[ValueT](self, value: Intersection[ValueT, InputT], /) -> ValueT:
         self._into(value)
         return value

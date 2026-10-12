@@ -10,7 +10,7 @@ from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.associations.to_one import ToOne
 from betty.attrs.localizable import new_localizable_attr
-from betty.attrs.media_type import HasMediaType
+from betty.attrs.media_type import Media
 from betty.entity import EntityDefinition
 from betty.json_schemas.static_translations import StaticTranslationsSchema
 from betty.localizable.linked_data import dump_linked_data
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     label_plural=_("Notes"),
     label_countable=ngettext("{count} note", "{count} notes"),
 )
-class Note(HasLinks, HasMediaType):
+class Note(HasLinks, Media):
     """
     .. plugin:: entity:note.
     """

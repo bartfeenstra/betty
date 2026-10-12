@@ -13,10 +13,11 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.entity_reference import EntityReference
 from betty.entity import ResolvableEntity, resolve
 from betty.factory import DataManufacturable
-from betty.image import is_supported_media_type
+from betty.image import is_image_type
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.service_providers._theme import associated_file_references
+from betty.validation import Invalid
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -74,7 +75,9 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
                     continue
                 if file_reference.file.media_type is None:
                     continue
-                if not is_supported_media_type(file_reference.file.media_type):
+                try:
+                    is_image_type(file_reference.file.media_type)
+                except Invalid:
                     continue
                 return file_reference
         return None

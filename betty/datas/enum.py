@@ -7,9 +7,9 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, final
 
-from betty.assertions.enum import assert_enum
 from betty.data import DataDefinition
 from betty.porters.callback import CallbackPorter
+from betty.validators.enum import is_enum
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
@@ -32,5 +32,5 @@ class EnumDefinition[EnumT: Enum](DataDefinition[EnumT]):
         super().__init__(
             label=label,
             description=description,
-            porter=CallbackPorter(assert_enum(cls), lambda enum: enum.value),
+            porter=CallbackPorter(is_enum(cls), lambda enum: enum.value),
         )

@@ -4,61 +4,32 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 
 from __future__ import annotations
 
+from abc import ABCMeta, abstractmethod
 from email.message import EmailMessage
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.pathlib import StrPath
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.porters.callback import CallbackPorter
+from betty.validators import InvalidValue
+from betty.validators.str import is_str
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, Sequence
+    from collections.abc import Mapping, Sequence
 
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.portable import PortableData
-
-
-class InvalidMediaType(ValueError):
-    """
-    Raised when an identifier is not a valid media type.
-    """
-
-
-class UnsupportedMediaType(RuntimeError):
-    """
-    Raised when a media type is not supported.
-    """
-
-    def __init__(self, media_type: MediaTypeIndicator, /):
-        super().__init__(f"Unsupported media type: {media_type}")
-
-
-class MissingMediaType(RuntimeError):
-    """
-    Raised when a media type is not missing.
-    """
-
-    def __init__(self):
-        super().__init__("Missing media type")
-
-
-__load = assert_str()
-
-
-def _load(portable: PortableData, /) -> MediaType:
-    return MediaType(__load(portable))
 
 
 @final
 @DataDefinition(
     label=_("Media type"),
-    porter=CallbackPorter(_load, lambda media_type: media_type._str),
+    porter=lambda _: CallbackPorter(
+        is_str | MediaType, lambda media_type: media_type._str
+    ),
 )
 class MediaType(Data):
     """
@@ -77,7 +48,7 @@ class MediaType(Data):
         # EmailMessage.get_content_type() always returns a type, and will fall back to alternatives if the header is
         # invalid.
         if not media_type.startswith(type_part):
-            raise InvalidMediaType(f'"{media_type}" is not a valid media type.')
+            raise InvalidMediaType(media_type)
         self.parameters: Mapping[str, str] = dict(message["Content-Type"].params)
         """
         The parameters, e.g. ``{"charset": "UTF-8"}`` for ``"text/html; charset=UTF-8"``.
@@ -88,7 +59,7 @@ class MediaType(Data):
         The type, e.g. ``application`` for ``application/ld+json``.
         """
         if not type_part_remainder:
-            raise InvalidMediaType("The subtype must not be empty.")
+            raise InvalidMediaType(media_type)
         plus_position = type_part_remainder.find("+")
         if plus_position > 0:
             subtype = type_part_remainder[0:plus_position]
@@ -140,36 +111,26 @@ class MediaType(Data):
         )
 
 
-type MediaTypeIndicator = MediaType | StrPath
-"""
-A media type, or a file path or name that indicates a media type through its file extension.
-"""
+class HasMediaType[MediaTypeT: (MediaType | None) = MediaType](metaclass=ABCMeta):
+    """
+    An object with a media type.
+    """
+
+    @property
+    @abstractmethod
+    def media_type(self) -> MediaTypeT:
+        """
+        The object's media type.
+        """
 
 
-def match_media_type(
-    match: MediaType, supported_media_types: Iterable[MediaType], /
-) -> MediaType:
+@final
+class InvalidMediaType(InvalidValue[str]):
     """
-    Match a media type against available media types.
+    Raised when an identifier is not a valid media type.
     """
-    for supported_media_type in supported_media_types:
-        if supported_media_type == match:
-            return supported_media_type
-    raise UnsupportedMediaType(match)
 
-
-def match_extension(
-    match: StrPath, supported_media_types: Iterable[MediaType], /
-) -> tuple[MediaType, str]:
-    """
-    Match a file extension indicator against available media types.
-    """
-    match = str(match)
-    for supported_media_type in supported_media_types:
-        for extension in supported_media_type.extensions:
-            if match.endswith(extension):
-                return supported_media_type, extension
-    raise UnsupportedMediaType(match)
+    _message = _("Invalid media type")
 
 
 @final
@@ -179,7 +140,7 @@ def match_extension(
     label_plural=_("Media types"),
     label_countable=ngettext("{count} media type", "{count} media types"),
 )
-class MediaTypeDefinition(HumanFacingDefinition, OrderedPluginDefinition):
+class MediaTypeDefinition(HumanFacingDefinition, OrderedPluginDefinition, HasMediaType):
     """
     .. plugin_type:: media-type.
     """
@@ -221,7 +182,7 @@ class MediaTypeDefinition(HumanFacingDefinition, OrderedPluginDefinition):
         return self._media_type
 
 
-type ResolvableMediaType = MediaType | MediaTypeDefinition
+type ResolvableMediaType = MediaType | HasMediaType
 
 
 def resolve_media_type(media_type: ResolvableMediaType, /) -> MediaType:

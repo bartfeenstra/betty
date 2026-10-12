@@ -7,10 +7,6 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import TYPE_CHECKING, cast, final, override
 
-from betty.assertions.if_else import assert_if_else
-from betty.assertions.locale import assert_optional_locale
-from betty.assertions.mapping import assert_mapping
-from betty.assertions.str import assert_str
 from betty.classtools import Singleton
 from betty.data import DataDefinition
 from betty.importlib import fully_qualified_name
@@ -25,6 +21,10 @@ from betty.localizables.plain import Plain
 from betty.localizables.static import CountableStaticTranslations, StaticTranslations
 from betty.portable import Porter
 from betty.portable.error import NotDumpable
+from betty.validators.group import is_any
+from betty.validators.locale import is_optional_locale
+from betty.validators.mapping import is_mapping
+from betty.validators.str import is_str
 
 if TYPE_CHECKING:
     from betty.portable import PortableData
@@ -42,11 +42,12 @@ class LocalizableDefinition(DataDefinition[Localizable], Singleton):
 
 class _LocalizablePorter(Porter[Localizable]):
     load = override(
-        assert_if_else(
-            assert_str().pipe(
+        is_any(
+            is_str
+            | (
                 lambda translation: cast(StaticTranslationsMapping, {None: translation})
             ),
-            assert_mapping(assert_str(), assert_optional_locale),
+            is_mapping(keys=is_optional_locale, values=is_str),
         )
         | StaticTranslations
     )
@@ -57,9 +58,7 @@ class _LocalizablePorter(Porter[Localizable]):
             data = StaticTranslations({data.locale: data.text})
         if not isinstance(data, StaticTranslations):
             raise NotDumpable(
-                Plain(
-                    "Only static translations and plain text can be dumped to portable data, not `{localizable}` objects."
-                ).format(localizable=fully_qualified_name(type(data)))
+                message=f"Only static translations and plain text can be dumped to portable data, not `{fully_qualified_name(type(data))}` objects."
             )
         if len(data.translations) == 1:
             with suppress(KeyError):
@@ -87,19 +86,17 @@ class CountableLocalizableDefinition(DataDefinition[CountableLocalizable], Singl
 
 class _CountableLocalizablePorter(Porter[CountableLocalizable]):
     load = override(
-        assert_mapping(
-            assert_mapping(assert_str(), assert_str()), assert_optional_locale
+        is_mapping(
+            keys=is_optional_locale, values=is_mapping(keys=is_str, values=is_str)
         )
-        | CountableStaticTranslations
+        | CountableStaticTranslations  # ty: ignore[unsupported-operator]
     )
 
     @override
     def dump(self, data: CountableLocalizable) -> PortableData:
         if not isinstance(data, CountableStaticTranslations):
             raise NotDumpable(
-                Plain(
-                    "Only static translations and plain text can be dumped to portable data, not `{localizable}` objects."
-                ).format(localizable=fully_qualified_name(type(data)))
+                message=f"Only static translations and plain text can be dumped to portable data, not `{fully_qualified_name(type(data))}` objects."
             )
         return {
             to_language_tag(locale): translations

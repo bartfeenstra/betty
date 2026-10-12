@@ -14,8 +14,9 @@ from urllib.parse import urlsplit
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.exception import HumanFacingException
+from betty.error import StaticError
 from betty.functools import Do
+from betty.link import StaticLink
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
@@ -41,6 +42,14 @@ class ServerNotStarted(RuntimeError):
     """
 
 
+class ServerUnavailable(StaticError):
+    """
+    Raised when a server was unavailable after starting.
+    """
+
+    _message = _("The server was unreachable after starting.")
+
+
 class Server(HasDefinition["ServerDefinition"], metaclass=ABCMeta):
     """
     A web server.
@@ -60,10 +69,7 @@ class Server(HasDefinition["ServerDefinition"], metaclass=ABCMeta):
         Show the served site to the user.
         """
         await self._ui.message(
-            _("Serving your site at {url}…").format(
-                url=self.public_url,
-            ),
-            Severity.INFO,
+            _("Serving your site at {url}…").format(url=self.public_url), Severity.INFO
         )
         webbrowser.open_new_tab(self.public_url)
 
@@ -107,11 +113,7 @@ class Server(HasDefinition["ServerDefinition"], metaclass=ABCMeta):
         try:
             await Do[Any, None](self.__do_assert_available).until()
         except Exception as error:
-            raise HumanFacingException(
-                _("The server at {url} was unreachable after starting.").format(
-                    url=self.public_url
-                )
-            ) from error
+            raise ServerUnavailable(at=[StaticLink(self.public_url)]) from error
 
     async def __do_assert_available(self) -> None:
         await to_thread(self.__assert_available)

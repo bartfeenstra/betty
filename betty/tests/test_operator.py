@@ -5,9 +5,9 @@ import pytest
 
 from betty.localizables.plain import Plain
 from betty.localizer import default_localizer
+from betty.location import format_
 from betty.operator import Attr, Chain, Index, Key, Operator, OperatorError, _Operator
 from betty.typing import Unreachable
-from betty.user.location import format_
 
 
 class TestAttr:
@@ -87,31 +87,18 @@ class TestKey:
 
 class TestChain:
     def test___hash__(self) -> None:
-        assert hash(Chain()) == hash(Chain())
-        assert hash(Chain()) != hash(Chain(Index(0)))
+        assert hash(Chain(Index(0))) == hash(Chain(Index(0)))
+        assert hash(Chain(Index(0))) != hash(Chain(Index(1)))
 
     def test___eq__(self) -> None:
-        assert Chain() == Chain()
-        assert Chain() != Chain(Index(0))
+        assert Chain(Index(0)) == Chain(Index(0))
+        assert Chain(Index(0)) != Chain(Index(1))
 
-    @pytest.mark.parametrize(
-        ("expected", "operators"),
-        [
-            (
-                "data",
-                [],
-            ),
-            (
-                "data.my_first_attr.my_second_attr",
-                [
-                    Attr("my_first_attr"),
-                    Attr("my_second_attr"),
-                ],
-            ),
-        ],
-    )
-    def test_format(self, expected: str, operators: Sequence[Operator]) -> None:
-        assert Chain(*operators).format() == expected
+    def test_format(self) -> None:
+        assert (
+            Chain(Attr("my_first_attr"), Attr("my_second_attr")).format()
+            == "data.my_first_attr.my_second_attr"
+        )
 
     def test_get(self) -> None:
         assert (

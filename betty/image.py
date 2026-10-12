@@ -5,16 +5,20 @@ Manipulate images.
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 from PIL import UnidentifiedImageError
 from PIL.Image import EXTENSION, Image, init, preinit
 
 from betty.media_types.pdf import PDF
+from betty.media_types.svg import SVG
 from betty.pathlib import StrPath, resolve_path
+from betty.validators.media_type import is_media_type
 
 if TYPE_CHECKING:
-    from betty.media_type import MediaType
+    from collections.abc import Sequence
+
+    from betty.media_type import MediaTypeDefinition
 
 type Percentage = int
 type Pixel = int
@@ -23,14 +27,12 @@ type TwoDimensionalSize = tuple[Pixel, Pixel]
 type Size = OneDimensionalSize | TwoDimensionalSize
 type FocusArea = tuple[Percentage, Percentage, Percentage, Percentage]
 
-
-def is_supported_media_type(media_type: MediaType) -> bool:
-    """
-    Test if a media type is supported by the image API.
-    """
-    if media_type.type == "image":
-        return True
-    return media_type == PDF
+# @todo Add others that are supported by pillow
+image_types: Final[Sequence[MediaTypeDefinition]] = (PDF, SVG)
+is_image_type = is_media_type(media_types=image_types)
+"""
+Test if a media type is supported by the image API.
+"""
 
 
 def image_file_path_format(image_file: StrPath, /) -> str:

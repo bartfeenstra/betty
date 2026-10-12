@@ -4,19 +4,21 @@ from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App, AppData
-from betty.argparse import assertion_to_argument_type
-from betty.assertions.locale import assert_locale
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.argparse import validator_to_argument_type
+from betty.console import Command, CommandDefinition
 from betty.factory import Manufacturable
 from betty.locale import default_locale, to_language_tag
 from betty.localizables.gettext import _
-from betty.portable.file import assert_load_file, dump_file
+from betty.portable.file import dump_file, is_load_file
 from betty.user import Severity
+from betty.validators.locale import is_locale
 
 if TYPE_CHECKING:
     import argparse
 
     from babel import Locale
+
+    from betty.console import CommandFunction
 
 
 @final
@@ -43,9 +45,7 @@ class Config(Manufacturable, Command):
             help=self._app.ui.localizer.translate._(
                 "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
             ),
-            type=assertion_to_argument_type(
-                assert_locale, localizer=self._app.ui.localizer
-            ),
+            type=validator_to_argument_type(is_locale),
         )
         return self._command_function
 
@@ -54,7 +54,7 @@ class Config(Manufacturable, Command):
 
         if AppData.FILE.exists():
             updated_configuration = AppData.definition.porter.load(
-                assert_load_file(serializers=serializers)(AppData.FILE)
+                is_load_file(serializers=serializers)(AppData.FILE)
             )
         else:
             updated_configuration = AppData()

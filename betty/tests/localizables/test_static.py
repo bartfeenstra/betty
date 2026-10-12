@@ -16,6 +16,7 @@ from betty.localizables.static import (
     StaticTranslations,
 )
 from betty.localizer import Localizer
+from betty.validation import InvalidGroup
 
 
 class TestStaticTranslations:
@@ -101,13 +102,14 @@ class TestStaticTranslations:
 
 class TestCountableStaticTranslations:
     def test___init____with_missing_placeholder(self) -> None:
-        with pytest.raises(MissingPluralPlaceholder):
+        with pytest.raises(InvalidGroup) as exc_info:
             CountableStaticTranslations({
                 "en-US": {
                     "one": "hello, world!",
                     "other": "hello, worlds!",
                 },
             })
+        assert isinstance(exc_info.value[0], MissingPluralPlaceholder)
 
     def test___init____with_invalid_plural_tag(self) -> None:
         invalid_plural_tag = "invalid-tag"

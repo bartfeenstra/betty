@@ -2,8 +2,8 @@ from typing import override
 
 import pytest
 
-from betty.serialize import SerializationError, Serializer
-from betty.serializers.yaml import Yaml
+from betty.serialize import Serializer
+from betty.serializers.yaml import InvalidYaml, Yaml
 from betty.test_utils.serialize import SerializerTestBase
 
 
@@ -14,7 +14,7 @@ class TestYaml(SerializerTestBase):
         return Yaml()
 
     def test_load__with_invalid_dump(self) -> None:
-        with pytest.raises(SerializationError):
+        with pytest.raises(InvalidYaml):
             Yaml().load(": :InvalidYaml: :")
 
     def test_load__with_valid_dump(self) -> None:

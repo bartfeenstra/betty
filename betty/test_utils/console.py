@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from io import StringIO
 from typing import TYPE_CHECKING, final
 
-from betty.console import SystemExitCode, main
+from betty.console import ExitCode, main
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -27,9 +27,7 @@ class Result:
     stdout: str
 
 
-async def run(
-    app: App, *args: str, expected_exit_code: SystemExitCode = SystemExitCode.OK
-) -> Result:
+async def run(app: App, *args: str, exit_code: ExitCode = ExitCode.OK) -> Result:
     """
     Run a Betty console command.
     """
@@ -40,11 +38,11 @@ async def run(
             await main(app, args)
         except SystemExit as exception:
             if exception.code is None:
-                exit_code = 0  # pragma: no cover
+                actual_exit_code = 0  # pragma: no cover
             elif isinstance(exception.code, int):
-                exit_code = exception.code
+                actual_exit_code = exception.code
             else:
-                exit_code = 1  # pragma: no cover
+                actual_exit_code = 1  # pragma: no cover
         except BaseException as error:  # pragma: no cover
             raise AssertionError(f"The console did not raise {SystemExit}") from error
         else:  # pragma: no cover
@@ -55,11 +53,11 @@ async def run(
     stdout_f.seek(0)
     stdout = stdout_f.read()
 
-    assert exit_code == expected_exit_code, f"""
-The Betty command `{" ".join(args)}` unexpectedly exited with code {exit_code}, but {expected_exit_code} was expected.
+    assert actual_exit_code == exit_code, f"""
+The Betty command `{" ".join(args)}` unexpectedly exited with code {actual_exit_code}, but {exit_code} was expected.
 Stdout:
 {stdout}
 Stderr:
 {stderr}
 """
-    return Result(exit_code, stderr, stdout)
+    return Result(actual_exit_code, stderr, stdout)

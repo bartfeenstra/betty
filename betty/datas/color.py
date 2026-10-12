@@ -4,32 +4,19 @@ Color data.
 
 from __future__ import annotations
 
-import re
-from typing import TYPE_CHECKING, Final, final
+from typing import TYPE_CHECKING, final
 
 from betty import samples
-from betty.assertions.str import assert_str
 from betty.data import DataDefinition
-from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.porters.callback import CallbackPorter
 from betty.sample import Sample, Samples
+from betty.validators.color import is_hex
+from betty.validators.str import is_str
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
-
-_hex_pattern: Final[re.Pattern[str]] = re.compile(r"^#[a-zA-Z0-9]{6}$")
-
-
-def _assert_hex(color: str) -> str:
-    if not _hex_pattern.match(color):
-        raise HumanFacingException(
-            _(
-                "{invalid_color} is not a valid hexadecimal color, such as {example_color}."
-            ).format(invalid_color=Quote(color), example_color=Quote(samples.color_hex))
-        )
-    return color
 
 
 @final
@@ -45,5 +32,5 @@ class ColorDefinition(DataDefinition[str]):
                 example_color=Quote(samples.color_hex)
             ),
             samples=Samples(lambda: Sample("#ff0000", label="Default")),
-            porter=CallbackPorter[str](assert_str() | _assert_hex, str),
+            porter=CallbackPorter[str](is_str | is_hex, str),
         )

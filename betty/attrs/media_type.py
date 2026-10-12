@@ -12,7 +12,12 @@ from betty.classtools import TypeABCMeta
 from betty.datas.aggregate.record import FieldDefinition
 from betty.json_schemas.media_type import MediaTypeSchema
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
-from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
+from betty.media_type import (
+    HasMediaType,
+    MediaType,
+    ResolvableMediaType,
+    resolve_media_type,
+)
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
@@ -35,8 +40,11 @@ def new_media_type_attr(
     ).setter(resolve_media_type)
 
 
-class HasMediaType(
-    LinkedDataDumpableWithSchemaJsonLdObject, HasProps, metaclass=TypeABCMeta
+class Media(
+    LinkedDataDumpableWithSchemaJsonLdObject,
+    HasProps,
+    HasMediaType[MediaType | None],
+    metaclass=TypeABCMeta,
 ):
     """
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.

@@ -12,6 +12,7 @@ from time import time
 from typing import (
     TYPE_CHECKING,
     Any,
+    Never,
     Protocol,
     Self,
     final,
@@ -112,13 +113,6 @@ def unique[ValueT](
         if value_key not in seen_value_keys:
             seen_value_keys.append(value_key)
             yield value
-
-
-def passthrough[T](value: T, /) -> T:
-    """
-    Return the value.
-    """
-    return value
 
 
 Suppressed = sentinel("Suppressed")
@@ -309,3 +303,19 @@ class LazyReCallable[ValueT]:
                 if not hasattr(self, "_value"):
                     self._value = self._factory()
         return self._value
+
+
+def passthrough[T](value: T, /) -> T:
+    """
+    Return the value.
+    """
+    return value
+
+
+def raise_(exception: Exception, /) -> Never:
+    """
+    Raise the given exception.
+
+    This is helpful in situations where statements are not allowed, such as in lambdas.
+    """
+    raise exception

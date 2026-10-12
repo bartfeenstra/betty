@@ -50,7 +50,7 @@ from betty.entities.place_name import PlaceName
 from betty.entities.presence import Presence
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.error import FileNotFound
+from betty.error import Error
 from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
 from betty.event_types.adoption import Adoption
 from betty.event_types.baptism import Baptism
@@ -73,7 +73,6 @@ from betty.event_types.residence import Residence
 from betty.event_types.retirement import Retirement
 from betty.event_types.unknown import UnknownEventType
 from betty.event_types.will import Will
-from betty.exception import HumanFacingException
 from betty.gender import (
     GenderDefinition,
     GenderManufacturer,
@@ -125,15 +124,11 @@ from betty.roles.subject import Subject
 from betty.roles.unknown import UnknownRole
 from betty.roles.witness import Witness
 from betty.user import Severity
+from betty.validators.path import NotFound
 
 if TYPE_CHECKING:
     from asyncio.subprocess import Process
-    from collections.abc import (
-        Iterable,
-        Mapping,
-        MutableMapping,
-        Sequence,
-    )
+    from collections.abc import Iterable, Mapping, MutableMapping, Sequence
     from xml.etree import ElementTree
 
     from babel import Locale
@@ -156,7 +151,8 @@ class GrampsError(Exception):
     """
 
 
-class UserFacingGrampsError(GrampsError, HumanFacingException):
+# @todo Finish this
+class UserFacingGrampsError(Error, GrampsError):
     """
     A user-facing Gramps API error.
     """
@@ -165,12 +161,6 @@ class UserFacingGrampsError(GrampsError, HumanFacingException):
 class LoaderUsedAlready(GrampsError):
     """
     Raised when a :py:class:`betty.gramps.GrampsLoader` is used more than once.
-    """
-
-
-class GrampsFileNotFound(UserFacingGrampsError, FileNotFound):
-    """
-    Raised when a Gramps family tree file cannot be found.
     """
 
 
@@ -392,7 +382,7 @@ class GrampsLoader:
             )
         except subprocess.CalledSubprocessError as error:
             raise UserFacingGrampsError(
-                _("Gramps exited with the following error:\n{error}").format(
+                message=_("Gramps exited with the following error:\n{error}").format(
                     error=error.stderr
                 )
             ) from None
@@ -435,9 +425,9 @@ class GrampsLoader:
             return await self._load_file_gramps_import(file)
 
         raise UserFacingGrampsError(
-            _("Only the following file types can be loaded: {file_extensions}").format(
-                file_extensions=JoinOr(*sorted(_gramps_extensions))
-            )
+            message=_(
+                "Only the following file types can be loaded: {file_extensions}"
+            ).format(file_extensions=JoinOr(*sorted(_gramps_extensions)))
         )
 
     async def _load_file_gramps_import(self, file: Path) -> None:
@@ -460,12 +450,12 @@ class GrampsLoader:
                 xml = f.read()
             await self._load_xml(xml)
         except FileNotFoundError:
-            raise GrampsFileNotFound(gramps) from None
+            raise NotFound(gramps) from None
         except OSError as error:
             raise UserFacingGrampsError(
-                _("Could not extract {file_path} as a gzip file  (*.gz).").format(
-                    file_path=str(gramps)
-                )
+                message=_(
+                    "Could not extract {file_path} as a gzip file  (*.gz)."
+                ).format(file_path=str(gramps))
             ) from error
 
     async def load_gpkg(self, gpkg: StrPath, /) -> None:
@@ -479,10 +469,10 @@ class GrampsLoader:
             try:
                 tar_file = stack.enter_context(tarfile.open(name=gpkg, mode="r:gz"))
             except FileNotFoundError:
-                raise GrampsFileNotFound(gpkg) from None
+                raise NotFound(gpkg) from None
             except (OSError, tarfile.ReadError) as error:
                 raise UserFacingGrampsError(
-                    _(
+                    message=_(
                         "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
                     ).format(file_path=str(gpkg))
                 ) from error
@@ -510,7 +500,7 @@ class GrampsLoader:
                 "ElementTree.ElementTree", etree.ElementTree(etree.fromstring(xml))
             )
         except etree.ParseError as error:
-            raise UserFacingGrampsError(str(error)) from error
+            raise UserFacingGrampsError(message=str(error)) from error
         await self._load_tree(tree)
 
     async def _load_tree(self, tree: ElementTree.ElementTree) -> None:
@@ -531,11 +521,11 @@ class GrampsLoader:
             database.tag,
         )
         if match is None:
-            raise UserFacingGrampsError(_("This is not valid Gramps XML."))
+            raise UserFacingGrampsError(message=_("This is not valid Gramps XML."))
         version = (int(match.group(2)), int(match.group(3)), int(match.group(4)))
         if not self._supports_xml_version(version):
             raise UserFacingGrampsError(
-                _(
+                message=_(
                     "Gramps XML must be compatible with version {supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is not supported."
                 ).format(
                     supported_gramps_xml_version=f"{self._supported_gramps_xml_version[0]}.{self._supported_gramps_xml_version[1]}.{self._supported_gramps_xml_version[2]}",
@@ -782,7 +772,7 @@ class GrampsLoader:
             file_path = media / file_path
         if not file_path.is_absolute():
             raise UserFacingGrampsError(
-                _(
+                message=_(
                     "Cannot load Gramps file {file} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a {gramps_setting} to your family tree, and export it again."
                 ).format(
                     file=file_id,
@@ -797,7 +787,7 @@ class GrampsLoader:
             )
         if not await to_thread(file_path.is_file):
             raise UserFacingGrampsError(
-                _(
+                message=_(
                     "Cannot load Gramps file {file}, because {file_path} is not a file."
                 ).format(file=file_id, file_path=str(file_path))
             )

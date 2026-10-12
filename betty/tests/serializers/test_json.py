@@ -2,8 +2,8 @@ from typing import override
 
 import pytest
 
-from betty.serialize import SerializationError, Serializer
-from betty.serializers.json import Json
+from betty.serialize import Serializer
+from betty.serializers.json import InvalidJson, Json
 from betty.test_utils.serialize import SerializerTestBase
 
 
@@ -14,7 +14,7 @@ class TestJson(SerializerTestBase):
         return Json()
 
     def test_load__with_invalid_dump(self) -> None:
-        with pytest.raises(SerializationError):
+        with pytest.raises(InvalidJson):
             Json().load("InvalidJson")
 
     def test_load__with_valid_dump(self) -> None:

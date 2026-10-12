@@ -3,6 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from betty.error import Error
 from betty.uis.no_op import NoOpUi
 from betty.user import Severity
 from betty.user.ui import UiTimeoutError
@@ -12,6 +13,10 @@ class TestNoOpUi:
     async def test_exception(self) -> None:
         sut = NoOpUi()
         await sut.exception()
+
+    async def test_error(self) -> None:
+        sut = NoOpUi()
+        await sut.error(Error(message=""))
 
     async def test_message(self) -> None:
         sut = NoOpUi()

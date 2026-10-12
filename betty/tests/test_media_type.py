@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -9,19 +8,12 @@ from betty.media_type import (
     InvalidMediaType,
     MediaType,
     MediaTypeDefinition,
-    MissingMediaType,
-    UnsupportedMediaType,
-    match_extension,
-    match_media_type,
     resolve_media_type,
 )
-from betty.media_types.html import HTML
 from betty.media_types.plain_text import PLAIN_TEXT
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, Sequence
-
-    from betty.pathlib import StrPath
+    from collections.abc import Mapping, Sequence
 
 
 class TestMediaType:
@@ -272,79 +264,6 @@ class TestMediaType:
             )
             == "application/vnd.oasis.opendocument.text"
         )
-
-
-@pytest.mark.parametrize(
-    ("expected", "source", "media_types"),
-    [
-        (PLAIN_TEXT, PLAIN_TEXT, [PLAIN_TEXT]),
-        (PLAIN_TEXT, PLAIN_TEXT, [HTML, PLAIN_TEXT]),
-    ],
-)
-def test_match_media_type(
-    expected: MediaType, source: MediaType, media_types: Iterable[MediaType]
-) -> None:
-    assert match_media_type(source, media_types) == expected
-
-
-@pytest.mark.parametrize(
-    ("source", "media_types"),
-    [
-        (PLAIN_TEXT, []),
-        (PLAIN_TEXT, [HTML]),
-    ],
-)
-def test_match_media_type__with_unsupported_media_type(
-    source: MediaType, media_types: Iterable[MediaType]
-) -> None:
-    with pytest.raises(UnsupportedMediaType):
-        match_media_type(source, media_types)
-
-
-@pytest.mark.parametrize(
-    ("expected", "source", "media_types"),
-    [
-        ((PLAIN_TEXT, ".txt"), "my.first.source.txt", [PLAIN_TEXT.media_type]),
-        ((PLAIN_TEXT, ".txt"), Path("my.first.source.txt"), [PLAIN_TEXT.media_type]),
-        (
-            (PLAIN_TEXT, ".txt"),
-            "my.first.source.txt",
-            [HTML.media_type, PLAIN_TEXT.media_type],
-        ),
-    ],
-)
-def test_match_extension(
-    expected: tuple[MediaType, str],
-    source: StrPath,
-    media_types: Iterable[MediaType],
-) -> None:
-    assert match_extension(source, media_types) == expected
-
-
-@pytest.mark.parametrize(
-    ("source", "media_types"),
-    [
-        ("my.first.source.txt", []),
-        ("", [PLAIN_TEXT.media_type]),
-        ("my.first.source.txt", [HTML.media_type]),
-    ],
-)
-def test_match_extension__with_unsupported_media_type(
-    source: StrPath, media_types: Iterable[MediaType]
-) -> None:
-    with pytest.raises(UnsupportedMediaType):
-        match_extension(source, media_types)
-
-
-class TestUnsupportedMediaType:
-    def test_new(self) -> None:
-        sut = UnsupportedMediaType(PLAIN_TEXT.media_type)
-        assert str(PLAIN_TEXT.media_type) in str(sut)
-
-
-class TestMissingMediaType:
-    def test_new(self) -> None:
-        assert str(MissingMediaType())
 
 
 class TestMediaTypeDefinition:
