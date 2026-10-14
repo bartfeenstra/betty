@@ -110,6 +110,13 @@ class DataTestBase[DataT: Data]:
                         f'Failed asserting that sample "{sample.label.localize(default_localizer)}" instance is not equal to sample "{other_sample.label.localize(default_localizer)}"'
                     )
 
+    def test__freeze(self) -> None:
+        """
+        Tests :py:meth:`betty.frosty.Freezer._freeze` implementations with the data definition's samples.
+        """
+        for sample in self.sut_cls.definition.samples:
+            sample.subject._freeze()
+
 
 @ObjectDefinition(label=Plain("Dummy data"))
 class DummyData(Object, Frozen):
