@@ -29,4 +29,5 @@ class AttrFreezable(Freezable):
 
     @override
     def _freeze(self) -> None:
+        super()._freeze()
         self.__is_frozen = True
