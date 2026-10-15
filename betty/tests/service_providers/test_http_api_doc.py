@@ -8,7 +8,7 @@ from betty.project.generate import generate
 from betty.server import Server
 from betty.servers import project_builtin
 from betty.service_providers.http_api_doc import HttpApiDoc
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 from betty.tests.conftest import (
     check_skip_playwright,
     check_skip_webpack_entry_point_provider,
@@ -18,32 +18,28 @@ from betty.tests.conftest import (
 class TestHttpApiDoc:
     @pytest.mark.order(0)
     @check_skip_webpack_entry_point_provider
-    async def test_generate(
-        self, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with (
-            isolated_project_factory(service_providers=[HttpApiDoc]) as project,
-            project,
-        ):
-            await generate(project)
-            assert (project.www_directory / "api" / "index.html").is_file()
-            assert (
-                project.www_directory / "js" / "webpack" / "http-api-doc.js"
-            ).is_file()
+    async def test_generate(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project() as project:
+            Project.service_providers.add_init_plugins(project, HttpApiDoc)
+            async with project:
+                await generate(project)
+                assert (project.www_directory / "api" / "index.html").is_file()
+                assert (
+                    project.www_directory / "js" / "webpack" / "http-api-doc.js"
+                ).is_file()
 
 
 class TestSwaggerUi:
     @pytest.fixture(scope="session")
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
-        async with (
-            Project.new_isolated(service_providers=[HttpApiDoc]) as project,
-            project,
-        ):
-            await generate(project)
-            async with await project_builtin.ProjectBuiltinServer.new(
-                project
-            ) as server:
-                yield project, server
+        async with Project.new_isolated() as project:
+            Project.service_providers.add_init_plugins(project, HttpApiDoc)
+            async with project:
+                await generate(project)
+                async with await project_builtin.ProjectBuiltinServer.new(
+                    project
+                ) as server:
+                    yield project, server
 
     @pytest.mark.asyncio(loop_scope="session")
     @pytest.mark.order(0)

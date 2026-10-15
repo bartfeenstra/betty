@@ -5,9 +5,10 @@ The property API.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload
+from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload, override
 
 from betty.classtools import Object, ObjectClassVar, OwnedClassVar
+from betty.frosty import Freezer
 from betty.importlib import fully_qualified_name
 from betty.objecttools import AttrOperators
 
@@ -17,7 +18,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
 
-class HasProps(Object):
+class HasProps(Object, Freezer):
     """
     An object that has :py:class:`properties <betty.prop.Prop>`.
     """
@@ -31,6 +32,12 @@ class HasProps(Object):
         for class_var in cls.init_class_vars():
             if isinstance(class_var, Prop):
                 yield class_var
+
+    @override
+    def _freeze(self) -> None:
+        super()._freeze()
+        for prop in self.props():
+            prop.freeze(self)
 
 
 class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
@@ -51,6 +58,11 @@ class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
         Delete the property from an owner.
         """
         return
+
+    def freeze(self, owner: OwnerT, /) -> None:
+        """
+        Freeze the property value on the owner.
+        """
 
     @abstractmethod
     def get(self, owner: OwnerT, /) -> GetT:

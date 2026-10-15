@@ -12,7 +12,7 @@ from betty.console import SystemExitCode, call_command_func, main_from_environme
 from betty.console.command import Command, CommandDefinition
 from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
-from betty.test_utils.conftest import IsolatedAppFactory
+from betty.test_utils.conftest import NewIsolatedApp
 from betty.test_utils.console import run
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.user import Severity
@@ -81,9 +81,9 @@ async def test_main__with_unknown_command(isolated_app: App) -> None:
 async def test_main__with_user_facing_exception(
     expected: SystemExitCode,
     command: CommandDefinition,
-    isolated_app_factory: IsolatedAppFactory,
+    new_isolated_app: NewIsolatedApp,
 ) -> None:
-    async with isolated_app_factory(plugins={CommandDefinition: [command]}) as app, app:
+    async with new_isolated_app(plugins={CommandDefinition: [command]}) as app, app:
         await run(app, command.id, expected_exit_code=expected)
 
 
@@ -103,13 +103,13 @@ async def test_main__with_user_facing_exception(
 async def test_main_from_environment(
     expected: SystemExitCode,
     command: CommandDefinition,
-    isolated_app_factory: IsolatedAppFactory,
+    new_isolated_app: NewIsolatedApp,
     mocker: MockerFixture,
 ) -> None:
     def _target() -> None:
         mocker.patch(
             "betty.app.App.new_from_environment",
-            return_value=isolated_app_factory(plugins={CommandDefinition: [command]}),
+            return_value=new_isolated_app(plugins={CommandDefinition: [command]}),
         )
         mocker.patch("sys.argv", new=["betty", command.id])
         main_from_environment()
@@ -139,11 +139,11 @@ class TestVerbosity:
     async def test(
         self,
         expected: Severity,
-        isolated_app_factory: IsolatedAppFactory,
+        new_isolated_app: NewIsolatedApp,
         severity: str | None,
     ) -> None:
         async with (
-            isolated_app_factory(plugins={CommandDefinition: [_NoOpCommand]}) as app,
+            new_isolated_app(plugins={CommandDefinition: [_NoOpCommand]}) as app,
             app,
         ):
             args = ["no-op"]

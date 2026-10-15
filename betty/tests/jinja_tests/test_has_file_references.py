@@ -9,7 +9,7 @@ from betty.test_utils.entity.associations.has_file_references import (
 )
 
 if TYPE_CHECKING:
-    from betty.test_utils.conftest import AssertTemplateString
+    from betty.test_utils.conftest import AssertJinja
 
 
 class TestHasFileReferences:
@@ -22,13 +22,8 @@ class TestHasFileReferences:
         ],
     )
     async def test___call__(
-        self, assert_template_string: AssertTemplateString, expected: str, data: Any
+        self, assert_jinja_str: AssertJinja, expected: str, data: Any
     ) -> None:
         template = "{% if data is has_file_references %}true{% else %}false{% endif %}"
-        async with assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
+        async with assert_jinja_str(template, data={"data": data}) as rendered:
+            assert rendered == expected

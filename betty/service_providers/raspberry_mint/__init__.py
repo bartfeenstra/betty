@@ -36,6 +36,7 @@ from betty.dirs import webpack_entry_point_directory
 from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException, reraise_with_locator
 from betty.factory import DataManufacturable, Manufacturable
+from betty.frosties.attr import AttrFreezable
 from betty.jobs._generate_raspberry_mint_search_index import (
     _GenerateRaspberryMintSearchIndex,
 )
@@ -93,7 +94,7 @@ type ManufacturableRegionalContent = Mapping[
         ),
     ),
 )
-class RaspberryMintData(Object):
+class RaspberryMintData(Object, AttrFreezable):
     """
     Configuration for the :py:class:`betty.service_providers.raspberry_mint.RaspberryMint` extension.
 

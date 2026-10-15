@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Self, final
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
+from betty.frosty import Frosty
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
@@ -17,10 +18,7 @@ from betty.plugin.factory import (
     PluginManufacturerDefinition,
     ResolvablePluginManufacturer,
 )
-from betty.plugin.ordered import (
-    Order,
-    OrderedPluginDefinition,
-)
+from betty.plugin.ordered import Order, OrderedPluginDefinition
 
 if TYPE_CHECKING:
     from betty.entities.person import Person
@@ -30,7 +28,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class EventType(Object["EventTypeDefinition"]):
+class EventType(Object["EventTypeDefinition"], Frosty):
     """
     Define an :py:class:`betty.entities.event.Event` type.
     """

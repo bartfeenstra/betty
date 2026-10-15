@@ -1,28 +1,19 @@
-from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.entities.source import Source
-from betty.test_utils.conftest import AssertTemplateFile
+from betty.test_utils.conftest import AssertJinja
 
 
-async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
+async def test_minimal(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     source = Source()
-    async with assert_template_file(
-        data={
-            "entity": source,
-        },
-        assets={raspberry_mint},
-        template="entity/summary--source.html.j2",
-    ) as (actual, _):
-        assert actual
+    async with assert_raspberry_mint_jinja_file(
+        "entity/summary--source.html.j2", data={"entity": source}
+    ) as rendered:
+        assert rendered
 
 
-async def test_with_contained_by(assert_template_file: AssertTemplateFile) -> None:
+async def test_with_contained_by(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     contained_by_source = Source()
     source = Source(contained_by=contained_by_source)
-    async with assert_template_file(
-        data={
-            "entity": source,
-        },
-        assets={raspberry_mint},
-        template="entity/summary--source.html.j2",
-    ) as (actual, _):
-        assert contained_by_source.id in actual
+    async with assert_raspberry_mint_jinja_file(
+        "entity/summary--source.html.j2", data={"entity": source}
+    ) as rendered:
+        assert contained_by_source.id in rendered

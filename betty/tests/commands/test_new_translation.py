@@ -13,19 +13,19 @@ from betty.commands.new_translation import (
 )
 from betty.console import SystemExitCode
 from betty.console.command import CommandDefinition
-from betty.test_utils.conftest import IsolatedAppFactory
+from betty.test_utils.conftest import NewIsolatedApp
 from betty.test_utils.console import run
 
 
 class TestNewTranslation:
     @pytest.fixture
     async def isolated_app_with_assets(
-        self, isolated_app_factory: IsolatedAppFactory, tmp_path: Path
+        self, new_isolated_app: NewIsolatedApp, tmp_path: Path
     ) -> AsyncIterator[App]:
         _DUMMY = AssetDirectoryDefinition("dummy", assets=tmp_path)
 
         async with (
-            isolated_app_factory(
+            new_isolated_app(
                 plugins={
                     CommandDefinition: [NewTranslation],
                     AssetDirectoryDefinition: [_DUMMY],

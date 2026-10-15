@@ -10,7 +10,6 @@ from betty.classtools import TypeABCMeta
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.life_cycle.manage import ManagedLifeCycle
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
@@ -19,8 +18,8 @@ from betty.plugin.factory import (
     PluginManufacturerDefinition,
     ResolvablePluginManufacturer,
 )
-from betty.prop import HasProps
 from betty.service_level import HasServiceLevel, ServiceLevel
+from betty.services.plugin import HasPluginServices
 
 if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
@@ -30,8 +29,7 @@ if TYPE_CHECKING:
 
 class ServiceProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
     HasServiceLevel[ServiceLevelT],
-    HasProps,
-    ManagedLifeCycle,
+    HasPluginServices,
     HasDefinition["ServiceProviderDefinition"],
     metaclass=TypeABCMeta,
 ):

@@ -12,7 +12,7 @@ from betty.entities.file_reference import FileReference
 from betty.job import Context
 from betty.media_type import MediaType
 from betty.media_types.svg import SVG
-from betty.test_utils.conftest import AssertTemplateString
+from betty.test_utils.conftest import AssertJinja
 from betty.test_utils.entity.associations.has_file_references import (
     DummyHasFileReferences,
 )
@@ -107,74 +107,51 @@ class TestImageResizeCover:
         _test_filter_image_resize_cover_parameter_argvalues,
     )
     async def test___call__(
-        self,
-        assert_template_string: AssertTemplateString,
-        expected: str,
-        template: str,
-        filey: File,
+        self, assert_jinja_str: AssertJinja, expected: str, template: str, filey: File
     ) -> None:
-        async with assert_template_string(
-            template=template,
-            data={
-                "filey": filey,
-            },
-        ) as (actual, project):
-            assert actual == expected
-            for file in actual.split("#"):
-                assert (project.www_directory / file[16:]).exists()
+        async with assert_jinja_str(template, data={"filey": filey}) as rendered:
+            assert rendered == expected
+            for file in rendered.split("#"):
+                assert (assert_jinja_str.project.www_directory / file[16:]).exists()
 
     @pytest.mark.parametrize(
         _test_filter_image_resize_cover_parameter_argnames,
         _test_filter_image_resize_cover_parameter_argvalues,
     )
     async def test___call____with_context(
-        self,
-        assert_template_string: AssertTemplateString,
-        expected: str,
-        template: str,
-        filey: File,
+        self, assert_jinja_str: AssertJinja, expected: str, template: str, filey: File
     ) -> None:
-        async with assert_template_string(
-            template=template,
-            data={
-                "filey": filey,
-                "context": Context(),
-            },
-        ) as (actual, project):
-            assert actual == expected
-            for file in actual.split("#"):
-                assert (project.www_directory / file[16:]).exists()
+        async with assert_jinja_str(
+            template, data={"filey": filey, "context": Context()}
+        ) as rendered:
+            assert rendered == expected
+            for file in rendered.split("#"):
+                assert (assert_jinja_str.project.www_directory / file[16:]).exists()
 
     async def test___call____with_svg(
-        self, assert_template_string: AssertTemplateString, tmp_path: Path
+        self, assert_jinja_str: AssertJinja, tmp_path: Path
     ) -> None:
         image_path = tmp_path / "image.svg"
         with open(image_path, "w", encoding="utf-8") as f:
             f.write(
                 '<?xml version="1.0" encoding="UTF-8"?><svg version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>'
             )
-        async with assert_template_string(
-            template="{{ filey | image_resize_cover }}",
-            data={
-                "filey": File(
-                    id="my-first-file",
-                    path=image_path,
-                    media_type=SVG,
-                )
-            },
-        ) as (actual, project):
-            assert actual == "betty-static:///file/my-first-file/file/image.svg"
-            for file in actual.split("#"):
-                assert (project.www_directory / file[16:]).exists()
+        async with assert_jinja_str(
+            "{{ filey | image_resize_cover }}",
+            data={"filey": File(id="my-first-file", path=image_path, media_type=SVG)},
+        ) as rendered:
+            assert rendered == "betty-static:///file/my-first-file/file/image.svg"
+            for file in rendered.split("#"):
+                assert (assert_jinja_str.project.www_directory / file[16:]).exists()
 
     async def test___call____with_pdf(
-        self, assert_template_string: AssertTemplateString, tmp_path: Path
+        self, assert_jinja_str: AssertJinja, tmp_path: Path
     ) -> None:
         image_path = tmp_path / "image.pdf"
         image = Image.new("1", (1, 1))
         image.save(image_path)
-        async with assert_template_string(
-            template="{{ filey | image_resize_cover }}",
+        async with assert_jinja_str(
+            "{{ filey | image_resize_cover }}",
             data={
                 "filey": File(
                     id="my-first-file",
@@ -182,21 +159,21 @@ class TestImageResizeCover:
                     media_type=MediaType("application/pdf"),
                 )
             },
-        ) as (actual, project):
-            assert actual == "betty-static:///file/my-first-file-.jpg"
-            for public_file in actual.split("#"):
-                file = project.www_directory / public_file[16:]
+        ) as rendered:
+            assert rendered == "betty-static:///file/my-first-file-.jpg"
+            for public_file in rendered.split("#"):
+                file = assert_jinja_str.project.www_directory / public_file[16:]
                 assert file.exists()
                 assert from_file(file, True) == "image/jpeg"
 
     async def test___call____with_invalid_image(
-        self, assert_template_string: AssertTemplateString, tmp_path: Path
+        self, assert_jinja_str: AssertJinja, tmp_path: Path
     ) -> None:
         file = tmp_path / "not-an-image.txt"
         file.touch()
         with pytest.raises(ValueError):  # noqa: PT011
-            async with assert_template_string(
-                template="{{ filey | image_resize_cover }}",
+            async with assert_jinja_str(
+                "{{ filey | image_resize_cover }}",
                 data={
                     "filey": File(
                         path=file,
@@ -207,11 +184,11 @@ class TestImageResizeCover:
                 pass  # pragma: nocover
 
     async def test___call____with_file_without_media_type(
-        self, assert_template_string: AssertTemplateString
+        self, assert_jinja_str: AssertJinja
     ) -> None:
         with pytest.raises(ValueError):  # noqa: PT011
-            async with assert_template_string(
-                template="{{ filey | image_resize_cover }}",
+            async with assert_jinja_str(
+                "{{ filey | image_resize_cover }}",
                 data={"filey": File(path=_test_filter_image_resize_cover_image_path)},
             ):
                 pass  # pragma: nocover

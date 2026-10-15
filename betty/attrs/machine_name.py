@@ -9,11 +9,7 @@ from typing import TYPE_CHECKING
 from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
 from betty.localizables.gettext import _
-from betty.machine_name import (
-    MachineName,
-    ResolvableMachineName,
-    machine_name_description,
-)
+from betty.machine_name import MachineName, machine_name_description
 
 if TYPE_CHECKING:
     from betty.attrs.common import OptionableCommonAttr
@@ -26,7 +22,7 @@ def new_machine_name_attr(
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
     frozen: bool = False,
-) -> OptionableCommonAttr[HasProps, MachineName, ResolvableMachineName]:
+) -> OptionableCommonAttr[HasProps, MachineName, str | None]:
     """
     Create an attribute containing a machine name.
     """
@@ -39,4 +35,4 @@ def new_machine_name_attr(
             else description,
         ),
         frozen=frozen,
-    ).setter(MachineName.resolve)
+    ).setter(MachineName)

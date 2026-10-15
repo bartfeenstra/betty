@@ -8,6 +8,7 @@ from typing import final
 
 from betty.event_type import EventType, EventTypeDefinition
 from betty.event_types.death import Death
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _, ngettext
 
 
@@ -19,7 +20,7 @@ from betty.localizables.gettext import _, ngettext
     label_countable=ngettext("{count} will", "{count} wills"),
     after={Death},
 )
-class Will(EventType):
+class Will(EventType, Frozen):
     """
     .. plugin:: event-type:will.
     """

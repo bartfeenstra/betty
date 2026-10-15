@@ -8,6 +8,7 @@ from betty.datas.plugin.definition import (
     PluginDefinitionDefinition,
 )
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.frosties.classtools import Frozen
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 from betty.typing import Unreachable
@@ -24,7 +25,7 @@ class _DummyPluginDefinition(PluginDefinition, HumanFacingDefinition):
 
 
 @ObjectDefinition(label="-")
-class _Owner(Object):
+class _Owner(Object, Frozen):
     @PluginDefinitionDefinition(_DummyPluginDefinition)
     class _Item(PluginDefinitionData[_DummyPluginDefinition]):
         @override

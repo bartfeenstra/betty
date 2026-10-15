@@ -57,168 +57,157 @@ async def create_project(
     """
     Create a new demonstration project.
     """
-    return Project(
+    project = Project(
         app=app,
-        author=_("Bart Feenstra and contributors"),
         directory=directory,
-        enrichers=[
-            Deriver,
-            Wiki,
-        ],
-        service_providers=[
-            HttpApiDoc,
-            Maps,
-            RaspberryMint,
-            Spdx,
-            ServiceProviderManufacturer(
-                RaspberryMint,
-                RaspberryMintData(
-                    regional_content={
-                        Region.FRONT_PAGE_CONTENT: [
-                            ContentBuilderManufacturer(
-                                Columns,
-                                ColumnsData([IncompleteTranslationWarning]),
-                            ),
-                            ContentBuilderManufacturer(
-                                Section,
-                                SectionData(
-                                    ContentBuilderManufacturer(
-                                        Columns,
-                                        ColumnsData(
-                                            [
-                                                ContentBuilderManufacturer(
-                                                    Render,
-                                                    RenderData(
-                                                        Chain(
-                                                            "<h2>",
-                                                            _("Get started"),
-                                                            "</h2>"
-                                                            f'<a href="{about.url_documentation}" class="view-more">',
-                                                            _("Read the documentation"),
-                                                            "</a>",
-                                                            f'<a href="{about.url_code}" class="view-more">',
-                                                            _("View the code"),
-                                                            "</a>",
-                                                        ),
-                                                        HTML,
-                                                    ),
-                                                ),
-                                            ],
-                                            [
-                                                ContentBuilderManufacturer(
-                                                    Render,
-                                                    RenderData(
-                                                        Chain(
-                                                            "<p>",
-                                                            _(
-                                                                "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
-                                                            ).format(
-                                                                liberta_lankester_url="betty-entity://person/betty-demo-liberta-lankester"
-                                                            ),
-                                                            "</p>",
-                                                        ),
-                                                        HTML,
-                                                    ),
-                                                ),
-                                            ],
-                                            width={
-                                                Breakpoint.XS: [12, 12],
-                                                Breakpoint.MD: [5, 6],
-                                                Breakpoint.LG: [4, 7],
-                                            },
-                                        ),
-                                    ),
-                                    heading=_("Welcome"),
-                                    visually_hide_heading=True,
-                                ),
-                            ),
-                            ContentBuilderManufacturer(
-                                Section,
-                                SectionData(
-                                    ContentBuilderManufacturer(
-                                        Columns,
-                                        ColumnsData(
-                                            [
-                                                ContentBuilderManufacturer(
-                                                    EntityCard,
-                                                    EntityReference(
-                                                        Place,
-                                                        "betty-demo-amsterdam",
-                                                    ),
-                                                )
-                                            ],
-                                            [
-                                                ContentBuilderManufacturer(
-                                                    EntityCard,
-                                                    EntityReference(
-                                                        Person,
-                                                        "betty-demo-liberta-lankester",
-                                                    ),
-                                                )
-                                            ],
-                                            [
-                                                ContentBuilderManufacturer(
-                                                    EntityCard,
-                                                    EntityReference(
-                                                        Place,
-                                                        "betty-demo-netherlands",
-                                                    ),
-                                                )
-                                            ],
-                                            width={
-                                                Breakpoint.XS: [12, 12, 12],
-                                                Breakpoint.MD: [6, 6, 6],
-                                                Breakpoint.LG: [4, 4, 4],
-                                            },
-                                        ),
-                                    ),
-                                    heading=_("Discover the history of a family…"),
-                                ),
-                            ),
-                        ],
-                        Region.FRONT_PAGE_SUMMARY: [
-                            ContentBuilderManufacturer(
-                                Render,
-                                RenderData(
-                                    _(
-                                        "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
-                                    )
-                                ),
-                            ),
-                        ],
-                    }
-                ),
-            ),
-            Trees,
-        ],
-        generate_entity_list_html=[
-            Person,
-            Event,
-            Place,
-            Source,
-        ],
         license=LicenseManufacturer("spdx-gpl-3-0-or-later"),
-        links=[
-            BETTY_DOCUMENTATION,
-            BETTY_GITHUB,
-        ],
-        loaders=[
-            Demo,
-        ],
-        locales=[
-            # The first configured locale is the project default.
-            default_locale,
-            *[
-                locale
-                for po_file in dirs.builtin_asset_directory.glob("locale/*/betty.po")
-                if (locale := Locale.parse(po_file.parent.name))
-                and locale != default_locale
-            ],
-        ],
-        name="demo",
         supported_plugins=[
             WikipediaSummary,
         ],
         title=_("A Betty demonstration"),
         url=url or "https://example.com",
     )
+    project.author = _("Bart Feenstra and contributors")
+    Project.enrichers.add_init_plugins(project, Deriver, Wiki)
+    project.generate_entity_list_html = [Person, Event, Place, Source]
+    Project.links.add_init_plugins(project, BETTY_DOCUMENTATION, BETTY_GITHUB)
+    Project.loaders.add_init_plugins(project, Demo)
+    project.locales = [
+        # The first configured locale is the project default.
+        default_locale,
+        *[
+            locale
+            for po_file in dirs.builtin_asset_directory.glob("locale/*/betty.po")
+            if (locale := Locale.parse(po_file.parent.name))
+            and locale != default_locale
+        ],
+    ]
+    project.name = "demo"
+    Project.service_providers.add_init_plugins(
+        project,
+        HttpApiDoc,
+        Maps,
+        RaspberryMint,
+        Spdx,
+        ServiceProviderManufacturer(
+            RaspberryMint,
+            RaspberryMintData(
+                regional_content={
+                    Region.FRONT_PAGE_CONTENT: [
+                        ContentBuilderManufacturer(
+                            Columns,
+                            ColumnsData([IncompleteTranslationWarning]),
+                        ),
+                        ContentBuilderManufacturer(
+                            Section,
+                            SectionData(
+                                ContentBuilderManufacturer(
+                                    Columns,
+                                    ColumnsData(
+                                        [
+                                            ContentBuilderManufacturer(
+                                                Render,
+                                                RenderData(
+                                                    Chain(
+                                                        "<h2>",
+                                                        _("Get started"),
+                                                        "</h2>"
+                                                        f'<a href="{about.url_documentation}" class="view-more">',
+                                                        _("Read the documentation"),
+                                                        "</a>",
+                                                        f'<a href="{about.url_code}" class="view-more">',
+                                                        _("View the code"),
+                                                        "</a>",
+                                                    ),
+                                                    HTML,
+                                                ),
+                                            ),
+                                        ],
+                                        [
+                                            ContentBuilderManufacturer(
+                                                Render,
+                                                RenderData(
+                                                    Chain(
+                                                        "<p>",
+                                                        _(
+                                                            "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+                                                        ).format(
+                                                            liberta_lankester_url="betty-entity://person/betty-demo-liberta-lankester"
+                                                        ),
+                                                        "</p>",
+                                                    ),
+                                                    HTML,
+                                                ),
+                                            ),
+                                        ],
+                                        width={
+                                            Breakpoint.XS: [12, 12],
+                                            Breakpoint.MD: [5, 6],
+                                            Breakpoint.LG: [4, 7],
+                                        },
+                                    ),
+                                ),
+                                heading=_("Welcome"),
+                                visually_hide_heading=True,
+                            ),
+                        ),
+                        ContentBuilderManufacturer(
+                            Section,
+                            SectionData(
+                                ContentBuilderManufacturer(
+                                    Columns,
+                                    ColumnsData(
+                                        [
+                                            ContentBuilderManufacturer(
+                                                EntityCard,
+                                                EntityReference(
+                                                    Place,
+                                                    "betty-demo-amsterdam",
+                                                ),
+                                            )
+                                        ],
+                                        [
+                                            ContentBuilderManufacturer(
+                                                EntityCard,
+                                                EntityReference(
+                                                    Person,
+                                                    "betty-demo-liberta-lankester",
+                                                ),
+                                            )
+                                        ],
+                                        [
+                                            ContentBuilderManufacturer(
+                                                EntityCard,
+                                                EntityReference(
+                                                    Place,
+                                                    "betty-demo-netherlands",
+                                                ),
+                                            )
+                                        ],
+                                        width={
+                                            Breakpoint.XS: [12, 12, 12],
+                                            Breakpoint.MD: [6, 6, 6],
+                                            Breakpoint.LG: [4, 4, 4],
+                                        },
+                                    ),
+                                ),
+                                heading=_("Discover the history of a family…"),
+                            ),
+                        ),
+                    ],
+                    Region.FRONT_PAGE_SUMMARY: [
+                        ContentBuilderManufacturer(
+                            Render,
+                            RenderData(
+                                _(
+                                    "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
+                                )
+                            ),
+                        ),
+                    ],
+                }
+            ),
+        ),
+        Trees,
+    )
+    return project

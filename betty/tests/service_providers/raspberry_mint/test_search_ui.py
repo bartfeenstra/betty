@@ -24,16 +24,15 @@ class TestSearchUi:
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
         person = Person(id="my-first-person")
         PersonName(individual=self.individual_name, person=person)
-        async with (
-            Project.new_isolated(service_providers=[RaspberryMint]) as project,
-            project,
-        ):
+        async with Project.new_isolated() as project:
             project.ancestry[Person].add(person)
-            await generate(project)
-            async with await project_builtin.ProjectBuiltinServer.new(
-                project
-            ) as server:
-                yield project, server
+            Project.service_providers.add_init_plugins(project, RaspberryMint)
+            async with project:
+                await generate(project)
+                async with await project_builtin.ProjectBuiltinServer.new(
+                    project
+                ) as server:
+                    yield project, server
 
     @pytest.mark.asyncio(loop_scope="session")
     @pytest.mark.order(0)

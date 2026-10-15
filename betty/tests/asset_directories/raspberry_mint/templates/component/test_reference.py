@@ -1,28 +1,17 @@
-from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.entities.citation import Citation
 from betty.entities.source import Source
-from betty.test_utils.conftest import AssertTemplateFile
+from betty.test_utils.conftest import AssertJinja
 
 
-async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
-    async with assert_template_file(
-        data={
-            "citations": [],
-        },
-        assets={raspberry_mint},
-        template="component/reference.html.j2",
-    ) as (actual, _):
-        assert actual == ""
+async def test_minimal(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
+    async with assert_raspberry_mint_jinja_file(
+        "component/reference.html.j2", data={"citations": []}
+    ) as rendered:
+        assert rendered == ""
 
 
-async def test_with_citation(assert_template_file: AssertTemplateFile) -> None:
-    async with assert_template_file(
-        data={
-            "citations": [
-                Citation(source=Source()),
-            ],
-        },
-        assets={raspberry_mint},
-        template="component/reference.html.j2",
-    ) as (actual, _):
-        assert actual == ' <sup><a href="#reference-1">[1]</a></sup>'
+async def test_with_citation(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
+    async with assert_raspberry_mint_jinja_file(
+        "component/reference.html.j2", data={"citations": [Citation(source=Source())]}
+    ) as rendered:
+        assert rendered == ' <sup><a href="#reference-1">[1]</a></sup>'

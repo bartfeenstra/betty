@@ -7,8 +7,11 @@ from __future__ import annotations
 from collections.abc import Iterator, Mapping
 from typing import Final, final
 
+from betty.frosty import frozen
+
 
 @final
+@frozen
 class _EmptyFrozenMapping[KeyT, ValueT](Mapping[KeyT, ValueT]):
     def __getitem__(self, key: KeyT, /) -> ValueT:
         raise KeyError

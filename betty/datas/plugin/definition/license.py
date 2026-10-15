@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, final, override
 from betty.attrs.localizable import new_localizable_attr
 from betty.datas.plugin.definition import PluginDefinitionDefinition
 from betty.datas.plugin.definition.human_facing import HumanFacingPluginDefinitionData
+from betty.frosties.classtools import Frozen
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
 from betty.sample import Sample, Samples
@@ -62,7 +63,7 @@ class LicenseDefinitionData(HumanFacingPluginDefinitionData[LicenseDefinition]):
             label=self.label,
             description=self.description,
         )
-        class _LicenseDefinitionDataLicense(License):
+        class _LicenseDefinitionDataLicense(License, Frozen):
             @override
             @property
             def summary(self) -> Localizable:

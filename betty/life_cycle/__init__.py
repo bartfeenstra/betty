@@ -57,23 +57,29 @@ class Bootstrappable(_LifeCycleContextManager):
     """
 
     def __init__(self, *args: Any, **kwargs: Any):
-        self.__bootstrapped = False
+        self.__is_bootstrapped = False
         super().__init__(*args, **kwargs)
+
+    def _on_is_bootstrapped(self) -> None:
+        pass
 
     @final
     @property
-    def bootstrapped(self) -> bool:
+    def is_bootstrapped(self) -> bool:
         """
         Whether the object has been bootstrapped.
         """
-        return self.__bootstrapped
+        try:
+            return self.__is_bootstrapped
+        except AttributeError:
+            return False
 
     @final
     def assert_not_bootstrapped(self) -> None:
         """
         Assert that the object is not yet bootstrapped.
         """
-        if self.bootstrapped:
+        if self.is_bootstrapped:
             raise AlreadyBootstrapped(f"{self} was bootstrapped already.")
 
     @final
@@ -81,7 +87,7 @@ class Bootstrappable(_LifeCycleContextManager):
         """
         Assert that the object is bootstrapped.
         """
-        if not self.bootstrapped:
+        if not self.is_bootstrapped:
             raise NotYetBootstrapped(f"{self} was not bootstrapped yet.")
 
     async def bootstrap(self) -> None:
@@ -89,7 +95,8 @@ class Bootstrappable(_LifeCycleContextManager):
         Bootstrap the object.
         """
         self.assert_not_bootstrapped()
-        self.__bootstrapped = True
+        self.__is_bootstrapped = True
+        self._on_is_bootstrapped()
 
     @final
     async def __aenter__(self) -> Self:
@@ -103,33 +110,33 @@ class Shutdownable(_LifeCycleContextManager):
     """
 
     def __init__(self, *args: Any, **kwargs: Any):
-        self.__shut_down = False
+        self.__is_shutdown = False
         super().__init__(*args, **kwargs)
 
     @final
     @property
-    def shut_down(self) -> bool:
+    def is_shutdown(self) -> bool:
         """
         Whether the object has been shut down.
         """
-        return self.__shut_down
+        return self.__is_shutdown
 
     @final
-    def assert_not_shut_down(self) -> None:
+    def assert_not_shutdown(self) -> None:
         """
         Assert that the object is not yet shut down.
         """
-        if self.shut_down:
+        if self.is_shutdown:
             raise AlreadyShutDown(f"{self} was shut down already.")
 
     async def shutdown(self, *, wait: bool = True) -> None:
         """
         Shut the object down.
         """
-        if self.__shut_down and not wait:
+        if self.__is_shutdown and not wait:
             return
-        self.assert_not_shut_down()
-        self.__shut_down = True
+        self.assert_not_shutdown()
+        self.__is_shutdown = True
 
     @final
     async def __aexit__(
@@ -141,7 +148,7 @@ class Shutdownable(_LifeCycleContextManager):
         await self.shutdown(wait=exc_val is None)
 
     def __del__(self) -> None:
-        if not self.__shut_down:
+        if not self.__is_shutdown:
             warn(f"{self} was never shut down.", stacklevel=2)
 
 
@@ -156,7 +163,7 @@ class LifeCycle(Bootstrappable, Shutdownable):
         """
         Whether the object is alive, e.g. bootstrapped but not shut down.
         """
-        return self.bootstrapped and not self.shut_down
+        return self.is_bootstrapped and not self.is_shutdown
 
     @final
     def assert_alive(self) -> None:
@@ -164,7 +171,7 @@ class LifeCycle(Bootstrappable, Shutdownable):
         Assert that the object is alive, e.g. bootstrapped but not shut down.
         """
         self.assert_bootstrapped()
-        self.assert_not_shut_down()
+        self.assert_not_shutdown()
 
     def __del__(self) -> None:
         if self.alive:

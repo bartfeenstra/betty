@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import final
 
 from betty.event_type import EventType, EventTypeDefinition
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _, ngettext
 
 
@@ -17,7 +18,7 @@ from betty.localizables.gettext import _, ngettext
     label_plural=_("Correspondences"),
     label_countable=ngettext("{count} correspondence", "{count} correspondences"),
 )
-class Correspondence(EventType):
+class Correspondence(EventType, Frozen):
     """
     .. plugin:: event-type:correspondence.
     """

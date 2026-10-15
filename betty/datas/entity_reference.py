@@ -12,7 +12,7 @@ from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.definition.id import resolve_id
 from betty.entity import Entity, EntityDefinition
-from betty.freezer import Frozen
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _
 from betty.sample import Sample, Samples
 

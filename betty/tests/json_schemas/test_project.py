@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.project import Project
-    from betty.test_utils.conftest import IsolatedProjectFactory
+    from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestProjectSchema(SchemaTestBase):
@@ -33,23 +33,23 @@ class TestProjectSchema(SchemaTestBase):
     @pytest.fixture(params=_sut_params())
     async def sut_data(
         self,
-        isolated_project_factory: IsolatedProjectFactory,
+        new_isolated_project: NewIsolatedProject,
         request: pytest.FixtureRequest,
     ) -> SchemaTestBaseSut:
         url, clean_urls = request.param
-        async with (
-            isolated_project_factory(clean_urls=clean_urls, url=url) as project,
-            project,
-        ):
-            return (
-                await ProjectSchema.new(project),
-                [
-                    await Person().dump_linked_data(project),
-                    await Place().dump_linked_data(project),
-                    await Event().dump_linked_data(project),
-                ],
-                [],
-            )
+        async with new_isolated_project() as project:
+            project.clean_urls = clean_urls
+            project.url = url
+            async with project:
+                return (
+                    await ProjectSchema.new(project),
+                    [
+                        await Person().dump_linked_data(project),
+                        await Place().dump_linked_data(project),
+                        await Event().dump_linked_data(project),
+                    ],
+                    [],
+                )
 
     @pytest.mark.parametrize(
         "clean_urls",

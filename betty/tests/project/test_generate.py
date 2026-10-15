@@ -3,136 +3,129 @@ from pathlib import Path
 from betty.entities.person import Person
 from betty.project import Project, ProjectLocale
 from betty.project.generate import generate
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 from betty.test_utils.jinja import assert_betty_html
 
 
 async def test_generate__html_lang(
-    isolated_project_factory: IsolatedProjectFactory,
+    new_isolated_project: NewIsolatedProject,
 ) -> None:
     async with (
-        isolated_project_factory(
-            locales=(
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                ),
-                ProjectLocale(
-                    "nl-NL",
-                    alias="nl",
-                ),
-            ),
-        ) as project,
-        project,
+        new_isolated_project() as project,
     ):
-        await generate(project)
-        with open(
-            await assert_betty_html(project, "/nl/index.html"), encoding="utf-8"
-        ) as f:
-            html = f.read()
-            assert '<html lang="nl-NL"' in html
+        project.locales = [
+            ProjectLocale(
+                "en-US",
+                alias="en",
+            ),
+            ProjectLocale(
+                "nl-NL",
+                alias="nl",
+            ),
+        ]
+        async with project:
+            await generate(project)
+            with open(
+                await assert_betty_html(project, "/nl/index.html"), encoding="utf-8"
+            ) as f:
+                html = f.read()
+                assert '<html lang="nl-NL"' in html
 
 
 async def test_generate__links(
-    isolated_project_factory: IsolatedProjectFactory,
+    new_isolated_project: NewIsolatedProject,
 ) -> None:
-    async with (
-        isolated_project_factory(
-            locales=(
-                ProjectLocale(
-                    "nl-NL",
-                    alias="nl",
-                ),
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                ),
+    async with new_isolated_project() as project:
+        project.locales = [
+            ProjectLocale(
+                "nl-NL",
+                alias="nl",
             ),
-        ) as project,
-        project,
-    ):
-        await generate(project)
-        with open(
-            await assert_betty_html(project, "/nl/index.html"), encoding="utf-8"
-        ) as f:
-            html = f.read()
-            assert (
-                '<link rel="canonical" href="https://example.com/nl/index.html" hreflang="nl-NL" type="text/html">'
-                in html
-            )
-            assert (
-                '<link rel="alternate" href="/en/index.html" hreflang="en-US" type="text/html">'
-                in html
-            )
-        with open(
-            await assert_betty_html(project, "/en/index.html"), encoding="utf-8"
-        ) as f:
-            html = f.read()
-            assert (
-                '<link rel="canonical" href="https://example.com/en/index.html" hreflang="en-US" type="text/html">'
-                in html
-            )
-            assert (
-                '<link rel="alternate" href="/nl/index.html" hreflang="nl-NL" type="text/html">'
-                in html
-            )
+            ProjectLocale(
+                "en-US",
+                alias="en",
+            ),
+        ]
+        async with project:
+            await generate(project)
+            with open(
+                await assert_betty_html(project, "/nl/index.html"), encoding="utf-8"
+            ) as f:
+                html = f.read()
+                assert (
+                    '<link rel="canonical" href="https://example.com/nl/index.html" hreflang="nl-NL" type="text/html">'
+                    in html
+                )
+                assert (
+                    '<link rel="alternate" href="/en/index.html" hreflang="en-US" type="text/html">'
+                    in html
+                )
+            with open(
+                await assert_betty_html(project, "/en/index.html"), encoding="utf-8"
+            ) as f:
+                html = f.read()
+                assert (
+                    '<link rel="canonical" href="https://example.com/en/index.html" hreflang="en-US" type="text/html">'
+                    in html
+                )
+                assert (
+                    '<link rel="alternate" href="/nl/index.html" hreflang="nl-NL" type="text/html">'
+                    in html
+                )
 
 
 async def test_generate__links_for_entity_pages(
-    isolated_project_factory: IsolatedProjectFactory,
+    new_isolated_project: NewIsolatedProject,
 ) -> None:
-    async with (
-        isolated_project_factory(
-            locales=(
-                ProjectLocale(
-                    "nl-NL",
-                    alias="nl",
-                ),
-                ProjectLocale(
-                    "en-US",
-                    alias="en",
-                ),
-            ),
-        ) as project,
-        project,
-    ):
+    async with new_isolated_project() as project:
         person = Person(id="my-first-person")
         project.ancestry.add(person)
-        await generate(project)
-        with open(
-            await assert_betty_html(project, f"/nl/person/{person.id}/index.html"),
-            encoding="utf-8",
-        ) as f:
-            html = f.read()
-        assert (
-            f'<link rel="canonical" href="https://example.com/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">'
-            in html
-        )
-        assert (
-            f'<link rel="alternate" href="/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">'
-            in html
-        )
-        assert (
-            f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">'
-            in html
-        )
-        with open(
-            await assert_betty_html(project, f"/en/person/{person.id}/index.html"),
-            encoding="utf-8",
-        ) as f:
-            html = f.read()
-        assert (
-            f'<link rel="canonical" href="https://example.com/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">'
-            in html
-        )
-        assert (
-            f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">'
-            in html
-        )
-        assert (
-            f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">'
-            in html
-        )
+        project.locales = [
+            ProjectLocale(
+                "nl-NL",
+                alias="nl",
+            ),
+            ProjectLocale(
+                "en-US",
+                alias="en",
+            ),
+        ]
+        async with project:
+            await generate(project)
+            with open(
+                await assert_betty_html(project, f"/nl/person/{person.id}/index.html"),
+                encoding="utf-8",
+            ) as f:
+                html = f.read()
+            assert (
+                f'<link rel="canonical" href="https://example.com/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">'
+                in html
+            )
+            assert (
+                f'<link rel="alternate" href="/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">'
+                in html
+            )
+            assert (
+                f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">'
+                in html
+            )
+            with open(
+                await assert_betty_html(project, f"/en/person/{person.id}/index.html"),
+                encoding="utf-8",
+            ) as f:
+                html = f.read()
+            assert (
+                f'<link rel="canonical" href="https://example.com/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">'
+                in html
+            )
+            assert (
+                f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">'
+                in html
+            )
+            assert (
+                f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">'
+                in html
+            )
 
 
 class TestResourceOverride:

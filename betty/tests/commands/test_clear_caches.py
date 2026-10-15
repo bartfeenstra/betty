@@ -9,8 +9,9 @@ from pytest_mock import MockerFixture
 from betty.app import App
 from betty.file import write
 from betty.project import Project, ProjectData
-from betty.stores.file import TransientPickledFileStore
-from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
+from betty.service import Service
+from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
+from betty.test_utils.conftest import NewIsolatedApp, NewIsolatedProject
 from betty.test_utils.console import run
 from betty.test_utils.user.ui import StaticUi
 from betty.user.ui import Ui
@@ -26,21 +27,14 @@ type AssertProjectCacheDirectories = Callable[
 class TestClearCaches:
     @pytest.fixture
     def assert_app_cache_directories(
-        self,
-        isolated_app_factory: IsolatedAppFactory,
-        mocker: MockerFixture,
-        tmp_path: Path,
+        self, new_isolated_app: NewIsolatedApp, mocker: MockerFixture, tmp_path: Path
     ) -> AssertAppCacheDirectories:
         @asynccontextmanager
         async def _assert_app_cache_directories(
             expected: bool, ui: Ui | None = None, /
         ) -> AsyncGenerator[App]:
             app_cache_directory = tmp_path / "app-cache"
-
             app_binary_file_cache_directory = tmp_path / "app-binary-file-cache"
-
-            tmp_path / "project"
-
             legacy_cache_directory = tmp_path / "legacy-cache"
             legacy_cache_directory.mkdir()
             mocker.patch(
@@ -50,14 +44,16 @@ class TestClearCaches:
             legacy_cache_item = legacy_cache_directory / "item"
             legacy_cache_item.touch()
 
-            async with (
-                isolated_app_factory(
-                    binary_file_cache_directory=app_binary_file_cache_directory,
-                    cache=TransientPickledFileStore(app_cache_directory),
-                    ui=ui,
-                ) as app,
-                app,
-            ):
+            app = App(
+                binary_file_cache=TransientBinaryFileStore(
+                    app_binary_file_cache_directory
+                ),
+                ui=ui,
+            )
+            App.cache.override(
+                app, Service(TransientPickledFileStore(app_cache_directory))
+            )
+            async with app:
                 cache_key = "my-first-app-cache-item"
                 binary_file_cache_key = "my-first-app-binary-file-cache-item"
 
@@ -80,7 +76,7 @@ class TestClearCaches:
 
     @pytest.fixture
     def assert_project_cache_directories(
-        self, isolated_project_factory: IsolatedProjectFactory, tmp_path: Path
+        self, new_isolated_project: NewIsolatedProject, tmp_path: Path
     ) -> AssertProjectCacheDirectories:
         @asynccontextmanager
         async def _assert_project_cache_directories(
@@ -98,12 +94,12 @@ class TestClearCaches:
                 ),
             )
 
-            async with (
-                isolated_project_factory(
-                    app=app, cache=None, directory=project_directory
-                ) as project,
-                project,
-            ):
+            async with Project(
+                app=app,
+                directory=project_directory,
+                title="-",
+                url="https://example.com",
+            ) as project:
                 cache_key = "my-first-project-cache-item"
                 binary_file_cache_key = "my-first-project-binary-file-cache-item"
 

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _, ngettext
 from betty.pathlib import StrPath
 from betty.plugin import PluginTypeDefinition
@@ -60,7 +61,7 @@ def _load(portable: PortableData, /) -> MediaType:
     label=_("Media type"),
     porter=CallbackPorter(_load, lambda media_type: media_type._str),
 )
-class MediaType(Data):
+class MediaType(Data, Frozen):
     """
     Define a `media type <https://en.wikipedia.org/wiki/Media_type>`_.
 

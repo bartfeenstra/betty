@@ -14,31 +14,28 @@ from betty.privacy import Privacy
 from betty.project import Project, ProjectLocale
 from betty.service_providers._theme.search import Index
 from betty.service_providers.raspberry_mint import RaspberryMint
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestIndex:
     @pytest.fixture
     async def dummy_project(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> AsyncIterator[Project]:
-        async with (
-            isolated_project_factory(
-                locales=(
-                    ProjectLocale(
-                        "en-US",
-                        alias="en",
-                    ),
-                    ProjectLocale(
-                        "nl-NL",
-                        alias="nl",
-                    ),
+        async with new_isolated_project() as project:
+            project.locales = [
+                ProjectLocale(
+                    "en-US",
+                    alias="en",
                 ),
-                service_providers=[RaspberryMint],
-            ) as project,
-            project,
-        ):
-            yield project
+                ProjectLocale(
+                    "nl-NL",
+                    alias="nl",
+                ),
+            ]
+            Project.service_providers.add_init_plugins(project, RaspberryMint)
+            async with project:
+                yield project
 
     async def test_build_empty(self, dummy_project: Project) -> None:
         actual = await Index(dummy_project, Context(), default_localizer).build()
