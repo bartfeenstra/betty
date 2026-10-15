@@ -22,7 +22,7 @@ class NeitherFrozenNorFreezable(ValueError):
 
     def __init__(self, value: Any, /):
         super().__init__(
-            f"{value} is neither frozen nor able to be frozen. It must be None or one of {', '.join(map(fully_qualified_name, _frozen_types))}."
+            f"{value} is neither frozen nor able to be frozen. It must be None or one of {', '.join(map(fully_qualified_name, _frozen_types))}, or subclass {fully_qualified_name(Freezable)}."
         )
 
 

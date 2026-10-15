@@ -58,10 +58,7 @@ class PluginManufacturer[DefinitionT: PluginDefinition, PluginT](
     """
 
     plugin_data = OwnerAttr(
-        DataDefinition[Data | OptionalPortableData](label=_("Data")),
-        frozen=lambda owner, attr: (
-            owner.is_initialized and isinstance(attr.get(owner), Data)
-        ),
+        DataDefinition[Data | OptionalPortableData](label=_("Data"))
     )
     """
     Get the plugin's own data.

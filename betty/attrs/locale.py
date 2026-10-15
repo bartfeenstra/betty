@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
-from betty.attrs.owner import OwnerAttr, ResolvableOwnerFrozen
+from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
 from betty.classtools import TypeABCMeta
 from betty.datas.locale import LocaleDefinition
@@ -30,9 +30,7 @@ def new_locale_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-    frozen: ResolvableOwnerFrozen[
-        HasProps, OptionableCommonAttr[HasProps, Locale, ResolvableLocale]
-    ] = False,
+    frozen: bool = False,
 ) -> OptionableCommonAttr[HasProps, Locale, ResolvableLocale]:
     """
     Create an attribute containing a locale.

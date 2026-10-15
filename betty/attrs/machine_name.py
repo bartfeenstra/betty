@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.attrs.owner import OwnerAttr, ResolvableOwnerFrozen
+from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record import FieldDefinition
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName, machine_name_description
@@ -21,9 +21,7 @@ def new_machine_name_attr(
     *,
     label: ResolvableLocalizable | None = None,
     description: ResolvableLocalizable | None = None,
-    frozen: ResolvableOwnerFrozen[
-        HasProps, OptionableCommonAttr[HasProps, MachineName, str | None]
-    ] = False,
+    frozen: bool = False,
 ) -> OptionableCommonAttr[HasProps, MachineName, str | None]:
     """
     Create an attribute containing a machine name.

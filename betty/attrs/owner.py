@@ -5,9 +5,8 @@ Attributes that store data in owner instance attributes.
 from __future__ import annotations
 
 from collections.abc import Callable, Collection, Iterable
-from typing import TYPE_CHECKING, Any, Final, Self, final, override
+from typing import TYPE_CHECKING, Any, Final, final, override
 
-from betty.attr import Attr
 from betty.attrs.common import CommonAttr, OptionableCommonAttr
 from betty.attrs.default import DefaultAttr
 from betty.attrs.optional import OptionalAttr
@@ -17,17 +16,12 @@ from betty.datas.aggregate.collection import (
     CollectionDefinition,
     MutableCollectionDefinition,
 )
-from betty.frosty import is_frozen
+from betty.frosty import freeze, is_frozen
 from betty.prop import HasProps
 from betty.props.setter import SetterProp
 
 if TYPE_CHECKING:
     from betty.datas.aggregate.record import ResolvableFieldDefinition
-
-
-type ResolvableOwnerFrozen[OwnerT: HasProps, AttrT: Attr] = (
-    bool | Callable[[OwnerT, AttrT], bool]
-)
 
 
 class __Owner[
@@ -40,28 +34,21 @@ class __Owner[
         self,
         field: ResolvableFieldDefinition[OwnerT, GetT, DefinitionT],
         *args: Any,
-        frozen: ResolvableOwnerFrozen[OwnerT, Self] = False,
+        frozen: bool = False,
         **kwargs: Any,
     ):
         super().__init__(field, *args, **kwargs)
-        self.__frozen: Final[ResolvableOwnerFrozen[OwnerT, Self]] = frozen
-
-    @final
-    def _frozen(self, owner: OwnerT, /) -> bool:
-        if isinstance(self.__frozen, bool):
-            return self.__frozen
-        return self.__frozen(owner, self)
+        self.__frozen: Final[bool] = frozen
 
     @final
     @override
-    def freeze(self, owner: OwnerT, /) -> None:
-        if not self._frozen(owner):
-            return
-        super().freeze(owner)
+    def post_init_owner(self, owner: OwnerT, /) -> None:
+        if self.__frozen:
+            freeze(self.get(owner))
 
     @final
     def _is_mutable(self, owner: OwnerT, /) -> bool:
-        return self._frozen(owner) and not owner.is_initialized or not is_frozen(owner)
+        return self.__frozen and not owner.is_initialized or not is_frozen(owner)
 
     @final
     @override
