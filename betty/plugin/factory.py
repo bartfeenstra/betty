@@ -4,7 +4,6 @@ Plugin factories.
 
 from __future__ import annotations
 
-from json import dumps
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from typing_extensions import disjoint_base, sentinel
@@ -24,7 +23,7 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.machine_name import MachineName
 from betty.pipeline import Inlet
-from betty.portable import KeyedPorter, OptionalPortableData, PortableData
+from betty.portable import KeyedPorter, PortableData, freeze_portable_data
 from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
@@ -57,7 +56,13 @@ class PluginManufacturer[DefinitionT: PluginDefinition, PluginT](
     """
 
     plugin_data = OwnerAttr(
-        DataDefinition[Data | OptionalPortableData](label=_("Data"))
+        DataDefinition[Data | PortableData | NoPluginData](label=_("Data"))
+    ).setter(
+        lambda data: (
+            data
+            if data is NoPluginData or isinstance(data, Data)
+            else freeze_portable_data(data)
+        )
     )
     """
     Get the plugin's own data.
@@ -67,7 +72,7 @@ class PluginManufacturer[DefinitionT: PluginDefinition, PluginT](
     def __init__(
         self,
         plugin: ResolvableId[DefinitionT],
-        data: Data | OptionalPortableData | NoPluginData = NoPluginData,
+        data: Data | PortableData | NoPluginData = NoPluginData,
         /,
     ):
         super().__init__()
@@ -79,9 +84,9 @@ class PluginManufacturer[DefinitionT: PluginDefinition, PluginT](
         return hash((
             self.definition.plugin_type,
             self.plugin_id,
-            NoPluginData
-            if self.plugin_data is NoPluginData
-            else dumps(PluginManufacturerPorter._dump_data(self.plugin_data)),
+            freeze_portable_data(PluginManufacturerPorter._dump_data(self.plugin_data))
+            if isinstance(self.plugin_data, Data)
+            else self.plugin_data,
         ))
 
     @final

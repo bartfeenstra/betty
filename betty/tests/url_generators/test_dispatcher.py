@@ -4,11 +4,11 @@ from typing import Any, TypeGuard, override
 
 import pytest
 
-from betty.collections import _empty_frozen_mapping
 from betty.locale import ResolvableLocale
 from betty.media_type import ResolvableMediaType
 from betty.media_types.html import HTML
 from betty.media_types.json import JSON
+from betty.typing import empty_frozen_dict
 from betty.url_generator import UnsupportedResource, UrlGenerator
 from betty.url_generators.dispatcher import UrlGeneratorDispatcher
 
@@ -29,7 +29,7 @@ class TestUrlGeneratorDispatcher:
             fragment: str | None = None,
             locale: ResolvableLocale | None = None,
             media_type: ResolvableMediaType | None = None,
-            query: Mapping[str, Sequence[str]] = _empty_frozen_mapping,
+            query: Mapping[str, Sequence[str]] = empty_frozen_dict,
         ) -> str:
             return dumps({
                 "resource": resource,
@@ -55,7 +55,7 @@ class TestUrlGeneratorDispatcher:
             fragment: str | None = None,
             locale: ResolvableLocale | None = None,
             media_type: ResolvableMediaType | None = None,
-            query: Mapping[str, Sequence[str]] = _empty_frozen_mapping,
+            query: Mapping[str, Sequence[str]] = empty_frozen_dict,
         ) -> str:
             raise UnsupportedResource(resource)  # pragma: nocover
 
@@ -97,7 +97,7 @@ class TestUrlGeneratorDispatcher:
                 False,
                 None,
                 None,
-                _empty_frozen_mapping,
+                empty_frozen_dict,
             ),
             (
                 "/",
@@ -105,7 +105,7 @@ class TestUrlGeneratorDispatcher:
                 False,
                 None,
                 None,
-                _empty_frozen_mapping,
+                empty_frozen_dict,
             ),
             (
                 "/",
@@ -113,7 +113,7 @@ class TestUrlGeneratorDispatcher:
                 True,
                 None,
                 None,
-                _empty_frozen_mapping,
+                empty_frozen_dict,
             ),
             (
                 "/",
@@ -121,7 +121,7 @@ class TestUrlGeneratorDispatcher:
                 False,
                 "nl-NL",
                 None,
-                _empty_frozen_mapping,
+                empty_frozen_dict,
             ),
             (
                 "/",
@@ -129,7 +129,7 @@ class TestUrlGeneratorDispatcher:
                 False,
                 None,
                 "my-first-fragment",
-                _empty_frozen_mapping,
+                empty_frozen_dict,
             ),
             (
                 "/",

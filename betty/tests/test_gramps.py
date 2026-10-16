@@ -10,7 +10,6 @@ from unittest.mock import ANY
 import pytest
 from babel import Locale
 
-from betty.collections import _empty_frozen_mapping
 from betty.copyright_notices.public_domain import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
@@ -44,6 +43,7 @@ from betty.project import Project
 from betty.roles.subject import Subject
 from betty.subprocess import CalledSubprocessError
 from betty.test_utils.user.ui import StaticUi
+from betty.typing import empty_frozen_dict
 from betty.user import Severity
 
 if TYPE_CHECKING:
@@ -121,11 +121,11 @@ class LoadPartial(Protocol):
         media: Path | None = None,
         event_type_mapping: Mapping[
             str, ResolvableEventTypeManufacturer
-        ] = _empty_frozen_mapping,
+        ] = empty_frozen_dict,
         place_type_mapping: Mapping[
             str, ResolvablePlaceTypeManufacturer
-        ] = _empty_frozen_mapping,
-        role_mapping: Mapping[str, ResolvableRoleManufacturer] = _empty_frozen_mapping,
+        ] = empty_frozen_dict,
+        role_mapping: Mapping[str, ResolvableRoleManufacturer] = empty_frozen_dict,
     ) -> EntityPool:
         pass
 
@@ -291,11 +291,11 @@ class TestGrampsLoader:
         xml: str,
         event_type_mapping: Mapping[
             str, ResolvableEventTypeManufacturer
-        ] = _empty_frozen_mapping,
+        ] = empty_frozen_dict,
         place_type_mapping: Mapping[
             str, ResolvablePlaceTypeManufacturer
-        ] = _empty_frozen_mapping,
-        role_mapping: Mapping[str, ResolvableRoleManufacturer] = _empty_frozen_mapping,
+        ] = empty_frozen_dict,
+        role_mapping: Mapping[str, ResolvableRoleManufacturer] = empty_frozen_dict,
     ) -> None:
         await GrampsLoader(
             project,
@@ -318,13 +318,11 @@ class TestGrampsLoader:
             media: Path | None = None,
             event_type_mapping: Mapping[
                 str, ResolvableEventTypeManufacturer
-            ] = _empty_frozen_mapping,
+            ] = empty_frozen_dict,
             place_type_mapping: Mapping[
                 str, ResolvablePlaceTypeManufacturer
-            ] = _empty_frozen_mapping,
-            role_mapping: Mapping[
-                str, ResolvableRoleManufacturer
-            ] = _empty_frozen_mapping,
+            ] = empty_frozen_dict,
+            role_mapping: Mapping[str, ResolvableRoleManufacturer] = empty_frozen_dict,
         ) -> EntityPool:
             mediapath = "" if media is None else f"<mediapath>{media}</mediapath>"
             await self._load(

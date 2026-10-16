@@ -32,7 +32,6 @@ from betty.associations.has_citations import HasCitations
 from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.attrs.privacy import HasPrivacy
-from betty.collections import _empty_frozen_mapping
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import AnyDate, Date, DateRange
 from betty.definition.cls import ClsDefinition
@@ -124,16 +123,12 @@ from betty.roles.informant import Informant
 from betty.roles.subject import Subject
 from betty.roles.unknown import UnknownRole
 from betty.roles.witness import Witness
+from betty.typing import empty_frozen_dict
 from betty.user import Severity
 
 if TYPE_CHECKING:
     from asyncio.subprocess import Process
-    from collections.abc import (
-        Iterable,
-        Mapping,
-        MutableMapping,
-        Sequence,
-    )
+    from collections.abc import Iterable, Mapping, MutableMapping, Sequence
     from xml.etree import ElementTree
 
     from babel import Locale
@@ -353,11 +348,11 @@ class GrampsLoader:
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[
             str, ResolvableEventTypeManufacturer
-        ] = _empty_frozen_mapping,
+        ] = empty_frozen_dict,
         place_type_mapping: Mapping[
             str, ResolvablePlaceTypeManufacturer
-        ] = _empty_frozen_mapping,
-        role_mapping: Mapping[str, ResolvableRoleManufacturer] = _empty_frozen_mapping,
+        ] = empty_frozen_dict,
+        role_mapping: Mapping[str, ResolvableRoleManufacturer] = empty_frozen_dict,
         executable: StrPath | None = None,
     ):
         super().__init__()

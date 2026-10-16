@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-08-25 19:03+0100\n"
+"POT-Creation-Date: 2026-10-19 20:22+0100\n"
 "PO-Revision-Date: 2026-07-15 15:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: uk\n"
@@ -1746,6 +1746,9 @@ msgstr "Це має бути значення none/null."
 
 #, python-brace-format
 msgid "This must be {length} characters long."
+msgstr ""
+
+msgid "This must consist of none/null, booleans, numbers, strings, or sequences or string-keyed mappings of all of those."
 msgstr ""
 
 msgid "This person's name is unknown."

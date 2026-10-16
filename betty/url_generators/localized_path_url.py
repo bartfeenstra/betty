@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, TypeGuard, final, override
 from urllib.parse import urlsplit
 
-from betty.collections import _empty_frozen_mapping
+from betty.typing import empty_frozen_dict
 from betty.url_generator import UrlGenerator
 
 if TYPE_CHECKING:
@@ -49,7 +49,7 @@ class LocalizedPathUrlUrlGenerator(UrlGenerator[str]):
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
         media_type: ResolvableMediaType | None = None,
-        query: Mapping[str, Sequence[str]] = _empty_frozen_mapping,
+        query: Mapping[str, Sequence[str]] = empty_frozen_dict,
     ) -> str:
         url_parts = urlsplit(resource)
         url_path = "/" + (url_parts.netloc + url_parts.path).lstrip("/")

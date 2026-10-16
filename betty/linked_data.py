@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from inspect import getmembers
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, cast, override
 
 from betty.json_schema import Object, Schema
 from betty.json_schemas.json_ld import JsonLdSchema
@@ -143,7 +143,7 @@ def dump_context(
     return {
         **portable,
         "@context": {
-            **(portable.get("@context", {})),
+            **(cast(PortableMapping, portable.get("@context", {}))),
             **context_definitions,
         },
     }

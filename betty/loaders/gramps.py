@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
-from betty.collections import _empty_frozen_mapping
 from betty.collections.mapping.adapter import MutableResolvedMappingAdapter
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.collection.mapping import MappingDefinition
@@ -40,6 +39,7 @@ from betty.project import Project
 from betty.prop import HasProps
 from betty.role import ResolvableRoleManufacturer, RoleManufacturer
 from betty.sample import Sample, Samples, Size
+from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -147,13 +147,9 @@ class FamilyTree(Object):
         self,
         file: StrPath | None = None,
         name: str | None = None,
-        event_types: Mapping[
-            str, ResolvableEventTypeManufacturer
-        ] = _empty_frozen_mapping,
-        place_types: Mapping[
-            str, ResolvablePlaceTypeManufacturer
-        ] = _empty_frozen_mapping,
-        roles: Mapping[str, ResolvableRoleManufacturer] = _empty_frozen_mapping,
+        event_types: Mapping[str, ResolvableEventTypeManufacturer] = empty_frozen_dict,
+        place_types: Mapping[str, ResolvablePlaceTypeManufacturer] = empty_frozen_dict,
+        roles: Mapping[str, ResolvableRoleManufacturer] = empty_frozen_dict,
     ):
         super().__init__()
         if file is not None:

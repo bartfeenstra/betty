@@ -7,7 +7,6 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final
 
-from betty.collections import _empty_frozen_mapping
 from betty.data import (
     DataDefinition,
     ResolvableDataDefinition,
@@ -18,6 +17,7 @@ from betty.data import (
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.operator import Attr, Key
 from betty.portable.error import NotPortable
+from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, MutableMapping
@@ -152,7 +152,7 @@ class RecordDefinition[DataT, OperatorT: FieldOperator](DataDefinition[DataT]):
         label: ResolvableLocalizable,
         fields: Mapping[
             OperatorT, ResolvableFieldDefinition[DataT, Any]
-        ] = _empty_frozen_mapping,
+        ] = empty_frozen_dict,
         description: ResolvableLocalizable | None = None,
         manufacturer: RecordManufacturer[DataT] | None = None,
         porter: ResolvableDataPorter[Self, DataT] | None = None,

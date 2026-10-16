@@ -29,7 +29,6 @@ from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
 from betty.collection.sequence import MutableResolvedSequence
-from betty.collections import _empty_frozen_mapping
 from betty.collections.keyed.adapter import (
     KeyedCollectionAdapter,
     MutableKeyedCollectionAdapter,
@@ -128,6 +127,7 @@ from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
+from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator, Iterable, Sequence
@@ -212,7 +212,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
-        plugins: Plugins = _empty_frozen_mapping,
+        plugins: Plugins = empty_frozen_dict,
         servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
         _plugin_discoveries: Iterable[PluginDefinition] = (),
@@ -438,7 +438,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
-        plugins: Plugins = _empty_frozen_mapping,
+        plugins: Plugins = empty_frozen_dict,
         servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,

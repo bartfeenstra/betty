@@ -13,7 +13,6 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.collection.mapping import ResolvedMapping
-from betty.collections import _empty_frozen_mapping
 from betty.collections.mapping.adapter import (
     MutableResolvedMappingAdapter,
     ResolvedMappingAdapter,
@@ -51,6 +50,7 @@ from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.webpack.build import EntryPointProvider
 from betty.services.simple import service
+from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping, Sequence
@@ -141,7 +141,7 @@ class RaspberryMintData(Object):
         primary_color: str | None = None,
         secondary_color: str | None = None,
         tertiary_color: str | None = None,
-        regional_content: ResolvableRegionalContent = _empty_frozen_mapping,
+        regional_content: ResolvableRegionalContent = empty_frozen_dict,
     ):
 
         super().__init__()

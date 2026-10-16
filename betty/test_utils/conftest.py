@@ -37,14 +37,13 @@ from aioresponses import aioresponses
 from jinja2 import Environment, Template
 
 from betty.app import App
-from betty.collections import _empty_frozen_mapping
 from betty.exception import do_raise
 from betty.json_schema import Schema
 from betty.licenses.spdx import SpdxLicenseDiscoverer
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.project import Project, ProjectLocale
 from betty.stores.file import TransientBinaryFileStore
-from betty.typing import Unreachable
+from betty.typing import Unreachable, empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import (  # noqa: I001
@@ -126,7 +125,7 @@ class IsolatedAppFactory(Protocol):
         *,
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         binary_file_cache_directory: StrPath | None = None,
-        plugins: Plugins = _empty_frozen_mapping,
+        plugins: Plugins = empty_frozen_dict,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         ui: Ui | None = None,
@@ -148,7 +147,7 @@ def isolated_app_factory(
         *,
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         binary_file_cache_directory: StrPath | None = None,
-        plugins: Plugins = _empty_frozen_mapping,
+        plugins: Plugins = empty_frozen_dict,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         ui: Ui | None = None,
@@ -198,7 +197,7 @@ class IsolatedProjectFactory(Protocol):
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
-        plugins: Plugins = _empty_frozen_mapping,
+        plugins: Plugins = empty_frozen_dict,
         servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
@@ -235,7 +234,7 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         locales: Iterable[ProjectLocale | ResolvableLocale] = (),
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
-        plugins: Plugins = _empty_frozen_mapping,
+        plugins: Plugins = empty_frozen_dict,
         servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
         title: ResolvableLocalizable | None = None,
@@ -685,7 +684,7 @@ type AssertLinkedDataDump[PortableDataT: PortableData] = Callable[
 
 
 @pytest.fixture
-async def assert_linked_data_dump() -> AssertLinkedDataDump:
+async def assert_linked_data_dump(isolated_project: Project) -> AssertLinkedDataDump:
     """
     Assert that dumped linked data is valid against a schema.
     """
@@ -694,27 +693,32 @@ async def assert_linked_data_dump() -> AssertLinkedDataDump:
         schema: Callable[[Project], Awaitable[Schema]] | Schema,
         portable: Callable[[Project], Awaitable[PortableDataT]] | PortableDataT,
     ) -> PortableDataT:
-        async with Project.new_isolated() as project, project:
-            actual = await portable(project) if callable(portable) else portable  # ty:ignore[invalid-await]
+        actual: PortableDataT = (
+            await portable(isolated_project) if callable(portable) else portable  # ty: ignore[invalid-await]
+        )
 
-            # Validate the raw dump.
-            sut_schema = schema if isinstance(schema, Schema) else await schema(project)
-            sut_schema.validate(actual)
+        # Validate the raw dump.
+        sut_schema = (
+            schema if isinstance(schema, Schema) else await schema(isolated_project)
+        )
+        sut_schema.validate(actual)
 
-            # Normalize the dump after validation (so we are assured it is absolutely valid),
-            # but before returning, so calling code can use simpler comparisons.
-            return _normalize(actual)
+        # Normalize the dump after validation (so we are assured it is absolutely valid),
+        # but before returning, so calling code can use simpler comparisons.
+        return _normalize_linked_data_dump(actual)
 
     return _assert_linked_data_dump
 
 
-def _normalize[PortableDataT: PortableData](portable: PortableDataT) -> PortableDataT:
+def _normalize_linked_data_dump[PortableDataT: PortableData](
+    portable: PortableDataT,
+) -> PortableDataT:
     if isinstance(portable, MutableMapping):
         return {
-            key: _normalize(value)
+            key: _normalize_linked_data_dump(value)
             for key, value in portable.items()
             if not key.startswith("$")
         }  # ty:ignore[invalid-return-type]
     if isinstance(portable, MutableSequence) and not isinstance(portable, str):
-        return list(map(_normalize, portable))  # ty:ignore[invalid-return-type]
+        return list(map(_normalize_linked_data_dump, portable))  # ty:ignore[invalid-return-type]
     return portable
