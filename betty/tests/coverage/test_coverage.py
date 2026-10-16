@@ -725,8 +725,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         for path in (Path("betty") / "test_utils").rglob("**/*.py")
     },
     "betty/typing.py": {
-        "Intersection": MissingReason.STATIC_CONTENT_ONLY,
-        "Not": MissingReason.STATIC_CONTENT_ONLY,
+        "FrozenDict": {
+            "__ior__": MissingReason.COVERED_ELSEWHERE,
+        }
     },
     "betty/url.py": {
         "HasUrl": MissingReason.ABSTRACT,

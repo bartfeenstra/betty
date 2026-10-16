@@ -7,44 +7,88 @@ Portable data can easily be persistent or transmitted across and between systems
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from collections.abc import Mapping, Sequence
+from typing import Any, Final, TypeGuard
 
 from typing_extensions import sentinel
 
-type PortableData = (
-    bool
-    | int
-    | float
-    | str
-    | None
-    | Sequence[PortableData]
-    | Mapping[str, PortableData]
+from betty.typing import (
+    FrozenDict,
+    RuntimeCheckableImmutableMapping,
+    RuntimeCheckableImmutableSequence,
+    RuntimeCheckableMutableMapping,
+    RuntimeCheckableMutableSequence,
+    Unreachable,
+    is_runtime_checkable_mapping,
+    is_runtime_checkable_sequence,
 )
-"""
-Portable data.
-
-Data of this type is portable and can easily be persisted or transmitted.
-"""
-
 
 NoPortableData = sentinel("NoPortableData")
 
+_portable_scalar_types: Final[tuple[type, ...]] = (bool, int, float, str)
+type PortableScalar = None | bool | int | float | str
+type ImmutablePortableSequence[
+    ValueT: ImmutablePortableData = ImmutablePortableData
+] = RuntimeCheckableImmutableSequence[ValueT]
+type MutablePortableSequence[ValueT: MutablePortableData = MutablePortableData] = (
+    RuntimeCheckableMutableSequence[ValueT]
+)
+type PortableSequence = ImmutablePortableSequence | MutablePortableSequence
+type ImmutablePortableMapping[ValueT: ImmutablePortableData = ImmutablePortableData] = (
+    RuntimeCheckableImmutableMapping[str, ValueT]
+)
+type MutablePortableMapping[ValueT: MutablePortableData = MutablePortableData] = (
+    RuntimeCheckableMutableMapping[str, ValueT]
+)
+type PortableMapping = ImmutablePortableMapping | MutablePortableMapping
+type ImmutablePortableData = (
+    PortableScalar | ImmutablePortableSequence | ImmutablePortableMapping
+)
+type MutablePortableData = (
+    PortableScalar | MutablePortableSequence | MutablePortableMapping
+)
+type PortableData = ImmutablePortableData | MutablePortableData
+type OptionalImmutablePortableData = ImmutablePortableData | NoPortableData
+type OptionalMutablePortableData = MutablePortableData | NoPortableData
+type OptionalPortableData = OptionalImmutablePortableData | OptionalMutablePortableData
 
-type OptionalPortableData[PortableDataT: PortableData] = PortableDataT | NoPortableData
+
+def is_portable_scalar(value: Any, /) -> TypeGuard[PortableScalar]:
+    """
+    Check that a value is a portable data scalar.
+    """
+    return value is None or isinstance(value, _portable_scalar_types)
 
 
-type PortableSequence = Sequence[PortableData]
-"""
-A sequence of portable data.
-"""
+def freeze_portable_data(
+    data: OptionalPortableData, /
+) -> OptionalImmutablePortableData:
+    """
+    Make portable data frozen (immutable).
+    """
+    if data is NoPortableData or is_portable_scalar(data):
+        return data
+    if is_runtime_checkable_sequence(data):
+        return tuple(map(freeze_portable_data, data))
+    if is_runtime_checkable_mapping(data):
+        return FrozenDict({
+            key: freeze_portable_data(value) for key, value in data.items()
+        })
+    raise Unreachable
 
 
-type PortableMapping = Mapping[str, PortableData]
-"""
-A key-value mapping of portable data.
-
-Keys are strings.
-"""
+def unfreeze_portable_data(
+    data: OptionalPortableData, /
+) -> OptionalMutablePortableData:
+    """
+    Make portable data unfrozen (mutable).
+    """
+    if data is NoPortableData or is_portable_scalar(data):
+        return data
+    if is_runtime_checkable_sequence(data):
+        return list(map(unfreeze_portable_data, data))
+    if is_runtime_checkable_mapping(data):
+        return {key: unfreeze_portable_data(value) for key, value in data.items()}
+    raise Unreachable
 
 
 class Porter[DataT, PortableDataT: PortableData = PortableData](metaclass=ABCMeta):

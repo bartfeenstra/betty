@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from babel import Locale
 
-from betty.collections import _empty_frozen_mapping
 from betty.locale import ResolvableLocale, default_locale, default_locale_tag
+from betty.typing import empty_frozen_dict
 from betty.url_generators.path import PathUrlGenerator
 
 if TYPE_CHECKING:
@@ -61,7 +61,7 @@ class TestPathUrlGenerator:
                     False,
                     None,
                     None,
-                    _empty_frozen_mapping,
+                    empty_frozen_dict,
                 )
                 for expected, path in [
                     ("/", "/"),
@@ -82,7 +82,7 @@ class TestPathUrlGenerator:
                     True,
                     None,
                     None,
-                    _empty_frozen_mapping,
+                    empty_frozen_dict,
                 )
                 for expected, path in [
                     ("https://example.com", "/"),
@@ -103,7 +103,7 @@ class TestPathUrlGenerator:
                     False,
                     None,
                     None,
-                    _empty_frozen_mapping,
+                    empty_frozen_dict,
                 )
                 for expected, path in [
                     ("/", "/"),
@@ -124,7 +124,7 @@ class TestPathUrlGenerator:
                     False,
                     "nl-NL",
                     None,
-                    _empty_frozen_mapping,
+                    empty_frozen_dict,
                 )
                 for expected, path in [
                     ("/nl", "/"),
@@ -145,7 +145,7 @@ class TestPathUrlGenerator:
                     False,
                     None,
                     "my-first-fragment",
-                    _empty_frozen_mapping,
+                    empty_frozen_dict,
                 )
                 for expected, path in [
                     ("/#my-first-fragment", "/"),

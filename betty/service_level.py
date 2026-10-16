@@ -9,12 +9,12 @@ from typing import TYPE_CHECKING, Any, Final
 
 from typing_extensions import disjoint_base
 
-from betty.collections import _empty_frozen_mapping
 from betty.collections.keyed.adapter import KeyedCollectionAdapter
 from betty.definition.id import resolve_id
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.prop import HasProps
 from betty.services.simple import service
+from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -38,9 +38,7 @@ class ServiceLevel(HasProps, ManagedLifeCycle):
     A service level.
     """
 
-    def __init__(
-        self, *args: Any, plugins: Plugins = _empty_frozen_mapping, **kwargs: Any
-    ):
+    def __init__(self, *args: Any, plugins: Plugins = empty_frozen_dict, **kwargs: Any):
         from betty.factory import Factory
 
         super().__init__(*args, **kwargs)

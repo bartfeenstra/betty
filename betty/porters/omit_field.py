@@ -10,10 +10,10 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition, FieldPorter
-from betty.portable import NoPortableData
+from betty.portable import NoPortableData, OptionalPortableData
 
 if TYPE_CHECKING:
-    from betty.portable import OptionalPortableData, PortableData
+    from betty.portable import PortableData
 
 type _InternalOmitDump[OwnerT, DataT] = Callable[
     [OwnerT, FieldDefinition[OwnerT, DataT, DataDefinition[DataT]], DataT], bool

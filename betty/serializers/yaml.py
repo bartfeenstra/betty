@@ -4,18 +4,19 @@ The YAML serializer.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
-from typing import TYPE_CHECKING, cast, final, override
+from typing import TYPE_CHECKING, final, override
 
 import yaml
 
+from betty.assertions.portable import assert_portable_data
 from betty.localizables.gettext import _
 from betty.media_types.yaml import YAML
-from betty.portable import PortableData
 from betty.serialize import SerializationError, Serializer, SerializerDefinition
+from betty.typing import is_runtime_checkable_mapping, is_runtime_checkable_sequence
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
+    from betty.portable import PortableData
 
 
 @final
@@ -33,7 +34,7 @@ class Yaml(Serializer):
     @override
     def load(self, serialized: str, /) -> PortableData:
         try:
-            return cast(PortableData, yaml.safe_load(serialized))
+            return assert_portable_data(yaml.safe_load(serialized))
         except yaml.YAMLError as e:
             raise SerializationError(
                 _("Invalid YAML: {error}.").format(error=str(e))
@@ -41,23 +42,16 @@ class Yaml(Serializer):
 
     @override
     def dump(self, portable: PortableData, /) -> str:
-        return yaml.safe_dump(_safe_str(portable))
+        return yaml.safe_dump(_make_dumpable(portable), default_flow_style=False)
 
 
-def _safe_str(value: PortableData) -> PortableData:
+def _make_dumpable(value: PortableData) -> PortableData:
     # Work around a bug where ``str`` subclasses cannot be serialized to YAML.
     if isinstance(value, str):
-        if type(value) is str:
-            return value
         return str(value)
-    if isinstance(value, Mapping):
-        return dict(
-            zip(
-                map(_safe_str, value.keys()),
-                map(_safe_str, value.values()),
-                strict=False,
-            )
-        )  # ty:ignore[invalid-return-type]
-    if isinstance(value, Sequence):
-        return list(map(_safe_str, value))
+    if is_runtime_checkable_sequence(value):
+        return tuple(map(_make_dumpable, value))
+    if is_runtime_checkable_mapping(value):
+        # Convert unsupported portable mappings to :py:class:`dict`.
+        return {str(key): _make_dumpable(value) for key, value in value.items()}
     return value

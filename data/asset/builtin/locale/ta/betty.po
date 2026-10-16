@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-25 19:03+0100\n"
+"POT-Creation-Date: 2026-10-19 20:22+0100\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -1750,6 +1750,9 @@ msgstr "இது ஒன்றும் இல்லை/பூச்யமாக
 #, python-brace-format
 msgid "This must be {length} characters long."
 msgstr "இது {length} எழுத்துக்கள் நீளமாக இருக்க வேண்டும்."
+
+msgid "This must consist of none/null, booleans, numbers, strings, or sequences or string-keyed mappings of all of those."
+msgstr ""
 
 msgid "This person's name is unknown."
 msgstr "இந்த நபரின் பெயர் தெரியவில்லை."

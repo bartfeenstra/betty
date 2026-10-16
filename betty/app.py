@@ -16,7 +16,6 @@ from aiohttp_client_cache.session import CachedSession
 from betty import about
 from betty.asyncio import ResolvableAwaitable, resolve_await
 from betty.attrs.locale import new_locale_attr
-from betty.collections import _empty_frozen_mapping
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
 from betty.gettext import TranslationsRepository
@@ -42,7 +41,7 @@ from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
-from betty.typing import Unreachable
+from betty.typing import Unreachable, empty_frozen_dict
 from betty.uis.console import Console
 from betty.uis.no_op import NoOpUi
 from betty.user.ui import Ui
@@ -92,7 +91,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         media_types: Iterable[ResolvableDefinition[MediaTypeDefinition]] = (),
-        plugins: Plugins = _empty_frozen_mapping,
+        plugins: Plugins = empty_frozen_dict,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         rate_limits: Iterable[RateLimitDefinition] = (),
@@ -180,7 +179,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         *,
         binary_file_cache_directory: StrPath | None = None,
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
-        plugins: Plugins = _empty_frozen_mapping,
+        plugins: Plugins = empty_frozen_dict,
         process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
         | None = None,
         ui: Ui | None = None,
