@@ -6,54 +6,52 @@ Portable data can easily be persistent or transmitted across and between systems
 
 from __future__ import annotations
 
+import builtins
+import sys
 from abc import ABCMeta, abstractmethod
-from collections.abc import Mapping, Sequence
+from typing import Final
 
 from typing_extensions import sentinel
 
+# @todo We keep duplicating some checks and definitions, especially these collection types.
+# @todo Come up with a solution for immutable mappings on Python 3.14 and lower, otherwise we're blocked...
+# @todo
+# @todo
+# @todo
+_portable_mapping_types = (dict,)
+if sys.version_info >= (3, 15):
+    _portable_mapping_types = (*_portable_mapping_types, builtins.frozendict)
+portable_mapping_types: Final[tuple[type, ...]] = _portable_mapping_types
+portable_sequence_types: Final[tuple[type, ...]] = (list, tuple)
 type PortableScalar = None | bool | int | float | str
-# @todo Add frozendict
-# @todo
-# @todo
-# @todo Should we keep globals with (list, tuple) and (dict,)/(dict, frozendict) in betty.typing or somewhere else,
-# @todo so we won't constantly have to check for Python 3.15 everywhere?
-# @todo
-# @todo
-type FrozenPortableData = (
-    PortableScalar | tuple[PortableData, ...] | Mapping[str, PortableData]
+type ImmutablePortableSequence[ValueT: ImmutablePortableData] = tuple[ValueT, ...]
+type MutablePortableSequence[ValueT: MutablePortableData] = list[ValueT]
+type PortableSequence[ValueT: PortableData] = (
+    ImmutablePortableSequence[ValueT] | MutablePortableSequence[ValueT]
 )
-
-
-type UnfrozenPortableData = (
-    PortableScalar | Sequence[PortableData] | Mapping[str, PortableData]
+if sys.version_info >= (3, 15):
+    type ImmutablePortableMapping[ValueT: ImmutablePortableData] = builtins.frozendict[
+        str, ValueT
+    ]
+type MutablePortableMapping[ValueT: MutablePortableData] = dict[str, ValueT]
+if sys.version_info >= (3, 15):
+    type PortableMapping[ValueT: PortableData] = (
+        ImmutablePortableMapping[ValueT] | MutablePortableMapping[ValueT]
+    )
+    type ImmutablePortableData = (
+        PortableScalar | ImmutablePortableSequence | ImmutablePortableMapping
+    )
+else:
+    # @todo How to support immutable mappings on Python 3.14 and lower?
+    type PortableMapping[ValueT: PortableData] = MutablePortableMapping[ValueT]
+    type ImmutablePortableData = PortableScalar | PortableSequence | PortableMapping
+type MutablePortableData = (
+    PortableScalar | MutablePortableSequence | MutablePortableMapping
 )
-
-type PortableData = FrozenPortableData | UnfrozenPortableData
-"""
-Portable data.
-
-Data of this type is portable and can easily be persisted or transmitted.
-"""
+type PortableData = ImmutablePortableData | MutablePortableData
 
 
 NoPortableData = sentinel("NoPortableData")
-
-
-type OptionalPortableData[PortableDataT: PortableData] = PortableDataT | NoPortableData
-
-
-type PortableSequence = Sequence[PortableData]
-"""
-A sequence of portable data.
-"""
-
-
-type PortableMapping = Mapping[str, PortableData]
-"""
-A key-value mapping of portable data.
-
-Keys are strings.
-"""
 
 
 class Porter[DataT, PortableDataT: PortableData = PortableData](metaclass=ABCMeta):
