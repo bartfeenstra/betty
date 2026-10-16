@@ -11,15 +11,24 @@ from collections.abc import Mapping, Sequence
 
 from typing_extensions import sentinel
 
-type PortableData = (
-    bool
-    | int
-    | float
-    | str
-    | None
-    | Sequence[PortableData]
-    | Mapping[str, PortableData]
+type PortableScalar = None | bool | int | float | str
+# @todo Add frozendict
+# @todo
+# @todo
+# @todo Should we keep globals with (list, tuple) and (dict,)/(dict, frozendict) in betty.typing or somewhere else,
+# @todo so we won't constantly have to check for Python 3.15 everywhere?
+# @todo
+# @todo
+type FrozenPortableData = (
+    PortableScalar | tuple[PortableData, ...] | Mapping[str, PortableData]
 )
+
+
+type UnfrozenPortableData = (
+    PortableScalar | Sequence[PortableData] | Mapping[str, PortableData]
+)
+
+type PortableData = FrozenPortableData | UnfrozenPortableData
 """
 Portable data.
 

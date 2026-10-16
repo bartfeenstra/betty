@@ -7,9 +7,9 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, cast, final, override
 
+from betty.json import DumpableJsonData, LoadableJsonData
 from betty.localizables.gettext import _
 from betty.media_types.json import JSON
-from betty.portable import PortableData
 from betty.serialize import SerializationError, Serializer, SerializerDefinition
 
 if TYPE_CHECKING:
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @final
 @SerializerDefinition("json", label="JSON")
-class Json(Serializer):
+class Json(Serializer[LoadableJsonData, DumpableJsonData]):
     """
     .. plugin:: serializer:json.
     """
@@ -29,14 +29,14 @@ class Json(Serializer):
         return JSON.media_type
 
     @override
-    def load(self, serialized: str, /) -> PortableData:
+    def load(self, serialized: str, /) -> LoadableJsonData:
         try:
-            return cast(PortableData, json.loads(serialized))
+            return cast(LoadableJsonData, json.loads(serialized))
         except json.JSONDecodeError as e:
             raise SerializationError(
                 _("Invalid JSON: {error}.").format(error=str(e))
             ) from None
 
     @override
-    def dump(self, portable: PortableData, /) -> str:
+    def dump(self, portable: DumpableJsonData, /) -> str:
         return json.dumps(portable, indent=2, sort_keys=True)
