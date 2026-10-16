@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.media_type import MediaType
+    from betty.portable import PortableData
     from betty.requirement import Requires
 
 
@@ -31,9 +32,7 @@ class SerializationError(HumanFacingException):
     """
 
 
-class Serializer[LoadT, DumpT](
-    HasDefinition["SerializerDefinition"], metaclass=ABCMeta
-):
+class Serializer(HasDefinition["SerializerDefinition"], metaclass=ABCMeta):
     """
     A serializer.
     """
@@ -46,7 +45,7 @@ class Serializer[LoadT, DumpT](
         """
 
     @abstractmethod
-    def load(self, serialized: str, /) -> LoadT:
+    def load(self, serialized: str, /) -> PortableData:
         """
         Deserialize data.
 
@@ -54,7 +53,7 @@ class Serializer[LoadT, DumpT](
         """
 
     @abstractmethod
-    def dump(self, portable: DumpT, /) -> str:
+    def dump(self, portable: PortableData, /) -> str:
         """
         Serialize data.
         """

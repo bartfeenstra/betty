@@ -13,6 +13,8 @@ from typing import Final
 
 from typing_extensions import sentinel
 
+from betty.collections.mapping.dict import FrozenDict
+
 # @todo We keep duplicating some checks and definitions, especially these collection types.
 # @todo Come up with a solution for immutable mappings on Python 3.14 and lower, otherwise we're blocked...
 # @todo Maybe we should have our own FrozenDict, and support that always, and on Python 3.15, we also support frozendict.
@@ -22,7 +24,7 @@ from typing_extensions import sentinel
 # @todo I guess it's really only relevant for serialization?
 # @todo
 # @todo
-_portable_mapping_types = (dict,)
+_portable_mapping_types = (dict, FrozenDict)
 if sys.version_info >= (3, 15):
     _portable_mapping_types = (*_portable_mapping_types, builtins.frozendict)
 portable_mapping_types: Final[tuple[type, ...]] = _portable_mapping_types
