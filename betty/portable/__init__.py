@@ -18,7 +18,7 @@ from typing_extensions import sentinel
 # @todo Maybe we should have our own FrozenDict, and support that always, and on Python 3.15, we also support frozendict.
 # @todo If typing_extensions ever backports frozendict, we can add support for that too.
 # @todo
-# @todo Not all APIs (such as stdlib json) support these other mapping (or sequences, for consistency?) types, though.
+# @todo Not all APIs (such as stdlib json) support these other mapping (or sequences such as ResolvedList, for consistency?) types, though.
 # @todo I guess it's really only relevant for serialization?
 # @todo
 # @todo
