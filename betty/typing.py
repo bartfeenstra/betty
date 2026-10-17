@@ -6,8 +6,6 @@ from __future__ import annotations
 
 from typing import final
 
-type Number = int | float
-
 
 @final
 class Unreachable(NotImplementedError):

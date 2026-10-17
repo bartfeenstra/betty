@@ -8,6 +8,7 @@ from collections.abc import Iterator, Mapping
 from typing import Final, final
 
 
+# @todo Replace this with FrozenDict?
 @final
 class _EmptyFrozenMapping[KeyT, ValueT](Mapping[KeyT, ValueT]):
     def __getitem__(self, key: KeyT, /) -> ValueT:

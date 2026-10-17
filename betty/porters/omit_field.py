@@ -13,7 +13,7 @@ from betty.datas.aggregate.record import FieldDefinition, FieldPorter
 from betty.portable import NoPortableData
 
 if TYPE_CHECKING:
-    from betty.portable import OptionalPortableData, PortableData
+    from betty.portable import PortableData
 
 type _InternalOmitDump[OwnerT, DataT] = Callable[
     [OwnerT, FieldDefinition[OwnerT, DataT, DataDefinition[DataT]], DataT], bool
@@ -54,7 +54,7 @@ class OmitFieldPorter[OwnerT, DataT](FieldPorter[OwnerT, DataT, DataT]):
         return lambda field: OmitFieldPorter[OwnerT, DataT](field, omit_dump)
 
     @override
-    def dump(self, owner: OwnerT, data: DataT, /) -> OptionalPortableData:
+    def dump(self, owner: OwnerT, data: DataT, /) -> PortableData | NoPortableData:
         if self._omit_dump(owner, self._field, data):
             return NoPortableData
         return self._field.data.porter.dump(data)

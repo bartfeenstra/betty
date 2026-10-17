@@ -6,45 +6,58 @@ Portable data can easily be persistent or transmitted across and between systems
 
 from __future__ import annotations
 
+import builtins
+import sys
 from abc import ABCMeta, abstractmethod
-from collections.abc import Mapping, Sequence
+from typing import Final
 
 from typing_extensions import sentinel
 
-type PortableData = (
-    bool
-    | int
-    | float
-    | str
-    | None
-    | Sequence[PortableData]
-    | Mapping[str, PortableData]
-)
-"""
-Portable data.
+from betty.collections.mapping.dict import FrozenDict
 
-Data of this type is portable and can easily be persisted or transmitted.
-"""
+# @todo We keep duplicating some checks and definitions, especially these collection types.
+# @todo Come up with a solution for immutable mappings on Python 3.14 and lower, otherwise we're blocked...
+# @todo Maybe we should have our own FrozenDict, and support that always, and on Python 3.15, we also support frozendict.
+# @todo If typing_extensions ever backports frozendict, we can add support for that too.
+# @todo
+# @todo Not all APIs (such as stdlib json) support these other mapping (or sequences such as ResolvedList, for consistency?) types, though.
+# @todo I guess it's really only relevant for serialization?
+# @todo
+# @todo
+_portable_mapping_types = (dict, FrozenDict)
+if sys.version_info >= (3, 15):
+    _portable_mapping_types = (*_portable_mapping_types, builtins.frozendict)
+portable_mapping_types: Final[tuple[type, ...]] = _portable_mapping_types
+portable_sequence_types: Final[tuple[type, ...]] = (list, tuple)
+type PortableScalar = None | bool | int | float | str
+type ImmutablePortableSequence[ValueT: ImmutablePortableData] = tuple[ValueT, ...]
+type MutablePortableSequence[ValueT: MutablePortableData] = list[ValueT]
+type PortableSequence[ValueT: PortableData] = (
+    ImmutablePortableSequence[ValueT] | MutablePortableSequence[ValueT]
+)
+type _ImmutablePortableMapping[ValueT: ImmutablePortableData] = FrozenDict[str, ValueT]
+if sys.version_info >= (3, 15):
+    type ImmutablePortableMapping[ValueT: ImmutablePortableData] = (
+        _ImmutablePortableMapping[ValueT] | builtins.frozendict[str, ValueT]
+    )
+else:
+    type ImmutablePortableMapping[ValueT: ImmutablePortableData] = (
+        _ImmutablePortableMapping[ValueT]
+    )
+type MutablePortableMapping[ValueT: MutablePortableData] = dict[str, ValueT]
+type PortableMapping[ValueT: PortableData] = (
+    ImmutablePortableMapping[ValueT] | MutablePortableMapping[ValueT]
+)
+type ImmutablePortableData = (
+    PortableScalar | ImmutablePortableSequence | ImmutablePortableMapping
+)
+type MutablePortableData = (
+    PortableScalar | MutablePortableSequence | MutablePortableMapping
+)
+type PortableData = ImmutablePortableData | MutablePortableData
 
 
 NoPortableData = sentinel("NoPortableData")
-
-
-type OptionalPortableData[PortableDataT: PortableData] = PortableDataT | NoPortableData
-
-
-type PortableSequence = Sequence[PortableData]
-"""
-A sequence of portable data.
-"""
-
-
-type PortableMapping = Mapping[str, PortableData]
-"""
-A key-value mapping of portable data.
-
-Keys are strings.
-"""
 
 
 class Porter[DataT, PortableDataT: PortableData = PortableData](metaclass=ABCMeta):

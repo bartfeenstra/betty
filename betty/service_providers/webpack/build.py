@@ -17,13 +17,13 @@ from betty.document import Document
 from betty.file import read, write
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.jinja import make_copy_function
+from betty.json import JsonObject
 from betty.pathlib import resolve_path
-from betty.portable import PortableMapping
 from betty.service_level import ServiceLevel
 from betty.service_provider import ServiceProvider
 
 if TYPE_CHECKING:
-    from collections.abc import MutableMapping, Sequence
+    from collections.abc import Mapping, MutableMapping, Sequence
 
     from betty.jinja import Environment
     from betty.job import Context
@@ -159,7 +159,7 @@ class Builder:
         self,
         context: Context,
         npm_project_directory: Path,
-        package_json: PortableMapping,
+        package_json: JsonObject,
         entry_point_provider: type[EntryPointProvider],
         npm_project_package_json_dependencies: MutableMapping[str, str],
         webpack_entry: MutableMapping[str, str],
@@ -199,21 +199,21 @@ class Builder:
             .parts,
         ))
 
-    async def _extract_package_json(self, package: Path) -> PortableMapping:
-        return cast(PortableMapping, loads(await read(package / "package.json")))
+    async def _extract_package_json(self, package: Path) -> JsonObject:
+        return cast(JsonObject, loads(await read(package / "package.json")))
 
     async def _update_package_json(
         self,
         npm_project_directory: Path,
-        package_jsons_by_package_name: PortableMapping,
+        package_jsons_by_package_name: Mapping[str, JsonObject],
         package_name: str,
     ) -> None:
         package_json = package_jsons_by_package_name[package_name]
         try:
-            dependencies = package_json["dependencies"]  # ty:ignore[invalid-argument-type, not-subscriptable]
+            dependencies = cast(JsonObject, package_json["dependencies"])
         except KeyError:
             return
-        for dependency_package_name in dependencies:  # ty:ignore[not-iterable]
+        for dependency_package_name in dependencies:
             if dependency_package_name not in package_jsons_by_package_name:
                 continue
             # Manually compute the relative path to the dependency's package directory, because
@@ -234,12 +234,12 @@ class Builder:
                 *(
                     npm_project_directory
                     / "packages"
-                    / _package_name_to_path(dependency_package_name)  # ty:ignore[invalid-argument-type]
+                    / _package_name_to_path(dependency_package_name)
                 )
                 .relative_to(npm_project_directory)
                 .parts,
             )
-            dependencies[dependency_package_name] = f"file:{dependency_package}"  # ty:ignore[invalid-assignment]
+            dependencies[dependency_package_name] = f"file:{dependency_package}"
         await write(
             npm_project_directory / "packages" / package_name / "package.json",
             dumps(package_json),
@@ -248,7 +248,7 @@ class Builder:
     async def _update_package_jsons(
         self,
         npm_project_directory: Path,
-        package_jsons_by_package_name: MutableMapping[str, PortableMapping],
+        package_jsons_by_package_name: Mapping[str, JsonObject],
     ) -> None:
         await gather(
             *(
@@ -272,7 +272,7 @@ class Builder:
                 for entry_point_provider in self._entry_point_providers
             ),
         ]
-        package_jsons_by_package: MutableMapping[Path, PortableMapping] = dict(
+        package_jsons_by_package: Mapping[Path, JsonObject] = dict(
             zip(
                 packages,
                 await gather(
@@ -281,7 +281,7 @@ class Builder:
                 strict=True,
             )
         )
-        package_jsons_by_package_name: MutableMapping[str, PortableMapping] = {
+        package_jsons_by_package_name: Mapping[str, JsonObject] = {
             cast(str, package_json["name"]): package_json
             for package_json in package_jsons_by_package.values()
         }

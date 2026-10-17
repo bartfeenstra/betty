@@ -24,7 +24,7 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.machine_name import MachineName
 from betty.pipeline import Inlet
-from betty.portable import KeyedPorter, OptionalPortableData, PortableData
+from betty.portable import KeyedPorter, PortableData
 from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
@@ -57,7 +57,7 @@ class PluginManufacturer[DefinitionT: PluginDefinition, PluginT](
     """
 
     plugin_data = OwnerAttr(
-        DataDefinition[Data | OptionalPortableData](label=_("Data"))
+        DataDefinition[Data | PortableData | NoPluginData](label=_("Data"))
     )
     """
     Get the plugin's own data.
@@ -67,7 +67,7 @@ class PluginManufacturer[DefinitionT: PluginDefinition, PluginT](
     def __init__(
         self,
         plugin: ResolvableId[DefinitionT],
-        data: Data | OptionalPortableData | NoPluginData = NoPluginData,
+        data: Data | PortableData | NoPluginData = NoPluginData,
         /,
     ):
         super().__init__()

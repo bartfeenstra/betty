@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.datas.aggregate.record import FieldPorter
 
 if TYPE_CHECKING:
-    from betty.portable import OptionalPortableData, PortableData, Porter
+    from betty.portable import NoPortableData, PortableData, Porter
 
 
 @final
@@ -22,7 +22,7 @@ class PorterFieldPorter[OwnerT, DataT](FieldPorter[OwnerT, DataT, DataT]):
         self._porter = porter
 
     @override
-    def dump(self, owner: OwnerT, data: DataT, /) -> OptionalPortableData:
+    def dump(self, owner: OwnerT, data: DataT, /) -> PortableData | NoPortableData:
         return self._porter.dump(data)
 
     @override
