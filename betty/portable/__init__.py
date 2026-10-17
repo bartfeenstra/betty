@@ -35,22 +35,22 @@ type MutablePortableSequence[ValueT: MutablePortableData] = list[ValueT]
 type PortableSequence[ValueT: PortableData] = (
     ImmutablePortableSequence[ValueT] | MutablePortableSequence[ValueT]
 )
+type _ImmutablePortableMapping[ValueT: ImmutablePortableData] = FrozenDict[str, ValueT]
 if sys.version_info >= (3, 15):
-    type ImmutablePortableMapping[ValueT: ImmutablePortableData] = builtins.frozendict[
-        str, ValueT
-    ]
-type MutablePortableMapping[ValueT: MutablePortableData] = dict[str, ValueT]
-if sys.version_info >= (3, 15):
-    type PortableMapping[ValueT: PortableData] = (
-        ImmutablePortableMapping[ValueT] | MutablePortableMapping[ValueT]
-    )
-    type ImmutablePortableData = (
-        PortableScalar | ImmutablePortableSequence | ImmutablePortableMapping
+    type ImmutablePortableMapping[ValueT: ImmutablePortableData] = (
+        _ImmutablePortableMapping[ValueT] | builtins.frozendict[str, ValueT]
     )
 else:
-    # @todo How to support immutable mappings on Python 3.14 and lower?
-    type PortableMapping[ValueT: PortableData] = MutablePortableMapping[ValueT]
-    type ImmutablePortableData = PortableScalar | PortableSequence | PortableMapping
+    type ImmutablePortableMapping[ValueT: ImmutablePortableData] = (
+        _ImmutablePortableMapping[ValueT]
+    )
+type MutablePortableMapping[ValueT: MutablePortableData] = dict[str, ValueT]
+type PortableMapping[ValueT: PortableData] = (
+    ImmutablePortableMapping[ValueT] | MutablePortableMapping[ValueT]
+)
+type ImmutablePortableData = (
+    PortableScalar | ImmutablePortableSequence | ImmutablePortableMapping
+)
 type MutablePortableData = (
     PortableScalar | MutablePortableSequence | MutablePortableMapping
 )
