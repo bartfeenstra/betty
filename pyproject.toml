@@ -355,7 +355,7 @@ test = [
     'pytest-playwright-asyncio ~= 0.10.0',
     'pytest-xdist ~= 3.8',
     'requests ~= 2.32',
-    'ruff ~= 0.16.0',
+    'ruff ~= 0.17.0',
     'slotscheck ~= 0.21',
     'ty == 0.0.85',
     'types-babel ~= 2.11',
