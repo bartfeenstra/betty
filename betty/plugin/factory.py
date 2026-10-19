@@ -62,10 +62,7 @@ class PluginManufacturer[DefinitionT: PluginDefinition, PluginT](
     """
 
     plugin_data = OwnerAttr(
-        DataDefinition[Data | ImmutablePortableData | NoPluginData](label=_("Data")),
-        frozen=lambda owner, attr: (
-            owner.is_initialized and isinstance(attr.get(owner), Data)
-        ),
+        DataDefinition[Data | ImmutablePortableData | NoPluginData](label=_("Data"))
     ).setter(
         lambda data: (
             data
