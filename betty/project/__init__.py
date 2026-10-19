@@ -33,7 +33,8 @@ from betty.collection.sequence import MutableResolvedSequence
 from betty.collections.keyed.adapter import (
     MutableKeyedCollectionAdapter,
 )
-from betty.collections.sequence.list import ResolvedList
+from betty.collections.keyed.list import KeyedList
+from betty.collections.sequence.list import List
 from betty.copyright_notice import (
     CopyrightNoticeDefinition,
     CopyrightNoticeManufacturer,
@@ -223,7 +224,6 @@ class _Project:
     Whether to output more detailed logs and disable optimizations that make debugging harder.
     """
 
-    # @todo Ensure the sequence can be frozen!
     generate_entity_list_html = CollectionOwnerAttr(
         FieldDefinition(
             MutableSequenceDefinition[
@@ -232,7 +232,7 @@ class _Project:
             ](
                 label=_("Entity types to generate list HTML pages for"),
                 value=MachineName,
-                manufacturer=lambda values: ResolvedList[
+                manufacturer=lambda values: List[
                     MachineName, ResolvableId[EntityDefinition]
                 ](values, value_resolver=resolve_id),
             ),
@@ -265,14 +265,13 @@ class _Project:
     presumed to have died.
     """
 
-    # @todo Ensure the collection can be frozen!
     locales = CollectionOwnerAttr(
         FieldDefinition(
             KeyedCollectionDefinition(
                 value=ProjectLocale,
                 label=_("Locales"),
                 order_dump=True,
-                manufacturer=lambda values: MutableKeyedCollectionAdapter(
+                manufacturer=lambda values: KeyedList(
                     [] if values is None else list(values),
                     key=lambda item: item.locale,
                     key_resolver=resolve_locale,

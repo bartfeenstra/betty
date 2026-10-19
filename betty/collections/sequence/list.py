@@ -7,17 +7,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.collections.sequence.adapter import MutableResolvedSequenceAdapter
+from betty.frosties.attr import AttrFreezable
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
 
 @final
-class ResolvedList[ValueT, ResolvableValueT](
-    MutableResolvedSequenceAdapter[ValueT, ResolvableValueT]
+class List[ValueT, ResolvableValueT](
+    AttrFreezable, MutableResolvedSequenceAdapter[ValueT, ResolvableValueT]
 ):
     """
-    Resolve values before storing them in a list.
+    A list.
     """
 
     def __init__(

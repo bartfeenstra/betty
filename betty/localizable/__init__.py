@@ -12,6 +12,7 @@ from warnings import warn
 
 from babel import Locale
 
+from betty.frosties.attr import AttrFreezable
 from betty.locale import ResolvableLocale
 from betty.localized import LocalizedStr
 from betty.localizer import Localizer, default_localizer
@@ -89,13 +90,14 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
         return _FormattedCountableLocalizable(self, format_kwargs)
 
 
-class _FormattedLocalizable(Localizable):
+class _FormattedLocalizable(AttrFreezable, Localizable):
     def __init__(
         self,
         localizable: Localizable,
         format_kwargs: Mapping[str, ResolvableLocalizable],
         /,
     ):
+        super().__init__()
         self._localizable = localizable
         self._format_kwargs = dict(format_kwargs)
 

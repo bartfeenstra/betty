@@ -7,11 +7,14 @@ This API provides tools to build cooperative and conditional (im)mutability.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
+from enum import Enum
+from pathlib import Path
 from typing import Any, final
 
 from typing_extensions import sentinel
 
 from betty.importlib import fully_qualified_name
+from betty.typing import FrozenDict
 
 
 @final
@@ -22,7 +25,7 @@ class NeitherFrozenNorFreezable(ValueError):
 
     def __init__(self, value: Any, /):
         super().__init__(
-            f"{value} is neither frozen nor able to be frozen. It must be None or one of {', '.join(map(fully_qualified_name, _frozen_types))}, or subclass {fully_qualified_name(Freezable)}."
+            f"{value!r} is neither frozen nor able to be frozen. It must be None or one of {', '.join(map(fully_qualified_name, _frozen_types))}, or subclass {fully_qualified_name(Freezable)}."
         )
 
 
@@ -97,11 +100,11 @@ def frozen[T](frozen_type: type[T], *frozen_types: type) -> type[T]:
     Mark classes as frozen (immutable).
     """
     global _frozen_types
-    _frozen_types = (*_frozen_types, frozen_type, *frozen_types)
+    _frozen_types = tuple({*_frozen_types, frozen_type, *frozen_types})
     return frozen_type
 
 
-frozen(bool, float, frozenset, int, sentinel, str, tuple, type)
+frozen(bool, Enum, float, FrozenDict, frozenset, int, Path, sentinel, str, tuple, type)
 
 
 def is_frozen(value: Any) -> bool:

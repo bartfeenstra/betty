@@ -108,7 +108,6 @@ class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
     @Project.require
     @classmethod
     async def new(cls, project: Project, data: PresencesData | None = None, /) -> Self:
-
         if data is None:
             raise NotImplementedError
         include: Iterable[ResolvableId[RoleDefinition]] | None

@@ -14,6 +14,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.plugin_manufacturer_sequence import (
     new_plugin_manufacturer_sequence_attr,
 )
+from betty.classtools import TypeABCMeta
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
@@ -28,6 +29,7 @@ from betty.factory import DataManufacturable
 from betty.frosties.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.prop import HasProps
 from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
@@ -35,6 +37,27 @@ if TYPE_CHECKING:
     from betty.jinja import Environment
     from betty.localizable import ResolvableLocalizable
     from betty.machine_name import MachineName, ResolvableMachineName
+
+
+class _Section:
+    heading = new_localizable_attr(label=_("Heading"))
+    """
+    The section heading.
+    """
+
+    name = new_machine_name_attr().optional
+    """
+    The section's machine name, used to generate permanent links.
+    """
+
+    visually_hide_heading = OwnerAttr(
+        BoolDefinition(label=_("Visually hide heading"))
+    ).default(lambda: False)
+    """
+    Visually hide the heading.
+
+    This keeps the heading for accessibility purposes, but does not display it visually.
+    """
 
 
 @final
@@ -52,7 +75,7 @@ if TYPE_CHECKING:
     ),
     manufacturer=lambda **fields: SectionData(*fields.pop("content"), **fields),
 )
-class SectionData(Object, AttrFreezable):
+class SectionData(_Section, Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_section.Section`.
 
@@ -64,25 +87,6 @@ class SectionData(Object, AttrFreezable):
     )
     """
     The content within this section.
-    """
-
-    heading = new_localizable_attr(label=_("Heading"))
-    """
-    The section heading.
-    """
-
-    name = new_machine_name_attr().optional
-    """
-    The section's machine name, used to generate permanent links.
-    """
-
-    visually_hide_heading = OwnerAttr(
-        BoolDefinition(label=_("Visually hide heading"))
-    ).default(lambda: False)
-    """
-    Visually hide the heading.
-    
-    This keeps the heading for accessibility purposes, but does not display it visually.
     """
 
     def __init__(
@@ -105,7 +109,9 @@ class SectionData(Object, AttrFreezable):
     label=_("Section"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Section(Template, DataManufacturable[SectionData]):
+class Section(
+    _Section, Template, DataManufacturable[SectionData], HasProps, metaclass=TypeABCMeta
+):
     """
     .. plugin:: content-builder:raspberry-mint-section.
     """
@@ -121,9 +127,9 @@ class Section(Template, DataManufacturable[SectionData]):
     ):
         super().__init__(jinja=jinja)
         self._content = tuple(content)
-        self._heading = heading
-        self._name = name
-        self._visually_hide_heading = bool(visually_hide_heading)
+        self.heading = heading
+        self.name = name
+        self.visually_hide_heading = bool(visually_hide_heading)
 
     @override
     @classmethod
@@ -158,7 +164,7 @@ class Section(Template, DataManufacturable[SectionData]):
             return None
         return "component/raspberry-mint/section.html.j2", {
             "section_content": content,
-            "section_heading": self._heading,
-            "section_name": self._name,
-            "section_visually_hide_heading": self._visually_hide_heading,
+            "section_heading": self.heading,
+            "section_name": self.name,
+            "section_visually_hide_heading": self.visually_hide_heading,
         }

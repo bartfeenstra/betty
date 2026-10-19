@@ -10,7 +10,8 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
-from betty.collections.mapping.adapter import MutableResolvedMappingAdapter
+from betty.classtools import TypeABCMeta
+from betty.collections.mapping.dict import Dict
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -77,15 +78,12 @@ def _new_plugin_mapping_attr[
     ](
         FieldDefinition(
             MappingDefinition(
-                manufacturer=lambda values: MutableResolvedMappingAdapter[
+                manufacturer=lambda values: Dict[
                     str,
                     str,
                     PluginManufacturerT,
                     ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],
-                ](
-                    {} if values is None else dict(values),
-                    value_resolver=manufacturer.resolve,
-                ),
+                ](values, value_resolver=manufacturer.resolve),
                 key=StrDefinition(label=gramps_label),
                 value=manufacturer,
                 label=manufacturer.definition.plugin_type.definition.label_plural,
@@ -182,6 +180,26 @@ class FamilyTree(Object, AttrFreezable):
         )
 
 
+class _Gramps:
+    family_trees = CollectionOwnerAttr(
+        FieldDefinition(
+            ListDefinition(value=FamilyTree, label=_("Family trees")),
+            optional=True,
+            porter=OmitFieldPorter.new(not_),
+        )
+    )
+    """
+    The Gramps family trees to load.
+    """
+
+    executable = new_path_attr(label=_("Executable")).optional
+    """
+    The path to a specific Gramps executable.
+
+    Leave ``None`` to use Gramps from the PATH.
+    """
+
+
 @final
 @ObjectDefinition(
     label=_("Gramps configuration"),
@@ -234,29 +252,11 @@ class FamilyTree(Object, AttrFreezable):
         ),
     ),
 )
-class GrampsData(Object, AttrFreezable):
+class GrampsData(_Gramps, Object, AttrFreezable):
     """
     Configuration for the :py:class:`betty.loaders.gramps.Gramps` extension.
 
     .. data:: betty.loaders.gramps:GrampsData
-    """
-
-    family_trees = CollectionOwnerAttr(
-        FieldDefinition(
-            ListDefinition(value=FamilyTree, label=_("Family trees")),
-            optional=True,
-            porter=OmitFieldPorter.new(not_),
-        )
-    )
-    """
-    The Gramps family trees to load.
-    """
-
-    executable = new_path_attr(label=_("Executable")).optional
-    """
-    The path to a specific Gramps executable.
-
-    Leave ``None`` to use Gramps from the PATH.
     """
 
     def __init__(
@@ -267,7 +267,7 @@ class GrampsData(Object, AttrFreezable):
     ):
         super().__init__()
         self.family_trees = family_trees
-        self.executable = None if executable is None else resolve_path(executable)
+        self.executable = executable
 
 
 @final
@@ -276,7 +276,14 @@ class GrampsData(Object, AttrFreezable):
     label="Gramps",
     description=_("Load Gramps family trees."),
 )
-class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
+class Gramps(
+    _Gramps,
+    DataManufacturable[GrampsData],
+    Manufacturable,
+    Loader,
+    HasProps,
+    metaclass=TypeABCMeta,
+):
     """
     .. plugin:: loader:gramps.
 
@@ -559,8 +566,8 @@ class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
         super().__init__()
         self._project = project
         self._attribute_prefix_key = attribute_prefix_key
-        self._executable = executable
-        self._family_trees = tuple(family_trees)
+        self.executable = executable
+        self.family_trees = family_trees
 
     @override
     @classmethod
@@ -579,7 +586,7 @@ class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
 
     @override
     async def load(self, scheduler: Scheduler, /) -> None:
-        for family_tree in self._family_trees:
+        for family_tree in self.family_trees:
             await scheduler.add(
                 LoadGrampsAncestry(
                     loader=GrampsLoader(
@@ -588,7 +595,7 @@ class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
                         event_type_mapping=family_tree.event_types,
                         place_type_mapping=family_tree.place_types,
                         role_mapping=family_tree.roles,
-                        executable=self._executable,
+                        executable=self.executable,
                     ),
                     source=family_tree.source,
                 )

@@ -42,7 +42,8 @@ class LocalizableDefinition(DataDefinition[Localizable]):
 class _LocalizablePorter(Porter[Localizable]):
     load = override(
         assert_if_else(
-            assert_str().pipe(
+            assert_str()
+            | (
                 lambda translation: cast(StaticTranslationsMapping, {None: translation})
             ),
             assert_mapping(assert_str(), assert_optional_locale),

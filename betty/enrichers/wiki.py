@@ -21,21 +21,7 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
 
 
-@final
-@ObjectDefinition(
-    label=_("Wiki enricher configuration"),
-    samples=Samples(
-        lambda: Sample(WikiData(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(WikiData(populate_images=False), label="Full", size=Size.FULL),
-    ),
-)
-class WikiData(Object, AttrFreezable):
-    """
-    Configuration for the :py:class:`betty.enrichers.wiki.Wiki` enricher.
-
-    .. data:: betty.enrichers.wiki:WikiData
-    """
-
+class _Wiki:
     populate_images = OwnerAttr(
         BoolDefinition(
             label=_("Populate images"),
@@ -46,6 +32,22 @@ class WikiData(Object, AttrFreezable):
     ).default(lambda: True)
     """
     Whether to populate entities with Wikimedia images after loading ancestries.
+    """
+
+
+@final
+@ObjectDefinition(
+    label=_("Wiki enricher configuration"),
+    samples=Samples(
+        lambda: Sample(WikiData(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(WikiData(populate_images=False), label="Full", size=Size.FULL),
+    ),
+)
+class WikiData(_Wiki, Object, AttrFreezable):
+    """
+    Configuration for the :py:class:`betty.enrichers.wiki.Wiki` enricher.
+
+    .. data:: betty.enrichers.wiki:WikiData
     """
 
     def __init__(self, *, populate_images: bool = True):
@@ -64,7 +66,7 @@ class WikiData(Object, AttrFreezable):
         Project.service_providers.require(WikiExtension),
     },
 )
-class Wiki(Enricher, DataManufacturable[WikiData], Manufacturable):
+class Wiki(_Wiki, Enricher, DataManufacturable[WikiData], Manufacturable):
     """
     .. plugin:: enricher:wiki.
 
@@ -84,7 +86,7 @@ class Wiki(Enricher, DataManufacturable[WikiData], Manufacturable):
     def __init__(self, *, project: Project, populate_images: bool | None = None):
         super().__init__()
         self._project = project
-        self._populate_images = True if populate_images is None else populate_images
+        self.populate_images = True if populate_images is None else populate_images
 
     @override
     @classmethod

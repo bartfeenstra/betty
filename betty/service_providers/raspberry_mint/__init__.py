@@ -12,11 +12,12 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
+from betty.classtools import TypeABCMeta as TypeABCMeta
 from betty.collection.mapping import ResolvedMapping
 from betty.collections.mapping.adapter import (
-    MutableResolvedMappingAdapter,
     ResolvedMappingAdapter,
 )
+from betty.collections.mapping.dict import Dict
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderManufacturer,
@@ -46,6 +47,7 @@ from betty.operator import Attr, Key
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.project.generate import Generator
+from betty.prop import HasProps
 from betty.sample import Sample, Samples, Size
 from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.webpack import Webpack
@@ -131,9 +133,7 @@ class RaspberryMintData(_RaspberryMint, Object, AttrFreezable):
     regional_content = CollectionOwnerAttr(
         FieldDefinition(
             MutableMappingDefinition(
-                manufacturer=lambda values: MutableResolvedMappingAdapter(
-                    {} if values is None else dict(values), key_resolver=Region.resolve
-                ),
+                manufacturer=lambda values: Dict(values, key_resolver=Region.resolve),
                 label=_("Regions"),
                 key=StrDefinition(label=_("Region")),
                 value=PluginManufacturerSequenceDefinition(
@@ -202,6 +202,7 @@ class RaspberryMint(
     DataManufacturable[RaspberryMintData],
     Manufacturable,
     Generator,
+    HasProps,
 ):
     """
     .. plugin:: service-provider:raspberry-mint.

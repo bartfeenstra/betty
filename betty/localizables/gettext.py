@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast, overload, override
 
+from betty.frosties.classtools import Frozen
 from betty.localizable import CountableLocalizable, Localizable, LocalizableCount
 from betty.localized import LocalizedStr
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
     from betty.localizer import Localizer
 
 
-class __GettextLocalizable:
+class __GettextLocalizable(Frozen):
     __slots__ = ("_gettext_args", "_gettext_method_name")
 
     def __init__(self, gettext_method_name: str, *gettext_args: Any) -> None:

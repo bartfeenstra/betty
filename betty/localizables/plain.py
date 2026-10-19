@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Final, final, override
 
 from betty.assertions.str import assert_str
+from betty.frosties.classtools import Frozen
 from betty.locale import ResolvableLocale, resolve_locale
 from betty.localizable import Localizable
 from betty.localized import LocalizedStr
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
 
 
 @final
-class Plain(Localizable):
+class Plain(Frozen, Localizable):
     """
     Turns a plain string into a :py:class:`betty.localizable.Localizable` without any actual translations.
     """
