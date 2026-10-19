@@ -72,7 +72,7 @@ class OptionableAttr[OwnerT: HasProps, GetT, SetT, DefinitionT: DataDefinition](
 
     @property
     @abstractmethod
-    def optional(self) -> OptionalAttr[OwnerT, GetT | None, SetT | None]:
+    def optional(self) -> Attr[OwnerT, GetT | None, SetT | None]:
         """
         Return a new attribute like this one, but that also allows ``None``.
         """

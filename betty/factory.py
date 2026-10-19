@@ -93,7 +93,7 @@ class Factory:
         :raises FactoryError: raised when ``manufacturer`` could not be called.
         """
         if isinstance(manufacturer, type) and issubclass(manufacturer, Manufacturable):
-            return await manufacturer.new(self._services)  # ty:ignore[invalid-return-type]
+            return await manufacturer.new(self._services)  # ty:ignore[invalid-return-type, invalid-argument-type]
         args = self._args(manufacturer)
         if args is None:
             raise UnsupportedManufacturer(
