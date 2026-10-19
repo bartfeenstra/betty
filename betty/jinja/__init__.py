@@ -10,7 +10,7 @@ from collections.abc import Awaitable, Callable, Iterable
 from os import makedirs
 from pathlib import Path
 from shutil import copy2
-from typing import TYPE_CHECKING, Final, cast, override
+from typing import TYPE_CHECKING, cast, override
 
 from jinja2 import Environment, FileSystemLoader, pass_context, select_autoescape
 from jinja2.async_utils import auto_await
@@ -226,7 +226,7 @@ def make_copy_function(
 
 
 class _CacheTagExtension(Extension):
-    tags: Final[set[str]] = {"cache"}
+    tags = {"cache"}  # noqa: RUF012
 
     @override
     def parse(self, parser: Parser) -> Node | list[Node]:
