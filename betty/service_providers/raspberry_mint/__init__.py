@@ -69,6 +69,33 @@ type ManufacturableRegionalContent = Mapping[
 ]
 
 
+class _RaspberryMint:
+    DEFAULT_PRIMARY_COLOR: Final[str] = "#b3446c"
+    DEFAULT_SECONDARY_COLOR: Final[str] = "#3eb489"
+    DEFAULT_TERTIARY_COLOR: Final[str] = "#ffbd22"
+
+    primary_color = OwnerAttr(ColorDefinition(label=_("Primary color"))).default(
+        lambda _: _RaspberryMint.DEFAULT_PRIMARY_COLOR
+    )
+    """
+    The primary color.
+    """
+
+    secondary_color = OwnerAttr(ColorDefinition(label=_("Secondary color"))).default(
+        lambda _: _RaspberryMint.DEFAULT_SECONDARY_COLOR
+    )
+    """
+    The secondary color.
+    """
+
+    tertiary_color = OwnerAttr(ColorDefinition(label=_("Tertiary color"))).default(
+        lambda _: _RaspberryMint.DEFAULT_TERTIARY_COLOR
+    )
+    """
+    The tertiary color.
+    """
+
+
 @final
 @ObjectDefinition(
     label=_("Raspberry Mint configuration"),
@@ -94,26 +121,11 @@ type ManufacturableRegionalContent = Mapping[
         ),
     ),
 )
-class RaspberryMintData(Object, AttrFreezable):
+class RaspberryMintData(_RaspberryMint, Object, AttrFreezable):
     """
     Configuration for the :py:class:`betty.service_providers.raspberry_mint.RaspberryMint` extension.
 
     .. data:: betty.service_providers.raspberry_mint:RaspberryMintData
-    """
-
-    primary_color = OwnerAttr(ColorDefinition(label=_("Primary color"))).optional
-    """
-    The primary color.
-    """
-
-    secondary_color = OwnerAttr(ColorDefinition(label=_("Secondary color"))).optional
-    """
-    The secondary color.
-    """
-
-    tertiary_color = OwnerAttr(ColorDefinition(label=_("Tertiary color"))).optional
-    """
-    The tertiary color.
     """
 
     regional_content = CollectionOwnerAttr(
@@ -139,9 +151,9 @@ class RaspberryMintData(Object, AttrFreezable):
     def __init__(
         self,
         *,
-        primary_color: str | None = None,
-        secondary_color: str | None = None,
-        tertiary_color: str | None = None,
+        primary_color: str = _RaspberryMint.DEFAULT_PRIMARY_COLOR,
+        secondary_color: str = _RaspberryMint.DEFAULT_SECONDARY_COLOR,
+        tertiary_color: str = _RaspberryMint.DEFAULT_TERTIARY_COLOR,
         regional_content: ResolvableRegionalContent = empty_frozen_dict,
     ):
 
@@ -185,6 +197,7 @@ class RaspberryMintData(Object, AttrFreezable):
     },
 )
 class RaspberryMint(
+    _RaspberryMint,
     EntryPointProvider[Project],
     DataManufacturable[RaspberryMintData],
     Manufacturable,
@@ -213,38 +226,28 @@ class RaspberryMint(
 
     """
 
-    DEFAULT_PRIMARY_COLOR: Final[str] = "#b3446c"
-    DEFAULT_SECONDARY_COLOR: Final[str] = "#3eb489"
-    DEFAULT_TERTIARY_COLOR: Final[str] = "#ffbd22"
-
     def __init__(
         self,
         *,
         project: Project,
-        primary_color: str | None = None,
+        primary_color: str = _RaspberryMint.DEFAULT_PRIMARY_COLOR,
+        secondary_color: str = _RaspberryMint.DEFAULT_SECONDARY_COLOR,
+        tertiary_color: str = _RaspberryMint.DEFAULT_TERTIARY_COLOR,
         regional_content: ManufacturableRegionalContent | None = None,
-        secondary_color: str | None = None,
-        tertiary_color: str | None = None,
     ):
         super().__init__(services=project)
-        self.primary_color: Final[str] = (
-            self.DEFAULT_PRIMARY_COLOR if primary_color is None else primary_color
-        )
+        self.primary_color = primary_color
         """
         The primary color.
         """
         self._regional_content_manufacturers: ManufacturableRegionalContent = (
             regional_content or {}
         )
-        self.secondary_color = (
-            self.DEFAULT_SECONDARY_COLOR if secondary_color is None else secondary_color
-        )
+        self.secondary_color = secondary_color
         """
         The secondary color.
         """
-        self.tertiary_color = (
-            self.DEFAULT_TERTIARY_COLOR if tertiary_color is None else tertiary_color
-        )
+        self.tertiary_color = tertiary_color
         """
         The tertiary color.
         """
