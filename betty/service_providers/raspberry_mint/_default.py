@@ -36,8 +36,8 @@ from betty.roles.subject import Subject
 from betty.roles.witness import Witness
 from betty.service_providers.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.service_providers.raspberry_mint import (
-    ManufacturableRegionalContent,
     Region,
+    ResolvableRegionalContent,
     single_column_text_width,
 )
 
@@ -65,7 +65,7 @@ class DefaultRegionalContent(Bootstrappable):
     def _make_dumpable(self, localizable: Localizable) -> StaticTranslations:
         return StaticTranslations.resolve(localizable, self._localizers)
 
-    async def get(self) -> ManufacturableRegionalContent:
+    async def get(self) -> ResolvableRegionalContent:
         return {
             Region.ENTITY_PAGE_CONTENT: [
                 content async for content in self._get_for_entity_page()

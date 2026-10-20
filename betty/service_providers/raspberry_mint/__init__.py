@@ -66,9 +66,6 @@ type RegionalContent = ResolvedMapping[str, ResolvableRegion, Sequence[ContentBu
 type ResolvableRegionalContent = Mapping[
     ResolvableRegion, Iterable[ResolvableContentBuilderManufacturer]
 ]
-type ManufacturableRegionalContent = Mapping[
-    ResolvableRegion, Iterable[ResolvableContentBuilderManufacturer]
-]
 
 
 class _RaspberryMint:
@@ -234,14 +231,14 @@ class RaspberryMint(
         primary_color: str = _RaspberryMint.DEFAULT_PRIMARY_COLOR,
         secondary_color: str = _RaspberryMint.DEFAULT_SECONDARY_COLOR,
         tertiary_color: str = _RaspberryMint.DEFAULT_TERTIARY_COLOR,
-        regional_content: ManufacturableRegionalContent | None = None,
+        regional_content: ResolvableRegionalContent | None = None,
     ):
         super().__init__(services=project)
         self.primary_color = primary_color
         """
         The primary color.
         """
-        self._regional_content_manufacturers: ManufacturableRegionalContent = (
+        self._regional_content_manufacturers: ResolvableRegionalContent = (
             regional_content or {}
         )
         self.secondary_color = secondary_color
