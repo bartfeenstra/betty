@@ -1,5 +1,5 @@
 """
-Mapping types and implementations.
+Mappings.
 """
 
 from __future__ import annotations

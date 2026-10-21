@@ -5,7 +5,6 @@ Adapters between Betty and Python mappings.
 from __future__ import annotations
 
 from collections.abc import (
-    Callable,
     Iterable,
     Iterator,
     Mapping,
@@ -14,12 +13,15 @@ from collections.abc import (
 )
 from contextlib import suppress
 from itertools import chain
-from typing import Any, overload, override
+from typing import TYPE_CHECKING, Any, overload, override
 
 from typing_extensions import sentinel
 
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
 from betty.pipeline import pipe
+
+if TYPE_CHECKING:
+    from betty.collections import KeyResolver, ValueResolver
 
 
 class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
@@ -31,16 +33,17 @@ class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
 
     def __init__(
         self,
-        proxied: Mapping[KeyT, ValueT],
+        values: Mapping[KeyT, ValueT],
+        /,
         *,
-        key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = pipe,
+        key_resolver: KeyResolver[KeyT, ResolvableKeyT] = pipe,
     ):
-        self._proxied = proxied
+        self._values = values
         self._key_resolver = key_resolver
 
     @override
     def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
-        return self._proxied[self._key_resolver(key)]
+        return self._values[self._key_resolver(key)]
 
     @overload
     def get[T](self, key: KeyT | ResolvableKeyT, default: T, /) -> ValueT | T:
@@ -52,21 +55,21 @@ class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
 
     @override
     def get(self, key, *args):
-        return self._proxied.get(self._key_resolver(key), *args)
+        return self._values.get(self._key_resolver(key), *args)
 
     @override
     def __iter__(self) -> Iterator[KeyT]:
-        return iter(self._proxied)
+        return iter(self._values)
 
     @override
     def __len__(self) -> int:
-        return len(self._proxied)
+        return len(self._values)
 
     @override
     def __contains__(self, key: Any) -> bool:
         with suppress(Exception):
             key = self._key_resolver(key)
-        return key in self._proxied
+        return key in self._values
 
 
 _NoMutableResolvedMappingAdapterDefault = sentinel(
@@ -82,25 +85,26 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
     Decorate another mapping to resolve any values before proxying them.
     """
 
-    _proxied: MutableMapping[KeyT, ValueT]
+    _values: MutableMapping[KeyT, ValueT]
 
     def __init__(
         self,
-        proxied: MutableMapping[KeyT, ValueT],
+        values: MutableMapping[KeyT, ValueT],
+        /,
         *,
-        key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = pipe,
-        value_resolver: Callable[[ValueT | ResolvableValueT], ValueT] = pipe,
+        key_resolver: KeyResolver[KeyT, ResolvableKeyT] = pipe,
+        value_resolver: ValueResolver[ValueT, ResolvableValueT] = pipe,
     ):
-        super().__init__(proxied, key_resolver=key_resolver)
+        super().__init__(values, key_resolver=key_resolver)
         self._value_resolver = value_resolver
 
     def __setitem__(
         self, key: KeyT | ResolvableKeyT, value: ValueT | ResolvableValueT
     ) -> None:
-        self._proxied[self._key_resolver(key)] = self._value_resolver(value)
+        self._values[self._key_resolver(key)] = self._value_resolver(value)
 
     def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
-        del self._proxied[self._key_resolver(key)]
+        del self._values[self._key_resolver(key)]
 
     @overload
     def update(
@@ -123,7 +127,7 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
             items = chain(items, other.items())
         elif isinstance(other, Sequence):
             items = chain(items, other)
-        self._proxied.update({
+        self._values.update({
             self._key_resolver(key): self._value_resolver(value)  # ty:ignore[invalid-argument-type]
             for key, value in items
         })
@@ -145,7 +149,7 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
 
     @override
     def setdefault(self, key, default=_NoMutableResolvedMappingAdapterDefault):
-        return self._proxied.setdefault(
+        return self._values.setdefault(
             self._key_resolver(key),
             None
             if default is _NoMutableResolvedMappingAdapterDefault
@@ -170,9 +174,9 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
     def pop(self, key, default=_NoMutableResolvedMappingAdapterDefault):
         key = self._key_resolver(key)
         if default is _NoMutableResolvedMappingAdapterDefault:
-            return self._proxied.pop(key)
-        return self._proxied.pop(key, default)
+            return self._values.pop(key)
+        return self._values.pop(key, default)
 
     @override
     def popitem(self) -> tuple[KeyT, ValueT]:
-        return self._proxied.popitem()
+        return self._values.popitem()

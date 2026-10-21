@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Final
 
 from typing_extensions import disjoint_base
 
-from betty.collections.keyed.adapter import KeyedCollectionAdapter
+from betty.collections.catalog.dict import FrozenDictCatalog
 from betty.definition.id import resolve_id
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.prop import HasProps
@@ -66,7 +66,7 @@ class ServiceLevel(HasProps, ManagedLifeCycle):
         ]
         plugin_types.extend(self._plugin_discovery.keys())
         return PluginDiscovererCollection(
-            KeyedCollectionAdapter(
+            FrozenDictCatalog(
                 {
                     plugin_type.definition.id: PluginDiscoverer(
                         self,

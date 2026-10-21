@@ -9,22 +9,25 @@ from typing import TYPE_CHECKING, final
 from betty.collections.sequence.adapter import MutableResolvedSequenceAdapter
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Iterable
+
+    from betty.collections import ValueResolver
 
 
 @final
-class ResolvedList[ValueT, ResolvableValueT](
+class List[ValueT, ResolvableValueT](
     MutableResolvedSequenceAdapter[ValueT, ResolvableValueT]
 ):
     """
-    Resolve values before storing them in a list.
+    A resolved list.
     """
 
     def __init__(
         self,
         values: Iterable[ValueT | ResolvableValueT] | None = None,
+        /,
         *,
-        value_resolver: Callable[[ValueT | ResolvableValueT], ValueT],
+        value_resolver: ValueResolver[ValueT, ResolvableValueT],
     ):
         super().__init__(
             [] if values is None else list(map(value_resolver, values)),

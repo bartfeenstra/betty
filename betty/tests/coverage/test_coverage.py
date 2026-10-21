@@ -422,9 +422,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/collection/__init__.py": {
         "MutableCollection": MissingReason.ABSTRACT,
     },
-    "betty/collection/keyed.py": {
-        "KeyedCollection": MissingReason.ABSTRACT,
-        "MutableKeyedCollection": MissingReason.ABSTRACT,
+    "betty/collection/catalog.py": {
+        "Catalog": MissingReason.ABSTRACT,
+        "MutableCatalog": MissingReason.ABSTRACT,
     },
     "betty/collection/mapping.py": {
         "MutableResolvedMapping": MissingReason.ABSTRACT,
