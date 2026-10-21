@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from babel import Locale
 
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.locale import ResolvableLocale, default_locale, default_locale_tag
-from betty.typing import empty_frozen_dict
 from betty.url_generators.path import PathUrlGenerator
 
 if TYPE_CHECKING:

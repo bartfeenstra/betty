@@ -3,10 +3,10 @@ from typing import Any, TypeGuard, override
 
 import pytest
 
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.html.url import generate_urls
 from betty.locale import ResolvableLocale
 from betty.media_type import ResolvableMediaType
-from betty.typing import empty_frozen_dict
 from betty.url_generator import UrlGenerator
 
 

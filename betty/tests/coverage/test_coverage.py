@@ -370,18 +370,27 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     },
     "betty/media_types.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/collection/__init__.py": {
-        "MutableCollection": MissingReason.ABSTRACT,
+        "Addable": MissingReason.ABSTRACT,
+        "Appendable": MissingReason.ABSTRACT,
+        "Clearable": MissingReason.ABSTRACT,
+        "Extendable": MissingReason.ABSTRACT,
+        "Otherable": MissingReason.ABSTRACT,
+        "Updatable": MissingReason.ABSTRACT,
     },
-    "betty/collection/keyed.py": {
-        "KeyedCollection": MissingReason.ABSTRACT,
-        "MutableKeyedCollection": MissingReason.ABSTRACT,
+    "betty/collection/catalog.py": {
+        "Catalog": MissingReason.ABSTRACT,
+        "MutableCatalog": MissingReason.ABSTRACT,
     },
     "betty/collection/mapping.py": {
-        "MutableResolvedMapping": MissingReason.ABSTRACT,
-        "ResolvedMapping": MissingReason.ABSTRACT,
+        "ResolvableMapping": MissingReason.ABSTRACT,
+        "MutableResolvableMapping": MissingReason.ABSTRACT,
     },
     "betty/collection/sequence.py": {
-        "MutableResolvedSequence": MissingReason.ABSTRACT,
+        "MutableResolvableSequence": MissingReason.ABSTRACT,
+    },
+    "betty/collections/__init__.py": {
+        "KeyResolvable": MissingReason.ABSTRACT,
+        "ValueResolvable": MissingReason.ABSTRACT,
     },
     "betty/copyright_notice.py": {
         "CopyrightNotice": MissingReason.STATIC_CONTENT_ONLY,
@@ -476,9 +485,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     "betty/plugin/factory.py": {
         "PluginManufacturerDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "PluginManufacturerError": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/collections/plugin/discoverer.py": {
-        "PluginDiscovererCollection": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/portable/__init__.py": {
         "KeyedPorter": MissingReason.ABSTRACT,

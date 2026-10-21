@@ -1,5 +1,5 @@
 """
-Mapping types and implementations.
+Mappings.
 """
 
 from __future__ import annotations
@@ -8,13 +8,15 @@ from abc import abstractmethod
 from collections.abc import Iterable, Mapping, MutableMapping
 from typing import overload, override
 
-from betty.collection import MutableCollection
+from betty.collection import Clearable
 
 
-class ResolvedMapping[KeyT, ResolvableKeyT, ValueT](Mapping[KeyT, ValueT]):
+class ResolvableMapping[KeyT, ResolvableKeyT, ValueT](Mapping[KeyT, ValueT]):
     """
     A mutable mapping of resolvable keys.
     """
+
+    __slots__ = ()
 
     @override
     @abstractmethod
@@ -35,14 +37,16 @@ class ResolvedMapping[KeyT, ResolvableKeyT, ValueT](Mapping[KeyT, ValueT]):
         pass
 
 
-class MutableResolvedMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
+class MutableResolvableMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
+    ResolvableMapping[KeyT, ResolvableKeyT, ValueT],
     MutableMapping[KeyT, ValueT],
-    MutableCollection[KeyT],
-    ResolvedMapping[KeyT, ResolvableKeyT, ValueT],
+    Clearable,
 ):
     """
     A mutable mapping of resolvable keys and values.
     """
+
+    __slots__ = ()
 
     @abstractmethod
     def __setitem__(

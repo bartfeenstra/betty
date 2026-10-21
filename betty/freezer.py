@@ -14,6 +14,8 @@ class Frozen:
     An object that is frozen (immutable) after creation.
     """
 
+    __slots__ = ()
+
 
 def is_frozen(value: Any) -> bool:
     """

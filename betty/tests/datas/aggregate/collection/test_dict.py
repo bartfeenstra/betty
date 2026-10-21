@@ -13,4 +13,4 @@ class TestDictDefinition:
         sut = DictDefinition(
             label="-", key=StrDefinition(label="-"), value=StrDefinition(label="-")
         )
-        assert sut.new([("Hello", "world!")]) == {"Hello": "world!"}
+        assert sut.new({"Hello": "world!"}) == {"Hello": "world!"}

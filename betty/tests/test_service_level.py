@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pytest
 
-from betty.plugin.error import PluginTypeNotFound
 from betty.service_level import (
     DownstreamServiceLevel,
     HasServiceLevel,
@@ -15,7 +14,7 @@ from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
 class TestServiceLevel:
     def test_plugins__with_plugin_type_not_found(self) -> None:
         sut = ServiceLevel()
-        with pytest.raises(PluginTypeNotFound):
+        with pytest.raises(KeyError):
             sut.plugins[DummyPluginDefinition]
 
     async def test_plugins__with_plugin_definition_cls(self) -> None:
