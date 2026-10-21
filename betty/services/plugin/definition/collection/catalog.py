@@ -9,8 +9,8 @@ from typing import final
 from betty.definition import ResolvableDefinition
 from betty.plugin import PluginDefinition
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
-from betty.services.plugin.collection.keyed import (
-    KeyedCollectionPluginServiceManager,
+from betty.services.plugin.collection.catalog import (
+    CatalogPluginServiceManager,
     KeyedPluginCollectionService,
 )
 from betty.services.plugin.definition.collection import (
@@ -25,7 +25,7 @@ class PluginDefinitionsService[DefinitionT: PluginDefinition](
         DefinitionT,
         KeyedPluginCollectionService[DefinitionT, DefinitionT],
     ],
-    KeyedCollectionPluginServiceManager[
+    CatalogPluginServiceManager[
         ResolvableServiceLevelHasPluginServices,
         DefinitionT,
         DefinitionT,

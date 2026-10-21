@@ -1,5 +1,5 @@
 """
-Sequence types and implementations.
+Sequences.
 """
 
 from __future__ import annotations

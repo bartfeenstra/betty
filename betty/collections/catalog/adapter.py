@@ -1,5 +1,5 @@
 """
-Adapters between keyed collections and Python data types.
+Adapters between catalogs and Python data types.
 """
 
 from __future__ import annotations
@@ -7,16 +7,21 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any, override
 
-from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
+from betty.collection.catalog import Catalog, MutableCatalog
 from betty.pipeline import pipe
 from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Mapping
 
+    from betty.collections import KeyResolver, ValueResolver
 
-class KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT](
-    KeyedCollection[KeyT, ResolvableKeyT, ValueT]
+
+# @todo We have no Python types to map to for catalogs.
+# @todo We should probably move (most of) these classes into DictCatalog.
+# @todo
+class CatalogAdapter[KeyT, ResolvableKeyT, ValueT](
+    Catalog[KeyT, ResolvableKeyT, ValueT]
 ):
     """
     A collection of values that are accessible by their primary keys.
@@ -26,8 +31,9 @@ class KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT](
         self,
         values: Mapping[KeyT, ValueT]
         | Iterable[tuple[KeyT, ValueT]] = empty_frozen_dict,
+        /,
         *,
-        key_resolver: Callable[[ResolvableKeyT | KeyT], KeyT] = pipe,
+        key_resolver: KeyResolver[KeyT, ResolvableKeyT] = pipe,
     ):
         self._values = dict(values)
         self._key_resolver = key_resolver
@@ -55,9 +61,9 @@ class KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT](
         return self._values.keys()
 
 
-class MutableKeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
-    KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT],
-    MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
+class MutableCatalogAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
+    CatalogAdapter[KeyT, ResolvableKeyT, ValueT],
+    MutableCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
 ):
     """
     A mutable ordered collection of values that are accessible by their primary keys.
@@ -65,11 +71,12 @@ class MutableKeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
 
     def __init__(
         self,
-        values: Iterable[ResolvableValueT] = (),
+        values: Iterable[ValueT | ResolvableValueT] = (),
+        /,
         *,
         key: Callable[[ValueT], KeyT],
-        key_resolver: Callable[[ResolvableKeyT | KeyT], KeyT] = pipe,
-        value_resolver: Callable[[ResolvableValueT | ValueT], ValueT] = pipe,
+        key_resolver: KeyResolver[KeyT, ResolvableKeyT] = pipe,
+        value_resolver: ValueResolver[ValueT, ResolvableValueT] = pipe,
     ):
         super().__init__(key_resolver=key_resolver)
         self._key = key
@@ -91,8 +98,5 @@ class MutableKeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
 
     @override
     def add(self, *values: ValueT | ResolvableValueT) -> None:
-        for value in map(
-            self._value_resolver,
-            values,
-        ):
+        for value in map(self._value_resolver, values):
             self._values[self._key(value)] = value

@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from betty.associations.to_many import ToMany
-    from betty.collection.keyed import MutableKeyedCollection
+    from betty.collection.catalog import MutableCatalog
     from betty.project import Project
 
 
@@ -35,7 +35,7 @@ class ToManyCollection[AssociateT: Entity](
     A collection of \*-to-many associates.
     """
 
-    _upstream: MutableKeyedCollection[
+    _upstream: MutableCatalog[
         tuple[type[AssociateT], str],
         tuple[type[AssociateT], str],
         Associate[AssociateT],

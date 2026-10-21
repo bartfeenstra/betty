@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.collection.keyed import KeyedCollection
-from betty.collections.keyed.adapter import KeyedCollectionAdapter
-from betty.collections.keyed.error import ErroringKeyedCollection
+from betty.collection.catalog import Catalog
+from betty.collections.catalog.dict import FrozenDictCatalog
+from betty.collections.catalog.error import ErroringCatalog
 from betty.definition.id import ResolvableId, resolve_id
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
@@ -16,16 +16,16 @@ from betty.plugin.error import PluginNotFound
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection import CollectionPluginServiceManager
 
-type KeyedPluginCollectionService[DefinitionT: PluginDefinition, ItemT] = (
-    KeyedCollection[MachineName, ResolvableId[DefinitionT], ItemT]
-)
+type KeyedPluginCollectionService[DefinitionT: PluginDefinition, ItemT] = Catalog[
+    MachineName, ResolvableId[DefinitionT], ItemT
+]
 
 
 class _PluginNotFound(PluginNotFound, KeyError):
     pass
 
 
-class KeyedCollectionPluginServiceManager[
+class CatalogPluginServiceManager[
     OwnerT: ResolvableServiceLevelHasPluginServices,
     DefinitionT: PluginDefinition,
     GetServiceItemT,
@@ -40,7 +40,7 @@ class KeyedCollectionPluginServiceManager[
     ]
 ):
     """
-    A service containing a keyed collection of plugin items.
+    A service containing a catalog of plugin items.
     """
 
     @final
@@ -48,12 +48,8 @@ class KeyedCollectionPluginServiceManager[
     def new_service(
         self, owner: OwnerT, /
     ) -> KeyedPluginCollectionService[DefinitionT, GetServiceItemT]:
-        return ErroringKeyedCollection[
-            MachineName, ResolvableId[DefinitionT], GetServiceItemT
-        ](
-            KeyedCollectionAdapter[
-                MachineName, ResolvableId[DefinitionT], GetServiceItemT
-            ](
+        return ErroringCatalog(
+            FrozenDictCatalog[MachineName, ResolvableId[DefinitionT], GetServiceItemT](
                 {
                     self.resolve_init_plugin_id(plugin): self.new_service_item(
                         owner, plugin

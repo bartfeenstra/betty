@@ -35,8 +35,8 @@ from betty.serializers.json import Json
 from betty.service import Service
 from betty.services.asset import AssetRepositoryService
 from betty.services.plugin import HasPluginServices
-from betty.services.plugin.definition.collection.keyed import PluginDefinitionsService
-from betty.services.plugin.instance.collection.keyed import PluginInstancesService
+from betty.services.plugin.definition.collection.catalog import PluginDefinitionsService
+from betty.services.plugin.instance.collection.catalog import PluginInstancesService
 from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
