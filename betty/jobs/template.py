@@ -9,11 +9,11 @@ from asyncio import to_thread
 from math import ceil
 from typing import TYPE_CHECKING, Final, final, override
 
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.file import write
 from betty.jinja import TemplateNames, resolve_template_names
 from betty.job import Job
 from betty.media_type import MediaType, match_extension
-from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

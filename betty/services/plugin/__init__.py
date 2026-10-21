@@ -12,7 +12,6 @@ from itertools import chain
 from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final, override
 
 from betty.definition import ResolvableDefinition, resolve_definition
-from betty.definition.id import resolve_id as resolve_id
 from betty.functools import LazyReCallable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.plugin import PluginDefinition

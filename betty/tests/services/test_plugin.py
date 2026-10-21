@@ -12,7 +12,7 @@ from betty.services.plugin import (
     PluginServiceManager,
     ResolvableServiceLevelHasPluginServices,
 )
-from betty.services.plugin.definition.collection.keyed import PluginDefinitionsService
+from betty.services.plugin.definition.collection.catalog import PluginDefinitionsService
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginManufacturer,

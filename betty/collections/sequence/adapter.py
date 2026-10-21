@@ -4,26 +4,26 @@ Adapters between Betty and Python sequences.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, MutableSequence, Sequence
+from collections.abc import Iterable, MutableSequence, Sequence
 from contextlib import suppress
-from typing import Any, overload, override
+from itertools import chain
+from typing import TYPE_CHECKING, Any, overload, override
 
-from betty.collection.sequence import MutableResolvedSequence
+from betty.collection.sequence import MutableResolvableSequence
+from betty.collections import ValueResolvable
+
+if TYPE_CHECKING:
+    from ty_extensions import Intersection
 
 
-class ResolvedSequenceAdapter[ValueT, ResolvableValueT](Sequence[ValueT]):
-    """
-    Decorate another sequence to resolve any values before proxying them.
-    """
+# This is a mixin to work around MRO issues with Generic and Sequence.
+class _SequenceAdapter[ValueT, ResolvableValueT, WrappedT: Sequence](
+    ValueResolvable[ValueT, ResolvableValueT]
+):
+    __slots__ = ("__wrapped__",)
 
-    def __init__(
-        self,
-        proxied: Sequence[ValueT],
-        *,
-        value_resolver: Callable[[ValueT | ResolvableValueT], ValueT],
-    ):
-        self._proxied = proxied
-        self._value_resolver = value_resolver
+    def __init__(self, wrapped: Intersection[WrappedT, Sequence[ValueT]], /):
+        self.__wrapped__ = wrapped
 
     @overload
     def __getitem__(self, index: int) -> ValueT:
@@ -34,47 +34,48 @@ class ResolvedSequenceAdapter[ValueT, ResolvableValueT](Sequence[ValueT]):
         pass
 
     def __getitem__(self, index):
-        return self._proxied[index]
+        return self.__wrapped__[index]
 
     def __len__(self):
-        return len(self._proxied)
+        return len(self.__wrapped__)
 
     def __contains__(self, value: Any) -> bool:
         with suppress(Exception):
-            value = self._value_resolver(value)
-        return value in self._proxied
+            value = self.resolve_value(value)
+        return value in self.__wrapped__
 
-    @override
     def index(self, value: Any, start: int = 0, stop: int | None = None) -> int:
         with suppress(Exception):
-            value = self._value_resolver(value)
+            value = self.resolve_value(value)
         args = (value, start)
         if stop is not None:
             args = (*args, stop)
-        return self._proxied.index(*args)
+        return self.__wrapped__.index(*args)
 
 
-class MutableResolvedSequenceAdapter[ValueT, ResolvableValueT](
-    ResolvedSequenceAdapter[ValueT, ResolvableValueT],
-    MutableResolvedSequence[ValueT, ResolvableValueT],
+class SequenceAdapter[ValueT, ResolvableValueT, WrappedT: Sequence](
+    _SequenceAdapter[ValueT, ResolvableValueT, WrappedT], Sequence[ValueT]
 ):
     """
     Decorate another sequence to resolve any values before proxying them.
     """
 
-    _proxied: MutableSequence[ValueT]
+    __slots__ = ()
 
-    def __init__(
-        self,
-        proxied: MutableSequence[ValueT],
-        *,
-        value_resolver: Callable[[ValueT | ResolvableValueT], ValueT],
-    ):
-        super().__init__(proxied, value_resolver=value_resolver)
+
+class MutableSequenceAdapter[ValueT, ResolvableValueT, WrappedT: MutableSequence](
+    _SequenceAdapter[ValueT, ResolvableValueT, WrappedT],
+    MutableResolvableSequence[ValueT, ResolvableValueT],
+):
+    """
+    Decorate another sequence to resolve any values before proxying them.
+    """
+
+    __slots__ = ()
 
     @override
     def insert(self, index: int, value: ValueT | ResolvableValueT) -> None:
-        self._proxied.insert(index, self._value_resolver(value))
+        self.__wrapped__.insert(index, self.resolve_value(value))
 
     @overload
     def __setitem__(self, index: int, value: ValueT | ResolvableValueT) -> None:
@@ -88,13 +89,17 @@ class MutableResolvedSequenceAdapter[ValueT, ResolvableValueT](
 
     def __setitem__(self, index, value):
         if isinstance(index, int):
-            self._proxied[index] = self._value_resolver(value)
+            self.__wrapped__[index] = self.resolve_value(value)
         else:
-            self._proxied[index] = map(self._value_resolver, value)
+            self.__wrapped__[index] = map(self.resolve_value, value)
 
     def __delitem__(self, index: int | slice) -> None:
-        del self._proxied[index]
+        del self.__wrapped__[index]
 
     @override
-    def extend(self, values: Iterable[ValueT | ResolvableValueT]) -> None:
-        self._proxied.extend(map(self._value_resolver, values))
+    def append(self, *values: ValueT | ResolvableValueT) -> None:
+        self.extend(values)
+
+    @override
+    def extend(self, *others: Any) -> None:
+        self.__wrapped__.extend(map(self.resolve_value, chain(*others)))

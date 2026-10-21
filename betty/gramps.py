@@ -32,6 +32,7 @@ from betty.associations.has_citations import HasCitations
 from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.attrs.privacy import HasPrivacy
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import AnyDate, Date, DateRange
 from betty.definition.cls import ClsDefinition
@@ -123,7 +124,6 @@ from betty.roles.informant import Informant
 from betty.roles.subject import Subject
 from betty.roles.unknown import UnknownRole
 from betty.roles.witness import Witness
-from betty.typing import empty_frozen_dict
 from betty.user import Severity
 
 if TYPE_CHECKING:
