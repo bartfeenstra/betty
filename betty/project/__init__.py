@@ -28,19 +28,17 @@ from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
-from betty.collection.sequence import MutableResolvedSequence
-from betty.collections.keyed.adapter import (
-    KeyedCollectionAdapter,
-    MutableKeyedCollectionAdapter,
-)
-from betty.collections.sequence.list import ResolvedList
+from betty.collection.sequence import MutableBettySequence
+from betty.collections.catalog.dict import DictCatalog, FrozenDictCatalog
+from betty.collections.mapping.dict import empty_frozen_dict
+from betty.collections.sequence.list import List
 from betty.copyright_notice import (
     CopyrightNoticeDefinition,
     CopyrightNoticeManufacturer,
     ManufacturableCopyrightNotice,
     ResolvableCopyrightNoticeManufacturer,
 )
-from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.datas.aggregate.collection.catalog import CatalogDefinition
 from betty.datas.aggregate.collection.sequence import MutableSequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
@@ -121,21 +119,20 @@ from betty.service_provider import (
 )
 from betty.services.asset import AssetRepositoryService
 from betty.services.plugin import HasPluginServices
-from betty.services.plugin.definition.collection.keyed import PluginDefinitionsService
-from betty.services.plugin.instance.collection.keyed import PluginInstancesService
+from betty.services.plugin.definition.collection.catalog import PluginDefinitionsService
+from betty.services.plugin.instance.collection.catalog import PluginInstancesService
 from betty.services.plugin.instance.single import PluginInstanceService
 from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
-from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator, Iterable, Sequence
     from pathlib import Path
 
     from betty.asset import AssetDirectoryDefinition
-    from betty.collection.keyed import KeyedCollection
+    from betty.collection.catalog import Catalog
     from betty.definition import ResolvableDefinition
     from betty.jinja import Environment
     from betty.localizer import AnyLocalizable
@@ -306,18 +303,16 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         The value is an integer expressing the age in years over which people are
         presumed to have died.
         """
-        self.locales: KeyedCollection[Locale, ResolvableLocale, ProjectLocale] = (
-            KeyedCollectionAdapter(
-                {
-                    project_locale.locale: project_locale
+        self.locales: Catalog[Locale, ResolvableLocale, ProjectLocale] = (
+            FrozenDictCatalog[Locale, ResolvableLocale, ProjectLocale](
+                lambda locale: locale.locale,
+                (
+                    locale
+                    if isinstance(locale, ProjectLocale)
+                    else ProjectLocale(resolve_locale(locale))
                     for locale in (locales or (default_locale,))
-                    if (
-                        project_locale := locale
-                        if isinstance(locale, ProjectLocale)
-                        else ProjectLocale(resolve_locale(locale))
-                    )
-                },
-                key_resolver=resolve_locale,
+                ),
+                key=resolve_locale,
             )
         )
         """
@@ -493,25 +488,17 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
     @service
     async def generate_entity_list_html(
         self,
-    ) -> KeyedCollection[MachineName, ResolvableId[EntityDefinition], EntityDefinition]:
+    ) -> Catalog[MachineName, ResolvableId[EntityDefinition], EntityDefinition]:
         """
         Which entity types to generate list HTML pages for.
         """
-        if self._generate_entity_list_html is None:
-            entity_types = [
-                entity_type
-                async for entity_type in self.plugins[EntityDefinition]
-                if entity_type.public_facing
-            ]
-        else:
-            entity_types = await gather(
+        return FrozenDictCatalog(
+            resolve_id,
+            await gather(
                 *map(
                     self.plugins[EntityDefinition].get, self._generate_entity_list_html
                 )
-            )
-        return KeyedCollectionAdapter(
-            {entity_type.id: entity_type for entity_type in entity_types},
-            key_resolver=resolve_id,
+            ),
         )
 
     @service
@@ -777,14 +764,14 @@ class ProjectData(Object):
 
     enrichers = CollectionOwnerAttr(
         FieldDefinition(
-            KeyedCollectionDefinition(
+            CatalogDefinition(
                 value=EnricherManufacturer,
                 label=EnricherDefinition.definition.label_plural,
-                manufacturer=lambda values: MutableKeyedCollectionAdapter(
-                    [] if values is None else list(values),
-                    key=lambda data: data.plugin_id,
-                    key_resolver=resolve_id,
-                    value_resolver=EnricherManufacturer.resolve,
+                manufacturer=lambda values: DictCatalog(
+                    lambda data: data.plugin_id,
+                    values or (),
+                    key=resolve_id,
+                    value=EnricherManufacturer.resolve,
                 ),
             ),
             optional=True,
@@ -804,14 +791,14 @@ class ProjectData(Object):
 
     service_providers = CollectionOwnerAttr(
         FieldDefinition(
-            KeyedCollectionDefinition(
+            CatalogDefinition(
                 value=ServiceProviderManufacturer,
                 label=ServiceProviderDefinition.definition.label_plural,
-                manufacturer=lambda values: MutableKeyedCollectionAdapter(
-                    [] if values is None else list(values),
-                    key=lambda data: data.plugin_id,
-                    key_resolver=resolve_id,
-                    value_resolver=ServiceProviderManufacturer.resolve,
+                manufacturer=lambda values: DictCatalog(
+                    lambda data: data.plugin_id,
+                    values or (),
+                    key=resolve_id,
+                    value=ServiceProviderManufacturer.resolve,
                 ),
             ),
             optional=True,
@@ -825,14 +812,14 @@ class ProjectData(Object):
     generate_entity_list_html = CollectionOwnerAttr(
         FieldDefinition(
             MutableSequenceDefinition[
-                MutableResolvedSequence[MachineName, ResolvableId[EntityDefinition]],
+                MutableBettySequence[MachineName, ResolvableId[EntityDefinition]],
                 MachineName,
             ](
                 label=_("Entity types to generate list HTML pages for"),
                 value=MachineName,
-                manufacturer=lambda values: ResolvedList[
+                manufacturer=lambda values: List[
                     MachineName, ResolvableId[EntityDefinition]
-                ](values, value_resolver=resolve_id),
+                ](values or (), value=resolve_id),
             ),
             optional=True,
             porter=OmitFieldPorter.new(not_),
@@ -881,14 +868,14 @@ class ProjectData(Object):
 
     loaders = CollectionOwnerAttr(
         FieldDefinition(
-            KeyedCollectionDefinition(
+            CatalogDefinition(
                 value=LoaderManufacturer,
                 label=LoaderDefinition.definition.label_plural,
-                manufacturer=lambda values: MutableKeyedCollectionAdapter(
-                    [] if values is None else list(values),
-                    key=lambda data: data.plugin_id,
-                    key_resolver=resolve_id,
-                    value_resolver=LoaderManufacturer.resolve,
+                manufacturer=lambda values: DictCatalog(
+                    lambda data: data.plugin_id,
+                    values or (),
+                    key=resolve_id,
+                    value=LoaderManufacturer.resolve,
                 ),
             ),
             optional=True,
@@ -901,15 +888,15 @@ class ProjectData(Object):
 
     locales = CollectionOwnerAttr(
         FieldDefinition(
-            KeyedCollectionDefinition(
+            CatalogDefinition(
                 value=ProjectLocale,
                 label=_("Locales"),
                 order_dump=True,
-                manufacturer=lambda values: MutableKeyedCollectionAdapter(
-                    [] if values is None else list(values),
-                    key=lambda item: item.locale,
-                    key_resolver=resolve_locale,
-                    value_resolver=lambda value: (
+                manufacturer=lambda values: DictCatalog(
+                    lambda item: item.locale,
+                    values or (),
+                    key=resolve_locale,
+                    value=lambda value: (
                         value
                         if isinstance(value, ProjectLocale)
                         else ProjectLocale(resolve_locale(value))

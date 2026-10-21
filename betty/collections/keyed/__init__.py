@@ -1,3 +1,0 @@
-"""
-Reusable keyed collections.
-"""
