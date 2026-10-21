@@ -25,7 +25,7 @@ class Dict[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
 
     def __init__(
         self,
-        values: Mapping[ResolvableKeyT, ResolvableValueT] | None = None,
+        values: Mapping[KeyT | ResolvableKeyT, ValueT | ResolvableValueT] | None = None,
         /,
         *,
         key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = passthrough,

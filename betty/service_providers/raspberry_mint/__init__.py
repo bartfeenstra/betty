@@ -6,17 +6,15 @@ from __future__ import annotations
 
 from asyncio import gather
 from collections import defaultdict
+from collections.abc import Iterable, Sequence
 from enum import Enum
 from operator import not_
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
-from betty.classtools import TypeABCMeta as TypeABCMeta
 from betty.collection.mapping import ResolvedMapping
-from betty.collections.mapping.adapter import (
-    ResolvedMappingAdapter,
-)
+from betty.collections.mapping.adapter import ResolvedMappingAdapter
 from betty.collections.mapping.dict import Dict
 from betty.content_builder import (
     ContentBuilder,
@@ -56,16 +54,122 @@ from betty.services.simple import service
 from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Iterable, Mapping, Sequence
+    from collections.abc import Collection, Mapping
 
     from betty.content_builders.raspberry_mint_columns import ResolvableColumnsWidth
     from betty.job.scheduler import Scheduler
     from betty.pathlib import StrPath
 
+
 type RegionalContent = ResolvedMapping[str, ResolvableRegion, Sequence[ContentBuilder]]
 type ResolvableRegionalContent = Mapping[
     ResolvableRegion, Iterable[ResolvableContentBuilderManufacturer]
 ]
+
+
+@final
+class ColorStyle(Enum):
+    """
+    The available color styles.
+    """
+
+    LIGHT = "light"
+    """
+    A light style with a white background.
+    """
+
+    LIGHT_SECONDARY = "light-secondary"
+    """
+    A light style with a light shade of the secondary color for the background.
+    """
+
+    LIGHT_CONTRAST = "light-contrast"
+    """
+    A light style with a light shade of gray for the background.
+    """
+
+    DARK = "dark"
+    """
+    A dark style with a black background.
+    """
+
+    DARK_SECONDARY = "dark-secondary"
+    """
+    A dark style with a dark shade of the secondary color for the background.
+    """
+
+
+@final
+class Breakpoint(Enum):
+    """
+    The theme's breakpoints.
+    """
+
+    XS = "xs"
+    SM = "sm"
+    MD = "md"
+    LG = "lg"
+    XL = "xl"
+    XXL = "xxl"
+
+
+@final
+class JustifyContent(Enum):
+    """
+    How to justify content.
+    """
+
+    START = "start"
+    END = "end"
+    CENTER = "center"
+    BETWEEN = "between"
+    AROUND = "around"
+    EVENLY = "evenly"
+
+
+single_column_text_width: Final[ResolvableColumnsWidth] = {
+    Breakpoint.XS: 12,
+    Breakpoint.LG: 11,
+    Breakpoint.XL: 10,
+    Breakpoint.XXL: 9,
+}
+
+
+@final
+class Region(Enum):
+    """
+    The available regions.
+    """
+
+    ENTITY_PAGE_CONTENT = "entity-page-content"
+    FRONT_PAGE_CONTENT = "front-page-content"
+    FRONT_PAGE_SUMMARY = "front-page-summary"
+
+    @classmethod
+    async def all(cls, project: Project, /) -> Collection[str]:
+        """
+        The available regions.
+        """
+        return {
+            *(region.value for region in cls),
+            *[
+                f"entity-page-content--{entity_type.id}"
+                async for entity_type in project.plugins[EntityDefinition]
+                if entity_type.public_facing
+            ],
+        }
+
+    @classmethod
+    def resolve(cls, region: ResolvableRegion) -> str:
+        """
+        Resolve a region to its string name.
+        """
+        if isinstance(region, str):
+            return region
+        return region.value
+
+
+type ResolvableRegion = Region | str
 
 
 class _RaspberryMint:
@@ -130,7 +234,12 @@ class RaspberryMintData(_RaspberryMint, Object, AttrFreezable):
     regional_content = CollectionOwnerAttr(
         FieldDefinition(
             MutableMappingDefinition(
-                manufacturer=lambda values: Dict(values, key_resolver=Region.resolve),
+                manufacturer=lambda values: Dict[
+                    str,
+                    ResolvableRegion,
+                    Sequence[ResolvableContentBuilderManufacturer],
+                    Iterable[ResolvableContentBuilderManufacturer],
+                ](values, key_resolver=Region.resolve),
                 label=_("Regions"),
                 key=StrDefinition(label=_("Region")),
                 value=PluginManufacturerSequenceDefinition(
@@ -333,108 +442,3 @@ class RaspberryMint(
             ),
             key_resolver=Region.resolve,
         )
-
-
-@final
-class ColorStyle(Enum):
-    """
-    The available color styles.
-    """
-
-    LIGHT = "light"
-    """
-    A light style with a white background.
-    """
-
-    LIGHT_SECONDARY = "light-secondary"
-    """
-    A light style with a light shade of the secondary color for the background.
-    """
-
-    LIGHT_CONTRAST = "light-contrast"
-    """
-    A light style with a light shade of gray for the background.
-    """
-
-    DARK = "dark"
-    """
-    A dark style with a black background.
-    """
-
-    DARK_SECONDARY = "dark-secondary"
-    """
-    A dark style with a dark shade of the secondary color for the background.
-    """
-
-
-@final
-class Breakpoint(Enum):
-    """
-    The theme's breakpoints.
-    """
-
-    XS = "xs"
-    SM = "sm"
-    MD = "md"
-    LG = "lg"
-    XL = "xl"
-    XXL = "xxl"
-
-
-@final
-class JustifyContent(Enum):
-    """
-    How to justify content.
-    """
-
-    START = "start"
-    END = "end"
-    CENTER = "center"
-    BETWEEN = "between"
-    AROUND = "around"
-    EVENLY = "evenly"
-
-
-single_column_text_width: Final[ResolvableColumnsWidth] = {
-    Breakpoint.XS: 12,
-    Breakpoint.LG: 11,
-    Breakpoint.XL: 10,
-    Breakpoint.XXL: 9,
-}
-
-
-@final
-class Region(Enum):
-    """
-    The available regions.
-    """
-
-    ENTITY_PAGE_CONTENT = "entity-page-content"
-    FRONT_PAGE_CONTENT = "front-page-content"
-    FRONT_PAGE_SUMMARY = "front-page-summary"
-
-    @classmethod
-    async def all(cls, project: Project, /) -> Collection[str]:
-        """
-        The available regions.
-        """
-        return {
-            *(region.value for region in cls),
-            *[
-                f"entity-page-content--{entity_type.id}"
-                async for entity_type in project.plugins[EntityDefinition]
-                if entity_type.public_facing
-            ],
-        }
-
-    @classmethod
-    def resolve(cls, region: ResolvableRegion) -> str:
-        """
-        Resolve a region to its string name.
-        """
-        if isinstance(region, str):
-            return region
-        return region.value
-
-
-type ResolvableRegion = Region | str
