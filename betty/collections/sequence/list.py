@@ -4,7 +4,7 @@ Lists.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING
 
 from betty.collections.sequence.adapter import MutableResolvedSequenceAdapter
 
@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from betty.collections import ValueResolver
 
 
-@final
 class List[ValueT, ResolvableValueT](
     MutableResolvedSequenceAdapter[ValueT, ResolvableValueT]
 ):

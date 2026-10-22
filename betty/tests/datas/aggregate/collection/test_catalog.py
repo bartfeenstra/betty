@@ -4,7 +4,7 @@ from typing import ClassVar
 import pytest
 
 from betty.collection.catalog import Catalog, MutableCatalog
-from betty.collections.catalog.adapter import CatalogAdapter, MutableCatalogAdapter
+from betty.collections.catalog.dict import DictCatalog, FrozenDictCatalog
 from betty.datas.aggregate.collection.catalog import (
     CatalogDefinition,
     MutableCatalogDefinition,
@@ -52,7 +52,7 @@ class TestCatalogDefinition:
     ](
         value=_item,
         label="-",
-        manufacturer=lambda values: CatalogAdapter(
+        manufacturer=lambda values: FrozenDictCatalog(
             {value["key"]: value for value in values} if values else {}
         ),
     )
@@ -63,29 +63,29 @@ class TestCatalogDefinition:
         value=_item,
         order_dump=True,
         label="-",
-        manufacturer=lambda values: CatalogAdapter(
+        manufacturer=lambda values: FrozenDictCatalog(
             {value["key"]: value for value in values} if values else {}
         ),
     )
 
     def test_load__unordered(self) -> None:
         data = self._sut_unordered.porter.load(self._portable_unordered)
-        assert isinstance(data, CatalogAdapter)
+        assert isinstance(data, FrozenDictCatalog)
         assert data["my_first_key"]["key"] == "my_first_key"
         assert data["my_first_key"]["other_element"] == "my_first_other_element"
 
     def test_load__ordered(self) -> None:
         data = self._sut_ordered.porter.load(self._portable_ordered)
-        assert isinstance(data, CatalogAdapter)
+        assert isinstance(data, FrozenDictCatalog)
         assert data["my_first_key"]["key"] == "my_first_key"
         assert data["my_first_key"]["other_element"] == "my_first_other_element"
 
     def test_dump__unordered(self) -> None:
-        data = CatalogAdapter[str, str, dict[str, str]](self._values)
+        data = FrozenDictCatalog[str, str, dict[str, str]](self._values)
         assert self._sut_unordered.porter.dump(data) == self._portable_unordered
 
     def test_dump__ordered(self) -> None:
-        data = CatalogAdapter[str, str, dict[str, str]](self._values)
+        data = FrozenDictCatalog[str, str, dict[str, str]](self._values)
         assert self._sut_ordered.porter.dump(data) == self._portable_ordered
 
 
@@ -96,30 +96,26 @@ class TestMutableCatalogDefinition:
     ](
         value=_item,
         label="-",
-        manufacturer=lambda _: MutableCatalogAdapter(key=lambda value: value["key"]),
+        manufacturer=lambda _: DictCatalog(key=lambda value: value["key"]),
     )
 
     def test_clear(self) -> None:
-        data = MutableCatalogAdapter(({"key": "qux"},), key=lambda value: value["key"])
+        data = DictCatalog(({"key": "qux"},), key=lambda value: value["key"])
         self._sut.clear(data)
         assert not data
 
     @pytest.mark.parametrize(
         ("expected", "data", "values"),
         [
-            ([], MutableCatalogAdapter(key=lambda value: value["key"]), ()),
+            ([], DictCatalog(key=lambda value: value["key"]), ()),
             (
                 [{"key": "foo"}, {"key": "bar"}],
-                MutableCatalogAdapter(
-                    ({"key": "qux"},), key=lambda value: value["key"]
-                ),
+                DictCatalog(({"key": "qux"},), key=lambda value: value["key"]),
                 ({"key": "foo"}, {"key": "bar"}),
             ),
             (
                 [],
-                MutableCatalogAdapter(
-                    ({"key": "qux"},), key=lambda value: value["key"]
-                ),
+                DictCatalog(({"key": "qux"},), key=lambda value: value["key"]),
                 (),
             ),
         ],

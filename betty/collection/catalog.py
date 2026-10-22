@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections.abc import Collection, Iterable
 
-from betty.collection import MutableCollection
+from betty.collection import MutableValueCollection
 
 
 class Catalog[KeyT, ResolvableKeyT, ValueT](Collection[ValueT]):
@@ -17,6 +17,8 @@ class Catalog[KeyT, ResolvableKeyT, ValueT](Collection[ValueT]):
     This is different from a mapping in that iteration takes place over values, not keys, and that callers cannot
     necessarily associate keys with values themselves (this may be done automatically by implementations).
     """
+
+    __slots__ = ()
 
     @abstractmethod
     def keys(self) -> Iterable[KeyT]:
@@ -29,21 +31,16 @@ class Catalog[KeyT, ResolvableKeyT, ValueT](Collection[ValueT]):
         pass
 
 
+# @todo Do we want to add .pop() and .popitem()?
 class MutableCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
-    Catalog[KeyT, ResolvableKeyT, ValueT], MutableCollection[ValueT]
+    Catalog[KeyT, ResolvableKeyT, ValueT],
+    MutableValueCollection[ValueT, ResolvableValueT],
 ):
     """
     A mutable catalog.
     """
 
-    # @todo add/append/prepend/insert and similar methods that change the collection's items, all depend on the type
-    # @todo of collection (sorted, not sorted....). We should probably not have add() here...
-    # @todo
-    @abstractmethod
-    def add(self, *values: ValueT | ResolvableValueT) -> None:
-        """
-        Add one or more values to the collection.
-        """
+    __slots__ = ()
 
     @abstractmethod
     def remove(self, *keys: KeyT | ResolvableKeyT) -> None:
