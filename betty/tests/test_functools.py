@@ -13,7 +13,6 @@ from betty.functools import (
     ResultUnavailable,
     Suppressed,
     map_suppress,
-    passthrough,
     suppress,
     unique,
 )
@@ -101,36 +100,26 @@ class TestDo:
 
 
 @pytest.mark.parametrize(
-    ("expected", "values", "key"),
+    ("expected", "values"),
     [
-        ([], [], None),
-        ([], [[]], None),
-        (["one"], [["one"]], None),
-        (["one"], [["one", "one"]], None),
-        (["one", "two"], [["one", "two"]], None),
-        (["one", "two"], [["one", "two", "one"]], None),
-        (["one"], [["one"], ["one"]], None),
-        (["one", "two"], [["one"], ["one", "two"]], None),
-        (["one", "two"], [["one"], ["one", "two", "one"]], None),
-        (
-            ["aaa", "bbb", "ccc"],
-            [["aaa", "abc", "bbb", "bob", "ccc", "coo"]],
-            lambda value: value[0],
-        ),
+        ([], []),
+        ([], [[]]),
+        (["one"], [["one"]]),
+        (["one"], [["one", "one"]]),
+        (["one", "two"], [["one", "two"]]),
+        (["one", "two"], [["one", "two", "one"]]),
+        (["one"], [["one"], ["one"]]),
+        (["one", "two"], [["one"], ["one", "two"]]),
+        (["one", "two"], [["one"], ["one", "two", "one"]]),
     ],
 )
-async def test_unique[T](
-    expected: Sequence[T],
-    values: Iterable[Iterable[T]],
-    key: Callable[[T], Any] | None,
-) -> None:
-    sut = unique(*values, key=key)
-    assert list(sut) == expected
+async def test_unique[T](expected: Sequence[T], values: Iterable[Iterable[T]]) -> None:
+    assert list(unique(*values)) == expected
 
 
-def test_passthrough() -> None:
-    value = object()
-    assert passthrough(value) is value
+async def test_unique__with_key() -> None:
+    sut = unique(["aaa", "abc", "bbb", "bob", "ccc", "coo"], key=lambda value: value[0])
+    assert list(sut) == ["aaa", "bbb", "ccc"]
 
 
 def test_map_suppress() -> None:

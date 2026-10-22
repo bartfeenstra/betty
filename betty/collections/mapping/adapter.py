@@ -19,7 +19,7 @@ from typing import Any, overload, override
 from typing_extensions import sentinel
 
 from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
-from betty.functools import passthrough
+from betty.pipeline import pipe
 
 
 class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
@@ -33,7 +33,7 @@ class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
         self,
         proxied: Mapping[KeyT, ValueT],
         *,
-        key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = passthrough,
+        key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = pipe,
     ):
         self._proxied = proxied
         self._key_resolver = key_resolver
@@ -88,8 +88,8 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
         self,
         proxied: MutableMapping[KeyT, ValueT],
         *,
-        key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = passthrough,
-        value_resolver: Callable[[ValueT | ResolvableValueT], ValueT] = passthrough,
+        key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = pipe,
+        value_resolver: Callable[[ValueT | ResolvableValueT], ValueT] = pipe,
     ):
         super().__init__(proxied, key_resolver=key_resolver)
         self._value_resolver = value_resolver

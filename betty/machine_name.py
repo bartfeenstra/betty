@@ -11,9 +11,9 @@ from uuid import uuid4
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.exception import HumanFacingException
-from betty.functools import passthrough
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, Quote
+from betty.pipeline import pipe
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
@@ -40,7 +40,7 @@ def _load(portable: PortableData, /) -> MachineName:
 @DataDefinition(
     label=_("Machine name"),
     description=machine_name_description,
-    porter=CallbackPorter(_load, passthrough),
+    porter=CallbackPorter(_load, pipe),
 )
 class MachineName(str, Data):
     """

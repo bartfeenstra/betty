@@ -85,3 +85,11 @@ class Vent[ValueT](Pipeline[ValueT, ValueT]):
     def __call__(self, value: ValueT, /) -> ValueT:
         self._into(value)
         return value
+
+
+@Inlet
+def pipe[T](arg: T, *_: Any, **__: Any) -> T:
+    """
+    Return the value of the first positional argument.
+    """
+    return arg

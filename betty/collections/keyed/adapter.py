@@ -8,7 +8,7 @@ from contextlib import suppress
 from typing import TYPE_CHECKING, Any, override
 
 from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
-from betty.functools import passthrough
+from betty.pipeline import pipe
 from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
@@ -27,7 +27,7 @@ class KeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT](
         values: Mapping[KeyT, ValueT]
         | Iterable[tuple[KeyT, ValueT]] = empty_frozen_dict,
         *,
-        key_resolver: Callable[[ResolvableKeyT | KeyT], KeyT] = passthrough,
+        key_resolver: Callable[[ResolvableKeyT | KeyT], KeyT] = pipe,
     ):
         self._values = dict(values)
         self._key_resolver = key_resolver
@@ -68,8 +68,8 @@ class MutableKeyedCollectionAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
         values: Iterable[ResolvableValueT] = (),
         *,
         key: Callable[[ValueT], KeyT],
-        key_resolver: Callable[[ResolvableKeyT | KeyT], KeyT] = passthrough,
-        value_resolver: Callable[[ResolvableValueT | ValueT], ValueT] = passthrough,
+        key_resolver: Callable[[ResolvableKeyT | KeyT], KeyT] = pipe,
+        value_resolver: Callable[[ResolvableValueT | ValueT], ValueT] = pipe,
     ):
         super().__init__(key_resolver=key_resolver)
         self._key = key

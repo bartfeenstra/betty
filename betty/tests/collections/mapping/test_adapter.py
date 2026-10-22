@@ -4,7 +4,7 @@ from betty.collections.mapping.adapter import (
     MutableResolvedMappingAdapter,
     ResolvedMappingAdapter,
 )
-from betty.functools import passthrough
+from betty.pipeline import pipe
 
 
 class TestResolvedMappingAdapter:
@@ -79,7 +79,7 @@ class TestMutableResolvedMappingAdapter:
     def test_popitem(self) -> None:
         proxied = {"TRUE": "True", "FALSE": "False"}
         sut = MutableResolvedMappingAdapter(
-            proxied, key_resolver=passthrough, value_resolver=passthrough
+            proxied, key_resolver=pipe, value_resolver=pipe
         )
         assert sut.popitem() == ("FALSE", "False")
         assert proxied == {"TRUE": "True"}

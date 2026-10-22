@@ -4,7 +4,7 @@ from betty.collections.keyed.adapter import (
     KeyedCollectionAdapter,
     MutableKeyedCollectionAdapter,
 )
-from betty.functools import passthrough
+from betty.pipeline import pipe
 
 
 class TestKeyedCollectionAdapter:
@@ -61,7 +61,7 @@ class TestMutableKeyedCollectionAdapter:
 
     def test___delitem____with_resolved_key(self) -> None:
         sut = MutableKeyedCollectionAdapter[str, Any, bool, str](
-            ["True"], key=passthrough, key_resolver=str
+            ["True"], key=pipe, key_resolver=str
         )
         del sut[True]
 
@@ -79,12 +79,12 @@ class TestMutableKeyedCollectionAdapter:
 
     def test_add__with_value_resolver(self) -> None:
         sut = MutableKeyedCollectionAdapter[str, str, str, bool](
-            [], key=passthrough, value_resolver=str
+            [], key=pipe, value_resolver=str
         )
         sut.add(True)
         assert sut["True"] == "True"
 
     def test_clear(self) -> None:
-        sut = MutableKeyedCollectionAdapter(["one"], key=passthrough)
+        sut = MutableKeyedCollectionAdapter(["one"], key=pipe)
         sut.clear()
         assert list(sut) == []
