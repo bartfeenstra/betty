@@ -29,18 +29,18 @@ class ErroringCatalog[KeyT, ResolvableKeyT, ValueT, WrappedT: Catalog](
     def __init__(
         self,
         wrapped: Intersection[WrappedT, Catalog[KeyT, ResolvableKeyT, ValueT]],
-        index_error: Callable[[KeyError, KeyT | ResolvableKeyT], KeyError],
+        key_error: Callable[[KeyError, KeyT | ResolvableKeyT], KeyError],
         /,
     ):
         super().__init__(wrapped)
-        self._index_error = index_error
+        self._key_error = key_error
 
     @override
     def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
         try:
             return self.__wrapped__[key]
         except KeyError as error:
-            raise self._index_error(error, key) from error
+            raise self._key_error(error, key) from error
 
 
 class MutableErroringCatalog[
@@ -63,11 +63,11 @@ class MutableErroringCatalog[
             try:
                 self.__wrapped__.remove(key)
             except KeyError as error:
-                raise self._index_error(error, key) from error
+                raise self._key_error(error, key) from error
 
     @override
     def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
         try:
             del self.__wrapped__[key]
         except KeyError as error:
-            raise self._index_error(error, key) from error
+            raise self._key_error(error, key) from error

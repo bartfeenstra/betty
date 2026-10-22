@@ -4,7 +4,7 @@ Dictionaries.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING
 
 from betty.collections.mapping.adapter import MutableResolvedMappingAdapter
 from betty.pipeline import pipe
@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from betty.collections import KeyResolver, ValueResolver
 
 
-@final
 class Dict[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
 ):
