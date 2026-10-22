@@ -6,7 +6,7 @@ from betty.collections.sequence.adapter import (
     MutableResolvedSequenceAdapter,
     ResolvedSequenceAdapter,
 )
-from betty.functools import passthrough
+from betty.pipeline import pipe
 
 
 class TestResolvedSequenceAdapter:
@@ -15,7 +15,7 @@ class TestResolvedSequenceAdapter:
         assert sut[0] == "True"
 
     def test___len__(self) -> None:
-        sut = ResolvedSequenceAdapter(["one"], value_resolver=passthrough)
+        sut = ResolvedSequenceAdapter(["one"], value_resolver=pipe)
         assert len(sut) == 1
 
     def test___contains__(self) -> None:
@@ -78,6 +78,6 @@ class TestMutableResolvedSequenceAdapter:
 
     def test___delitem__(self) -> None:
         proxied = ["one"]
-        sut = MutableResolvedSequenceAdapter(proxied, value_resolver=passthrough)
+        sut = MutableResolvedSequenceAdapter(proxied, value_resolver=pipe)
         del sut[0]
         assert not proxied

@@ -22,6 +22,7 @@ from typing import (
 from typing_extensions import sentinel
 
 from betty.asyncio import resolve_await
+from betty.pipeline import pipe
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Iterator
@@ -94,7 +95,7 @@ class Do[**DoFP, DoFReturnT]:
 
 
 def unique[ValueT](
-    *values: Iterable[ValueT], key: Callable[[ValueT], Any] | None = None
+    *values: Iterable[ValueT], key: Callable[[ValueT], Any] = pipe
 ) -> Iterator[ValueT]:
     """
     Yield the first occurrences of values in a sequence.
@@ -105,20 +106,11 @@ def unique[ValueT](
     than :py:class:`set`.
     """
     seen_value_keys = []
-    if key is None:
-        key = passthrough
     for value in chain(*values):
         value_key = key(value)
         if value_key not in seen_value_keys:
             seen_value_keys.append(value_key)
             yield value
-
-
-def passthrough[T](value: T, /) -> T:
-    """
-    Return the value.
-    """
-    return value
 
 
 Suppressed = sentinel("Suppressed")

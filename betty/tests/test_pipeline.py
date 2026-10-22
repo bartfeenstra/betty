@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import override
 
-from betty.pipeline import Inlet, Pipeline, Vent
+from betty.pipeline import Inlet, Pipeline, Vent, pipe
 
 
 class _Pipeline(Pipeline[int, int]):
@@ -51,3 +51,8 @@ class TestVent:
         sut = Vent[int](lambda value: carrier.append(value + 1))
         assert sut(123) == 123
         assert carrier == [124]
+
+
+def test_pipe() -> None:
+    value = object()
+    assert pipe(value) is value
