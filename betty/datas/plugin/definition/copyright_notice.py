@@ -10,6 +10,7 @@ from betty.attrs.localizable import new_localizable_attr
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.datas.plugin.definition import PluginDefinitionDefinition
 from betty.datas.plugin.definition.human_facing import HumanFacingPluginDefinitionData
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _
 from betty.sample import Sample, Samples
 
@@ -64,7 +65,7 @@ class CopyrightNoticeDefinitionData(
             label=self.label,
             description=self.description,
         )
-        class _CopyrightNoticeDefinitionDataCopyrightNotice(CopyrightNotice):
+        class _CopyrightNoticeDefinitionDataCopyrightNotice(CopyrightNotice, Frozen):
             @override
             @property
             def summary(self) -> Localizable:

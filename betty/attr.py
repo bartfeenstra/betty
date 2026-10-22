@@ -4,7 +4,7 @@ Object attributes.
 
 from __future__ import annotations
 
-from typing import Any, Final, Never
+from typing import Any, Final, Never, override
 
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import (
@@ -12,6 +12,7 @@ from betty.datas.aggregate.record import (
     ResolvableFieldDefinition,
     resolve_field_definition,
 )
+from betty.frosty import freeze
 from betty.prop import HasProps, Prop
 
 
@@ -44,3 +45,8 @@ class Attr[
         Normalize a value from ``SetT`` to ``GetT``.
         """
         return value
+
+    @override
+    def freeze(self, owner: OwnerT, /) -> None:
+        super().freeze(owner)
+        freeze(self.get(owner))

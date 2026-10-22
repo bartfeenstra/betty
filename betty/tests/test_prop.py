@@ -4,14 +4,7 @@ from typing import Never, override
 
 import pytest
 
-from betty.prop import (
-    HasProps,
-    NotDeletable,
-    NotSettable,
-    OwnerError,
-    Prop,
-    PropError,
-)
+from betty.prop import HasProps, NotDeletable, NotSettable, OwnerError, Prop, PropError
 
 
 class _PropOwner(HasProps):

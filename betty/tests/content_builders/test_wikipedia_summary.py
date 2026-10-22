@@ -3,24 +3,24 @@ from pytest_mock import MockerFixture
 from betty.content_builders.wikipedia_summary import WikipediaSummary
 from betty.document import Document
 from betty.entities.link import Link
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 from betty.test_utils.entity.associations.has_links import DummyHasLinks
 from betty.wiki.client import Summary
 
 
 class TestWikipediaSummary:
     async def test_build_template__without_has_links_resource(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[WikipediaSummary]) as project,
+            new_isolated_project(supported_plugins=[WikipediaSummary]) as project,
             project,
         ):
             sut = await WikipediaSummary.new(project)
             assert await sut.build(document=Document()) is None
 
     async def test_build_template__with_has_links_resource(
-        self, mocker: MockerFixture, isolated_project_factory: IsolatedProjectFactory
+        self, mocker: MockerFixture, new_isolated_project: NewIsolatedProject
     ) -> None:
         url = "https://en.wikipedia.org/wiki/Amsterdam"
         summary_content = "My first summary content"
@@ -30,7 +30,7 @@ class TestWikipediaSummary:
         )
         resource = DummyHasLinks(links=[Link(url)])
         async with (
-            isolated_project_factory(supported_plugins=[WikipediaSummary]) as project,
+            new_isolated_project(supported_plugins=[WikipediaSummary]) as project,
             project,
         ):
             project.ancestry.add(resource)

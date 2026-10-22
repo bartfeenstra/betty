@@ -1,15 +1,10 @@
-from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.entities.file import File
-from betty.test_utils.conftest import AssertTemplateFile
+from betty.test_utils.conftest import AssertJinja
 
 
-async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
+async def test_minimal(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     file = File(__file__)
-    async with assert_template_file(
-        data={
-            "entity": file,
-        },
-        assets={raspberry_mint},
-        template="entity/summary--file.html.j2",
-    ) as (actual, _):
-        assert actual
+    async with assert_raspberry_mint_jinja_file(
+        "entity/summary--file.html.j2", data={"entity": file}
+    ) as rendered:
+        assert rendered

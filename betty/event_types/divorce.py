@@ -10,6 +10,7 @@ from betty.event_type import EventType, EventTypeDefinition
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.event_types.marriage import Marriage
+from betty.frosties.classtools import Frozen
 from betty.localizables.gettext import _, ngettext
 
 
@@ -22,7 +23,7 @@ from betty.localizables.gettext import _, ngettext
     after={Birth, Marriage},
     before={Death},
 )
-class Divorce(EventType):
+class Divorce(EventType, Frozen):
     """
     .. plugin:: event-type:divorce.
     """

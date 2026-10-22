@@ -5,8 +5,8 @@ from typing import override
 
 import pytest
 
-from betty.classtools import ObjectAlreadyInitialized
 from betty.functools import LazyReCallable
+from betty.life_cycle import AlreadyBootstrapped
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.prop import HasProps
 from betty.service import ResolvableServiceLevelHasServices, Service, ServiceManager
@@ -51,7 +51,7 @@ class TestServiceManager:
 
         owner = _Owner(services=ServiceLevel())
         async with owner:
-            with pytest.raises(ObjectAlreadyInitialized):
+            with pytest.raises(AlreadyBootstrapped):
                 _Owner.my_first_service.pre_init_owner(owner)
 
     async def test_override(self) -> None:
@@ -77,5 +77,5 @@ class TestServiceManager:
 
         owner = _Owner(services=ServiceLevel())
         async with owner:
-            with pytest.raises(ObjectAlreadyInitialized):
+            with pytest.raises(AlreadyBootstrapped):
                 _Owner.my_first_service.override(owner, Service(object()))

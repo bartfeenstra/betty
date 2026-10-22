@@ -10,26 +10,25 @@ from __future__ import annotations
 __all__ = [
     "assert_dumps_linked_data",
     "assert_dumps_linked_data_for",
+    "assert_jinja_file",
+    "assert_jinja_str",
     "assert_linked_data_dump",
-    "assert_template_file",
-    "assert_template_string",
     "binary_file_cache",
     "demo_project_aioresponses",
     "http_client_mock",
     "isolated_app",
-    "isolated_app_factory",
     "isolated_project",
-    "isolated_project_factory",
+    "new_isolated_app",
+    "new_isolated_project",
     "page",
-    "process_pool",
 ]
 import re
 import tarfile
 from collections.abc import AsyncGenerator, Awaitable, MutableMapping, MutableSequence
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 from io import BytesIO
 from json import dumps
-from typing import TYPE_CHECKING, Any, Final, Literal, Protocol, final
+from typing import TYPE_CHECKING, Any, Final, Protocol, final
 
 import pytest
 import pytest_asyncio
@@ -40,44 +39,22 @@ from betty.app import App
 from betty.exception import do_raise
 from betty.json_schema import Schema
 from betty.licenses.spdx import SpdxLicenseDiscoverer
-from betty.multiprocessing import ProcessPoolExecutor
-from betty.project import Project, ProjectLocale
+from betty.project import Project
 from betty.stores.file import TransientBinaryFileStore
 from betty.typing import Unreachable, empty_frozen_dict
 
 if TYPE_CHECKING:
-    from collections.abc import (  # noqa: I001
-        AsyncIterator,
-        Callable,
-        Iterable,
-        Iterator,
-    )
-    from concurrent import futures
+    from collections.abc import AsyncIterator, Callable, Iterator
     from contextlib import AbstractAsyncContextManager
     from pathlib import Path
 
     from playwright.async_api import BrowserContext, Page
 
-    from betty.asset import AssetDirectoryDefinition
-    from betty.entity import EntityDefinition
-    from betty.entity.collection.pool import EntityPool
-    from betty.link import LinkDefinition
     from betty.linked_data import LinkedDataDumpableWithSchema, LinkedDataDumper
-    from betty.load import ManufacturableLoader, ManufacturableEnricher
-    from betty.locale import ResolvableLocale
-    from betty.localizable import ResolvableLocalizable
-    from betty.machine_name import ResolvableMachineName
     from betty.pathlib import StrPath
-    from betty.definition import ResolvableDefinition
-    from betty.definition.id import ResolvableId
     from betty.portable import PortableData, PortableMapping
-    from betty.server import ManufacturableServer
     from betty.service_level import Plugins
-    from betty.service_provider import ManufacturableServiceProvider
     from betty.services.plugin import SupportedPlugins
-
-    from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
-    from betty.store import TransientStore
     from betty.user.ui import Ui
 
 
@@ -98,175 +75,104 @@ async def binary_file_cache(tmp_path: Path) -> TransientBinaryFileStore:
     return TransientBinaryFileStore(tmp_path)
 
 
-@pytest.fixture(scope="session")
-async def process_pool() -> AsyncIterator[futures.ProcessPoolExecutor]:
-    """
-    Create a new, temporary :py:class:`betty.app.App`.
-    """
-    with ProcessPoolExecutor() as process_pool:
-        yield process_pool
-
-
-@pytest.fixture(scope="session")
-async def isolated_app(
-    process_pool: futures.ProcessPoolExecutor,
-) -> AsyncIterator[App]:
+@pytest.fixture
+async def isolated_app(new_isolated_app: NewIsolatedApp) -> AsyncIterator[App]:
     """
     Create a new, isolated, temporary :py:class:`betty.app.App`.
     """
-    async with App.new_isolated(process_pool=process_pool) as app, app:
+    async with new_isolated_app() as app, app:
         yield app
 
 
 @final
-class IsolatedAppFactory(Protocol):
+class NewIsolatedApp(Protocol):
     def __call__(
         self,
         *,
-        cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         binary_file_cache_directory: StrPath | None = None,
         plugins: Plugins = empty_frozen_dict,
-        process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
-        | None = None,
         ui: Ui | None = None,
     ) -> AbstractAsyncContextManager[App]:
         raise Unreachable
 
 
-@pytest.fixture(scope="session")
-def isolated_app_factory(
-    process_pool: futures.ProcessPoolExecutor,
-) -> IsolatedAppFactory:
+@pytest.fixture
+def new_isolated_app() -> NewIsolatedApp:
     """
     Get a factory to create a new, isolated, temporary :py:class:`betty.app.App`.
     """
-    fixture_process_pool = process_pool
 
     @asynccontextmanager
-    async def _isolated_app_factory(
+    async def _new_isolated_app(
         *,
-        cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         binary_file_cache_directory: StrPath | None = None,
         plugins: Plugins = empty_frozen_dict,
-        process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
-        | None = None,
         ui: Ui | None = None,
     ) -> AsyncGenerator[App]:
         async with App.new_isolated(
             binary_file_cache_directory=binary_file_cache_directory,
-            cache=cache,
-            process_pool=process_pool or fixture_process_pool,
             plugins=plugins,
             ui=ui,
         ) as app:
             yield app
 
-    return _isolated_app_factory
+    return _new_isolated_app
 
 
 @pytest.fixture
-async def isolated_project(isolated_app: App) -> AsyncIterator[Project]:
+async def isolated_project(
+    new_isolated_project: NewIsolatedProject,
+) -> AsyncIterator[Project]:
     """
     Create a new, isolated, temporary :py:class:`betty.project.Project`.
     """
-    async with Project.new_isolated(app=isolated_app) as project, project:
-        yield project
+    async with new_isolated_project() as project:
+        project.debug = True
+        async with project:
+            yield project
 
 
 @final
-class IsolatedProjectFactory(Protocol):
+class NewIsolatedProject(Protocol):
     def __call__(
         self,
         *,
-        ancestry: EntityPool | None = None,
         app: App | None = None,
-        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
-        author: ResolvableLocalizable | None = None,
-        cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
-        | None
-        | Literal[False] = False,
-        clean_urls: bool = False,
-        debug: bool = False,
         directory: StrPath | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
-        lifetime_threshold: int | None = None,
-        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
-        locales: Iterable[ProjectLocale | ResolvableLocale] = (),
-        logo: StrPath | None = None,
-        name: ResolvableMachineName | None = None,
         plugins: Plugins = empty_frozen_dict,
-        servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
-        title: ResolvableLocalizable | None = None,
-        url: str | None = None,
     ) -> AbstractAsyncContextManager[Project]:
         raise Unreachable
 
 
-@pytest.fixture(scope="session")
-def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
+@pytest.fixture
+def new_isolated_project(new_isolated_app: NewIsolatedApp) -> NewIsolatedProject:
     """
     Get a factory to create a new, isolated, temporary :py:class:`betty.project.Project`.
     """
 
     @asynccontextmanager
-    async def _isolated_project_factory(
+    async def _new_isolated_project(
         *,
-        ancestry: EntityPool | None = None,
         app: App | None = None,
-        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
-        author: ResolvableLocalizable | None = None,
-        cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
-        | None
-        | Literal[False] = False,
-        clean_urls: bool = False,
-        debug: bool = False,
         directory: StrPath | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
-        lifetime_threshold: int | None = None,
-        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
-        locales: Iterable[ProjectLocale | ResolvableLocale] = (),
-        logo: StrPath | None = None,
-        name: ResolvableMachineName | None = None,
         plugins: Plugins = empty_frozen_dict,
-        servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
-        title: ResolvableLocalizable | None = None,
-        url: str | None = None,
     ) -> AsyncGenerator[Project]:
-        async with Project.new_isolated(
-            ancestry=ancestry,
-            app=app or isolated_app,
-            assets=assets,
-            author=author,
-            cache=cache,
-            clean_urls=clean_urls,
-            debug=debug,
-            directory=directory,
-            enrichers=enrichers,
-            service_providers=service_providers,
-            generate_entity_list_html=generate_entity_list_html,
-            lifetime_threshold=lifetime_threshold,
-            links=links,
-            loaders=loaders,
-            locales=locales,
-            logo=logo,
-            name=name,
-            plugins=plugins,
-            servers=servers,
-            supported_plugins=supported_plugins,
-            title=title,
-            url=url,
-        ) as project:
-            yield project
+        async with AsyncExitStack() as stack:
+            if app is None:
+                app = await stack.enter_async_context(
+                    await stack.enter_async_context(new_isolated_app())
+                )
+            async with Project.new_isolated(
+                app=app,
+                directory=directory,
+                plugins=plugins,
+                supported_plugins=supported_plugins,
+            ) as project:
+                yield project
 
-    return _isolated_project_factory
+    return _new_isolated_project
 
 
 @pytest_asyncio.fixture(loop_scope="session")
@@ -481,148 +387,63 @@ def _demo_project_aioresponses_wiki_apis(
     )
 
 
-@asynccontextmanager
-async def _assert_template(
-    isolated_project_factory: IsolatedProjectFactory,
-    template_factory: Callable[[Environment, str], Template],
-    template: str,
-    *,
-    assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
-    autoescape: bool | None = None,
-    data: MutableMapping[str, Any] | None = None,
-    enrichers: Iterable[ManufacturableEnricher] = (),
-    service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-    links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-    loaders: Iterable[ManufacturableLoader] = (),
-) -> AsyncGenerator[tuple[str, Project]]:
-    async with (
-        isolated_project_factory(
-            assets=assets,
-            debug=True,
-            enrichers=enrichers,
-            service_providers=service_providers,
-            links=links,
-            loaders=loaders,
-        ) as project,
-        project,
+@final
+class AssertJinja:
+    def __init__(
+        self,
+        project: Project,
+        template_factory: Callable[[Environment, str], Template],
+        /,
     ):
-        if data is None:
-            data = {}
-        if "document" not in data:
-            data["document"] = await project.new_document()
-        jinja = await project.jinja
-        if autoescape is not None:
-            jinja.autoescape = autoescape
-        rendered = await template_factory(jinja, template).render_async(**data)
-        yield rendered, project
+        self.project: Final[Project] = project
+        self._template_factory = template_factory
 
-
-@final
-class AssertTemplateString(Protocol):
-    def __call__(
+    @asynccontextmanager
+    async def __call__(
         self,
         template: str,
+        /,
         *,
-        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         autoescape: bool | None = None,
         data: MutableMapping[str, Any] | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
-    ) -> AbstractAsyncContextManager[tuple[str, Project]]:
+    ) -> AsyncGenerator[str]:
         """
-        Assert that a template string can be rendered.
+        Assert that a Jinja template can be rendered.
         """
+        async with self.project:
+            if data is None:
+                data = {}
+            if "document" not in data:
+                data["document"] = await self.project.new_document()
+            jinja = await self.project.jinja
+            if autoescape is not None:
+                jinja.autoescape = autoescape
+            rendered = await self._template_factory(jinja, template).render_async(
+                **data
+            )
+            yield rendered
 
 
 @pytest.fixture
-def assert_template_string(
-    isolated_project_factory: IsolatedProjectFactory,
-) -> AssertTemplateString:
+async def assert_jinja_str(
+    new_isolated_project: NewIsolatedProject,
+) -> AsyncGenerator[AssertJinja]:
     """
-    Return an assertion to render a template string.
+    Return an assertion to render a Jinja template string.
     """
-
-    def _assert_template_string(
-        template: str,
-        *,
-        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
-        autoescape: bool | None = None,
-        data: MutableMapping[str, Any] | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
-    ) -> AbstractAsyncContextManager[tuple[str, Project]]:
-        return _assert_template(
-            isolated_project_factory,
-            Environment.from_string,
-            template,
-            assets=assets,
-            autoescape=autoescape,
-            data=data,
-            enrichers=enrichers,
-            service_providers=service_providers,
-            links=links,
-            loaders=loaders,
-        )
-
-    return _assert_template_string
-
-
-@final
-class AssertTemplateFile(Protocol):
-    def __call__(
-        self,
-        template: str,
-        *,
-        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
-        autoescape: bool | None = None,
-        data: MutableMapping[str, Any] | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
-    ) -> AbstractAsyncContextManager[tuple[str, Project]]:
-        """
-        Assert that a template file can be rendered.
-        """
+    async with new_isolated_project() as project:
+        yield AssertJinja(project, Environment.from_string)
 
 
 @pytest.fixture
-def assert_template_file(
-    isolated_project_factory: IsolatedProjectFactory,
-) -> AssertTemplateFile:
+async def assert_jinja_file(
+    new_isolated_project: NewIsolatedProject,
+) -> AsyncGenerator[AssertJinja]:
     """
-    Return an assertion to render a template file.
+    Return an assertion to render a Jinja template file.
     """
-
-    def _assert_template_file(
-        template: str,
-        *,
-        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
-        autoescape: bool | None = None,
-        data: MutableMapping[str, Any] | None = None,
-        enrichers: Iterable[ManufacturableEnricher] = (),
-        service_providers: Iterable[ManufacturableServiceProvider[Project]] = (),
-        links: Iterable[ResolvableDefinition[LinkDefinition]] = (),
-        loaders: Iterable[ManufacturableLoader] = (),
-    ) -> AbstractAsyncContextManager[tuple[str, Project]]:
-        return _assert_template(
-            isolated_project_factory,
-            Environment.get_template,
-            template,
-            assets=assets,
-            autoescape=autoescape,
-            data=data,
-            enrichers=enrichers,
-            service_providers=service_providers,
-            links=links,
-            loaders=loaders,
-        )
-
-    return _assert_template_file
+    async with new_isolated_project() as project:
+        yield AssertJinja(project, Environment.get_template)
 
 
 type AssertDumpsLinkedData[PortableDataT: PortableData] = Callable[

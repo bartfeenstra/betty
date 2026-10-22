@@ -17,7 +17,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.int import IntDefinition
-from betty.freezer import Frozen
+from betty.frosties.classtools import Frozen
 from betty.localizable import Localizable
 from betty.localizables.gettext import _
 from betty.sample import Sample, Samples, Size

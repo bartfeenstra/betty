@@ -15,6 +15,7 @@ from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.id import resolve_id
 from betty.entities.event import Event
 from betty.factory import DataManufacturable, Manufacturable
+from betty.frosties.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.project import Project
@@ -46,7 +47,7 @@ if TYPE_CHECKING:
         ),
     ),
 )
-class PresencesData(Object):
+class PresencesData(Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_presences.Presences`.
 
@@ -107,7 +108,6 @@ class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
     @Project.require
     @classmethod
     async def new(cls, project: Project, data: PresencesData | None = None, /) -> Self:
-
         if data is None:
             raise NotImplementedError
         include: Iterable[ResolvableId[RoleDefinition]] | None

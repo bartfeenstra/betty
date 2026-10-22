@@ -19,6 +19,7 @@ from betty.app import App
 from betty.exception import HumanFacingException
 from betty.factory import Manufacturable
 from betty.file import read
+from betty.frosties.classtools import Frozen
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
 from betty.localizables.plain import Plain
@@ -180,7 +181,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
             @LicenseDefinition(
                 spdx_license_id_to_license_id(license_id), label=license_name
             )
-            class _SpdxLicense(License):
+            class _SpdxLicense(License, Frozen):
                 @override
                 @property
                 def summary(self) -> Localizable:

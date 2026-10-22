@@ -45,4 +45,4 @@ class TestAsynchronousServiceManager:
         async with owner:
             actual = await owner.my_first_service
             assert actual is my_first_service_value
-            assert actual.bootstrapped
+            assert actual.is_bootstrapped

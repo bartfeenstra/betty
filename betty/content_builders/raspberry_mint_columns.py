@@ -15,6 +15,7 @@ from betty.assertions.mapping import assert_mapping
 from betty.assertions.sequence import assert_sequence
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import OwnerAttr
+from betty.classtools import TypeABCMeta
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
@@ -33,11 +34,14 @@ from betty.datas.plugin.manufacturer.sequence import (
     PluginManufacturerSequenceDefinition,
 )
 from betty.factory import DataManufacturable
+from betty.frosties.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.porters.callback import CallbackPorter
 from betty.project import Project
+from betty.prop import HasProps
 from betty.sample import Sample, Samples, Size
 from betty.service_providers.raspberry_mint import Breakpoint, JustifyContent
+from betty.typing import FrozenDict
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -47,6 +51,63 @@ type ColumnsWidth = Mapping[Breakpoint, Sequence[int]]
 type ResolvableColumnsWidth = (
     int | Sequence[int] | Mapping[Breakpoint, int] | ColumnsWidth
 )
+
+
+def _resolve_columns_width(width: ResolvableColumnsWidth) -> ColumnsWidth:
+    if isinstance(width, int):
+        return FrozenDict({Breakpoint.XS: [width]})
+    if isinstance(width, Mapping):
+        return FrozenDict({
+            breakpoint: (columns,) if isinstance(columns, int) else tuple(columns)
+            for breakpoint, columns in width.items()  # noqa: A001
+        })
+    return FrozenDict({Breakpoint.XS: tuple(width)})
+
+
+class _Columns:
+    _DEFAULT_WIDTH: ClassVar[ColumnsWidth] = FrozenDict({Breakpoint.XS: [12]})
+
+    _load_width = assert_int() | (lambda value: [value])
+    _load_widths = assert_sequence(assert_int()) | list
+    width = (
+        OwnerAttr(
+            DictDefinition(
+                key=EnumDefinition(Breakpoint, label=_("Breakpoint")),
+                value=ListDefinition(
+                    label=_("Column widths"),
+                    value=IntDefinition(label=_("Column width")),
+                ),
+                label=_("Breakpoints"),
+                porter=CallbackPorter(
+                    assert_if_else(
+                        assert_if_else(_load_width, _load_widths)
+                        | (lambda value: {Breakpoint.XS: value}),
+                        assert_mapping(
+                            assert_if_else(_load_width, _load_widths),
+                            assert_enum(Breakpoint),
+                        )
+                        | dict,
+                    ),
+                    lambda data: {
+                        breakpoint.value: widths
+                        for breakpoint, widths in data.items()  # noqa: A001
+                    },
+                ),
+            )
+        )
+        .setter(_resolve_columns_width)
+        .default(lambda: _Columns._DEFAULT_WIDTH)
+    )
+    """
+    The column widths.
+    """
+
+    justify_content = OwnerAttr(
+        EnumDefinition(JustifyContent, label=_("Justify content"))
+    ).optional
+    """
+    If and how to justify content.
+    """
 
 
 @final
@@ -114,15 +175,12 @@ type ResolvableColumnsWidth = (
     ),
     manufacturer=lambda **fields: ColumnsData(*fields.pop("content"), **fields),
 )
-class ColumnsData(Object):
+class ColumnsData(_Columns, Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_columns.Columns`.
 
     .. data:: betty.content_builders.raspberry_mint_columns:ColumnsData
     """
-
-    _DEFAULT_WIDTH: ClassVar[ColumnsWidth] = {Breakpoint.XS: [12]}
-    _width: ColumnsWidth
 
     content = OwnerAttr(
         ListDefinition(
@@ -136,48 +194,10 @@ class ColumnsData(Object):
     The content within the columns.
     """
 
-    justify_content = OwnerAttr(
-        EnumDefinition(JustifyContent, label=_("Justify content"))
-    ).optional
-    """
-    If and how to justify content.
-    """
-
-    _load_width = assert_int().pipe(lambda value: [value])
-    _load_widths = assert_sequence(assert_int()).pipe(list)
-    width = OwnerAttr(
-        DictDefinition(
-            key=EnumDefinition(Breakpoint, label=_("Breakpoint")),
-            value=ListDefinition(
-                label=_("Column widths"), value=IntDefinition(label=_("Column width"))
-            ),
-            label=_("Breakpoints"),
-            porter=CallbackPorter(
-                assert_if_else(
-                    assert_if_else(_load_width, _load_widths).pipe(
-                        lambda value: {Breakpoint.XS: value}
-                    ),
-                    assert_mapping(
-                        assert_if_else(_load_width, _load_widths),
-                        assert_enum(Breakpoint),
-                    )
-                    | dict,
-                ),
-                lambda data: {
-                    breakpoint.value: widths
-                    for breakpoint, widths in data.items()  # noqa: A001
-                },
-            ),
-        )
-    ).default(lambda: ColumnsData._DEFAULT_WIDTH)
-    """
-    The column widths.
-    """
-
     def __init__(
         self,
         *content: Iterable[ResolvableContentBuilderManufacturer],
-        width: ResolvableColumnsWidth | None = None,
+        width: ResolvableColumnsWidth = _Columns._DEFAULT_WIDTH,
         justify_content: JustifyContent | None = None,
     ):
         super().__init__()
@@ -185,16 +205,7 @@ class ColumnsData(Object):
             tuple(map(ContentBuilderManufacturer.resolve, column_content))
             for column_content in content
         )
-        if width is not None:
-            if isinstance(width, int):
-                self.width = {Breakpoint.XS: [width]}
-            elif isinstance(width, Mapping):
-                self.width = {
-                    breakpoint: [columns] if isinstance(columns, int) else columns
-                    for breakpoint, columns in width.items()  # noqa: A001
-                }
-            else:
-                self.width = {Breakpoint.XS: width}
+        self.width = width
         self.justify_content = justify_content
 
 
@@ -204,7 +215,9 @@ class ColumnsData(Object):
     label=_("Columns"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Columns(Template, DataManufacturable[ColumnsData]):
+class Columns(
+    Template, DataManufacturable[ColumnsData], HasProps, metaclass=TypeABCMeta
+):
     """
     A container with one or more columns.
 
@@ -215,14 +228,14 @@ class Columns(Template, DataManufacturable[ColumnsData]):
         self,
         /,
         *content: Iterable[ContentBuilder],
-        width: ColumnsWidth,
+        width: ColumnsWidth = _Columns._DEFAULT_WIDTH,
         jinja: Environment,
         justify_content: JustifyContent | None = None,
     ):
         super().__init__(jinja=jinja)
         self._content = tuple(map(tuple, content))
-        self._justify_content = justify_content
-        self._width = width
+        self.justify_content = justify_content
+        self.width = width
 
     @override
     @classmethod
@@ -261,9 +274,9 @@ class Columns(Template, DataManufacturable[ColumnsData]):
             return None
         return "component/raspberry-mint/columns.html.j2", {
             "columns_content": content,
-            "columns_justify_content": self._justify_content,
+            "columns_justify_content": self.justify_content,
             "columns_width": {
                 breakpoint.value: widths
-                for breakpoint, widths in self._width.items()  # noqa: A001
+                for breakpoint, widths in self.width.items()  # noqa: A001
             },
         }

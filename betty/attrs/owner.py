@@ -16,7 +16,7 @@ from betty.datas.aggregate.collection import (
     CollectionDefinition,
     MutableCollectionDefinition,
 )
-from betty.freezer import is_frozen
+from betty.frosty import freeze, is_frozen
 from betty.prop import HasProps
 from betty.props.setter import SetterProp
 
@@ -38,13 +38,17 @@ class __Owner[
         **kwargs: Any,
     ):
         super().__init__(field, *args, **kwargs)
-        self._frozen: Final[bool] = frozen
+        self.__frozen: Final[bool] = frozen
+
+    @final
+    @override
+    def post_init_owner(self, owner: OwnerT, /) -> None:
+        if self.__frozen:
+            freeze(self.get(owner))
 
     @final
     def _is_mutable(self, owner: OwnerT, /) -> bool:
-        if self._frozen or is_frozen(owner):
-            return not owner.is_initialized
-        return True
+        return self.__frozen and not owner.is_initialized or not is_frozen(owner)
 
     @final
     @override

@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.frosties.classtools import Frozen
 from betty.localizables.plain import Plain
 
 if TYPE_CHECKING:
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 
 @final
 @CopyrightNoticeDefinition("streetmix", label=Plain("Streetmix LLC"))
-class Streetmix(CopyrightNotice):
+class Streetmix(CopyrightNotice, Frozen):
     """
     .. plugin:: copyright-notice:streetmix.
     """

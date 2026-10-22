@@ -12,6 +12,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.data import Data
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
+from betty.frosties.classtools import Frozen
 from betty.importlib import fully_qualified_name
 from betty.localizables.plain import Plain
 from betty.localizer import default_localizer
@@ -109,9 +110,16 @@ class DataTestBase[DataT: Data]:
                         f'Failed asserting that sample "{sample.label.localize(default_localizer)}" instance is not equal to sample "{other_sample.label.localize(default_localizer)}"'
                     )
 
+    def test__freeze(self) -> None:
+        """
+        Tests :py:meth:`betty.frosty.Freezer._freeze` implementations with the data definition's samples.
+        """
+        for sample in self.sut_cls.definition.samples:
+            sample.subject._freeze()
+
 
 @ObjectDefinition(label=Plain("Dummy data"))
-class DummyData(Object):
+class DummyData(Object, Frozen):
     """
     A dummy :py:class:`betty.data.Data` implementation.
     """

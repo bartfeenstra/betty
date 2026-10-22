@@ -13,11 +13,11 @@ from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
+from betty.frosties.attr import AttrFreezable
 from betty.json_schema import JsonSchemaReference, String
 from betty.linked_data import JsonLdObject, LinkedDataDumpableWithSchemaJsonLdObject
 from betty.localizables.gettext import _, ngettext
 from betty.localizer import default_localizer
-from betty.machine_name import MachineName
 from betty.media_types.json_ld import JSON_LD
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.privacy import Privacy
@@ -39,6 +39,7 @@ if TYPE_CHECKING:
 
 class Entity(
     LinkedDataDumpableWithSchemaJsonLdObject,
+    AttrFreezable,
     Data["EntityDefinition"],
     HasPrivacy,
     HasAssociations,
@@ -64,7 +65,7 @@ class Entity(
         privacy: Privacy = Privacy.UNDETERMINED,
         **kwargs: Any,
     ):
-        self.id = MachineName() if id is None else MachineName.resolve(id)
+        self.id = id
         super().__init__(*args, privacy=privacy, **kwargs)
 
     @override

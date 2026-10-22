@@ -11,6 +11,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.plugin_manufacturer_sequence import (
     new_plugin_manufacturer_sequence_attr,
 )
+from betty.classtools import TypeABCMeta
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
@@ -23,13 +24,24 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.factory import DataManufacturable
+from betty.frosties.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.project import Project
+from betty.prop import HasProps
 from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
     from betty.document import Document
     from betty.jinja import Environment
+
+
+class _Box:
+    min_height = OwnerAttr(StrDefinition(label=_("Minimum height"))).optional
+    max_height = OwnerAttr(StrDefinition(label=_("Maximum height"))).optional
+    height = OwnerAttr(StrDefinition(label=_("Height"))).optional
+    min_width = OwnerAttr(StrDefinition(label=_("Minimum width"))).optional
+    max_width = OwnerAttr(StrDefinition(label=_("Maximum width"))).optional
+    width = OwnerAttr(StrDefinition(label=_("Width"))).optional
 
 
 @final
@@ -53,7 +65,7 @@ if TYPE_CHECKING:
     ),
     manufacturer=lambda **fields: BoxData(*fields.pop("content"), **fields),
 )
-class BoxData(Object):
+class BoxData(_Box, Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.content_builders.box.Box`.
 
@@ -66,13 +78,6 @@ class BoxData(Object):
     """
     The content within this box.
     """
-
-    min_height = OwnerAttr(StrDefinition(label=_("Minimum height"))).optional
-    max_height = OwnerAttr(StrDefinition(label=_("Maximum height"))).optional
-    height = OwnerAttr(StrDefinition(label=_("Height"))).optional
-    min_width = OwnerAttr(StrDefinition(label=_("Minimum width"))).optional
-    max_width = OwnerAttr(StrDefinition(label=_("Maximum width"))).optional
-    width = OwnerAttr(StrDefinition(label=_("Width"))).optional
 
     def __init__(
         self,
@@ -96,7 +101,7 @@ class BoxData(Object):
 
 @final
 @ContentBuilderDefinition("box", label=_("Box"))
-class Box(Template, DataManufacturable[BoxData]):
+class Box(_Box, Template, DataManufacturable[BoxData], HasProps, metaclass=TypeABCMeta):
     """
     .. plugin:: content-builder:box.
     """
@@ -115,12 +120,12 @@ class Box(Template, DataManufacturable[BoxData]):
     ):
         super().__init__(jinja=jinja)
         self._content = tuple(content)
-        self._min_height = min_height
-        self._max_height = max_height
-        self._height = height
-        self._min_width = min_width
-        self._max_width = max_width
-        self._width = width
+        self.min_height = min_height
+        self.max_height = max_height
+        self.height = height
+        self.min_width = min_width
+        self.max_width = max_width
+        self.width = width
 
     @override
     @classmethod
@@ -158,10 +163,10 @@ class Box(Template, DataManufacturable[BoxData]):
             return None
         return "component/box.html.j2", {
             "box_content": content,
-            "box_min_height": self._min_height,
-            "box_max_height": self._max_height,
-            "box_height": self._height,
-            "box_min_width": self._min_width,
-            "box_max_width": self._max_width,
-            "box_width": self._width,
+            "box_min_height": self.min_height,
+            "box_max_height": self.max_height,
+            "box_height": self.height,
+            "box_min_width": self.min_width,
+            "box_max_width": self.max_width,
+            "box_width": self.width,
         }

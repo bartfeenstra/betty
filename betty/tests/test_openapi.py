@@ -2,7 +2,7 @@ import pytest
 
 from betty.json_schemas.openapi import OpenapiSchema
 from betty.openapi import Specification
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestSpecification:
@@ -14,9 +14,11 @@ class TestSpecification:
         ],
     )
     async def test_build(
-        self, clean_urls: bool, isolated_project_factory: IsolatedProjectFactory
+        self, clean_urls: bool, new_isolated_project: NewIsolatedProject
     ) -> None:
-        async with isolated_project_factory(clean_urls=clean_urls) as project, project:
-            sut = Specification(project)
-            specification = await sut.build()
-        OpenapiSchema().validate(specification)
+        async with new_isolated_project() as project:
+            project.clean_urls = True
+            async with project:
+                sut = Specification(project)
+                specification = await sut.build()
+            OpenapiSchema().validate(specification)

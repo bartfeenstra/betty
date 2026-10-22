@@ -1,0 +1,3 @@
+"""
+Reusable freezer strategies.
+"""

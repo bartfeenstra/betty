@@ -16,6 +16,7 @@ from betty.association import (
 )
 from betty.collection import MutableCollection
 from betty.entity import Entity
+from betty.frosties.attr import AttrFreezable
 from betty.functools import unique
 
 if TYPE_CHECKING:
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
 
 @final
 class ToManyCollection[AssociateT: Entity](
+    AttrFreezable,
     MutableCollection[AssociateT],
     Sequence[AssociateT],
 ):

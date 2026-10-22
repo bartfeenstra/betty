@@ -55,7 +55,7 @@ if TYPE_CHECKING:
     from betty.event_type import ResolvableEventTypeManufacturer
     from betty.place_type import ResolvablePlaceTypeManufacturer
     from betty.role import ResolvableRoleManufacturer
-    from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
+    from betty.test_utils.conftest import NewIsolatedApp, NewIsolatedProject
 
 
 def test_machinify() -> None:
@@ -307,8 +307,10 @@ class TestGrampsLoader:
 
     @pytest.fixture
     async def load_project(self) -> AsyncIterator[Project]:
-        async with Project.new_isolated(name=self.project_name) as project, project:
-            yield project
+        async with Project.new_isolated() as project:
+            project.name = self.project_name
+            async with project:
+                yield project
 
     @pytest.fixture
     async def load_partial(self, isolated_project: Project) -> LoadPartial:
@@ -2251,13 +2253,13 @@ class TestGrampsLoader:
         self,
         expected: Locale | None,
         locale: str,
-        isolated_app_factory: IsolatedAppFactory,
-        isolated_project_factory: IsolatedProjectFactory,
+        new_isolated_app: NewIsolatedApp,
+        new_isolated_project: NewIsolatedProject,
     ) -> None:
         user = StaticUi()
         async with (
-            isolated_app_factory(ui=user) as app,
-            isolated_project_factory(app=app) as project,
+            new_isolated_app(ui=user) as app,
+            new_isolated_project(app=app) as project,
         ):
             sut = GrampsLoader(project, attribute_prefix_key=self.attribute_prefix_key)
             assert await sut.load_locale(locale) == expected

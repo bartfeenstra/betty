@@ -6,18 +6,19 @@ from betty.enrichers.populate_links import PopulateLinks
 from betty.entities.link import Link
 from betty.load import load
 from betty.localizer import default_localizer
+from betty.project import Project
 
 if TYPE_CHECKING:
     from aioresponses import aioresponses
 
-    from betty.test_utils.conftest import IsolatedProjectFactory
+    from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestPopulateLinks:
     async def test_enrich(
         self,
         http_client_mock: aioresponses,
-        isolated_project_factory: IsolatedProjectFactory,
+        new_isolated_project: NewIsolatedProject,
     ) -> None:
         link_url = "https://example.com"
         link_page_title = "Hello, world!"
@@ -30,11 +31,10 @@ class TestPopulateLinks:
             headers={"Content-Type": "text/html"},
         )
 
-        async with (
-            isolated_project_factory(enrichers=[PopulateLinks]) as project,
-            project,
-        ):
-            link = Link("https://example.com")
-            project.ancestry.add(link)
-            await load(project)
-            assert link.label.localize(default_localizer) == link_page_title
+        async with new_isolated_project() as project:
+            Project.enrichers.add_init_plugins(project, PopulateLinks)
+            async with project:
+                link = Link("https://example.com")
+                project.ancestry.add(link)
+                await load(project)
+                assert link.label.localize(default_localizer) == link_page_title

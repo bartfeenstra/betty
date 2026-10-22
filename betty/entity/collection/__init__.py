@@ -8,13 +8,14 @@ from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any
 
 from betty.entity import Entity
+from betty.frosties.attr import AttrFreezable
 from betty.functools import unique
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
 
 
-class EntityCollection[TargetT: Entity = Entity](metaclass=ABCMeta):
+class EntityCollection[TargetT: Entity = Entity](AttrFreezable, metaclass=ABCMeta):
     """
     Provide a collection of entities.
 
