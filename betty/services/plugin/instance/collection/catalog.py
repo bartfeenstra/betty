@@ -13,7 +13,7 @@ from betty.plugin.factory import ManufacturablePlugin, PluginManufacturer
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection.catalog import (
     CatalogPluginServiceManager,
-    KeyedPluginCollectionService,
+    PluginServiceCatalog,
 )
 from betty.services.plugin.instance.collection import (
     CollectionPluginInstanceServiceManager,
@@ -32,7 +32,7 @@ class PluginInstancesService[
     CollectionPluginInstanceServiceManager[
         ResolvableServiceLevelHasPluginServices,
         DefinitionT,
-        KeyedPluginCollectionService[DefinitionT, ReAwaitable[PluginT]],
+        PluginServiceCatalog[DefinitionT, ReAwaitable[PluginT]],
         PluginManufacturerT,
         PluginT,
     ],

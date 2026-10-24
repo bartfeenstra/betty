@@ -507,9 +507,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PluginManufacturerDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "PluginManufacturerError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/collections/plugin/discoverer.py": {
-        "PluginDiscovererCollection": MissingReason.STATIC_CONTENT_ONLY,
-    },
     "betty/portable/__init__.py": {
         "KeyedPorter": MissingReason.ABSTRACT,
         "Portable": MissingReason.ABSTRACT,
