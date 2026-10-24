@@ -33,6 +33,7 @@ class _DictCatalog[KeyT, ResolvableKeyT, ValueT](Catalog[KeyT, ResolvableKeyT, V
         self.__key_resolver = key_resolver
 
     @final
+    @override
     def resolve_key(self, key: KeyT | ResolvableKeyT) -> KeyT:
         return self.__key_resolver(key)
 
@@ -92,6 +93,7 @@ class DictCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
         self.__value_resolver = value_resolver
         self.add(*values)
 
+    @final
     @override
     def resolve_value(self, value: ValueT | ResolvableValueT) -> ValueT:
         return self.__value_resolver(value)
