@@ -28,7 +28,7 @@ from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
-from betty.collection.sequence import MutableResolvedSequence
+from betty.collection.sequence import MutableBettySequence
 from betty.collections.catalog.dict import DictCatalog, FrozenDictCatalog
 from betty.collections.sequence.list import List
 from betty.copyright_notice import (
@@ -825,7 +825,7 @@ class ProjectData(Object):
     generate_entity_list_html = CollectionOwnerAttr(
         FieldDefinition(
             MutableSequenceDefinition[
-                MutableResolvedSequence[MachineName, ResolvableId[EntityDefinition]],
+                MutableBettySequence[MachineName, ResolvableId[EntityDefinition]],
                 MachineName,
             ](
                 label=_("Entity types to generate list HTML pages for"),

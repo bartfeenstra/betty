@@ -28,8 +28,7 @@ if TYPE_CHECKING:
 
 @final
 class ToManyCollection[AssociateT: Entity](
-    MutableCollection[AssociateT],
-    Sequence[AssociateT],
+    MutableCollection[AssociateT], Sequence[AssociateT]
 ):
     r"""
     A collection of \*-to-many associates.

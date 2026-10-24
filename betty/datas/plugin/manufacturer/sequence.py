@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.collection.sequence import MutableResolvedSequence
+from betty.collection.sequence import MutableBettySequence
 from betty.collections.sequence.list import List
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.definition.cls import ClsDefinition
@@ -25,7 +25,7 @@ class PluginManufacturerSequenceDefinition[
     PluginManufacturerT: PluginManufacturer,
 ](
     SequenceDefinition[
-        MutableResolvedSequence[
+        MutableBettySequence[
             PluginManufacturerT,
             ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],
         ],

@@ -4,14 +4,14 @@ Collection data tpes.
 
 from __future__ import annotations
 
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Collection
-from typing import Any
+from typing import TYPE_CHECKING, Any, overload
 
-# @todo Can we constrain KeyT to a protocol that indicates a type is comparable?
-# @todo
-# @todo
-type Keyer[ItemT, KeyT] = Callable[[ItemT], KeyT]
+from _typeshed import SupportsRichComparison
+
+if TYPE_CHECKING:
+    from ty_extensions import Intersection
 
 
 class MutableCollection[ItemT](Collection[ItemT]):
@@ -28,52 +28,118 @@ class MutableCollection[ItemT](Collection[ItemT]):
         """
 
 
-class AddableCollection[ItemT, ResolvableItemT](MutableCollection[ItemT]):
+class ResolvedKeyCollection[KeyT, ResolvableKeyT](metaclass=ABCMeta):
     """
-    A mutable collection to which items can be added.
-    """
-
-    __slots__ = ()
-
-    @abstractmethod
-    def add(self, *items: ItemT | ResolvableItemT) -> None:
-        """
-        Add one or more items to the collection.
-
-        If an item already exists in the collection, what happens is up to the implementation.
-        """
-
-
-class AppendableCollection[ItemT, ResolvableItemT](MutableCollection[ItemT]):
-    """
-    An ordered collection to which items can be appended.
+    A collection that can resolve a wide range of data to its internal key type.
     """
 
     __slots__ = ()
 
     @abstractmethod
-    def append(self, *items: ItemT | ResolvableItemT) -> None:
+    def resolve_key(self, key: KeyT | ResolvableKeyT) -> KeyT:
         """
-        Append one or more items to the collection.
+        Resolve a key.
         """
 
 
-class ReversibleCollection[ItemT](MutableCollection[ItemT]):
+class ResolvedValueCollection[ValueT, ResolvableValueT](metaclass=ABCMeta):
+    """
+    A collection that can resolve a wide range of data to its internal value type.
+    """
+
+    __slots__ = ()
+
     @abstractmethod
-    def reverse(self) -> None:
+    def resolve_value(self, value: ValueT | ResolvableValueT) -> ValueT:
         """
-        Reverse the order of the items.
+        Resolve a value.
         """
+
+
+class UpdatableCollection[ValueT, ResolvableValueT](
+    ResolvedValueCollection[ValueT, ResolvableValueT]
+):
+    """
+    A mutable collection that can be updated with new values.
+    """
+
+    __slots__ = ()
+
+    @abstractmethod
+    def add(self, *values: ValueT | ResolvableValueT) -> None:
+        """
+        Add one or more values to the collection, overwriting existing duplicates.
+        """
+
+    # @todo What to type ``others`` on?
+    @abstractmethod
+    def update(self, *others: Any) -> None:
+        """
+        Update the collection with the values of all the others, overwriting existing duplicates.
+        """
+
+
+class AppendableCollection[ValueT, ResolvableValueT](
+    ResolvedValueCollection[ValueT, ResolvableValueT]
+):
+    """
+    An ordered collection that can be extended with new values.
+    """
+
+    __slots__ = ()
+
+    @abstractmethod
+    def append(self, *values: ValueT | ResolvableValueT) -> None:
+        """
+        Append one or more values to the collection.
+        """
+
+    # @todo What to type ``others`` on?
+    @abstractmethod
+    def extend(self, *others: Any) -> None:
+        """
+        Extend the collection with the values of all the others.
+        """
+
+
+type SortKey[ItemT] = Callable[[ItemT], SupportsRichComparison]
 
 
 class SortableCollection[ItemT](MutableCollection[ItemT]):
-    @abstractmethod
+    """
+    A collection whose items can be sorted in-place.
+    """
+
+    __slots__ = ()
+
+    # @todo Do we need overloads?
+    # @todo THe items must only be SupportsRichComparison is no key is given. if a key is given, items maybe anything.
+    # @todo
+    # @todo
+    @overload
     def sort(
-        self, *, key: Keyer[ItemT, Any] | None = None, reverse: bool = False
+        self: Collection[Intersection[ItemT, SupportsRichComparison]],
+        *,
+        key: None = None,
+        reverse: bool = False,
     ) -> None:
+        pass
+
+    @overload
+    def sort(self, *, key: SortKey[ItemT] | None = None, reverse: bool = False) -> None:
+        pass
+
+    @abstractmethod
+    def sort(self, *, key=None, reverse=False) -> None:
         """
         Sort the items.
 
         If ``key`` is ``None``, sort the items themselves. Otherwise, sort the items using ``key``'s return value for
         each item.
+        """
+
+    @abstractmethod
+    def reverse(self) -> None:
+        """
+        Reverse the order of the items.
         """

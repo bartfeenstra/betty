@@ -8,10 +8,16 @@ from abc import abstractmethod
 from collections.abc import Iterable, Mapping, MutableMapping
 from typing import overload, override
 
-from betty.collection import MutableCollection
+from betty.collection import (
+    MutableCollection,
+    ResolvedKeyCollection,
+    ResolvedValueCollection,
+)
 
 
-class ResolvedMapping[KeyT, ResolvableKeyT, ValueT](Mapping[KeyT, ValueT]):
+class BettyMapping[KeyT, ResolvableKeyT, ValueT](
+    Mapping[KeyT, ValueT], ResolvedKeyCollection[KeyT, ResolvableKeyT]
+):
     """
     A mutable mapping of resolvable keys.
     """
@@ -35,10 +41,11 @@ class ResolvedMapping[KeyT, ResolvableKeyT, ValueT](Mapping[KeyT, ValueT]):
         pass
 
 
-class MutableResolvedMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
+class MutableBettyMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     MutableMapping[KeyT, ValueT],
     MutableCollection[KeyT],
-    ResolvedMapping[KeyT, ResolvableKeyT, ValueT],
+    BettyMapping[KeyT, ResolvableKeyT, ValueT],
+    ResolvedValueCollection[ValueT, ResolvableValueT],
 ):
     """
     A mutable mapping of resolvable keys and values.
