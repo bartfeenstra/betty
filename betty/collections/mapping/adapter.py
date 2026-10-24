@@ -4,43 +4,30 @@ Adapters between Betty and Python mappings.
 
 from __future__ import annotations
 
-from collections.abc import (
-    Callable,
-    Iterable,
-    Iterator,
-    Mapping,
-    MutableMapping,
-    Sequence,
-)
+from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequence
 from contextlib import suppress
 from itertools import chain
 from typing import Any, overload, override
 
+from ty_extensions import Intersection
 from typing_extensions import sentinel
 
-from betty.collection.mapping import MutableResolvedMapping, ResolvedMapping
-from betty.pipeline import pipe
+from betty.collection.mapping import BettyMapping, MutableBettyMapping
 
 
-class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
-    ResolvedMapping[KeyT, ResolvableKeyT, ValueT]
+class MappingAdapter[KeyT, ResolvableKeyT, ValueT, WrappedT: Mapping](
+    BettyMapping[KeyT, ResolvableKeyT, ValueT]
 ):
     """
     Decorate another mapping to resolve any values before proxying them.
     """
 
-    def __init__(
-        self,
-        proxied: Mapping[KeyT, ValueT],
-        *,
-        key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = pipe,
-    ):
-        self._proxied = proxied
-        self._key_resolver = key_resolver
+    def __init__(self, wrapped: Intersection[WrappedT, Mapping[KeyT, ValueT]], /):
+        self.__wrapped__ = wrapped
 
     @override
     def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
-        return self._proxied[self._key_resolver(key)]
+        return self.__wrapped__[self.resolve_key(key)]
 
     @overload
     def get[T](self, key: KeyT | ResolvableKeyT, default: T, /) -> ValueT | T:
@@ -52,55 +39,52 @@ class ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT](
 
     @override
     def get(self, key, *args):
-        return self._proxied.get(self._key_resolver(key), *args)
+        return self.__wrapped__.get(self.resolve_key(key), *args)
 
     @override
     def __iter__(self) -> Iterator[KeyT]:
-        return iter(self._proxied)
+        return iter(self.__wrapped__)
 
     @override
     def __len__(self) -> int:
-        return len(self._proxied)
+        return len(self.__wrapped__)
 
     @override
     def __contains__(self, key: Any) -> bool:
         with suppress(Exception):
-            key = self._key_resolver(key)
-        return key in self._proxied
+            key = self.resolve_key(key)
+        return key in self.__wrapped__
 
 
-_NoMutableResolvedMappingAdapterDefault = sentinel(
-    "_NoMutableResolvedMappingAdapterDefault"
-)
+_NoMutableMappingAdapterDefault = sentinel("_NoMutableMappingAdapterDefault")
 
 
-class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
-    ResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT],
-    MutableResolvedMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
+class MutableMappingAdapter[
+    KeyT,
+    ResolvableKeyT,
+    ValueT,
+    ResolvableValueT,
+    WrappedT: MutableMapping,
+](
+    MappingAdapter[
+        KeyT,
+        ResolvableKeyT,
+        ValueT,
+        Intersection[WrappedT, MutableMapping[KeyT, ValueT]],
+    ],
+    MutableBettyMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
 ):
     """
     Decorate another mapping to resolve any values before proxying them.
     """
 
-    _proxied: MutableMapping[KeyT, ValueT]
-
-    def __init__(
-        self,
-        proxied: MutableMapping[KeyT, ValueT],
-        *,
-        key_resolver: Callable[[KeyT | ResolvableKeyT], KeyT] = pipe,
-        value_resolver: Callable[[ValueT | ResolvableValueT], ValueT] = pipe,
-    ):
-        super().__init__(proxied, key_resolver=key_resolver)
-        self._value_resolver = value_resolver
-
     def __setitem__(
         self, key: KeyT | ResolvableKeyT, value: ValueT | ResolvableValueT
     ) -> None:
-        self._proxied[self._key_resolver(key)] = self._value_resolver(value)
+        self.__wrapped__[self.resolve_key(key)] = self.resolve_value(value)
 
     def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
-        del self._proxied[self._key_resolver(key)]
+        del self.__wrapped__[self.resolve_key(key)]
 
     @overload
     def update(
@@ -123,8 +107,8 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
             items = chain(items, other.items())
         elif isinstance(other, Sequence):
             items = chain(items, other)
-        self._proxied.update({
-            self._key_resolver(key): self._value_resolver(value)  # ty:ignore[invalid-argument-type]
+        self.__wrapped__.update({
+            self.resolve_key(key): self.resolve_value(value)  # ty:ignore[invalid-argument-type]
             for key, value in items
         })
 
@@ -144,13 +128,13 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
         pass
 
     @override
-    def setdefault(self, key, default=_NoMutableResolvedMappingAdapterDefault):
-        return self._proxied.setdefault(
-            self._key_resolver(key),
+    def setdefault(self, key, default=_NoMutableMappingAdapterDefault):
+        return self.__wrapped__.setdefault(
+            self.resolve_key(key),
             None
-            if default is _NoMutableResolvedMappingAdapterDefault
-            else self._value_resolver(default),
-        )  # ty:ignore[no-matching-overload]
+            if default is _NoMutableMappingAdapterDefault
+            else self.resolve_value(default),
+        )
 
     @overload
     def pop(self, key: KeyT | ResolvableKeyT, /) -> ValueT:
@@ -167,12 +151,12 @@ class MutableResolvedMappingAdapter[KeyT, ResolvableKeyT, ValueT, ResolvableValu
         pass
 
     @override
-    def pop(self, key, default=_NoMutableResolvedMappingAdapterDefault):
-        key = self._key_resolver(key)
-        if default is _NoMutableResolvedMappingAdapterDefault:
-            return self._proxied.pop(key)
-        return self._proxied.pop(key, default)
+    def pop(self, key, default=_NoMutableMappingAdapterDefault):
+        key = self.resolve_key(key)
+        if default is _NoMutableMappingAdapterDefault:
+            return self.__wrapped__.pop(key)
+        return self.__wrapped__.pop(key, default)
 
     @override
     def popitem(self) -> tuple[KeyT, ValueT]:
-        return self._proxied.popitem()
+        return self.__wrapped__.popitem()

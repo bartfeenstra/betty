@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
-from betty.collections.mapping.adapter import MutableResolvedMappingAdapter
+from betty.collections.mapping.adapter import MutableMappingAdapter
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -76,7 +76,7 @@ def _new_plugin_mapping_attr[
     ](
         FieldDefinition(
             MappingDefinition(
-                manufacturer=lambda values: MutableResolvedMappingAdapter[
+                manufacturer=lambda values: MutableMappingAdapter[
                     str,
                     str,
                     PluginManufacturerT,

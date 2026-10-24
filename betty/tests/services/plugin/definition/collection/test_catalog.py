@@ -1,32 +1,34 @@
+from betty.definition import ResolvableDefinition
 from betty.service_level import HasServiceLevel
 from betty.services.plugin import HasPluginServices
-from betty.services.plugin.instance.collection.keyed import PluginInstancesService
+from betty.services.plugin.definition.collection.catalog import (
+    PluginDefinitionsService,
+)
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginOne,
     DummyPluginThree,
     DummyPluginTwo,
-    ManufacturableDummyPlugin,
 )
 from betty.tests.services.test_plugin import (
     PluginServiceManagerTestBase,
 )
 
 
-class TestPluginInstancesService(PluginServiceManagerTestBase):
+class TestPluginDefinitionsService(PluginServiceManagerTestBase):
     class _Owner(HasPluginServices, HasServiceLevel):
-        my_first_service = PluginInstancesService(DummyPluginDefinition)
+        my_first_service = PluginDefinitionsService(DummyPluginDefinition)
 
-        def __init__(self, *init_plugins: ManufacturableDummyPlugin):
-            super().__init__(services=TestPluginInstancesService._SERVICES)
+        def __init__(self, *init_plugins: ResolvableDefinition[DummyPluginDefinition]):
+            super().__init__(services=TestPluginDefinitionsService._SERVICES)
             type(self).my_first_service.add_init_plugins(self, *init_plugins)
 
-    async def test_new_service__without_plugins(self) -> None:
+    async def test_new_service__without_plugin_definitions(self) -> None:
         owner = self._Owner()
         async with owner:
             assert not owner.my_first_service
 
-    async def test_new_service__with_plugins(self) -> None:
+    async def test_new_service__with_plugin_definitions(self) -> None:
         owner = self._Owner(DummyPluginOne, DummyPluginTwo)
         async with owner:
             assert DummyPluginOne in owner.my_first_service

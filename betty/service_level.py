@@ -5,13 +5,17 @@ Service levels.
 from __future__ import annotations
 
 from importlib import metadata
-from typing import TYPE_CHECKING, Any, Final
+from typing import TYPE_CHECKING, Any, Final, override
 
 from typing_extensions import disjoint_base
 
-from betty.collections.keyed.adapter import KeyedCollectionAdapter
+from betty.collections.catalog.dict import FrozenDictCatalog
 from betty.definition.id import resolve_id
+from betty.functools import raise_
 from betty.life_cycle.manage import ManagedLifeCycle
+from betty.machine_name import MachineName
+from betty.plugin import PluginDefinition
+from betty.plugin.discovery import PluginDiscoverer
 from betty.prop import HasProps
 from betty.services.simple import service
 from betty.typing import empty_frozen_dict
@@ -19,17 +23,28 @@ from betty.typing import empty_frozen_dict
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
-    from betty.collections.plugin.discoverer import PluginDiscovererCollection
     from betty.factory import Factory
-    from betty.plugin import PluginDefinition
     from betty.plugin.discovery import ResolvableDiscovery
 
+# @todo What is this for?
 if TYPE_CHECKING:
     type Plugins = Mapping[
         type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
     ]
 else:
     type Plugins = Any
+
+
+class _Plugins(
+    FrozenDictCatalog[
+        MachineName, type[PluginDefinition] | MachineName | str, PluginDiscoverer
+    ]
+):
+    @override
+    def __getitem__[DefinitionT: PluginDefinition = PluginDefinition](
+        self, key: type[DefinitionT] | MachineName | str
+    ) -> PluginDiscoverer[DefinitionT]:
+        return super().__getitem__(key)  # ty:ignore[invalid-return-type]
 
 
 @disjoint_base
@@ -49,11 +64,12 @@ class ServiceLevel(HasProps, ManagedLifeCycle):
         self._plugin_discovery = plugins
 
     @service
-    def plugins(self) -> PluginDiscovererCollection:
+    def plugins(
+        self,
+    ) -> _Plugins:
         """
         The available plugin types and plugins.
         """
-        from betty.collections.plugin.discoverer import PluginDiscovererCollection
         from betty.plugin.discovery import PluginDiscoverer
         from betty.plugin.error import PluginTypeNotFound
 
@@ -65,21 +81,21 @@ class ServiceLevel(HasProps, ManagedLifeCycle):
             for entry_point in metadata.entry_points(group="betty.plugin")
         ]
         plugin_types.extend(self._plugin_discovery.keys())
-        return PluginDiscovererCollection(
-            KeyedCollectionAdapter(
-                {
-                    plugin_type.definition.id: PluginDiscoverer(
-                        self,
-                        plugin_type,
-                        self._plugin_discovery.get(plugin_type, None),
-                    )
-                    for plugin_type in plugin_types
-                },
-                key_resolver=resolve_id,
-            ),
-            lambda error, key: _PluginTypeNotFound(
-                resolve_id(key),
-                [x.type.definition.id for x in self.plugins],
+        return _Plugins(
+            {
+                plugin_type.definition.id: PluginDiscoverer(
+                    self,
+                    plugin_type,
+                    self._plugin_discovery.get(plugin_type, None),
+                )
+                for plugin_type in plugin_types
+            },
+            key_resolver=resolve_id,
+            missing=lambda key: raise_(
+                _PluginTypeNotFound(
+                    resolve_id(key),
+                    [x.type.definition.id for x in self.plugins],
+                )
             ),
         )
 

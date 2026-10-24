@@ -422,9 +422,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/collection/__init__.py": {
         "MutableCollection": MissingReason.ABSTRACT,
     },
-    "betty/collection/keyed.py": {
-        "KeyedCollection": MissingReason.ABSTRACT,
-        "MutableKeyedCollection": MissingReason.ABSTRACT,
+    "betty/collection/catalog.py": {
+        "Catalog": MissingReason.ABSTRACT,
+        "MutableCatalog": MissingReason.ABSTRACT,
     },
     "betty/collection/mapping.py": {
         "MutableResolvedMapping": MissingReason.ABSTRACT,
@@ -531,9 +531,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/factory.py": {
         "PluginManufacturerDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "PluginManufacturerError": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/collections/plugin/discoverer.py": {
-        "PluginDiscovererCollection": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/portable/__init__.py": {
         "KeyedPorter": MissingReason.ABSTRACT,

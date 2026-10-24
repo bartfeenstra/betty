@@ -1,22 +1,19 @@
 import pytest
 
-from betty.collections.mapping.adapter import (
-    MutableResolvedMappingAdapter,
-    ResolvedMappingAdapter,
-)
+from betty.collections.mapping.adapter import MappingAdapter, MutableMappingAdapter
 from betty.pipeline import pipe
 
 
-class TestResolvedMappingAdapter:
+class TestMappingAdapter:
     def test___contains__(self) -> None:
-        sut = ResolvedMappingAdapter(
+        sut = MappingAdapter(
             {"TRUE": "True"}, key_resolver=lambda key: str(key).upper()
         )
         assert True in sut
         assert False not in sut
 
     def test___getitem__(self) -> None:
-        sut = ResolvedMappingAdapter(
+        sut = MappingAdapter(
             {"TRUE": "True"}, key_resolver=lambda key: str(key).upper()
         )
         assert sut[True] == "True"
@@ -24,19 +21,19 @@ class TestResolvedMappingAdapter:
             sut[False]
 
     def test___iter__(self) -> None:
-        sut = ResolvedMappingAdapter(
+        sut = MappingAdapter(
             {"TRUE": "True"}, key_resolver=lambda key: str(key).upper()
         )
         assert list(iter(sut)) == ["TRUE"]
 
     def test___len__(self) -> None:
-        sut = ResolvedMappingAdapter(
+        sut = MappingAdapter(
             {"TRUE": "True"}, key_resolver=lambda key: str(key).upper()
         )
         assert len(sut) == 1
 
     def test_get(self) -> None:
-        sut = ResolvedMappingAdapter(
+        sut = MappingAdapter(
             {"TRUE": "True"}, key_resolver=lambda key: str(key).upper()
         )
         assert sut.get(True) == "True"
@@ -45,10 +42,10 @@ class TestResolvedMappingAdapter:
         assert sut.get(False, default) is default
 
 
-class TestMutableResolvedMappingAdapter:
+class TestMutableMappingAdapter:
     def test___delitem__(self) -> None:
         proxied = {"TRUE": "True", "FALSE": "False"}
-        sut = MutableResolvedMappingAdapter(
+        sut = MutableMappingAdapter(
             proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         del sut[False]
@@ -56,7 +53,7 @@ class TestMutableResolvedMappingAdapter:
 
     def test___setitem__(self) -> None:
         proxied = {"TRUE": "True"}
-        sut = MutableResolvedMappingAdapter(
+        sut = MutableMappingAdapter(
             proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         sut[False] = False
@@ -64,29 +61,27 @@ class TestMutableResolvedMappingAdapter:
 
     def test_pop(self) -> None:
         proxied = {"TRUE": "True", "FALSE": "False"}
-        sut = MutableResolvedMappingAdapter(
+        sut = MutableMappingAdapter(
             proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         assert sut.pop(True) == "True"
 
     def test_pop__with_default(self) -> None:
         proxied = {"TRUE": "True"}
-        sut = MutableResolvedMappingAdapter(
+        sut = MutableMappingAdapter(
             proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         assert sut.pop(False, "Hello, world!") == "Hello, world!"
 
     def test_popitem(self) -> None:
         proxied = {"TRUE": "True", "FALSE": "False"}
-        sut = MutableResolvedMappingAdapter(
-            proxied, key_resolver=pipe, value_resolver=pipe
-        )
+        sut = MutableMappingAdapter(proxied, key_resolver=pipe, value_resolver=pipe)
         assert sut.popitem() == ("FALSE", "False")
         assert proxied == {"TRUE": "True"}
 
     def test_setdefault(self) -> None:
         proxied = {"TRUE": "True"}
-        sut = MutableResolvedMappingAdapter(
+        sut = MutableMappingAdapter(
             proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         assert sut.setdefault(True, False) == "True"
@@ -95,7 +90,7 @@ class TestMutableResolvedMappingAdapter:
 
     def test_update__with_mapping(self) -> None:
         proxied = {"TRUE": "True"}
-        sut = MutableResolvedMappingAdapter(
+        sut = MutableMappingAdapter(
             proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         sut.update({False: False})
@@ -103,7 +98,7 @@ class TestMutableResolvedMappingAdapter:
 
     def test_update__with_iterable(self) -> None:
         proxied = {"TRUE": "True"}
-        sut = MutableResolvedMappingAdapter(
+        sut = MutableMappingAdapter(
             proxied, key_resolver=lambda key: str(key).upper(), value_resolver=str
         )
         sut.update([(False, False)])
@@ -111,7 +106,7 @@ class TestMutableResolvedMappingAdapter:
 
     def test_update__with_kwargs(self) -> None:
         proxied = {"TRUE": "True"}
-        sut = MutableResolvedMappingAdapter(
+        sut = MutableMappingAdapter(
             proxied, key_resolver=lambda key: key.upper(), value_resolver=str
         )
         sut.update(false=False)

@@ -1,5 +1,5 @@
 """
-Sequence types and implementations.
+Sequences.
 """
 
 from __future__ import annotations
@@ -8,11 +8,13 @@ from abc import abstractmethod
 from collections.abc import Iterable, MutableSequence
 from typing import overload, override
 
-from betty.collection import MutableCollection
+from betty.collection import MutableCollection, ResolvedValueCollection
 
 
-class MutableResolvedSequence[ValueT, ResolvableValueT](
-    MutableSequence[ValueT], MutableCollection[ValueT]
+class MutableBettySequence[ValueT, ResolvableValueT](
+    MutableSequence[ValueT],
+    MutableCollection[ValueT],
+    ResolvedValueCollection[ValueT, ResolvableValueT],
 ):
     """
     A mutable sequence of resolved values.
