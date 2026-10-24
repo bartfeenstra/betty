@@ -5,7 +5,7 @@ Catalogs backed by dictionaries.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.collection import MutableOrderedValueCollection
 from betty.collection.catalog import Catalog, MutableCatalog
@@ -30,7 +30,11 @@ class _DictCatalog[KeyT, ResolvableKeyT, ValueT](Catalog[KeyT, ResolvableKeyT, V
         key_resolver: KeyResolver[KeyT, ResolvableKeyT] = pipe,
     ):
         self._values = dict(values)
-        self._key_resolver = key_resolver
+        self.__key_resolver = key_resolver
+
+    @final
+    def resolve_key(self, key: KeyT | ResolvableKeyT) -> KeyT:
+        return self.__key_resolver(key)
 
     @override
     def __len__(self) -> int:
@@ -43,12 +47,12 @@ class _DictCatalog[KeyT, ResolvableKeyT, ValueT](Catalog[KeyT, ResolvableKeyT, V
     @override
     def __contains__(self, key: Any) -> bool:
         with suppress(Exception):
-            key = self._key_resolver(key)
+            key = self.resolve_key(key)
         return key in self._values
 
     @override
     def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
-        return self._values[self._key_resolver(key)]
+        return self._values[self.resolve_key(key)]
 
     @override
     def keys(self) -> Iterable[KeyT]:
@@ -85,12 +89,16 @@ class DictCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     ):
         super().__init__(key_resolver=key_resolver)
         self._key = key
-        self._value_resolver = value_resolver
+        self.__value_resolver = value_resolver
         self.add(*values)
 
     @override
-    def append(self, *values: ValueT | ResolvableValueT) -> None:
-        for value in map(self._value_resolver, values):
+    def resolve_value(self, value: ValueT | ResolvableValueT) -> ValueT:
+        return self.__value_resolver(value)
+
+    @override
+    def add(self, *values: ValueT | ResolvableValueT) -> None:
+        for value in map(self.resolve_value, values):
             self._values[self._key(value)] = value
 
     @override
@@ -100,7 +108,7 @@ class DictCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
 
     @override
     def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
-        del self._values[self._key_resolver(key)]
+        del self._values[self.resolve_key(key)]
 
     @override
     def clear(self) -> None:

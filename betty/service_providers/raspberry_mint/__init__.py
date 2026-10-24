@@ -12,10 +12,10 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
-from betty.collection.mapping import ResolvedMapping
+from betty.collection.mapping import BettyMapping
 from betty.collections.mapping.adapter import (
-    MutableResolvedMappingAdapter,
-    ResolvedMappingAdapter,
+    MappingAdapter,
+    MutableMappingAdapter,
 )
 from betty.content_builder import (
     ContentBuilder,
@@ -59,7 +59,7 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.pathlib import StrPath
 
-type RegionalContent = ResolvedMapping[str, ResolvableRegion, Sequence[ContentBuilder]]
+type RegionalContent = BettyMapping[str, ResolvableRegion, Sequence[ContentBuilder]]
 type ResolvableRegionalContent = Mapping[
     ResolvableRegion, Iterable[ResolvableContentBuilderManufacturer]
 ]
@@ -118,7 +118,7 @@ class RaspberryMintData(Object):
     regional_content = CollectionOwnerAttr(
         FieldDefinition(
             MutableMappingDefinition(
-                manufacturer=lambda values: MutableResolvedMappingAdapter(
+                manufacturer=lambda values: MutableMappingAdapter(
                     {} if values is None else dict(values), key_resolver=Region.resolve
                 ),
                 label=_("Regions"),
@@ -312,7 +312,7 @@ class RaspberryMint(
                 **await content.get(),
                 **self._regional_content_manufacturers,
             }
-        return ResolvedMappingAdapter(
+        return MappingAdapter(
             defaultdict(
                 tuple,
                 zip(
