@@ -28,9 +28,12 @@ class _DictCatalog[KeyT, ResolvableKeyT, ValueT](Catalog[KeyT, ResolvableKeyT, V
         /,
         *,
         key_resolver: KeyResolver[KeyT, ResolvableKeyT] = pipe,
+        missing: Callable[[KeyT], ValueT] | None = None,
     ):
         self._values = dict(values)
         self.__key_resolver = key_resolver
+        if missing:
+            self.__missing__ = missing
 
     @final
     @override

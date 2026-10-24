@@ -12,6 +12,7 @@ from time import time
 from typing import (
     TYPE_CHECKING,
     Any,
+    Never,
     Protocol,
     Self,
     final,
@@ -301,3 +302,12 @@ class LazyReCallable[ValueT]:
                 if not hasattr(self, "_value"):
                     self._value = self._factory()
         return self._value
+
+
+def raise_(exception: Exception, /) -> Never:
+    """
+    Raise the given exception.
+
+    This is helpful in situations where statements are not allowed, such as in lambdas.
+    """
+    raise exception

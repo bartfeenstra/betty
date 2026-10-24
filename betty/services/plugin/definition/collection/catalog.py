@@ -11,7 +11,7 @@ from betty.plugin import PluginDefinition
 from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection.catalog import (
     CatalogPluginServiceManager,
-    KeyedPluginCollectionService,
+    PluginServiceCatalog,
 )
 from betty.services.plugin.definition.collection import (
     CollectionPluginDefinitionServiceManager,
@@ -23,7 +23,7 @@ class PluginDefinitionsService[DefinitionT: PluginDefinition](
     CollectionPluginDefinitionServiceManager[
         ResolvableServiceLevelHasPluginServices,
         DefinitionT,
-        KeyedPluginCollectionService[DefinitionT, DefinitionT],
+        PluginServiceCatalog[DefinitionT, DefinitionT],
     ],
     CatalogPluginServiceManager[
         ResolvableServiceLevelHasPluginServices,
