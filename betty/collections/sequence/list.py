@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty.collection import ReversibleCollection, SortableCollection
 from betty.collections.sequence.adapter import MutableResolvedSequenceAdapter
 
 if TYPE_CHECKING:
@@ -15,7 +16,9 @@ if TYPE_CHECKING:
 
 
 class List[ValueT, ResolvableValueT](
-    MutableResolvedSequenceAdapter[ValueT, ResolvableValueT]
+    MutableResolvedSequenceAdapter[ValueT, ResolvableValueT],
+    ReversibleCollection[ValueT],
+    SortableCollection[ValueT],
 ):
     """
     A resolved list.
