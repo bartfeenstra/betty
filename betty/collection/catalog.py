@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections.abc import Collection, Iterable
 
-from betty.collection import MutableValueCollection
+from betty.collection import AddableCollection
 
 
 class Catalog[KeyT, ResolvableKeyT, ValueT](Collection[ValueT]):
@@ -31,10 +31,9 @@ class Catalog[KeyT, ResolvableKeyT, ValueT](Collection[ValueT]):
         pass
 
 
-# @todo Do we want to add .pop() and .popitem()?
+# @todo Do we want to add .pop()?
 class MutableCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
-    Catalog[KeyT, ResolvableKeyT, ValueT],
-    MutableValueCollection[ValueT, ResolvableValueT],
+    Catalog[KeyT, ResolvableKeyT, ValueT], AddableCollection[ValueT, ResolvableValueT]
 ):
     """
     A mutable catalog.
