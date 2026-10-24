@@ -6,10 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from betty.collections.catalog.proxy import (
-    CatalogProxy,
-    MutableCatalogProxy,
-)
+from betty.collections.catalog.proxy import CatalogProxy, MutableCatalogProxy
 
 if TYPE_CHECKING:
     from collections.abc import Callable

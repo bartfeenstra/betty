@@ -4,10 +4,11 @@ Lists.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.collection import SortableCollection, SortKey
 from betty.collections.sequence.adapter import MutableSequenceAdapter
+from betty.pipeline import pipe
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -20,7 +21,7 @@ class List[ValueT, ResolvableValueT](
     SortableCollection[ValueT],
 ):
     """
-    A resolved list.
+    A list.
     """
 
     def __init__(
@@ -28,11 +29,19 @@ class List[ValueT, ResolvableValueT](
         values: Iterable[ValueT | ResolvableValueT] = (),
         /,
         *,
-        value_resolver: ValueResolver[ValueT, ResolvableValueT],
+        value_resolver: ValueResolver[ValueT, ResolvableValueT] = pipe,
     ):
-        super().__init__(
-            list(map(value_resolver, values)), value_resolver=value_resolver
-        )
+        super().__init__(list(map(value_resolver, values)))
+        self.__value_resolver = value_resolver
+
+    @final
+    @override
+    def resolve_value(self, value: ValueT | ResolvableValueT) -> ValueT:
+        return self.__value_resolver(value)
+
+    @override
+    def reverse(self) -> None:
+        self.__wrapped__.reverse()
 
     @override
     def sort(

@@ -4,7 +4,7 @@ Dictionaries.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final, override
 
 from betty.collections.mapping.adapter import MutableMappingAdapter
 from betty.pipeline import pipe
@@ -22,7 +22,7 @@ class Dict[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     ],
 ):
     """
-    A resolved dictionary.
+    A dictionary.
     """
 
     def __init__(
@@ -35,8 +35,18 @@ class Dict[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
         key_resolver: KeyResolver[KeyT, ResolvableKeyT] = pipe,
         value_resolver: ValueResolver[ValueT, ResolvableValueT] = pipe,
     ):
-        super().__init__(
-            {key_resolver(key): value_resolver(value) for key, value in values.items()},
-            key_resolver=key_resolver,
-            value_resolver=value_resolver,
-        )
+        super().__init__({
+            key_resolver(key): value_resolver(value) for key, value in values.items()
+        })
+        self.__key_resolver = key_resolver
+        self.__value_resolver = value_resolver
+
+    @final
+    @override
+    def resolve_key(self, key: KeyT | ResolvableKeyT) -> KeyT:
+        return self.__key_resolver(key)
+
+    @final
+    @override
+    def resolve_value(self, value: ValueT | ResolvableValueT) -> ValueT:
+        return self.__value_resolver(value)
