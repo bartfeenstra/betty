@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Hashable
 from typing import TYPE_CHECKING, Any, Literal
 
 import pytest
@@ -113,7 +114,9 @@ class TestDo:
         (["one", "two"], [["one"], ["one", "two", "one"]]),
     ],
 )
-async def test_unique[T](expected: Sequence[T], values: Iterable[Iterable[T]]) -> None:
+async def test_unique[T: Hashable](
+    expected: Sequence[T], values: Iterable[Iterable[T]]
+) -> None:
     assert list(unique(*values)) == expected
 
 

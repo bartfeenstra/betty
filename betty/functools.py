@@ -9,15 +9,7 @@ import threading
 from asyncio import sleep
 from itertools import chain
 from time import time
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Protocol,
-    Self,
-    final,
-    overload,
-    runtime_checkable,
-)
+from typing import TYPE_CHECKING, Protocol, Self, final, overload, runtime_checkable
 
 from typing_extensions import sentinel
 
@@ -25,7 +17,7 @@ from betty.asyncio import resolve_await
 from betty.pipeline import pipe
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Iterable, Iterator
+    from collections.abc import Awaitable, Callable, Hashable, Iterable, Iterator
 
 
 def map_suppress[T, U](
@@ -94,9 +86,19 @@ class Do[**DoFP, DoFReturnT]:
                 return do_result
 
 
+@overload
+def unique[ValueT: Hashable](*values: Iterable[ValueT]) -> Iterator[ValueT]:
+    pass
+
+
+@overload
 def unique[ValueT](
-    *values: Iterable[ValueT], key: Callable[[ValueT], Any] = pipe
+    *values: Iterable[ValueT], key: Callable[[ValueT], Hashable]
 ) -> Iterator[ValueT]:
+    pass
+
+
+def unique(*values, key=pipe):
     """
     Yield the first occurrences of values in a sequence.
 
@@ -105,11 +107,11 @@ def unique[ValueT](
     supports non-hashable values. It is therefore slightly slower
     than :py:class:`set`.
     """
-    seen_value_keys = []
+    seen = set()
     for value in chain(*values):
         value_key = key(value)
-        if value_key not in seen_value_keys:
-            seen_value_keys.append(value_key)
+        if value_key not in seen:
+            seen.add(value_key)
             yield value
 
 
