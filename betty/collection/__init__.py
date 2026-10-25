@@ -73,6 +73,9 @@ class UpdatableCollection[ValueT, ResolvableValueT](
         """
 
     # @todo What to type ``others`` on?
+    # @todo Do we need something like OtherT, also for comparisons and similar operations?
+    # @todo
+    # @todo
     @abstractmethod
     def update(self, *others: Any) -> None:
         """
@@ -113,10 +116,6 @@ class SortableCollection[ItemT](MutableCollection[ItemT]):
 
     __slots__ = ()
 
-    # @todo Do we need overloads?
-    # @todo THe items must only be SupportsRichComparison is no key is given. if a key is given, items maybe anything.
-    # @todo
-    # @todo
     @overload
     def sort(
         self: Collection[Intersection[ItemT, SupportsRichComparison]],
