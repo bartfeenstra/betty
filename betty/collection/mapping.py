@@ -16,7 +16,7 @@ from betty.collection import (
 
 
 class BettyMapping[KeyT, ResolvableKeyT, ValueT](
-    Mapping[KeyT, ValueT], ResolvedKeyCollection[KeyT, ResolvableKeyT]
+    ResolvedKeyCollection[KeyT, ResolvableKeyT], Mapping[KeyT, ValueT]
 ):
     """
     A mutable mapping of resolvable keys.
@@ -42,10 +42,10 @@ class BettyMapping[KeyT, ResolvableKeyT, ValueT](
 
 
 class MutableBettyMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
-    MutableMapping[KeyT, ValueT],
-    MutableCollection[KeyT],
     BettyMapping[KeyT, ResolvableKeyT, ValueT],
+    MutableCollection[KeyT],
     ResolvedValueCollection[ValueT, ResolvableValueT],
+    MutableMapping[KeyT, ValueT],
 ):
     """
     A mutable mapping of resolvable keys and values.

@@ -48,6 +48,10 @@ class CatalogProxy[KeyT, ResolvableKeyT, ValueT, WrappedT: Catalog](
     def keys(self) -> Iterable[KeyT]:
         return self.__wrapped__.keys()
 
+    @override
+    def resolve_key(self, key: KeyT | ResolvableKeyT) -> KeyT:
+        return self.__wrapped__.resolve_key(key)
+
 
 class MutableCatalogProxy[
     KeyT,
@@ -78,3 +82,7 @@ class MutableCatalogProxy[
     @override
     def add(self, *values: ValueT | ResolvableValueT) -> None:
         self.__wrapped__.add(*values)
+
+    @override
+    def resolve_value(self, value: ValueT | ResolvableValueT) -> ValueT:
+        return self.__wrapped__.resolve_value(value)

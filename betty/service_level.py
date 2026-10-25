@@ -90,7 +90,7 @@ class ServiceLevel(HasProps, ManagedLifeCycle):
                 )
                 for plugin_type in plugin_types
             },
-            key_resolver=resolve_id,
+            key=resolve_id,
             missing=lambda key: raise_(
                 _PluginTypeNotFound(
                     resolve_id(key),

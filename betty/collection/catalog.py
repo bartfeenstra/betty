@@ -6,12 +6,13 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from collections.abc import Collection, Iterable
+from typing import Any, override
 
 from betty.collection import ResolvedKeyCollection, UpdatableCollection
 
 
 class Catalog[KeyT, ResolvableKeyT, ValueT](
-    Collection[ValueT], ResolvedKeyCollection[KeyT, ResolvableKeyT]
+    ResolvedKeyCollection[KeyT, ResolvableKeyT], Collection[ValueT]
 ):
     """
     A catalog.
@@ -52,3 +53,8 @@ class MutableCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     @abstractmethod
     def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
         pass
+
+    @override
+    def update(self, *others: Any) -> None:
+        for other in others:
+            self.add(*other)

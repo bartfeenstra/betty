@@ -315,7 +315,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
                         else ProjectLocale(resolve_locale(locale))
                     )
                 },
-                key_resolver=resolve_locale,
+                key=resolve_locale,
             )
         )
         """
@@ -511,7 +511,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
             )
         return FrozenDictCatalog(
             {entity_type.id: entity_type for entity_type in entity_types},
-            key_resolver=resolve_id,
+            key=resolve_id,
         )
 
     @service
@@ -782,9 +782,9 @@ class ProjectData(Object):
                 label=EnricherDefinition.definition.label_plural,
                 manufacturer=lambda values: DictCatalog(
                     [] if values is None else list(values),
-                    key=lambda data: data.plugin_id,
-                    key_resolver=resolve_id,
-                    value_resolver=EnricherManufacturer.resolve,
+                    keyer=lambda data: data.plugin_id,
+                    key=resolve_id,
+                    value=EnricherManufacturer.resolve,
                 ),
             ),
             optional=True,
@@ -809,9 +809,9 @@ class ProjectData(Object):
                 label=ServiceProviderDefinition.definition.label_plural,
                 manufacturer=lambda values: DictCatalog(
                     [] if values is None else list(values),
-                    key=lambda data: data.plugin_id,
-                    key_resolver=resolve_id,
-                    value_resolver=ServiceProviderManufacturer.resolve,
+                    keyer=lambda data: data.plugin_id,
+                    key=resolve_id,
+                    value=ServiceProviderManufacturer.resolve,
                 ),
             ),
             optional=True,
@@ -886,9 +886,9 @@ class ProjectData(Object):
                 label=LoaderDefinition.definition.label_plural,
                 manufacturer=lambda values: DictCatalog(
                     [] if values is None else list(values),
-                    key=lambda data: data.plugin_id,
-                    key_resolver=resolve_id,
-                    value_resolver=LoaderManufacturer.resolve,
+                    keyer=lambda data: data.plugin_id,
+                    key=resolve_id,
+                    value=LoaderManufacturer.resolve,
                 ),
             ),
             optional=True,
@@ -907,9 +907,9 @@ class ProjectData(Object):
                 order_dump=True,
                 manufacturer=lambda values: DictCatalog(
                     [] if values is None else list(values),
-                    key=lambda item: item.locale,
-                    key_resolver=resolve_locale,
-                    value_resolver=lambda value: (
+                    keyer=lambda item: item.locale,
+                    key=resolve_locale,
+                    value=lambda value: (
                         value
                         if isinstance(value, ProjectLocale)
                         else ProjectLocale(resolve_locale(value))

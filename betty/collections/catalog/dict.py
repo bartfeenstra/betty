@@ -7,38 +7,45 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.collection import MutableOrderedValueCollection
+from betty.collection import UpdatableCollection
 from betty.collection.catalog import Catalog, MutableCatalog
 from betty.freezer import Frozen
 from betty.pipeline import pipe
 from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator, Mapping
+    from collections.abc import Callable, Iterable, Iterator
 
     from betty.collections import KeyResolver, ValueResolver
 
 
 class _DictCatalog[KeyT, ResolvableKeyT, ValueT](Catalog[KeyT, ResolvableKeyT, ValueT]):
-    __slots__ = ("_key_resolver", "_values")
+    __slots__ = ("__key", "_keyer", "_values")
 
     def __init__(
         self,
-        values: Mapping[KeyT, ValueT] = empty_frozen_dict,
+        keyer: Callable[[ValueT], KeyT],
+        values: Iterable[ValueT] = empty_frozen_dict,
         /,
         *,
-        key_resolver: KeyResolver[KeyT, ResolvableKeyT] = pipe,
+        key: KeyResolver[KeyT, ResolvableKeyT] = pipe,
         missing: Callable[[KeyT], ValueT] | None = None,
     ):
-        self._values = dict(values)
-        self.__key_resolver = key_resolver
+        self.__key = key
+        self._keyer = keyer
+        self._values = {key(value): value for value in values}
         if missing:
+            # @todo Finish this
+            # @todo Can we do, in the class body, ``__missing__ = KeyError`` and allow overrides?
+            # @todo
+            # @todo
+            # @todo
             self.__missing__ = missing
 
     @final
     @override
     def resolve_key(self, key: KeyT | ResolvableKeyT) -> KeyT:
-        return self.__key_resolver(key)
+        return self.__key(key)
 
     @override
     def __len__(self) -> int:
@@ -74,37 +81,41 @@ class FrozenDictCatalog[KeyT, ResolvableKeyT, ValueT](
 class DictCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     _DictCatalog[KeyT, ResolvableKeyT, ValueT],
     MutableCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
-    MutableOrderedValueCollection[ValueT, ResolvableValueT],
+    UpdatableCollection[ValueT, ResolvableValueT],
 ):
     """
     A mutable catalog backed by a dictionary.
     """
 
-    __slots__ = ("_key", "_value_resolver")
+    __slots__ = ("__value",)
 
     def __init__(
         self,
+        keyer: Callable[[ValueT], KeyT],
         values: Iterable[ValueT | ResolvableValueT] = (),
         /,
         *,
-        key: Callable[[ValueT], KeyT],
-        key_resolver: KeyResolver[KeyT, ResolvableKeyT] = pipe,
-        value_resolver: ValueResolver[ValueT, ResolvableValueT] = pipe,
+        key: KeyResolver[KeyT, ResolvableKeyT] = pipe,
+        value: ValueResolver[ValueT, ResolvableValueT] = pipe,
+        missing: Callable[[KeyT], ValueT] | None = None,
     ):
-        super().__init__(key_resolver=key_resolver)
-        self._key = key
-        self.__value_resolver = value_resolver
-        self.add(*values)
+        self.__value = value
+        super().__init__(
+            keyer,
+            map(value, values),
+            key=key,
+            missing=missing,
+        )
 
     @final
     @override
     def resolve_value(self, value: ValueT | ResolvableValueT) -> ValueT:
-        return self.__value_resolver(value)
+        return self.__value(value)
 
     @override
     def add(self, *values: ValueT | ResolvableValueT) -> None:
         for value in map(self.resolve_value, values):
-            self._values[self._key(value)] = value
+            self._values[self._keyer(value)] = value
 
     @override
     def remove(self, *keys: KeyT | ResolvableKeyT) -> None:

@@ -57,7 +57,7 @@ class CatalogPluginServiceManager[
                 )
                 for plugin in self.get_plugins(owner)
             },
-            key_resolver=resolve_id,
+            key=resolve_id,
             missing=lambda key: raise_(
                 _PluginNotFound(
                     self.plugin_type,
