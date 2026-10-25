@@ -20,6 +20,9 @@
     "webpack": "^5.96.1",
     "webpack-cli": "^6.0.1"
   },
+  "overrides": {
+    "openapi-path-templating": "^2.2.1, <2.3"
+  },
   "scripts": {
     "webpack": "webpack --config webpack.config.js"
   },
