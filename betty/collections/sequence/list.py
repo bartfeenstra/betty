@@ -4,6 +4,7 @@ Lists.
 
 from __future__ import annotations
 
+from collections.abc import Reversible
 from typing import TYPE_CHECKING, final, override
 
 from betty.collection import SortableCollection, SortKey
@@ -19,6 +20,7 @@ if TYPE_CHECKING:
 class List[ValueT, ResolvableValueT](
     MutableSequenceAdapter[ValueT, ResolvableValueT, list[ValueT]],
     SortableCollection[ValueT],
+    Reversible,
 ):
     """
     A list.
