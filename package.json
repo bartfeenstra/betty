@@ -1,7 +1,7 @@
 {
   "name": "@betty.py/betty.project",
   "engines": {
-    "node": ">= 22"
+    "node": ">= 24"
   },
   "devDependencies": {
     "@betty.py/betty": "file:./data/js",
