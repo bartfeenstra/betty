@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-19 20:22+0100\n"
+"POT-Creation-Date: 2026-10-26 13:29+0000\n"
 "PO-Revision-Date: 2026-09-10 11:25+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -70,9 +70,6 @@ msgstr "Het nummer van een plaats, zoals een huis- of flatnummer."
 
 msgid "A single file in a media display"
 msgstr "Een enkel bestand in mediaweergave"
-
-msgid "API documentation"
-msgstr "API-documentatie"
 
 msgid "Access denied"
 msgstr "Toegang geweigerd"
@@ -550,9 +547,6 @@ msgstr "Laat interactieve stambomen zien met Cytoscape."
 
 msgid "Display interactive maps"
 msgstr "Geef plaatsen weer als interactieve kaarten"
-
-msgid "Display the HTTP API documentation in a user-friendly way using Swagger UI."
-msgstr "Geef de HTTP API-documentatie gebruiksvriendelijk weer met Swagger UI."
 
 msgid "District"
 msgstr "District"

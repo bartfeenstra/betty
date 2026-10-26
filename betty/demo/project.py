@@ -35,7 +35,6 @@ from betty.localizables.markup import Chain
 from betty.media_types.html import HTML
 from betty.project import Project
 from betty.service_provider import ServiceProviderManufacturer
-from betty.service_providers.http_api_doc import HttpApiDoc
 from betty.service_providers.maps import Maps
 from betty.service_providers.raspberry_mint import (
     Breakpoint,
@@ -66,7 +65,6 @@ async def create_project(
             Wiki,
         ],
         service_providers=[
-            HttpApiDoc,
             Maps,
             RaspberryMint,
             Spdx,

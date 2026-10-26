@@ -5,7 +5,6 @@
   },
   "devDependencies": {
     "@betty.py/betty": "file:./data/js",
-    "@betty.py/http-api-doc": "file:./data/webpack/http-api-doc",
     "@betty.py/maps": "file:./data/webpack/maps",
     "@betty.py/raspberry-mint": "file:./data/webpack/raspberry-mint",
     "@betty.py/trees": "file:./data/webpack/trees",

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-19 20:22+0100\n"
+"POT-Creation-Date: 2026-10-26 13:29+0000\n"
 "PO-Revision-Date: 2026-10-25 16:51+0000\n"
 "Last-Translator: Andi Chandler <andibing@users.noreply.hosted.weblate.org>\n"
 "Language: en_GB\n"
@@ -17,7 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"X-Generator: Weblate 2026.11.dev0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -71,9 +70,6 @@ msgstr "A place number, such as a house or flat number."
 
 msgid "A single file in a media display"
 msgstr "A single file in a media display"
-
-msgid "API documentation"
-msgstr "API documentation"
 
 msgid "Access denied"
 msgstr "Access denied"
@@ -551,9 +547,6 @@ msgstr "Display interactive family trees using Cytoscape."
 
 msgid "Display interactive maps"
 msgstr "Display interactive maps"
-
-msgid "Display the HTTP API documentation in a user-friendly way using Swagger UI."
-msgstr "Display the HTTP API documentation in a user-friendly way using Swagger UI."
 
 msgid "District"
 msgstr "District"
@@ -2709,3 +2702,4 @@ msgstr "© Copyright the author, unless otherwise credited"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, unless otherwise credited"
+

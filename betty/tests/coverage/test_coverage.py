@@ -75,7 +75,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "AssetRepository": MissingReason.ABSTRACT,
     },
     "betty/asset_directories/builtin.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/asset_directories/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/asset_directories/maps.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/asset_directories/raspberry_mint.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/asset_directories/trees.py": MissingReason.STATIC_CONTENT_ONLY,
@@ -348,7 +347,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/links/betty_documentation.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/links/betty_github.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/links/http_api_doc.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/linked_data.py": {
         "dump_context": MissingReason.SHOULD_BE_COVERED,
         "dump_schema": MissingReason.SHOULD_BE_COVERED,
@@ -597,11 +595,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ServiceProvider": MissingReason.STATIC_CONTENT_ONLY,
         "ServiceProviderDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "ServiceProviderManufacturer": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/service_providers/http_api_doc.py": {
-        "HttpApiDoc": {
-            "webpack_entry_point_cache_keys": MissingReason.STATIC_CONTENT_ONLY,
-        },
     },
     "betty/service_providers/maps.py": {
         "Maps": {

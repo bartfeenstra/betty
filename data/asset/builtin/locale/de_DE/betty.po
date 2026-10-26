@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-19 20:22+0100\n"
+"POT-Creation-Date: 2026-10-26 13:29+0000\n"
 "PO-Revision-Date: 2026-07-17 21:25+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de_DE\n"
@@ -70,9 +70,6 @@ msgstr ""
 
 msgid "A single file in a media display"
 msgstr ""
-
-msgid "API documentation"
-msgstr "API Dokumentation"
 
 msgid "Access denied"
 msgstr "Zugriff verweigert"
@@ -550,9 +547,6 @@ msgstr ""
 
 msgid "Display interactive maps"
 msgstr "Zeige Listen von Orten als interaktive Karten"
-
-msgid "Display the HTTP API documentation in a user-friendly way using Swagger UI."
-msgstr ""
 
 msgid "District"
 msgstr "Bezirk"
