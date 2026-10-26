@@ -116,6 +116,11 @@ const webpackConfiguration = {
     module: {
         rules: [
             {
+                test: /\.(cjs|js|mjs)$/,
+                include: /node_modules/,
+                type: "javascript/auto",
+            },
+            {
                 test: /\.(js|ts)$/,
                 exclude: /node_modules/,
                 use: [
@@ -127,7 +132,6 @@ const webpackConfiguration = {
                                 [
                                     "@babel/preset-env", {
                                         debug: configuration.debug,
-                                        modules: false,
                                     },
                                 ],
                                 "@babel/preset-typescript",
