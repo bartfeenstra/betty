@@ -19,7 +19,6 @@ from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
 from betty.project import ProjectData
 from betty.project.new import new
-from betty.service_providers.http_api_doc import HttpApiDoc
 from betty.service_providers.maps import Maps
 from betty.service_providers.raspberry_mint import RaspberryMint
 from betty.service_providers.trees import Trees
@@ -156,7 +155,6 @@ def _new_default_configuration() -> ProjectData:
             WikiEnricher,
         ],
         service_providers=[
-            HttpApiDoc,
             Maps,
             RaspberryMint,
             Trees,

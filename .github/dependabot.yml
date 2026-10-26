@@ -37,17 +37,6 @@ updates:
       prefix: npm dependencies (Betty built-in)
       include: scope
   - package-ecosystem: npm
-    directory: betty/data/webpack/http-api-doc/
-    ignore:
-      - dependency-name: "@betty.py/betty"
-    schedule:
-      interval: daily
-    assignees:
-      - bartfeenstra
-    commit-message:
-      prefix: npm dependencies (HttpApiDoc extension)
-      include: scope
-  - package-ecosystem: npm
     directory: betty/data/webpack/maps/
     ignore:
       - dependency-name: "@betty.py/betty"

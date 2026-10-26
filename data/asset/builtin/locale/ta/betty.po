@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-19 20:22+0100\n"
+"POT-Creation-Date: 2026-10-26 13:29+0000\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -70,9 +70,6 @@ msgstr "வீடு அல்லது பிளாட் எண் போன�
 
 msgid "A single file in a media display"
 msgstr "மீடியா காட்சியில் ஒரு ஒற்றை கோப்பு"
-
-msgid "API documentation"
-msgstr "பநிஇ ஆவணங்கள்"
 
 msgid "Access denied"
 msgstr "அணுகல் மறுக்கப்பட்டது"
@@ -551,9 +548,6 @@ msgstr "சைட்டோச்கேப்பைப் பயன்படு�
 
 msgid "Display interactive maps"
 msgstr "ஊடாடும் வரைபடங்களைக் காண்பி"
-
-msgid "Display the HTTP API documentation in a user-friendly way using Swagger UI."
-msgstr "ச்வாக்கர் இடைமுகம் ஐப் பயன்படுத்தி HTTP பநிஇ ஆவணங்களை பயனர் நட்பு முறையில் காட்சிப்படுத்தவும்."
 
 msgid "District"
 msgstr "மாவட்டம்"

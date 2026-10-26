@@ -107,7 +107,6 @@ betty = 'betty.console:main_from_environment'
 
 [project.entry-points.'betty.asset_directory']
 'builtin' = 'betty.asset_directories.builtin:builtin'
-'htt-api-doc' = 'betty.asset_directories.http_api_doc:http_api_doc'
 'maps' = 'betty.asset_directories.maps:maps'
 'project' = 'betty.asset_directories.project:_discover'
 'raspberry-mint' = 'betty.asset_directories.raspberry_mint:raspberry_mint'
@@ -151,7 +150,6 @@ betty = 'betty.console:main_from_environment'
 [project.entry-points.'betty.link']
 'betty-documentation' = 'betty.links.betty_documentation:BETTY_DOCUMENTATION'
 'betty-github' = 'betty.links.betty_github:BETTY_GITHUB'
-'http-api-doc' = 'betty.links.http_api_doc:HTTP_API_DOC'
 
 [project.entry-points.'betty.loader']
 'demo' = 'betty.loaders.demo:Demo'
@@ -217,7 +215,6 @@ betty = 'betty.console:main_from_environment'
 'will' = 'betty.event_types.will:Will'
 
 [project.entry-points.'betty.service_provider']
-'http-api-doc' = 'betty.service_providers.http_api_doc:HttpApiDoc'
 'maps' = 'betty.service_providers.maps:Maps'
 'raspberry-mint' = 'betty.service_providers.raspberry_mint:RaspberryMint'
 'spdx' = 'betty.service_providers.spdx:Spdx'
