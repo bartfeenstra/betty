@@ -1,14 +1,11 @@
-import pytest
-
 from betty.project.generate import generate
 from betty.service_providers.trees import Trees
 from betty.test_utils.conftest import IsolatedProjectFactory
-from betty.tests.conftest import check_skip_webpack_entry_point_provider
+from betty.tests.conftest import webpack_test
 
 
 class TestTrees:
-    @pytest.mark.order(0)
-    @check_skip_webpack_entry_point_provider
+    @webpack_test
     async def test_generate(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:

@@ -1,6 +1,7 @@
 from json import dumps
 from pathlib import Path
 
+import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
@@ -9,9 +10,11 @@ from betty.file import write
 from betty.project import ProjectData
 from betty.servers.no_op import NoOpServer
 from betty.test_utils.console import run
+from betty.tests.conftest import Duration
 
 
 class TestServe:
+    @pytest.mark.duration(Duration.SECONDS)
     async def test_configure__with_default_server(
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:

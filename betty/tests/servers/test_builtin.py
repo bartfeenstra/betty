@@ -8,6 +8,7 @@ from requests import Response
 from betty.functools import Do
 from betty.servers.builtin import BuiltinServer
 from betty.test_utils.user.ui import StaticUi
+from betty.tests.conftest import Duration
 
 
 class TestBuiltinServer:
@@ -18,6 +19,7 @@ class TestBuiltinServer:
             "/some/root/path",
         ],
     )
+    @pytest.mark.duration(Duration.SECONDS)
     async def test_start(
         self, root_path: str, mocker: MockerFixture, tmp_path: Path
     ) -> None:

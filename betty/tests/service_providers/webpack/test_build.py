@@ -13,6 +13,7 @@ from betty.service_level import ServiceLevel
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
 from betty.service_providers.webpack.build import Builder, EntryPointProvider
 from betty.test_utils.user.ui import StaticUi
+from betty.tests.conftest import webpack_test
 
 
 @ServiceProviderDefinition("dummy", label="-")
@@ -28,6 +29,7 @@ class DummyEntryPointProviderServiceProvider(EntryPointProvider, ServiceProvider
 
 
 class TestBuilder:
+    @webpack_test
     async def test_build(self, isolated_project: Project, tmp_path: Path) -> None:
         # Loop instead of parameterization, so we can reuse caches.
         for index, (with_entry_point_provider, debug, root_path) in enumerate([

@@ -24,10 +24,7 @@ from betty.service_provider import (
 )
 from betty.service_providers.maps import Maps
 from betty.test_utils import AbstractMethod
-from betty.tests.conftest import (
-    check_skip_playwright,
-    check_skip_webpack_entry_point_provider,
-)
+from betty.tests.conftest import playwright_test, webpack_test
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable
@@ -87,10 +84,8 @@ class MapsTestBase:
             ) as server:
                 yield server
 
-    @pytest.mark.asyncio(loop_scope="session")
-    @pytest.mark.order(0)
-    @check_skip_playwright
-    @check_skip_webpack_entry_point_provider
+    @playwright_test
+    @webpack_test
     async def test_ui(self, page: Page, server: Server) -> None:
         """
         Test maps' web user interface.

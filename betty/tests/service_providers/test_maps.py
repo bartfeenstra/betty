@@ -1,20 +1,17 @@
 from collections.abc import Iterable
 from typing import override
 
-import pytest
-
 from betty.definition.id import ResolvableId
 from betty.project.generate import generate
 from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.maps import Maps
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.service_providers.maps import MapsTestBase
-from betty.tests.conftest import check_skip_webpack_entry_point_provider
+from betty.tests.conftest import webpack_test
 
 
 class TestMaps:
-    @pytest.mark.order(0)
-    @check_skip_webpack_entry_point_provider
+    @webpack_test
     async def test_generate(
         self, isolated_project_factory: IsolatedProjectFactory
     ) -> None:

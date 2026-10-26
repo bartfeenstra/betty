@@ -11,7 +11,7 @@ from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.server import Server, ServerDefinition
-from betty.servers.builtin import BuiltinServer
+from betty.servers import builtin
 
 
 @final
@@ -32,7 +32,7 @@ class ProjectBuiltinServer(Server, Manufacturable):
 
     def __init__(self, project: Project, /) -> None:
         super().__init__(ui=project.upstream.ui)
-        self._server = BuiltinServer(
+        self._server = builtin.BuiltinServer(
             project.www_directory,
             root_path=project.root_path,
             ui=project.upstream.ui,

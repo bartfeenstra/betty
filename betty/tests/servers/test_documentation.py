@@ -8,10 +8,12 @@ from requests import Response
 from betty.functools import Do
 from betty.servers.documentation import DocumentationServer
 from betty.test_utils.user.ui import StaticUi
+from betty.tests.conftest import Duration
 
 
 class TestDocumentationServer:
-    @pytest.mark.order(0)
+    @pytest.mark.duration(Duration.MINUTES)
+    @pytest.mark.timeout(600)
     async def test(self, mocker: MockerFixture, tmp_path: Path) -> None:
         mocker.patch("webbrowser.open_new_tab")
         async with DocumentationServer(tmp_path, ui=StaticUi()) as server:
