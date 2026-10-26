@@ -1,3 +1,4 @@
+import pytest
 import requests
 from pytest_mock import MockerFixture
 from requests import Response
@@ -5,9 +6,11 @@ from requests import Response
 from betty.functools import Do
 from betty.project import Project
 from betty.servers.project_builtin import ProjectBuiltinServer
+from betty.tests.conftest import Duration
 
 
 class TestProjectBuiltinServer:
+    @pytest.mark.duration(Duration.SECONDS)
     async def test__start_stop_and_public_url(
         self, isolated_project: Project, mocker: MockerFixture
     ) -> None:

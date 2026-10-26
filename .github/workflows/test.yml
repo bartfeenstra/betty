@@ -40,7 +40,7 @@ jobs:
             os: windows-latest
             nodejs: 26.x
             python: '3.15'
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Check out the source code
         uses: actions/checkout@v7

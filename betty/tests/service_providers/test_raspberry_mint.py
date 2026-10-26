@@ -16,7 +16,7 @@ from betty.service_providers.raspberry_mint import (
 )
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.entity import DummyEntityOne
-from betty.tests.conftest import check_skip_webpack_entry_point_provider
+from betty.tests.conftest import webpack_test
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -101,8 +101,7 @@ class TestRaspberryMint:
                 (await sut.regional_content)[Region.FRONT_PAGE_CONTENT.value][0], Static
             )
 
-    @pytest.mark.order(0)
-    @check_skip_webpack_entry_point_provider
+    @webpack_test
     async def test_generate(
         self, isolated_app: App, isolated_project_factory: IsolatedProjectFactory
     ) -> None:

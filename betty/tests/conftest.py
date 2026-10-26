@@ -4,9 +4,11 @@ Pytest configuration.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from enum import IntEnum
 from inspect import signature
 from os import environ
-from typing import Any
+from typing import Any, Final, final
 from unittest.mock import Mock
 from warnings import filterwarnings
 
@@ -15,6 +17,47 @@ import pytest
 
 from betty.test_utils.conftest import *  # noqa: F403
 from betty.warnings import BettyDeprecationWarning
+
+type Markable = Callable[..., object] | type
+
+
+@final
+class Duration(IntEnum):
+    MINUTES = 1
+    SECONDS = 499999999
+    NEGLIGIBLE = 999999999
+    DEFAULT = NEGLIGIBLE
+
+
+default_timeout: Final[int] = 9
+
+
+def pytest_collection_modifyitems(
+    session: pytest.Session, config: pytest.Config, items: list[pytest.Item]
+) -> None:
+    for item in items:
+        item_duration = min((
+            Duration.DEFAULT,
+            *(marker.args[0] for marker in item.iter_markers("duration")),
+        ))
+        item_timeout = max((
+            default_timeout,
+            *(marker.args[0] for marker in item.iter_markers("timeout")),
+        ))
+
+        # For tests setting a duration marker directly, reflect this in the item's timeout
+        match item_duration:
+            case Duration.MINUTES:
+                item_timeout = max(item_timeout, 300)
+            case Duration.SECONDS:
+                item_timeout = max(item_timeout, 60)
+
+        # Each order marker creates a parameterized test matrix, which we do not want to do here, so only set an order
+        # marker if none existed yet.
+        if not item.get_closest_marker("order"):
+            item.add_marker(pytest.mark.order(item_duration.value))
+        # pytest-timeout works based on the closest found marker, so we prepend ours to make that happen.
+        item.add_marker(pytest.mark.timeout(item_timeout), False)
 
 
 @pytest.fixture(autouse=True)
@@ -28,15 +71,27 @@ def _raise_deprecation_warnings_as_errors() -> None:
     )
 
 
-check_skip_playwright = pytest.mark.skipif(
-    bool(environ.get("BETTY_TEST_SKIP_PLAYWRIGHT", "")),
-    reason="Playwright tests are being skipped",
-)
+def playwright_test[MarkableT: Markable](markable: MarkableT, /) -> MarkableT:
+    """
+    Mark a test item to require Playwright.
+    """
+    markable = pytest.mark.asyncio(loop_scope="session")(markable)
+    markable = pytest.mark.skipif(
+        bool(environ.get("BETTY_TEST_SKIP_PLAYWRIGHT", "")),
+        reason="Playwright tests are being skipped",
+    )(markable)
+    return pytest.mark.duration(Duration.SECONDS)(markable)
 
-check_skip_webpack_entry_point_provider = pytest.mark.skipif(
-    bool(environ.get("BETTY_TEST_SKIP_WEBPACK_ENTRY_POINT_PROVIDER", "")),
-    reason="Webpack entry point provider tests are being skipped",
-)
+
+def webpack_test[MarkableT: Markable](markable: MarkableT, /) -> MarkableT:
+    """
+    Mark a test item to require Webpack.
+    """
+    markable = pytest.mark.skipif(
+        bool(environ.get("BETTY_TEST_SKIP_WEBPACK", "")),
+        reason="Webpack tests are being skipped",
+    )(markable)
+    return pytest.mark.duration(Duration.MINUTES)(markable)
 
 
 # Work around a problem where aiohttp 3.14 added a required kwarg ``stream_writer``, which aioresponses does not yet

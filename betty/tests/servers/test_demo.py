@@ -8,6 +8,7 @@ from requests import Response
 
 from betty.functools import Do
 from betty.servers.demo import DemoServer
+from betty.tests.conftest import Duration
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
 
 @pytest.mark.usefixtures("demo_project_aioresponses")
 class TestDemoServer:
+    @pytest.mark.duration(Duration.SECONDS)
     async def test(
         self, mocker: MockerFixture, isolated_app_factory: IsolatedAppFactory
     ) -> None:

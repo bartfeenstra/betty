@@ -27,34 +27,32 @@ class AsyncExecutor(Executor):
         self._concurrency = concurrency
         self._working = False
         self._tasks: set[Task[None]] = set()
+        self._event_loop = get_running_loop()
 
     @override
     async def start(self) -> None:
         if self._working:
             return
         self._working = True
-        event_loop = get_running_loop()
         for _ in range(self._concurrency):
-            task = event_loop.create_task(self._run_job())
+            task = self._event_loop.create_task(self._run_job())
             self._tasks.add(task)
 
     async def _run_job(self) -> None:
-        with suppress(Completed, CancelledError):
-            try:
-                while self._working:
-                    batch = await self._scheduler.get()
-                    await batch()
-            except Cancelled:
-                await self.cancel()
+        try:
+            while self._working:
+                batch = await self._scheduler.get()
+                await batch()
+        except Completed:
+            pass
+        except Cancelled:
+            await self.cancel()
 
     @override
     async def cancel(self) -> None:
         self._working = False
         for task in self._tasks:
             task.cancel()
-        for task in as_completed(self._tasks):
-            with suppress(CancelledError):
-                await task
 
     @override
     async def complete(self) -> None:
