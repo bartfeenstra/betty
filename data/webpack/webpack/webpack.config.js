@@ -116,7 +116,7 @@ const webpackConfiguration = {
     module: {
         rules: [
             {
-                test: /\.(cjs|js|mjs)$/,
+                test: /\.mjs$/,
                 include: /node_modules/,
                 type: "javascript/auto",
             },
