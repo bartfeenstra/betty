@@ -8,6 +8,8 @@ import builtins
 import sys
 from typing import TYPE_CHECKING, Any, Final, final, overload, override
 
+from typing_extensions import disjoint_base
+
 from betty.collections.mapping.adapter import MappingAdapter, MutableMappingAdapter
 from betty.freezer import Frozen
 from betty.pipeline import pipe
@@ -54,6 +56,7 @@ class _Dict[KeyT, ResolvableKeyT, ValueT](
         return self.__key_resolver(key)
 
 
+@disjoint_base
 class FrozenDict[KeyT, ResolvableKeyT, ValueT](
     _Dict[KeyT, ResolvableKeyT, ValueT], Frozen
 ):
@@ -106,6 +109,7 @@ class FrozenDict[KeyT, ResolvableKeyT, ValueT](
 empty_frozen_dict: Final[FrozenDict[Any, Any, Any]] = FrozenDict()
 
 
+@disjoint_base
 class Dict[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     _Dict[KeyT, ResolvableKeyT, ValueT],
     MutableMappingAdapter[

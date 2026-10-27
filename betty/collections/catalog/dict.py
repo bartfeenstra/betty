@@ -7,6 +7,8 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any, final, override
 
+from typing_extensions import disjoint_base
+
 from betty.collection import UpdatableCollection
 from betty.collection.catalog import Catalog, MutableCatalog
 from betty.freezer import Frozen
@@ -69,6 +71,7 @@ class _DictCatalog[KeyT, ResolvableKeyT, ValueT](Catalog[KeyT, ResolvableKeyT, V
         return self._values.keys()
 
 
+@disjoint_base
 class FrozenDictCatalog[KeyT, ResolvableKeyT, ValueT](
     _DictCatalog[KeyT, ResolvableKeyT, ValueT], Frozen
 ):
@@ -77,6 +80,7 @@ class FrozenDictCatalog[KeyT, ResolvableKeyT, ValueT](
     """
 
 
+@disjoint_base
 class DictCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     _DictCatalog[KeyT, ResolvableKeyT, ValueT],
     MutableCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],

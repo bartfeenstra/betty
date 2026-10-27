@@ -7,6 +7,8 @@ from __future__ import annotations
 from collections.abc import Reversible
 from typing import TYPE_CHECKING, final, override
 
+from typing_extensions import disjoint_base
+
 from betty.collection import SortableCollection, SortKey
 from betty.collections.sequence.adapter import MutableSequenceAdapter
 from betty.pipeline import pipe
@@ -17,6 +19,7 @@ if TYPE_CHECKING:
     from betty.collections import ValueResolver
 
 
+@disjoint_base
 class List[ValueT, ResolvableValueT](
     MutableSequenceAdapter[ValueT, ResolvableValueT, list[ValueT]],
     SortableCollection[ValueT],
