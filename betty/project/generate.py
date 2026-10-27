@@ -20,7 +20,6 @@ from betty.job.scheduler.default import DefaultScheduler
 from betty.jobs.generate_entities_html import GenerateEntitiesHtml
 from betty.jobs.generate_entity_types_html import GenerateEntityTypesHtml
 from betty.jobs.generate_favicon import GenerateFavicon
-from betty.jobs.generate_json_schema import GenerateJsonSchema
 from betty.jobs.generate_localized_public_assets import GenerateLocalizedPublicAssets
 from betty.jobs.generate_robots_txt import GenerateRobotsTxt
 from betty.jobs.generate_sitemap import GenerateSitemap
@@ -73,7 +72,6 @@ async def generate(project: Project, *, context: Context | None = None) -> None:
             GenerateSitemap(project=project),
             GenerateRobotsTxt(project=project),
             GenerateLocalizedPublicAssets(project=project),
-            GenerateJsonSchema(project=project),
             GenerateFavicon(project=project),
             GenerateEntityTypesHtml(project=project),
             GenerateEntitiesHtml(project=project),
