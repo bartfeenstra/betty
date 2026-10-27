@@ -9,14 +9,10 @@ from betty.entities.person import Person
 from betty.entities.person_name import PersonName
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.privacy import Privacy
 from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-
-    from betty.portable import PortableMapping
-    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestPersonName(EntityTestBase):
@@ -89,110 +85,3 @@ class TestPersonName(EntityTestBase):
             affiliation=affiliation,
         )
         assert sut.affiliation == affiliation
-
-    async def test_dump_linked_data__should_dump_minimal_individual(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        sut = PersonName(
-            id="my-first-person-name",
-            person=Person(id="my-first-person"),
-            individual="Jane",
-        )
-        actual = await assert_dumps_linked_data(sut)
-        expected: PortableMapping = {
-            "@context": {
-                "individual": "https://schema.org/givenName",
-            },
-            "@id": "https://example.com/person-name/my-first-person-name/index.json",
-            "id": "my-first-person-name",
-            "individual": "Jane",
-            "locale": "und",
-            "privacy": False,
-            "citations": [],
-            "person": "/person/my-first-person/index.json",
-        }
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_minimal_affiliation(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        sut = PersonName(
-            id="my-first-person-name",
-            person=Person(id="my-first-person"),
-            affiliation="Doe",
-        )
-        actual = await assert_dumps_linked_data(sut)
-        expected: PortableMapping = {
-            "@context": {
-                "affiliation": "https://schema.org/familyName",
-            },
-            "@id": "https://example.com/person-name/my-first-person-name/index.json",
-            "id": "my-first-person-name",
-            "affiliation": "Doe",
-            "locale": "und",
-            "privacy": False,
-            "citations": [],
-            "person": "/person/my-first-person/index.json",
-        }
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_full(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        person = Person(id="my-first-person")
-        citation = Citation(id="my-first-citation", source=Source())
-        locale = "nl-NL"
-        sut = PersonName(
-            id="my-first-person-name",
-            person=person,
-            individual="Jane",
-            affiliation="Doe",
-            citations=[citation],
-            locale=locale,
-        )
-        actual = await assert_dumps_linked_data(sut)
-        expected = {
-            "@context": {
-                "individual": "https://schema.org/givenName",
-                "affiliation": "https://schema.org/familyName",
-            },
-            "@id": "https://example.com/person-name/my-first-person-name/index.json",
-            "id": "my-first-person-name",
-            "individual": "Jane",
-            "affiliation": "Doe",
-            "locale": locale,
-            "privacy": False,
-            "citations": [
-                "/citation/my-first-citation/index.json",
-            ],
-            "person": "/person/my-first-person/index.json",
-        }
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_private(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        person = Person(id="my-first-person")
-        citation = Citation(id="my-first-citation", source=Source())
-        locale = "nl-NL"
-        sut = PersonName(
-            id="my-first-person-name",
-            person=person,
-            individual="Jane",
-            affiliation="Doe",
-            citations=[citation],
-            locale=locale,
-            privacy=Privacy.PRIVATE,
-        )
-        actual = await assert_dumps_linked_data(sut)
-        expected = {
-            "@id": "https://example.com/person-name/my-first-person-name/index.json",
-            "id": "my-first-person-name",
-            "locale": None,
-            "privacy": True,
-            "citations": [
-                "/citation/my-first-citation/index.json",
-            ],
-            "person": "/person/my-first-person/index.json",
-        }
-        assert actual == expected

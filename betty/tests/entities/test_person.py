@@ -1,29 +1,23 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast, override
+from typing import TYPE_CHECKING, cast, override
 
 import pytest
 
 from betty.associations.to_one import MissingAssociate, Placeholder
-from betty.entities.citation import Citation
 from betty.entities.event import Event
-from betty.entities.link import Link
 from betty.entities.person import Person
 from betty.entities.person_name import PersonName
 from betty.entities.presence import Presence
-from betty.entities.source import Source
 from betty.entity import Entity
 from betty.event_types.birth import Birth
 from betty.genders.non_binary import NonBinary
-from betty.genders.unknown import UnknownGender
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
-
-    from betty.test_utils.conftest import AssertDumpsLinkedData
+    from collections.abc import Sequence
 
 
 class TestPerson(EntityTestBase):
@@ -187,197 +181,6 @@ class TestPerson(EntityTestBase):
         grandchild = Person()
         child.children.add(grandchild)
         assert list(sut.descendants) == [child, grandchild]
-
-    async def test_dump_linked_data__should_dump_minimal(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        person = Person(id="my-first-person")
-        expected: Mapping[str, Any] = {
-            "@context": {
-                "names": "https://schema.org/name",
-                "parents": "https://schema.org/parent",
-                "children": "https://schema.org/child",
-            },
-            "@id": "https://example.com/person/my-first-person/index.json",
-            "@type": "https://schema.org/Person",
-            "id": "my-first-person",
-            "privacy": False,
-            "gender": UnknownGender.definition.id,
-            "names": [],
-            "parents": [],
-            "children": [],
-            "presences": [],
-            "citations": [],
-            "notes": [],
-            "links": [],
-            "files": [],
-        }
-        actual = await assert_dumps_linked_data(person)
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_full(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        parent = Person(id="my-first-parent")
-
-        child = Person(id="my-first-child")
-
-        sibling = Person(id="my-first-sibling")
-        sibling.parents.add(parent)
-
-        person_affiliation_name = "Person"
-        person_individual_name = "The"
-        person = Person(
-            id="my-first-person", privacy=Privacy.PUBLIC, gender=NonBinary()
-        )
-        PersonName(
-            id="my-first-person-name",
-            person=person,
-            individual=person_individual_name,
-            affiliation=person_affiliation_name,
-            locale="en-US",
-        )
-        person.parents.add(parent)
-        person.children.add(child)
-        link = Link(
-            "https://example.com/the-person",
-            id="my-first-link",
-            label="The Person Online",
-        )
-        person.links.add(link)
-        person.citations.add(
-            Citation(
-                id="my-first-citation",
-                source=Source(
-                    id="my-first-source",
-                    name="The Source",
-                ),
-            )
-        )
-        Presence(
-            person,
-            Subject(),
-            Event(
-                id="my-first-event",
-                event_type=Birth(),
-            ),
-            id="my-first-presence",
-        )
-
-        expected: Mapping[str, Any] = {
-            "@context": {
-                "names": "https://schema.org/name",
-                "parents": "https://schema.org/parent",
-                "children": "https://schema.org/child",
-            },
-            "@id": "https://example.com/person/my-first-person/index.json",
-            "@type": "https://schema.org/Person",
-            "id": "my-first-person",
-            "privacy": False,
-            "gender": NonBinary.definition.id,
-            "names": [
-                "/person-name/my-first-person-name/index.json",
-            ],
-            "parents": [
-                "/person/my-first-parent/index.json",
-            ],
-            "children": [
-                "/person/my-first-child/index.json",
-            ],
-            "presences": [
-                "/presence/my-first-presence/index.json",
-            ],
-            "citations": [
-                "/citation/my-first-citation/index.json",
-            ],
-            "notes": [],
-            "links": [
-                "/link/my-first-link/index.json",
-            ],
-            "files": [],
-        }
-        actual = await assert_dumps_linked_data(person)
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_private(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        parent = Person(id="my-first-parent")
-
-        child = Person(id="my-first-child")
-
-        sibling = Person(id="my-first-sibling")
-        sibling.parents.add(parent)
-
-        person_affiliation_name = "Person"
-        person_individual_name = "The"
-        person = Person(
-            id="my-first-person",
-            privacy=Privacy.PRIVATE,
-        )
-        PersonName(
-            id="my-first-person-name",
-            person=person,
-            individual=person_individual_name,
-            affiliation=person_affiliation_name,
-        )
-        person.parents.add(parent)
-        person.children.add(child)
-        link = Link("https://example.com/the-person", id="my-first-link")
-        link.label = "The Person Online"
-        person.links.add(link)
-        person.citations.add(
-            Citation(
-                id="my-first-citation",
-                source=Source(
-                    id="my-first-source",
-                    name="The Source",
-                ),
-            )
-        )
-        Presence(
-            person,
-            Subject(),
-            Event(
-                id="my-first-event",
-                event_type=Birth(),
-            ),
-            id="my-first-presence",
-        )
-
-        expected: Mapping[str, Any] = {
-            "@context": {
-                "names": "https://schema.org/name",
-                "parents": "https://schema.org/parent",
-                "children": "https://schema.org/child",
-            },
-            "@id": "https://example.com/person/my-first-person/index.json",
-            "@type": "https://schema.org/Person",
-            "id": "my-first-person",
-            "names": [
-                "/person-name/my-first-person-name/index.json",
-            ],
-            "parents": [
-                "/person/my-first-parent/index.json",
-            ],
-            "children": [
-                "/person/my-first-child/index.json",
-            ],
-            "privacy": True,
-            "presences": [
-                "/presence/my-first-presence/index.json",
-            ],
-            "citations": [
-                "/citation/my-first-citation/index.json",
-            ],
-            "notes": [],
-            "links": [
-                "/link/my-first-link/index.json",
-            ],
-            "files": [],
-        }
-        actual = await assert_dumps_linked_data(person)
-        assert actual == expected
 
     def test_gender(self) -> None:
         gender = NonBinary()

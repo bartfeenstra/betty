@@ -11,7 +11,6 @@ from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 if TYPE_CHECKING:
     from betty.association import Associate
     from betty.project import Project
-    from betty.test_utils.conftest import AssertDumpsLinkedDataFor
 
 
 @EntityDefinition(
@@ -107,19 +106,6 @@ class TestToMany:
         owner.associates = [lambda: associate]
         type(owner).associates.resolve(isolated_project, owner)
         assert associate in owner.associates
-
-    async def test_linked_data_schema_for(self, isolated_project: Project) -> None:
-        await _Owner.associates.linked_data_schema_for(isolated_project)
-
-    async def test_dump_linked_data_for(
-        self, assert_dumps_linked_data_for: AssertDumpsLinkedDataFor
-    ) -> None:
-        associate = _Associate(id="my-first-associate")
-        owner = _Owner(id="my-first-owner")
-        owner.associates = [associate]
-        actual = await assert_dumps_linked_data_for(type(owner).associates, owner)
-        expected = ["/associate/my-first-associate/index.json"]
-        assert actual == expected
 
     def test_is_deletable(self) -> None:
         assert _Associate.owners.is_deletable(_Associate())

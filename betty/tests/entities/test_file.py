@@ -2,20 +2,14 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Any, cast, override
+from typing import TYPE_CHECKING, cast, override
 
-from betty.copyright_notices.public_domain import (
-    PublicDomain as PublicDomainCopyrightNotice,
-)
-from betty.entities.citation import Citation
+import pytest
+
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.entities.note import Note
-from betty.entities.person import Person
-from betty.entities.source import Source
 from betty.entity import Entity
-from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
-from betty.locale import default_locale_tag
 from betty.localizer import default_localizer
 from betty.media_types.plain_text import PLAIN_TEXT
 from betty.privacy import Privacy
@@ -26,11 +20,7 @@ from betty.test_utils.entity.associations.has_file_references import (
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
-
-    from betty.test_utils.conftest import AssertDumpsLinkedData
-
-import pytest
+    from collections.abc import Sequence
 
 
 class TestFile(EntityTestBase):
@@ -119,125 +109,3 @@ class TestFile(EntityTestBase):
     def test_citations(self) -> None:
         sut = File(Path(__file__))
         assert list(sut.citations) == []
-
-    async def test_dump_linked_data__should_dump_minimal(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        with NamedTemporaryFile() as f:
-            file = File(
-                id="my-first-file",
-                path=Path(f.name),
-            )
-            expected: Mapping[str, Any] = {
-                "@context": {"description": "https://schema.org/description"},
-                "@id": "https://example.com/file/my-first-file/index.json",
-                "id": "my-first-file",
-                "privacy": False,
-                "citations": [],
-                "notes": [],
-                "links": [],
-                "referees": [],
-            }
-            actual = await assert_dumps_linked_data(file)
-            assert actual == expected
-
-    async def test_dump_linked_data__should_dump_full(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        with NamedTemporaryFile() as f:
-            file = File(
-                id="my-first-file",
-                path=Path(f.name),
-                media_type=PLAIN_TEXT,
-                copyright_notice=PublicDomainCopyrightNotice(),
-                license=PublicDomainLicense(),
-                description="The Description",
-            )
-            file.notes.add(
-                Note(
-                    id="my-first-note",
-                    text="The Note",
-                )
-            )
-            FileReference(
-                Person(id="my-first-person"), file, id="my-first-file-reference"
-            )
-            file.citations.add(
-                Citation(
-                    id="my-first-citation",
-                    source=Source(
-                        id="my-first-source",
-                        name="The Source",
-                    ),
-                )
-            )
-            expected: Mapping[str, Any] = {
-                "@context": {"description": "https://schema.org/description"},
-                "@id": "https://example.com/file/my-first-file/index.json",
-                "id": "my-first-file",
-                "privacy": False,
-                "mediaType": "text/plain",
-                "citations": [
-                    "/citation/my-first-citation/index.json",
-                ],
-                "notes": [
-                    "/note/my-first-note/index.json",
-                ],
-                "links": [],
-                "referees": [
-                    "/file-reference/my-first-file-reference/index.json",
-                ],
-                "description": {default_locale_tag: "The Description"},
-                "copyrightNotice": "public-domain",
-                "license": "public-domain",
-            }
-            actual = await assert_dumps_linked_data(file)
-            assert actual == expected
-
-    async def test_dump_linked_data__should_dump_private(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        with NamedTemporaryFile() as f:
-            file = File(
-                id="my-first-file",
-                path=Path(f.name),
-                privacy=Privacy.PRIVATE,
-                media_type=PLAIN_TEXT,
-                description="The File",
-            )
-            file.notes.add(
-                Note(
-                    id="my-first-note",
-                    text="The Note",
-                )
-            )
-            FileReference(
-                Person(id="my-first-person"), file, id="my-first-file-reference"
-            )
-            file.citations.add(
-                Citation(
-                    id="my-first-citation",
-                    source=Source(
-                        id="my-first-source",
-                        name="The Source",
-                    ),
-                )
-            )
-            expected: Mapping[str, Any] = {
-                "@context": {"description": "https://schema.org/description"},
-                "@id": "https://example.com/file/my-first-file/index.json",
-                "id": "my-first-file",
-                "privacy": True,
-                "citations": [
-                    "/citation/my-first-citation/index.json",
-                ],
-                "notes": [
-                    "/note/my-first-note/index.json",
-                ],
-                "links": [],
-                "referees": [
-                    "/file-reference/my-first-file-reference/index.json",
-                ],
-            }
-            actual = await assert_dumps_linked_data(file)
-            assert actual == expected

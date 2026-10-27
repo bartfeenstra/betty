@@ -104,18 +104,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "CommonAttr": MissingReason.STATIC_CONTENT_ONLY,
         "OptionableCommonAttr": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/attrs/date.py": {
-        "HasAnyDate": {
-            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
-        },
-    },
     "betty/attrs/optional.py": {
         "OptionableAttr": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/attrs/privacy.py": {
-        "PrivacyAttr": {
-            "linked_data_schema_for": MissingReason.STATIC_CONTENT_ONLY,
-        },
+        "PrivacyAttr": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
@@ -334,7 +327,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "validate": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/json_schemas/json_ld.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/json_schemas/project.py": MissingReason.SHOULD_BE_COVERED,
     "betty/life_cycle/__init__.py": {
         "AlreadyBootstrapped": MissingReason.STATIC_CONTENT_ONLY,
         "AlreadyShutDown": MissingReason.STATIC_CONTENT_ONLY,
@@ -347,15 +340,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/links/betty_documentation.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/links/betty_github.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/linked_data.py": {
-        "dump_context": MissingReason.SHOULD_BE_COVERED,
-        "dump_schema": MissingReason.SHOULD_BE_COVERED,
-        "JsonLdObject": MissingReason.SHOULD_BE_COVERED,
-        "LinkedDataDumpable": MissingReason.ABSTRACT,
-        "LinkedDataDumpableWithSchema": MissingReason.ABSTRACT,
-        "LinkedDataDumpableWithSchemaJsonLdObject": MissingReason.SHOULD_BE_COVERED,
-        "LinkedDataDumper": MissingReason.ABSTRACT,
-    },
     "betty/load.py": {
         "load": MissingReason.SHOULD_BE_COVERED,
         "Loader": MissingReason.ABSTRACT,
@@ -377,12 +361,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/locale/error.py": {
         "LocaleError": MissingReason.ABSTRACT,
     },
-    "betty/localizable/__init__.py": {
+    "betty/localizable.py": {
         "CountableLocalizable": {
             "count": MissingReason.ABSTRACT,
         },
-        "format": MissingReason.SHOULD_BE_COVERED,
-        "Localizable": MissingReason.SHOULD_BE_COVERED,
+        "Localizable": {"localize": MissingReason.ABSTRACT},
     },
     "betty/localizables/gettext.py": {
         "gettext": MissingReason.SHOULD_BE_COVERED,
@@ -412,7 +395,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/media_types/html.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/media_types/jinja.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/media_types/json.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/media_types/json_ld.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/media_types/pdf.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/media_types/plain_text.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/media_types/svg.py": MissingReason.STATIC_CONTENT_ONLY,
@@ -444,11 +426,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/enrichers/wiki.py": {
         "WikiData": {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
-    "betty/entities/event.py": {
-        "Event": {
-            "has_any_date_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
     "betty/entity/__init__.py": {

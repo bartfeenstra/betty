@@ -6,11 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.entity import EntityDefinition
 from betty.factory import Manufacturable
-from betty.json_schema import Array, JsonSchemaReference, Schema, String
+from betty.json_schema import JsonSchemaReference, Schema
 from betty.project import Project
-from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -50,26 +48,6 @@ class ProjectSchema(Manufacturable, Schema):
     async def new(cls, project: Project, /) -> Self:
         schema = cls()
         schema.schema["$id"] = await cls.url(project)
-
-        # Add entity schemas.
-        async for entity_type in project.plugins[EntityDefinition]:
-            entity_type_schema = await entity_type.cls.linked_data_schema(project)
-            entity_type_schema.embed(schema)
-            def_name = f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse"
-            schema.defs[def_name] = {
-                "type": "object",
-                "properties": {
-                    "collection": Array(
-                        String(
-                            title="Entity",
-                            description="A reference to an entity's JSON resource",
-                            format=String.Format.URI,
-                        ),
-                        title="Entities",
-                        description="References to entities' JSON resources",
-                    ).schema,
-                },
-            }
 
         # Add the HTTP error response.
         schema.defs["errorResponse"] = {

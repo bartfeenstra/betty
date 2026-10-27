@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast, override
+from typing import TYPE_CHECKING, cast, override
 
 import pytest
 from geopy import Point
@@ -8,20 +8,15 @@ from geopy import Point
 from betty.associations.to_one import MissingAssociate, Placeholder
 from betty.entities.enclosure import Enclosure
 from betty.entities.event import Event
-from betty.entities.link import Link
 from betty.entities.place import Place
 from betty.entities.place_name import PlaceName
 from betty.entity import Entity
-from betty.event_types.birth import Birth
-from betty.locale import default_locale_tag
 from betty.place_types.hamlet import Hamlet
 from betty.place_types.unknown import UnknownPlaceType
 from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
-
-    from betty.test_utils.conftest import AssertDumpsLinkedData
+    from collections.abc import Sequence
 
 
 class TestPlace(EntityTestBase):
@@ -121,108 +116,3 @@ class TestPlace(EntityTestBase):
         coordinates = Point()
         sut.coordinates = coordinates
         assert sut.coordinates == coordinates
-
-    async def test_dump_linked_data__should_dump_minimal(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        place = Place(id="my-first-place")
-        expected: Mapping[str, Any] = {
-            "@context": {
-                "names": "https://schema.org/name",
-                "enclosedBy": "https://schema.org/containedInPlace",
-                "encloses": "https://schema.org/containsPlace",
-                "events": "https://schema.org/event",
-            },
-            "@id": "https://example.com/place/my-first-place/index.json",
-            "@type": "https://schema.org/Place",
-            "id": "my-first-place",
-            "names": [],
-            "enclosedBy": [],
-            "encloses": [],
-            "events": [],
-            "notes": [],
-            "links": [],
-            "privacy": False,
-            "files": [],
-        }
-        actual = await assert_dumps_linked_data(place)
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_full(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        name = "The Place"
-        place_name = PlaceName(name, id="my-first-place-name")
-        latitude = 12.345
-        longitude = -54.321
-        coordinates = Point(latitude, longitude)
-        link = Link("https://example.com/the-place", id="my-first-link")
-        link.label = "The Place Online"
-        place = Place(
-            id="my-first-place",
-            names=[place_name],
-            events=[
-                Event(
-                    id="my-first-event",
-                    event_type=Birth(),
-                )
-            ],
-            links=[link],
-        )
-        place.coordinates = coordinates
-        Enclosure(
-            encloses=place,
-            enclosed_by=Place(id="the-enclosing-place"),
-            id="the-enclosing-enclosure",
-        )
-        Enclosure(
-            encloses=Place(id="the-enclosed-place"),
-            enclosed_by=place,
-            id="the-enclosed-enclosure",
-        )
-        expected: Mapping[str, Any] = {
-            "@context": {
-                "names": "https://schema.org/name",
-                "enclosedBy": "https://schema.org/containedInPlace",
-                "encloses": "https://schema.org/containsPlace",
-                "events": "https://schema.org/event",
-                "coordinates": "https://schema.org/geo",
-            },
-            "@id": "https://example.com/place/my-first-place/index.json",
-            "@type": "https://schema.org/Place",
-            "id": "my-first-place",
-            "names": [
-                {
-                    "@id": "https://example.com/place-name/my-first-place-name/index.json",
-                    "id": "my-first-place-name",
-                    "name": {default_locale_tag: name},
-                    "privacy": False,
-                }
-            ],
-            "events": [
-                "/event/my-first-event/index.json",
-            ],
-            "notes": [],
-            "links": [
-                "/link/my-first-link/index.json",
-            ],
-            "coordinates": {
-                "@context": {
-                    "latitude": "https://schema.org/latitude",
-                    "longitude": "https://schema.org/longitude",
-                },
-                "@type": "https://schema.org/GeoCoordinates",
-                "latitude": latitude,
-                "longitude": longitude,
-            },
-            "encloses": [
-                "/enclosure/the-enclosed-enclosure/index.json",
-            ],
-            "enclosedBy": [
-                "/enclosure/the-enclosing-enclosure/index.json",
-            ],
-            "privacy": False,
-            "files": [],
-        }
-        actual = await assert_dumps_linked_data(place)
-        assert actual == expected

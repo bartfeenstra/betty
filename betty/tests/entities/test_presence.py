@@ -15,8 +15,6 @@ from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
     from betty.entity import Entity
-    from betty.portable import PortableMapping
-    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestPresence(EntityTestBase):
@@ -61,42 +59,3 @@ class TestPresence(EntityTestBase):
         sut.privacy = presence_privacy
 
         assert sut.privacy == expected
-
-    async def test_dump_linked_data__should_dump(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        person = Person(id="my-first-person")
-        event = Event(id="my-first-event")
-        role = Subject()
-        sut = Presence(person, role, event, id="my-first-presence")
-
-        expected: PortableMapping = {
-            "@id": "https://example.com/presence/my-first-presence/index.json",
-            "id": "my-first-presence",
-            "event": "/event/my-first-event/index.json",
-            "person": "/person/my-first-person/index.json",
-            "privacy": False,
-            "role": role.definition.id,
-        }
-        actual = await assert_dumps_linked_data(sut)
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_private(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        person = Person(id="my-first-person")
-        event = Event(id="my-first-event")
-        role = Subject()
-        sut = Presence(
-            person, role, event, id="my-first-presence", privacy=Privacy.PRIVATE
-        )
-
-        expected: PortableMapping = {
-            "@id": "https://example.com/presence/my-first-presence/index.json",
-            "id": "my-first-presence",
-            "event": "/event/my-first-event/index.json",
-            "person": "/person/my-first-person/index.json",
-            "privacy": True,
-        }
-        actual = await assert_dumps_linked_data(sut)
-        assert actual == expected

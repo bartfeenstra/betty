@@ -46,24 +46,6 @@ class TestOptionalToOne:
         _Owner.associate.disassociate(owner, DummyEntityOne())
         assert owner.associate is None
 
-    async def test_dump_linked_data_for__without_associate(
-        self, isolated_project: Project
-    ) -> None:
-        assert (
-            await _Owner.associate.dump_linked_data_for(isolated_project, _Owner())
-            is None
-        )
-
-    async def test_dump_linked_data_for__with_associate(
-        self, isolated_project: Project
-    ) -> None:
-        owner = _Owner()
-        owner.associate = DummyEntityOne(id="my-first-associate")
-        assert (
-            await _Owner.associate.dump_linked_data_for(isolated_project, owner)
-            == "/dummy-one/my-first-associate/index.json"
-        )
-
     def test_get_associates__without_associate(self) -> None:
         assert list(_Owner.associate.get_associates(_Owner())) == []
 

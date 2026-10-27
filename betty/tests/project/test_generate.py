@@ -112,10 +112,6 @@ async def test_generate__links_for_entity_pages(
             f'<link rel="alternate" href="/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">'
             in html
         )
-        assert (
-            f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">'
-            in html
-        )
         with open(
             await assert_betty_html(project, f"/en/person/{person.id}/index.html"),
             encoding="utf-8",
@@ -127,10 +123,6 @@ async def test_generate__links_for_entity_pages(
         )
         assert (
             f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">'
-            in html
-        )
-        assert (
-            f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">'
             in html
         )
 

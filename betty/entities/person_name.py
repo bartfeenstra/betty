@@ -12,8 +12,6 @@ from betty.attrs.locale import HasLocale
 from betty.attrs.owner import OwnerAttr
 from betty.datas.str import StrDefinition
 from betty.entity import EntityDefinition
-from betty.json_schema import String
-from betty.linked_data import JsonLdObject, dump_context
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
@@ -25,8 +23,6 @@ if TYPE_CHECKING:
     from betty.locale import ResolvableLocale
     from betty.localizable import Localizable
     from betty.machine_name import ResolvableMachineName
-    from betty.portable import PortableMapping
-    from betty.project import Project
 
 
 @final
@@ -126,43 +122,3 @@ class PersonName(HasLocale, HasCitations):
             individual_name="…" if not self.individual else self.individual,
             affiliation_name="…" if not self.affiliation else self.affiliation,
         )
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = await super().dump_linked_data(project)
-        if self.public:
-            if self.individual is not None:
-                portable = {
-                    **dump_context(portable, individual="https://schema.org/givenName"),
-                    "individual": self.individual,
-                }
-            if self.affiliation is not None:
-                portable = {
-                    **dump_context(
-                        portable, affiliation="https://schema.org/familyName"
-                    ),
-                    "affiliation": self.affiliation,
-                }
-        return portable
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "individual",
-            String(
-                title="Individual name",
-                description="The part of the name unique to this individual, such as a first name.",
-            ),
-            False,
-        )
-        schema.add_property(
-            "affiliation",
-            String(
-                title="Affiliation name",
-                description="The part of the name shared with others, such as a surname.",
-            ),
-            False,
-        )
-        return schema

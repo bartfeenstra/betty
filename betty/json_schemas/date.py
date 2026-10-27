@@ -6,12 +6,11 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.json_schema import Boolean, Null, Number, OneOf, String
-from betty.linked_data import JsonLdObject
+from betty.json_schema import Boolean, Null, Number, Object, OneOf, String
 
 
 @final
-class DateSchema(JsonLdObject):
+class DateSchema(Object):
     """
     A JSON Schema for :py:type:`betty.date.Date`.
     """
@@ -32,7 +31,7 @@ class DateSchema(JsonLdObject):
 
 
 @final
-class DateRangeSchema(JsonLdObject):
+class DateRangeSchema(Object):
     """
     A JSON Schema for :py:type:`betty.date.DateRange`.
     """

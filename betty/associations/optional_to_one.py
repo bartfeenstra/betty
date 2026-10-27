@@ -16,7 +16,6 @@ from betty.entity import Entity
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.portable import PortableData
     from betty.project import Project
 
 
@@ -66,11 +65,3 @@ class OptionalToOne[AssociateT: Entity](
         if self._storage.get(owner) is None:
             return ()
         return self._proxied_association.get_associates(owner)
-
-    @override
-    async def dump_linked_data_for(
-        self, project: Project, owner: HasAssociations, /
-    ) -> PortableData:
-        if self._storage.get(owner) is None:
-            return None
-        return await super().dump_linked_data_for(project, owner)

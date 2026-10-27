@@ -22,7 +22,6 @@ from typing_extensions import sentinel
 from betty.attr import Attr
 from betty.data import DataDefinition, ResolvableDataDefinition
 from betty.importlib import fully_qualified_name, import_any
-from betty.linked_data import LinkedDataDumper
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
@@ -59,10 +58,7 @@ class Association[
     GetT = Any,
     SetT = Any,
     DefinitionT: DataDefinition = DataDefinition,
-](
-    LinkedDataDumper[HasAssociations],
-    Attr[HasAssociations, GetT, SetT, DefinitionT],
-):
+](Attr[HasAssociations, GetT, SetT, DefinitionT]):
     """
     An entity association.
     """

@@ -8,8 +8,6 @@ from betty.associations.proxy import ProxyAssociation
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.entity import Entity
-from betty.json_schema import Schema
-from betty.portable import PortableData
 from betty.project import Project
 from betty.test_utils.entity import DummyEntityOne
 from betty.typing import Unreachable
@@ -32,14 +30,6 @@ class _Association(Association):
         raise Unreachable
 
     def get_associates(self, owner: HasAssociations, /) -> Iterable[Entity]:
-        raise Unreachable
-
-    async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        raise Unreachable
-
-    async def dump_linked_data_for(
-        self, project: Project, target: HasAssociations, /
-    ) -> PortableData:
         raise Unreachable
 
     def get(self, owner: HasAssociations, /) -> Any:
@@ -65,23 +55,6 @@ class TestProxyAssociation:
         sut.disassociate(owner, associate)
         m_proxied_disassociate.assert_called_once_with(owner, associate)
 
-    async def test_dump_linked_data_for(
-        self, isolated_project: Project, mocker: MockerFixture
-    ) -> None:
-        dumped_linked_data = {}
-        proxied = _Association()
-        m_proxied_dump_linked_data_for = mocker.patch.object(
-            proxied, "dump_linked_data_for"
-        )
-        m_proxied_dump_linked_data_for.return_value = dumped_linked_data
-        sut = ProxyAssociation(proxied=proxied)
-        owner = DummyEntityOne()
-        assert (
-            await sut.dump_linked_data_for(isolated_project, owner)
-            is dumped_linked_data
-        )
-        m_proxied_dump_linked_data_for.assert_awaited_once_with(isolated_project, owner)
-
     def test_get_associates(self, mocker: MockerFixture) -> None:
         associates = [DummyEntityOne()]
         proxied = _Association()
@@ -91,19 +64,6 @@ class TestProxyAssociation:
         owner = DummyEntityOne()
         assert sut.get_associates(owner) == associates
         m_proxied_get_associates.assert_called_once_with(owner)
-
-    async def test_linked_data_schema_for(
-        self, isolated_project: Project, mocker: MockerFixture
-    ) -> None:
-        linked_data_schema = Schema()
-        proxied = _Association()
-        m_proxied_linked_data_schema_for = mocker.patch.object(
-            proxied, "linked_data_schema_for"
-        )
-        m_proxied_linked_data_schema_for.return_value = linked_data_schema
-        sut = ProxyAssociation(proxied=proxied)
-        assert await sut.linked_data_schema_for(isolated_project) is linked_data_schema
-        m_proxied_linked_data_schema_for.assert_awaited_once_with(isolated_project)
 
     def test_is_resolver(self, mocker: MockerFixture) -> None:
         proxied = _Association()

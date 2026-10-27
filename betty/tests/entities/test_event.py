@@ -1,31 +1,25 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast, override
+from typing import TYPE_CHECKING, cast, override
+
+import pytest
 
 from betty.associations.to_one import MissingAssociate, Placeholder
-from betty.date import Date, DateRange
-from betty.entities.citation import Citation
+from betty.date import Date
 from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entities.place_name import PlaceName
 from betty.entities.presence import Presence
-from betty.entities.source import Source
 from betty.entity import Entity
-from betty.event_types.birth import Birth
 from betty.event_types.unknown import UnknownEventType
-from betty.locale import default_locale_tag
 from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
-
-    from betty.test_utils.conftest import AssertDumpsLinkedData
-
-import pytest
+    from collections.abc import Sequence
 
 
 class TestEvent(EntityTestBase):
@@ -128,158 +122,3 @@ class TestEvent(EntityTestBase):
         sut.name = name
         assert sut.name is not None
         assert sut.name.localize(default_localizer) == name
-
-    async def test_dump_linked_data__should_dump_minimal(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        event = Event(
-            id="my-first-event",
-            event_type=Birth(),
-        )
-        expected: Mapping[str, Any] = {
-            "@context": {
-                "description": "https://schema.org/description",
-                "place": "https://schema.org/location",
-                "presences": "https://schema.org/performer",
-            },
-            "@id": "https://example.com/event/my-first-event/index.json",
-            "@type": "https://schema.org/Event",
-            "id": "my-first-event",
-            "privacy": False,
-            "type": "birth",
-            "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-            "eventStatus": "https://schema.org/EventScheduled",
-            "presences": [],
-            "citations": [],
-            "notes": [],
-            "links": [],
-            "files": [],
-            "place": None,
-        }
-        actual = await assert_dumps_linked_data(event)
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_full(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        event = Event(
-            id="my-first-event",
-            event_type=Birth(),
-            date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
-            place=Place(
-                id="my-first-place",
-                names=[PlaceName("The Place")],
-            ),
-            name="The Event",
-            description="The Event Description",
-        )
-        Presence(Person(id="my-first-person"), Subject(), event, id="my-first-presence")
-        event.citations.add(
-            Citation(
-                id="my-first-citation",
-                source=Source(
-                    id="my-first-source",
-                    name="The Source",
-                ),
-            )
-        )
-        expected: Mapping[str, Any] = {
-            "@context": {
-                "description": "https://schema.org/description",
-                "place": "https://schema.org/location",
-                "presences": "https://schema.org/performer",
-            },
-            "@id": "https://example.com/event/my-first-event/index.json",
-            "@type": "https://schema.org/Event",
-            "id": "my-first-event",
-            "privacy": False,
-            "type": "birth",
-            "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-            "eventStatus": "https://schema.org/EventScheduled",
-            "presences": [
-                "/presence/my-first-presence/index.json",
-            ],
-            "citations": [
-                "/citation/my-first-citation/index.json",
-            ],
-            "notes": [],
-            "date": {
-                "start": {
-                    "@context": {
-                        "iso8601": "https://schema.org/startDate",
-                    },
-                    "year": 2000,
-                    "month": 1,
-                    "day": 1,
-                    "iso8601": "2000-01-01",
-                    "fuzzy": False,
-                },
-                "end": {
-                    "@context": {
-                        "iso8601": "https://schema.org/endDate",
-                    },
-                    "year": 2019,
-                    "month": 12,
-                    "day": 31,
-                    "iso8601": "2019-12-31",
-                    "fuzzy": False,
-                },
-            },
-            "place": "/place/my-first-place/index.json",
-            "links": [],
-            "name": {default_locale_tag: "The Event"},
-            "description": {default_locale_tag: "The Event Description"},
-            "files": [],
-        }
-        actual = await assert_dumps_linked_data(event)
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_private(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        event = Event(
-            id="my-first-event",
-            event_type=Birth(),
-            privacy=Privacy.PRIVATE,
-            date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
-            place=Place(
-                id="my-first-place",
-                names=[PlaceName("The Place")],
-            ),
-        )
-        Presence(Person(id="my-first-person"), Subject(), event, id="my-first-presence")
-        event.citations.add(
-            Citation(
-                id="my-first-citation",
-                source=Source(
-                    id="my-first-source",
-                    name="The Source",
-                ),
-            )
-        )
-        expected: Mapping[str, Any] = {
-            "@context": {
-                "description": "https://schema.org/description",
-                "place": "https://schema.org/location",
-                "presences": "https://schema.org/performer",
-            },
-            "@id": "https://example.com/event/my-first-event/index.json",
-            "@type": "https://schema.org/Event",
-            "id": "my-first-event",
-            "privacy": True,
-            "type": "birth",
-            "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-            "eventStatus": "https://schema.org/EventScheduled",
-            "presences": [
-                "/presence/my-first-presence/index.json",
-            ],
-            "citations": [
-                "/citation/my-first-citation/index.json",
-            ],
-            "notes": [],
-            "place": "/place/my-first-place/index.json",
-            "links": [],
-            "files": [],
-        }
-        actual = await assert_dumps_linked_data(event)
-        assert actual == expected

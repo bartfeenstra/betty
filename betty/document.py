@@ -28,14 +28,12 @@ from typing import (
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.id import resolve_id
-from betty.linked_data import LinkedDataDumpable
 from betty.localizables.gettext import _, ngettext
 from betty.localizer import Localizer, default_localizer
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_types.html import HTML
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
-from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
     from betty.definition.id import ResolvableId
@@ -44,6 +42,7 @@ if TYPE_CHECKING:
     from betty.job import Context
     from betty.localizable import Localizable
     from betty.machine_name import MachineName, ResolvableMachineName
+    from betty.portable import PortableMapping
     from betty.project import Project
     from betty.requirement import Requires
 
@@ -220,7 +219,7 @@ class DocumentProviderManufacturer(
 
 
 @final
-class Breadcrumb(LinkedDataDumpable[PortableMapping]):
+class Breadcrumb:
     """
     A breadcrumb.
     """
@@ -235,8 +234,10 @@ class Breadcrumb(LinkedDataDumpable[PortableMapping]):
         The resource URL.
         """
 
-    @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+        """
+        Dump this instance to `JSON-LD <https://json-ld.org/>`_.
+        """
         portable: PortableMapping = {
             "@type": "ListItem",
             "name": self.label,
@@ -250,7 +251,7 @@ class Breadcrumb(LinkedDataDumpable[PortableMapping]):
 
 
 @final
-class Breadcrumbs(LinkedDataDumpable[PortableMapping], Iterable[Breadcrumb], Sized):
+class Breadcrumbs(Iterable[Breadcrumb], Sized):
     """
     A trail of navigational breadcrumbs.
     """
@@ -272,8 +273,10 @@ class Breadcrumbs(LinkedDataDumpable[PortableMapping], Iterable[Breadcrumb], Siz
         """
         self._breadcrumbs.append(Breadcrumb(label, resource_url))
 
-    @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+        """
+        Dump this instance to `JSON-LD <https://json-ld.org/>`_.
+        """
         if not self._breadcrumbs:
             return {}
         return {

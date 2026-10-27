@@ -15,10 +15,7 @@ from betty.entities.person_name import PersonName
 from betty.entities.presence import Presence
 from betty.entity import EntityDefinition
 from betty.functools import unique
-from betty.gender import GenderDefinition
 from betty.genders.unknown import UnknownGender
-from betty.json_schemas.plugin_id import PluginIdSchema
-from betty.linked_data import JsonLdObject, dump_context
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 
@@ -32,8 +29,6 @@ if TYPE_CHECKING:
     from betty.gender import Gender
     from betty.localizable import Localizable
     from betty.machine_name import ResolvableMachineName
-    from betty.portable import PortableMapping
-    from betty.project import Project
 
 
 @final
@@ -150,32 +145,3 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
             if name.public:
                 return name.label
         return super().label
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = dict(
-            dump_context(
-                await super().dump_linked_data(project),
-                names="https://schema.org/name",
-                parents="https://schema.org/parent",
-                children="https://schema.org/child",
-            )
-        )
-        portable["@type"] = "https://schema.org/Person"
-        if self.public:
-            portable["gender"] = self.gender.definition.id
-        return portable
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "gender",
-            PluginIdSchema(
-                GenderDefinition.definition,
-                [x async for x in project.plugins[GenderDefinition]],
-            ),
-            False,
-        )
-        return schema

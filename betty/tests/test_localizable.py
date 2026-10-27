@@ -1,5 +1,6 @@
 from typing import override
 
+import pytest
 from babel import Locale
 
 from betty.locale import default_locale, default_locale_tag
@@ -14,7 +15,29 @@ from betty.localizable import (
 )
 from betty.localizables.plain import Plain
 from betty.localizables.static import CountableStaticTranslations
+from betty.localized import LocalizedStr
 from betty.localizer import Localizer, default_localizer
+
+
+class TestLocalizable:
+    class _Sut(Localizable):
+        @override
+        def localize(self, localizer: Localizer, /) -> LocalizedStr:
+            return LocalizedStr("{format_placeholder}")
+
+    def test_format(self) -> None:
+        sut = self._Sut()
+        assert (
+            sut.format(format_placeholder="format-value").localize(default_localizer)
+            == "format-value"
+        )
+
+    def test___str__(self) -> None:
+        sut = self._Sut()
+        with pytest.warns(
+            UserWarning,  # noqa: PT030
+        ):
+            assert str(sut) == "{format_placeholder}"
 
 
 class TestCountableLocalizable:

@@ -4,43 +4,25 @@ Privacy attributes.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal, final, override
+from typing import Any, Literal, final
 
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.enum import EnumDefinition
-from betty.json_schemas.privacy import PrivacySchema
-from betty.linked_data import LinkedDataDumper
 from betty.localizables.gettext import _
 from betty.privacy import Privacy
 from betty.prop import HasProps
 
-if TYPE_CHECKING:
-    from betty.project import Project
-
 
 @final
-class PrivacyAttr(
-    ProxyAttr["HasPrivacy", Privacy, Privacy, DataDefinition[Privacy]],
-    LinkedDataDumper["HasPrivacy", PrivacySchema, bool],
-):
+class PrivacyAttr(ProxyAttr["HasPrivacy", Privacy, Privacy, DataDefinition[Privacy]]):
     """
     An attribute containing a privacy.
     """
 
     def __init__(self):
         super().__init__(proxied=OwnerAttr(EnumDefinition(Privacy, label=_("Privacy"))))
-
-    @override
-    async def linked_data_schema_for(self, project: Project, /) -> PrivacySchema:
-        return PrivacySchema()
-
-    @override
-    async def dump_linked_data_for(
-        self, project: Project, target: HasPrivacy, /
-    ) -> bool:
-        return target.privacy is Privacy.PRIVATE
 
 
 class HasPrivacy(HasProps):
