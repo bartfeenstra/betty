@@ -8,9 +8,8 @@ from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Collection
 from typing import TYPE_CHECKING, Any, overload
 
-from _typeshed import SupportsRichComparison
-
 if TYPE_CHECKING:
+    from _typeshed import SupportsRichComparison
     from ty_extensions import Intersection
 
 
@@ -36,7 +35,7 @@ class ResolvedKeyCollection[KeyT, ResolvableKeyT](metaclass=ABCMeta):
     __slots__ = ()
 
     @abstractmethod
-    def resolve_key(self, key: KeyT | ResolvableKeyT) -> KeyT:
+    def resolve_key(self, key: KeyT | ResolvableKeyT, /) -> KeyT:
         """
         Resolve a key.
         """
@@ -50,7 +49,7 @@ class ResolvedValueCollection[ValueT, ResolvableValueT](metaclass=ABCMeta):
     __slots__ = ()
 
     @abstractmethod
-    def resolve_value(self, value: ValueT | ResolvableValueT) -> ValueT:
+    def resolve_value(self, value: ValueT | ResolvableValueT, /) -> ValueT:
         """
         Resolve a value.
         """

@@ -43,10 +43,10 @@ class Dict[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
 
     @final
     @override
-    def resolve_key(self, key: KeyT | ResolvableKeyT) -> KeyT:
+    def resolve_key(self, key: KeyT | ResolvableKeyT, /) -> KeyT:
         return self.__key_resolver(key)
 
     @final
     @override
-    def resolve_value(self, value: ValueT | ResolvableValueT) -> ValueT:
+    def resolve_value(self, value: ValueT | ResolvableValueT, /) -> ValueT:
         return self.__value_resolver(value)

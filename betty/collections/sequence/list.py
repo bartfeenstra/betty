@@ -38,7 +38,7 @@ class List[ValueT, ResolvableValueT](
 
     @final
     @override
-    def resolve_value(self, value: ValueT | ResolvableValueT) -> ValueT:
+    def resolve_value(self, value: ValueT | ResolvableValueT, /) -> ValueT:
         return self.__value_resolver(value)
 
     @override

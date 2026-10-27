@@ -781,8 +781,8 @@ class ProjectData(Object):
                 value=EnricherManufacturer,
                 label=EnricherDefinition.definition.label_plural,
                 manufacturer=lambda values: DictCatalog(
+                    lambda data: data.plugin_id,
                     [] if values is None else list(values),
-                    keyer=lambda data: data.plugin_id,
                     key=resolve_id,
                     value=EnricherManufacturer.resolve,
                 ),
@@ -808,8 +808,8 @@ class ProjectData(Object):
                 value=ServiceProviderManufacturer,
                 label=ServiceProviderDefinition.definition.label_plural,
                 manufacturer=lambda values: DictCatalog(
+                    lambda data: data.plugin_id,
                     [] if values is None else list(values),
-                    keyer=lambda data: data.plugin_id,
                     key=resolve_id,
                     value=ServiceProviderManufacturer.resolve,
                 ),
@@ -885,8 +885,8 @@ class ProjectData(Object):
                 value=LoaderManufacturer,
                 label=LoaderDefinition.definition.label_plural,
                 manufacturer=lambda values: DictCatalog(
+                    lambda data: data.plugin_id,
                     [] if values is None else list(values),
-                    keyer=lambda data: data.plugin_id,
                     key=resolve_id,
                     value=LoaderManufacturer.resolve,
                 ),
@@ -906,8 +906,8 @@ class ProjectData(Object):
                 label=_("Locales"),
                 order_dump=True,
                 manufacturer=lambda values: DictCatalog(
+                    lambda item: item.locale,
                     [] if values is None else list(values),
-                    keyer=lambda item: item.locale,
                     key=resolve_locale,
                     value=lambda value: (
                         value

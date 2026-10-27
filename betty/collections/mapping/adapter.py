@@ -160,3 +160,7 @@ class MutableMappingAdapter[
     @override
     def popitem(self) -> tuple[KeyT, ValueT]:
         return self.__wrapped__.popitem()
+
+    @override
+    def clear(self) -> None:
+        self.__wrapped__.clear()
