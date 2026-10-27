@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable
 from typing import ClassVar
 
 import pytest
@@ -13,6 +13,7 @@ from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.mapping import TypedMappingDefinition
 from betty.datas.str import StrDefinition
 from betty.operator import Key
+from betty.pipeline import pipe
 from betty.portable import PortableData
 from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter
@@ -40,12 +41,12 @@ class TestCatalogDefinition:
             "other_element": "my_first_other_element",
         }
     ]
-    _values: Mapping[str, dict[str, str]] = {
-        "my_first_key": {
+    _values: Iterable[dict[str, str]] = [
+        {
             "key": "my_first_key",
             "other_element": "my_first_other_element",
         }
-    }
+    ]
     _sut_unordered = CatalogDefinition[
         Catalog[str, str, dict[str, str]],
         dict[str, str],
@@ -53,7 +54,7 @@ class TestCatalogDefinition:
         value=_item,
         label="-",
         manufacturer=lambda values: FrozenDictCatalog(
-            {value["key"]: value for value in values} if values else {}
+            lambda value: value["key"], () if values is None else values
         ),
     )
     _sut_ordered = CatalogDefinition[
@@ -64,7 +65,7 @@ class TestCatalogDefinition:
         order_dump=True,
         label="-",
         manufacturer=lambda values: FrozenDictCatalog(
-            {value["key"]: value for value in values} if values else {}
+            lambda value: value["key"], () if values is None else values
         ),
     )
 
@@ -81,11 +82,11 @@ class TestCatalogDefinition:
         assert data["my_first_key"]["other_element"] == "my_first_other_element"
 
     def test_dump__unordered(self) -> None:
-        data = FrozenDictCatalog[str, str, dict[str, str]](self._values)
+        data = FrozenDictCatalog[str, str, dict[str, str]](pipe, self._values)
         assert self._sut_unordered.porter.dump(data) == self._portable_unordered
 
     def test_dump__ordered(self) -> None:
-        data = FrozenDictCatalog[str, str, dict[str, str]](self._values)
+        data = FrozenDictCatalog[str, str, dict[str, str]](pipe, self._values)
         assert self._sut_ordered.porter.dump(data) == self._portable_ordered
 
 
@@ -96,26 +97,26 @@ class TestMutableCatalogDefinition:
     ](
         value=_item,
         label="-",
-        manufacturer=lambda _: DictCatalog(key=lambda value: value["key"]),
+        manufacturer=lambda _: DictCatalog(lambda value: value["key"]),
     )
 
     def test_clear(self) -> None:
-        data = DictCatalog(({"key": "qux"},), key=lambda value: value["key"])
+        data = DictCatalog(lambda value: value["key"], ({"key": "qux"},))
         self._sut.clear(data)
         assert not data
 
     @pytest.mark.parametrize(
         ("expected", "data", "values"),
         [
-            ([], DictCatalog(key=lambda value: value["key"]), ()),
+            ([], DictCatalog(lambda value: value["key"]), ()),
             (
                 [{"key": "foo"}, {"key": "bar"}],
-                DictCatalog(({"key": "qux"},), key=lambda value: value["key"]),
+                DictCatalog(lambda value: value["key"], ({"key": "qux"},)),
                 ({"key": "foo"}, {"key": "bar"}),
             ),
             (
                 [],
-                DictCatalog(({"key": "qux"},), key=lambda value: value["key"]),
+                DictCatalog(lambda value: value["key"], ({"key": "qux"},)),
                 (),
             ),
         ],

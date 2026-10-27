@@ -6,35 +6,35 @@ from betty.pipeline import pipe
 
 class TestFrozenDictCatalog:
     def test___contains__(self) -> None:
-        sut = FrozenDictCatalog(lambda key: str(key).upper(), {"ONE": "one"})
+        sut = FrozenDictCatalog(str.upper, {"ONE": "one"})
         assert "ONE" in sut
 
     def test___contains____with_resolved_key(self) -> None:
-        sut = FrozenDictCatalog(lambda key: str(key).upper(), {"TRUE": "True"})
-        assert True in sut
+        sut = FrozenDictCatalog(str.upper, {"TRUE": "True"})
+        assert "True" in sut
 
     def test___contains____with_invalid_value(self) -> None:
-        sut = FrozenDictCatalog(lambda key: str(key).upper(), {"TRUE": "True"})
+        sut = FrozenDictCatalog(str.upper, {"TRUE": "True"})
         assert object() not in sut
 
     def test___getitem__(self) -> None:
-        sut = FrozenDictCatalog({"ONE": "one"})
+        sut = FrozenDictCatalog(str.upper, {"ONE": "one"})
         assert sut["ONE"] == "one"
 
     def test___getitem____with_resolved_key(self) -> None:
-        sut = FrozenDictCatalog(lambda key: str(key).upper(), {"TRUE": "True"})
+        sut = FrozenDictCatalog(str.upper, {"TRUE": "True"})
         assert sut[True] == "True"
 
     def test___iter__(self) -> None:
-        sut = FrozenDictCatalog({"ONE": "one"})
+        sut = FrozenDictCatalog(str.upper, {"ONE": "one"})
         assert list(iter(sut)) == ["one"]
 
     def test___len__(self) -> None:
-        sut = FrozenDictCatalog({"ONE": "one"})
+        sut = FrozenDictCatalog(str.upper, {"ONE": "one"})
         assert len(sut) == 1
 
     def test_keys(self) -> None:
-        sut = FrozenDictCatalog({"ONE": "one"})
+        sut = FrozenDictCatalog(str.upper, {"ONE": "one"})
         assert list(sut.keys()) == ["ONE"]
 
 

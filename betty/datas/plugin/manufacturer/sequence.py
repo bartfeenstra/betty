@@ -47,7 +47,7 @@ class PluginManufacturerSequenceDefinition[
             manufacturer=lambda values: List[
                 PluginManufacturerT,
                 ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],
-            ](values, value_resolver=manufacturer.resolve),
+            ](values, value=manufacturer.resolve),
             value=manufacturer,
             label=manufacturer.definition.plugin_type.definition.label_plural
             if label is None

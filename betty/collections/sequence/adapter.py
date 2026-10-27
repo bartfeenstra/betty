@@ -21,6 +21,8 @@ class SequenceAdapter[ValueT, ResolvableValueT, WrappedT: Sequence](
     Decorate another sequence to resolve any values before proxying them.
     """
 
+    __slots__ = ("__wrapped__",)
+
     def __init__(self, wrapped: Intersection[WrappedT, Sequence[ValueT]], /):
         self.__wrapped__ = wrapped
 
@@ -62,6 +64,8 @@ class MutableSequenceAdapter[ValueT, ResolvableValueT, WrappedT: MutableSequence
     """
     Decorate another sequence to resolve any values before proxying them.
     """
+
+    __slots__ = ()
 
     @override
     def insert(self, index: int, value: ValueT | ResolvableValueT) -> None:

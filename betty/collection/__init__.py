@@ -55,9 +55,8 @@ class ResolvedValueCollection[ValueT, ResolvableValueT](metaclass=ABCMeta):
         """
 
 
-# @todo This should subclass MutableCollection. What to do with ItemT?
 class UpdatableCollection[ValueT, ResolvableValueT](
-    ResolvedValueCollection[ValueT, ResolvableValueT]
+    ResolvedValueCollection[ValueT, ResolvableValueT], MutableCollection[ValueT]
 ):
     """
     A mutable collection that can be updated with new values.
@@ -83,7 +82,7 @@ class UpdatableCollection[ValueT, ResolvableValueT](
 
 
 class ExtendableCollection[ValueT, ResolvableValueT](
-    ResolvedValueCollection[ValueT, ResolvableValueT]
+    ResolvedValueCollection[ValueT, ResolvableValueT], MutableCollection[ValueT]
 ):
     """
     An ordered collection that can be extended with new values.

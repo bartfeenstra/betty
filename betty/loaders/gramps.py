@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
-from betty.collections.mapping.adapter import MutableMappingAdapter
+from betty.collections.mapping.dict import Dict
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -76,15 +76,12 @@ def _new_plugin_mapping_attr[
     ](
         FieldDefinition(
             MappingDefinition(
-                manufacturer=lambda values: MutableMappingAdapter[
+                manufacturer=lambda values: Dict[
                     str,
                     str,
                     PluginManufacturerT,
                     ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],
-                ](
-                    {} if values is None else dict(values),
-                    value_resolver=manufacturer.resolve,
-                ),
+                ]({} if values is None else values, value=manufacturer.resolve),
                 key=StrDefinition(label=gramps_label),
                 value=manufacturer,
                 label=manufacturer.definition.plugin_type.definition.label_plural,

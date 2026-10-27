@@ -20,6 +20,8 @@ class MutableBettySequence[ValueT, ResolvableValueT](
     A mutable sequence of resolved values.
     """
 
+    __slots__ = ()
+
     @override
     @abstractmethod
     def insert(self, index: int, value: ValueT | ResolvableValueT) -> None:

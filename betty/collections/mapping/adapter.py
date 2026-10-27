@@ -22,6 +22,8 @@ class MappingAdapter[KeyT, ResolvableKeyT, ValueT, WrappedT: Mapping](
     Decorate another mapping to resolve any values before proxying them.
     """
 
+    __slots__ = ("__wrapped__",)
+
     def __init__(self, wrapped: Intersection[WrappedT, Mapping[KeyT, ValueT]], /):
         self.__wrapped__ = wrapped
 
@@ -77,6 +79,8 @@ class MutableMappingAdapter[
     """
     Decorate another mapping to resolve any values before proxying them.
     """
+
+    __slots__ = ()
 
     def __setitem__(
         self, key: KeyT | ResolvableKeyT, value: ValueT | ResolvableValueT

@@ -22,6 +22,8 @@ class BettyMapping[KeyT, ResolvableKeyT, ValueT](
     A mutable mapping of resolvable keys.
     """
 
+    __slots__ = ()
+
     @override
     @abstractmethod
     def __getitem__(self, key: KeyT | ResolvableKeyT) -> ValueT:
@@ -50,6 +52,8 @@ class MutableBettyMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     """
     A mutable mapping of resolvable keys and values.
     """
+
+    __slots__ = ()
 
     @abstractmethod
     def __setitem__(

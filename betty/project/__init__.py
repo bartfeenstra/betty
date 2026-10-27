@@ -832,7 +832,7 @@ class ProjectData(Object):
                 value=MachineName,
                 manufacturer=lambda values: List[
                     MachineName, ResolvableId[EntityDefinition]
-                ](values, value_resolver=resolve_id),
+                ](values, value=resolve_id),
             ),
             optional=True,
             porter=OmitFieldPorter.new(not_),

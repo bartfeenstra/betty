@@ -119,7 +119,7 @@ class RaspberryMintData(Object):
         FieldDefinition(
             MutableMappingDefinition(
                 manufacturer=lambda values: Dict(
-                    Region.resolve, {} if values is None else dict(values)
+                    {} if values is None else dict(values), key=Region.resolve
                 ),
                 label=_("Regions"),
                 key=StrDefinition(label=_("Region")),
@@ -313,7 +313,6 @@ class RaspberryMint(
                 **self._regional_content_manufacturers,
             }
         return FrozenDict(
-            Region.resolve,
             defaultdict(
                 tuple,
                 zip(
@@ -330,6 +329,7 @@ class RaspberryMint(
                     strict=False,
                 ),
             ),
+            key=Region.resolve,
         )
 
 

@@ -16,6 +16,9 @@ if TYPE_CHECKING:
     from betty.collections import KeyResolver, ValueResolver
 
 
+# @todo Move FrozenDict here too
+
+
 class Dict[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     MutableMappingAdapter[
         KeyT, ResolvableKeyT, ValueT, ResolvableValueT, dict[KeyT, ValueT]
@@ -25,6 +28,8 @@ class Dict[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     A dictionary.
     """
 
+    __slots__ = ("__key_resolver", "__value_resolver")
+
     def __init__(
         self,
         values: Mapping[
@@ -32,14 +37,12 @@ class Dict[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
         ] = empty_frozen_dict,
         /,
         *,
-        key_resolver: KeyResolver[KeyT, ResolvableKeyT] = pipe,
-        value_resolver: ValueResolver[ValueT, ResolvableValueT] = pipe,
+        key: KeyResolver[KeyT, ResolvableKeyT] = pipe,
+        value: ValueResolver[ValueT, ResolvableValueT] = pipe,
     ):
-        super().__init__({
-            key_resolver(key): value_resolver(value) for key, value in values.items()
-        })
-        self.__key_resolver = key_resolver
-        self.__value_resolver = value_resolver
+        super().__init__({key(key): value(value) for key, value in values.items()})
+        self.__key_resolver = key
+        self.__value_resolver = value
 
     @final
     @override
