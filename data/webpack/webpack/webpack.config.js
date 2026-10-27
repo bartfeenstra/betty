@@ -116,11 +116,6 @@ const webpackConfiguration = {
     module: {
         rules: [
             {
-                test: /\.mjs$/,
-                include: /node_modules/,
-                type: "javascript/auto",
-            },
-            {
                 test: /\.(js|ts)$/,
                 exclude: /node_modules/,
                 use: [
@@ -145,7 +140,7 @@ const webpackConfiguration = {
                 ],
             },
             {
-                test: /\.s?css$/,
+                test: /\.(css|scss)$/,
                 use: [
                     {
                         loader: MiniCssExtractPlugin.loader,
@@ -176,21 +171,21 @@ const webpackConfiguration = {
                 ],
             },
             {
-                test: /.*\.png|gif|jpg|jpeg|svg/,
+                test: /.*\.(png|gif|jpg|jpeg|svg)$/,
                 type: "asset/resource",
                 generator: {
                     filename: "images/[hash][ext]",
                 },
             },
             {
-                test: /.*\.woff|woff2/,
+                test: /.*\.(woff|woff2)$/,
                 type: "asset/resource",
                 generator: {
                     filename: "fonts/[hash][ext]",
                 },
             },
             {
-                test: /.*\.json/,
+                test: /.*\.json$/,
                 type: "asset/source",
             },
         ],
