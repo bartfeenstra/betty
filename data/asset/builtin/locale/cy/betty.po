@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-10-26 13:29+0000\n"
-"PO-Revision-Date: 2026-10-27 19:27+0000\n"
+"PO-Revision-Date: 2026-10-27 23:37+0000\n"
 "Last-Translator: Bart Feenstra <bartfeenstra@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Welsh <https://hosted.weblate.org/projects/betty/betty-0-5-x/cy/>\n"
 "MIME-Version: 1.0\n"
@@ -474,7 +474,7 @@ msgid "Countries"
 msgstr ""
 
 msgid "Country"
-msgstr ""
+msgstr "Gwlad"
 
 msgid "County"
 msgstr ""
@@ -709,7 +709,7 @@ msgid "Files"
 msgstr "Ffeiliau"
 
 msgid "Filters"
-msgstr ""
+msgstr "Hidlyddion"
 
 msgid "Find Betty on GitHub"
 msgstr ""
@@ -795,7 +795,7 @@ msgid "Help improve the translations"
 msgstr ""
 
 msgid "Home"
-msgstr ""
+msgstr "Hafan"
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr ""
@@ -885,7 +885,7 @@ msgid "Justify content"
 msgstr ""
 
 msgid "Keywords"
-msgstr ""
+msgstr "Geiriau allweddol"
 
 msgid "Label"
 msgstr ""
@@ -901,7 +901,7 @@ msgstr "Iaith"
 
 #, python-format
 msgid "Last modified on %(last_modified)s"
-msgstr ""
+msgstr "Diweddarwyd ddiwethaf ar %(last_modified)s"
 
 msgid "Last page"
 msgstr ""
@@ -1083,7 +1083,7 @@ msgid "Municipalities"
 msgstr ""
 
 msgid "Municipality"
-msgstr ""
+msgstr "Bwrdeistref"
 
 msgctxt "original:nl-NL:Gemeente Amsterdam"
 msgid "Municipality of Amsterdam"
@@ -1325,7 +1325,7 @@ msgid "Provide license plugins from the SPDX License List ({spdx_url})"
 msgstr ""
 
 msgid "Province"
-msgstr ""
+msgstr "Talaith"
 
 msgid "Provinces"
 msgstr ""
@@ -1568,7 +1568,7 @@ msgid "Tertiary color"
 msgstr ""
 
 msgid "Testimonies"
-msgstr ""
+msgstr "Tystiolaethau"
 
 msgid "Text"
 msgstr ""
@@ -1752,7 +1752,7 @@ msgid "This will open your web browser."
 msgstr ""
 
 msgid "Timeline"
-msgstr ""
+msgstr "Llinell amser"
 
 msgid "Title"
 msgstr ""
@@ -1833,7 +1833,7 @@ msgid "View the documentation"
 msgstr ""
 
 msgid "Village"
-msgstr ""
+msgstr "Pentref"
 
 msgid "Villages"
 msgstr ""
