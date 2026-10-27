@@ -1,11 +1,3 @@
-{% set linked_data=[
-    document.breadcrumbs.dump_linked_data(project)
-] %}
-{% if document.resource is linked_data_dumpable %}
-    {% do linked_data.append(document.resource.dump_linked_data(project)) %}
-{% endif %}
-{% if linked_data %}
-    <script type="application/ld+json">
-        {{ linked_data | tojson }}
-    </script>
-{% endif %}
+<script type="application/ld+json">
+    {{ [document.breadcrumbs.dump_linked_data(project)] | tojson }}
+</script>
