@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from betty.datas.plugin.definition.license import LicenseDefinitionData
+from betty.datas.plugin.definition.license import LicenseDefinitionConfig
 
 
-class TestLicenseDefinitionData:
+class TestLicenseDefinitionConfig:
     def test_summary(self) -> None:
         summary = "My First Summary"
-        sut = LicenseDefinitionData(
+        sut = LicenseDefinitionConfig(
             id="-dummy",
             label="-",
             summary=summary,
@@ -16,34 +16,34 @@ class TestLicenseDefinitionData:
 
     def test_text(self) -> None:
         text = "My First Text"
-        sut = LicenseDefinitionData(id="-dummy", label="-", summary="-", text=text)
+        sut = LicenseDefinitionConfig(id="-dummy", label="-", summary="-", text=text)
         assert sut.text == text
 
-    def test_new_plugin__minimal(self) -> None:
+    def test_new_definition__minimal(self) -> None:
         plugin_id = "my-first-license"
         label = "My First Label"
         summary = "My First Summary"
         text = "My First Text"
-        sut = LicenseDefinitionData(
+        sut = LicenseDefinitionConfig(
             id=plugin_id,
             label=label,
             summary=summary,
             text=text,
         )
-        plugin = sut.new_plugin()
+        plugin = sut.new_definition()
         assert plugin.id == plugin_id
         assert plugin.label == label
         assert plugin.cls().summary == summary
         assert plugin.cls().text == text
 
-    def test_new_plugin__full(self) -> None:
+    def test_new_definition__full(self) -> None:
         description = "My First Description"
-        sut = LicenseDefinitionData(
+        sut = LicenseDefinitionConfig(
             id="my-first-license",
             label="-",
             description=description,
             summary="-",
             text="-",
         )
-        plugin = sut.new_plugin()
+        plugin = sut.new_definition()
         assert plugin.description == description

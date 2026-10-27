@@ -7,9 +7,9 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Final, Self, final, override
 
+from betty.definition.ordered import Order, OrderedDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.url import HasUrl
 
 if TYPE_CHECKING:
@@ -37,7 +37,7 @@ class Link(HasUrl):
     label_plural=_("Links"),
     label_countable=ngettext("{count} link", "{count} links"),
 )
-class LinkDefinition(OrderedPluginDefinition):
+class LinkDefinition(OrderedDefinition, PluginDefinition):
     """
     .. plugin_type:: link.
     """

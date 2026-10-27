@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-02 17:52+0000\n"
+"POT-Creation-Date: 2026-11-02 19:48+0000\n"
 "PO-Revision-Date: 2026-10-25 16:51+0000\n"
 "Last-Translator: Andi Chandler <andibing@users.noreply.hosted.weblate.org>\n"
 "Language: en_GB\n"
@@ -1252,9 +1252,6 @@ msgstr "Places"
 
 msgid "Plain text"
 msgstr "Plain text"
-
-msgid "Plugin ID"
-msgstr "Plugin ID"
 
 msgid "Plugins"
 msgstr "Plugins"

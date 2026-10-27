@@ -10,10 +10,10 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.definition.ordered import Order, OrderedDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.pathlib import StrPath
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
@@ -179,7 +179,7 @@ def match_extension(
     label_plural=_("Media types"),
     label_countable=ngettext("{count} media type", "{count} media types"),
 )
-class MediaTypeDefinition(HumanFacingDefinition, OrderedPluginDefinition):
+class MediaTypeDefinition(HumanFacingDefinition, OrderedDefinition, PluginDefinition):
     """
     .. plugin_type:: media-type.
     """

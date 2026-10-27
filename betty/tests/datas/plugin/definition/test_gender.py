@@ -1,34 +1,34 @@
 from __future__ import annotations
 
-from betty.datas.plugin.definition.gender import GenderDefinitionData
+from betty.datas.plugin.definition.gender import GenderDefinitionConfig
 from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 
-class TestGenderDefinitionData:
-    def test_new_plugin__minimal(self) -> None:
+class TestGenderDefinitionConfig:
+    def test_new_definition__minimal(self) -> None:
         plugin_id = "my-first-gender"
         label = "My First Label"
         label_plural = "My First Labels"
-        sut = GenderDefinitionData(
+        sut = GenderDefinitionConfig(
             id=plugin_id,
             label=label,
             label_plural=label_plural,
             label_countable=dummy_countable_localizable,
         )
-        plugin = sut.new_plugin()
+        plugin = sut.new_definition()
         assert plugin.id == plugin_id
         assert plugin.label == label
         assert plugin.label_plural == label_plural
         assert plugin.label_countable == dummy_countable_localizable
 
-    def test_new_plugin__full(self) -> None:
+    def test_new_definition__full(self) -> None:
         description = "My First Description"
-        sut = GenderDefinitionData(
+        sut = GenderDefinitionConfig(
             id="my-first-gender",
             label="-",
             label_plural="-",
             label_countable=dummy_countable_localizable,
             description=description,
         )
-        plugin = sut.new_plugin()
+        plugin = sut.new_definition()
         assert plugin.description == description

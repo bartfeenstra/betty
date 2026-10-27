@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-02 17:52+0000\n"
+"POT-Creation-Date: 2026-11-02 19:48+0000\n"
 "PO-Revision-Date: 2026-10-28 00:01+0000\n"
 "Last-Translator: Bart Feenstra <bartfeenstra@users.noreply.hosted.weblate.org>\n"
 "Language: nl_NL\n"
@@ -1252,9 +1252,6 @@ msgstr "Plaatsen"
 
 msgid "Plain text"
 msgstr "Platte tekst"
-
-msgid "Plugin ID"
-msgstr "Plugin-ID"
 
 msgid "Plugins"
 msgstr "Plugins"

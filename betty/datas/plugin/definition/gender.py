@@ -6,9 +6,12 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.datas.plugin.definition import PluginDefinitionDefinition
-from betty.datas.plugin.definition.human_facing import (
-    CountableHumanFacingPluginDefinitionData,
+from betty.datas.definition.human_facing import (
+    CountableHumanFacingDefinitionConfig,
+)
+from betty.datas.plugin.definition import (
+    PluginDefinitionConfig,
+    PluginDefinitionConfigDefinition,
 )
 from betty.gender import Gender, GenderDefinition
 from betty.locale import default_locale
@@ -17,11 +20,11 @@ from betty.sample import Sample, Samples
 
 
 @final
-@PluginDefinitionDefinition(
+@PluginDefinitionConfigDefinition(
     GenderDefinition,
     samples=Samples(
         lambda: Sample(
-            GenderDefinitionData(
+            GenderDefinitionConfig(
                 id="genderqueer",
                 label="Genderqueer",
                 label_plural="Genderqueers",
@@ -36,15 +39,16 @@ from betty.sample import Sample, Samples
         )
     ),
 )
-class GenderDefinitionData(CountableHumanFacingPluginDefinitionData[GenderDefinition]):
+class GenderDefinitionConfig(
+    CountableHumanFacingDefinitionConfig[GenderDefinition],
+    PluginDefinitionConfig[GenderDefinition],
+):
     """
     Configure a :py:class:`betty.gender.GenderDefinition`.
-
-    .. data:: betty.datas.gender_definition:GenderDefinitionData
     """
 
     @override
-    def new_plugin(self) -> GenderDefinition:
+    def new_definition(self) -> GenderDefinition:
         @GenderDefinition(
             self.id,
             label=self.label,
@@ -52,7 +56,7 @@ class GenderDefinitionData(CountableHumanFacingPluginDefinitionData[GenderDefini
             label_countable=self.label_countable,
             description=self.description,
         )
-        class _GenderDefinitionDataGender(Gender):
+        class _GenderDefinitionConfigGender(Gender):
             pass
 
-        return _GenderDefinitionDataGender.definition
+        return _GenderDefinitionConfigGender.definition
