@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
+import pytest
+
 from betty.date import Date
 from betty.entities.citation import Citation
 from betty.entities.enclosure import Enclosure
@@ -11,8 +13,6 @@ from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
     from betty.entity import Entity
-
-import pytest
 
 
 class TestEnclosure(EntityTestBase):

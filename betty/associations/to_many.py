@@ -13,14 +13,10 @@ from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.entity_as_reference import EntityAsReferenceDefinition
 from betty.entity import Entity
-from betty.json_schema import Array, String
 from betty.localizables.gettext import _
-from betty.media_types.json_ld import JSON_LD
 
 if TYPE_CHECKING:
-    from betty.json_schema import Schema
     from betty.localizable import ResolvableLocalizable
-    from betty.portable import PortableData
     from betty.project import Project
 
 type ToManyAssociates[AssociateT: Entity] = Iterable[Associate[AssociateT]]
@@ -95,23 +91,3 @@ class ToMany[AssociateT: Entity](
     @override
     def resolve(self, project: Project, owner: HasAssociations, /) -> None:
         self.get(owner).resolve(project)
-
-    @override
-    async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        return Array(
-            String(
-                format=String.Format.URI,
-            ),
-            title=self.field.label,
-            description=self.field.description,
-        )
-
-    @override
-    async def dump_linked_data_for(
-        self, project: Project, owner: HasAssociations, /
-    ) -> PortableData:
-        url_generator = await project.url_generator
-        return [
-            url_generator.generate(associate, media_type=JSON_LD)
-            for associate in self.get(owner)
-        ]

@@ -15,8 +15,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.datas.aggregate.record import FieldDefinition
-    from betty.json_schema import Schema
-    from betty.portable import PortableData
     from betty.project import Project
 
 
@@ -73,13 +71,3 @@ class ProxyAssociation[
     @override
     def get_associates(self, owner: HasAssociations, /) -> Iterable[AssociateT]:
         return self._proxied_association.get_associates(owner)
-
-    @override
-    async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        return await self._proxied_association.linked_data_schema_for(project)
-
-    @override
-    async def dump_linked_data_for(
-        self, project: Project, owner: HasAssociations, /
-    ) -> PortableData:
-        return await self._proxied_association.dump_linked_data_for(project, owner)

@@ -12,8 +12,6 @@ from betty.media_type import (
     resolve_media_type,
 )
 from betty.media_types.html import HTML
-from betty.media_types.json import JSON
-from betty.media_types.json_ld import JSON_LD
 from betty.typing import empty_frozen_dict
 from betty.url_generator import UrlGenerator
 
@@ -46,9 +44,7 @@ class _EntityUrlGenerator[ResourceT](UrlGenerator[ResourceT]):
         if media_type is None:
             raise MissingMediaType()
         media_type = resolve_media_type(media_type)
-        media_type = match_media_type(
-            media_type, (HTML.media_type, JSON_LD.media_type, JSON.media_type)
-        )
+        media_type = match_media_type(media_type, (HTML.media_type,))
         if media_type == HTML:
             if not locale:
                 locale = self._path_url_generator.default_locale

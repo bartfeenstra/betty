@@ -18,13 +18,7 @@ from betty.attrs.localizable import new_localizable_attr
 from betty.entities.place import Place
 from betty.entities.presence import Presence
 from betty.entity import EntityDefinition
-from betty.event_type import EventTypeDefinition
 from betty.event_types.unknown import UnknownEventType
-from betty.json_schema import String
-from betty.json_schemas.plugin_id import PluginIdSchema
-from betty.json_schemas.static_translations import StaticTranslationsSchema
-from betty.linked_data import JsonLdObject, dump_context
-from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import JoinAnd
 from betty.privacy import Privacy
@@ -41,8 +35,6 @@ if TYPE_CHECKING:
     from betty.event_type import EventType
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.portable import PortableMapping
-    from betty.project import Project
 
 
 @final
@@ -113,16 +105,6 @@ class Event(
         self.name = name
 
     @override
-    def has_any_date_linked_data_contexts(
-        self,
-    ) -> tuple[str | None, str | None, str | None]:
-        return (
-            "https://schema.org/startDate",
-            "https://schema.org/startDate",
-            "https://schema.org/endDate",
-        )
-
-    @override
     @property
     def label(self) -> Localizable:
         if self.name:
@@ -144,46 +126,3 @@ class Event(
         if subjects:
             return _("{event_type} of {subjects}").format(**format_kwargs)
         return _("{event_type}").format(**format_kwargs)
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = dict(
-            dump_context(
-                await super().dump_linked_data(project),
-                place="https://schema.org/location",
-                presences="https://schema.org/performer",
-            )
-        )
-        portable["@type"] = "https://schema.org/Event"
-        portable["type"] = self.event_type.definition.id
-        portable["eventAttendanceMode"] = (
-            "https://schema.org/OfflineEventAttendanceMode"
-        )
-        portable["eventStatus"] = "https://schema.org/EventScheduled"
-        if self.name is not None:
-            portable["name"] = dump_linked_data(
-                self.name, localizers=await project.public_localizers
-            )
-        return portable
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "name",
-            StaticTranslationsSchema(),
-            False,
-        )
-        schema.add_property(
-            "type",
-            PluginIdSchema(
-                EventTypeDefinition.definition,
-                [x async for x in project.plugins[EventTypeDefinition]],
-            ),
-        )
-        schema.add_property("eventStatus", String(title="Event status"))
-        schema.add_property(
-            "eventAttendanceMode", String(title="Event attendance mode")
-        )
-        return schema

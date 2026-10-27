@@ -1,14 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from betty.date import Date
 from betty.entities.place_name import PlaceName
-from betty.locale import default_locale_tag
 from betty.localizables.plain import Plain
-
-if TYPE_CHECKING:
-    from betty.test_utils.conftest import AssertDumpsLinkedData
 
 
 class TestPlaceName:
@@ -24,15 +18,3 @@ class TestPlaceName:
         name = Plain("Ikke")
         sut = PlaceName(name)
         assert sut.name is name
-
-    async def test_dump_linked_data(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        sut = PlaceName("My First Name", id="my-first-place-name")
-        actual = await assert_dumps_linked_data(sut)
-        assert actual == {
-            "@id": "https://example.com/place-name/my-first-place-name/index.json",
-            "id": "my-first-place-name",
-            "name": {default_locale_tag: "My First Name"},
-            "privacy": False,
-        }

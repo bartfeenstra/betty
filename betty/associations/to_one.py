@@ -17,16 +17,12 @@ from betty.association import (
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.entity_as_reference import EntityAsReferenceDefinition
 from betty.entity import Entity
-from betty.json_schema import Null, OneOf, String
-from betty.media_types.json_ld import JSON_LD
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.data import DataDefinition
-    from betty.json_schema import Schema
     from betty.localizable import ResolvableLocalizable
-    from betty.portable import PortableData
     from betty.project import Project
 
 
@@ -207,22 +203,3 @@ class ToOne[AssociateT: Entity](
     @override
     def get_associates(self, owner: HasAssociations, /) -> Iterable[AssociateT]:
         yield self.get(owner)
-
-    @override
-    async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        return OneOf(
-            String(
-                title=self.field.label,
-                description=self.field.description,
-                format=String.Format.URI,
-            ),
-            Null(),
-        )
-
-    @override
-    async def dump_linked_data_for(
-        self, project: Project, owner: HasAssociations, /
-    ) -> PortableData:
-        associate = self.get(owner)
-        url_generator = await project.url_generator
-        return url_generator.generate(associate, media_type=JSON_LD)

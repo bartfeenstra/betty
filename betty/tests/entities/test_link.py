@@ -1,22 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, override
+
+import pytest
 
 from betty.entities.link import Link
-from betty.locale import default_locale_tag
 from betty.localizer import default_localizer
-from betty.media_types.html import HTML
-from betty.privacy import Privacy
 from betty.test_utils.entity import EntityTestBase
 from betty.test_utils.entity.associations.has_links import DummyHasLinks
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
-
     from betty.entity import Entity
-    from betty.test_utils.conftest import AssertDumpsLinkedData
-
-import pytest
 
 
 class TestLink(EntityTestBase):
@@ -77,81 +71,3 @@ class TestLink(EntityTestBase):
     def test_has_label__with_label(self) -> None:
         sut = Link("https://example.com", label="-")
         assert sut.has_label
-
-    async def test_dump_linked_data__should_dump_minimal(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        link = Link(
-            "https://example.com",
-            id="my-first-link",
-        )
-        expected: Mapping[str, Any] = {
-            "@context": {"description": "https://schema.org/description"},
-            "@id": "https://example.com/link/my-first-link/index.json",
-            "id": "my-first-link",
-            "url": {
-                default_locale_tag: "https://example.com",
-            },
-            "owner": None,
-            "privacy": False,
-        }
-        actual = await assert_dumps_linked_data(link)
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_full(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        owner = DummyHasLinks(id="my-first-has-links")
-        link = Link(
-            "https://example.com",
-            id="my-first-link",
-            label="The Label",
-            description="The Description",
-            relationship="external",
-            media_type=HTML,
-            owner=owner,
-        )
-        expected: Mapping[str, Any] = {
-            "@context": {"description": "https://schema.org/description"},
-            "@id": "https://example.com/link/my-first-link/index.json",
-            "id": "my-first-link",
-            "url": {
-                default_locale_tag: "https://example.com",
-            },
-            "relationship": "external",
-            "label": {
-                default_locale_tag: "The Label",
-            },
-            "description": {
-                default_locale_tag: "The Description",
-            },
-            "mediaType": "text/html",
-            "owner": "/dummy-has-links/my-first-has-links/index.json",
-            "privacy": False,
-        }
-        actual = await assert_dumps_linked_data(link)
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_private(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        owner = DummyHasLinks(id="my-first-has-links")
-        link = Link(
-            "https://example.com",
-            id="my-first-link",
-            label="The Label",
-            description="The Description",
-            relationship="external",
-            media_type=HTML,
-            owner=owner,
-            privacy=Privacy.PRIVATE,
-        )
-        expected: Mapping[str, Any] = {
-            "@context": {"description": "https://schema.org/description"},
-            "@id": "https://example.com/link/my-first-link/index.json",
-            "id": "my-first-link",
-            "owner": "/dummy-has-links/my-first-has-links/index.json",
-            "privacy": True,
-        }
-        actual = await assert_dumps_linked_data(link)
-        assert actual == expected

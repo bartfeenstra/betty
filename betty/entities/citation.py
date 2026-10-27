@@ -15,8 +15,6 @@ from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.entities.source import Source
 from betty.entity import EntityDefinition
-from betty.json_schemas.static_translations import StaticTranslationsSchema
-from betty.localizable.linked_data import dump_linked_data
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_secondary_privacies
@@ -25,11 +23,8 @@ if TYPE_CHECKING:
     from betty.date import AnyDate
     from betty.entities.file_reference import FileReference
     from betty.entities.link import Link
-    from betty.linked_data import JsonLdObject
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.portable import PortableMapping
-    from betty.project import Project
 
 
 @final
@@ -102,24 +97,3 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
     @property
     def label(self) -> Localizable:
         return self.location or super().label
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = dict(await super().dump_linked_data(project))
-        portable["@type"] = "https://schema.org/Thing"
-        if self.public and self.location is not None:
-            portable["location"] = dump_linked_data(
-                self.location, localizers=await project.public_localizers
-            )
-        return portable
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "location",
-            StaticTranslationsSchema(),
-            False,
-        )
-        return schema

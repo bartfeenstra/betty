@@ -1,23 +1,18 @@
 from __future__ import annotations
 
-from collections.abc import Mapping, MutableMapping, Sequence
-from typing import TYPE_CHECKING, Any, cast, override
+from typing import TYPE_CHECKING, cast, override
 
 import pytest
 
-from betty.date import Date
-from betty.entities.citation import Citation
-from betty.entities.link import Link
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.locale import default_locale_tag
 from betty.localizables.plain import Plain
 from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
-    from betty.test_utils.conftest import AssertDumpsLinkedData
+    from collections.abc import Sequence
 
 
 class TestSource(EntityTestBase):
@@ -122,141 +117,3 @@ class TestSource(EntityTestBase):
         assert sut.privacy is Privacy.UNDETERMINED
         sut.private = True
         assert sut.private is True
-
-    async def test_dump_linked_data__should_dump_minimal(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        source = Source(
-            id="my-first-source",
-            name="The Source",
-        )
-        expected: Mapping[str, Any] = {
-            "@context": {
-                "name": "https://schema.org/name",
-            },
-            "@id": "https://example.com/source/my-first-source/index.json",
-            "@type": "https://schema.org/Thing",
-            "id": "my-first-source",
-            "privacy": False,
-            "name": {default_locale_tag: "The Source"},
-            "files": [],
-            "contains": [],
-            "containedBy": None,
-            "citations": [],
-            "notes": [],
-            "links": [],
-        }
-        actual = await assert_dumps_linked_data(source)
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_full(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        link = Link("https://example.com/the-source", id="my-first-link")
-        link.label = "The Source Online"
-        source = Source(
-            id="my-first-source",
-            name="The Source",
-            author="The Author",
-            publisher="The Publisher",
-            date=Date(2000, 1, 1),
-            contained_by=Source(
-                id="the-containing-source",
-                name="The Containing Source",
-            ),
-            contains=[
-                Source(
-                    id="the-contained-source",
-                    name="The Contained Source",
-                )
-            ],
-            links=[link],
-        )
-        Citation(
-            id="my-first-citation",
-            source=source,
-        )
-        expected: Mapping[str, Any] = {
-            "@context": {
-                "name": "https://schema.org/name",
-            },
-            "@id": "https://example.com/source/my-first-source/index.json",
-            "@type": "https://schema.org/Thing",
-            "id": "my-first-source",
-            "privacy": False,
-            "name": {default_locale_tag: "The Source"},
-            "author": {default_locale_tag: "The Author"},
-            "publisher": {default_locale_tag: "The Publisher"},
-            "files": [],
-            "contains": [
-                "/source/the-contained-source/index.json",
-            ],
-            "citations": [
-                "/citation/my-first-citation/index.json",
-            ],
-            "notes": [],
-            "containedBy": "/source/the-containing-source/index.json",
-            "date": {
-                "year": 2000,
-                "month": 1,
-                "day": 1,
-                "iso8601": "2000-01-01",
-                "fuzzy": False,
-            },
-            "links": [
-                "/link/my-first-link/index.json",
-            ],
-        }
-        actual = await assert_dumps_linked_data(source)
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_private(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        link = Link("https://example.com/the-source")
-        link.label = "The Source Online"
-        source = Source(
-            id="my-first-source",
-            name="The Source",
-            author="The Author",
-            publisher="The Publisher",
-            date=Date(2000, 1, 1),
-            contained_by=Source(
-                id="the-containing-source",
-                name="The Containing Source",
-            ),
-            contains=[
-                Source(
-                    id="the-contained-source",
-                    name="The Contained Source",
-                )
-            ],
-            links=[link],
-            privacy=Privacy.PRIVATE,
-        )
-        Citation(
-            id="my-first-citation",
-            source=source,
-        )
-        expected: Mapping[str, Any] = {
-            "@context": {
-                "name": "https://schema.org/name",
-            },
-            "@id": "https://example.com/source/my-first-source/index.json",
-            "@type": "https://schema.org/Thing",
-            "id": "my-first-source",
-            "privacy": True,
-            "files": [],
-            "contains": [
-                "/source/the-contained-source/index.json",
-            ],
-            "citations": [
-                "/citation/my-first-citation/index.json",
-            ],
-            "notes": [],
-            "containedBy": "/source/the-containing-source/index.json",
-        }
-        actual = await assert_dumps_linked_data(source)
-        assert isinstance(actual, MutableMapping)
-        actual.pop("links")
-        assert actual == expected

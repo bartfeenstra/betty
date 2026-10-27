@@ -13,11 +13,8 @@ from betty.associations.to_many import ToMany, ToManyAssociates
 from betty.attrs.description import HasDescription
 from betty.attrs.media_type import HasMediaType
 from betty.attrs.path import new_path_attr
-from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.entities.file_reference import FileReference
 from betty.entity import EntityDefinition
-from betty.json_schemas.plugin_id import PluginIdSchema
-from betty.license import LicenseDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 
@@ -27,13 +24,10 @@ if TYPE_CHECKING:
     from betty.entities.link import Link
     from betty.entities.note import Note
     from betty.license import License
-    from betty.linked_data import JsonLdObject
     from betty.localizable import Localizable, ResolvableLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
-    from betty.portable import PortableMapping
-    from betty.project import Project
 
 
 @final
@@ -113,34 +107,3 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
     @property
     def label(self) -> Localizable:
         return self.description or super().label
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "copyrightNotice",
-            PluginIdSchema(
-                CopyrightNoticeDefinition.definition,
-                [x async for x in project.plugins[CopyrightNoticeDefinition]],
-            ),
-            False,
-        )
-        schema.add_property(
-            "license",
-            PluginIdSchema(
-                LicenseDefinition.definition,
-                [x async for x in project.plugins[LicenseDefinition]],
-            ),
-            False,
-        )
-        return schema
-
-    @override
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        portable = dict(await super().dump_linked_data(project))
-        if self.copyright_notice:
-            portable["copyrightNotice"] = self.copyright_notice.definition.id
-        if self.license:
-            portable["license"] = self.license.definition.id
-        return portable

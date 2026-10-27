@@ -26,8 +26,6 @@ if TYPE_CHECKING:
 
     from pytest_mock import MockerFixture
 
-    from betty.json_schema import Schema
-    from betty.portable import PortableData
     from betty.project import Project
 
 
@@ -59,14 +57,6 @@ class _Association[AssociateT: Entity = Entity](
         raise Unreachable
 
     def get_associates(self, owner: HasAssociations, /) -> Iterable[AssociateT]:
-        raise Unreachable
-
-    async def linked_data_schema_for(self, project: Project, /) -> Schema:
-        raise Unreachable
-
-    async def dump_linked_data_for(
-        self, project: Project, target: HasAssociations, /
-    ) -> PortableData:
         raise Unreachable
 
     def get(self, owner: HasAssociations, /) -> AssociateT:

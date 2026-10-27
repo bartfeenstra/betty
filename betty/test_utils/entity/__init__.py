@@ -28,7 +28,7 @@ class EntityTestBase[EntityT: Entity]:
     """
 
     @pytest.fixture
-    def sut(self) -> type[EntityT]:
+    def sut(self) -> EntityT:
         """
         Provide the system(s) under test.
         """

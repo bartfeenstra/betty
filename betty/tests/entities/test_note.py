@@ -1,21 +1,17 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, override
+
+import pytest
 
 from betty.entities.note import Note
-from betty.locale import default_locale_tag
 from betty.localizer import default_localizer
-from betty.privacy import Privacy
 from betty.test_utils.entity import EntityTestBase
 from betty.test_utils.entity.associations.has_notes import DummyHasNotes
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
-
     from betty.entity import Entity
-    from betty.test_utils.conftest import AssertDumpsLinkedData
-import pytest
 
 
 class TestNote(EntityTestBase):
@@ -43,38 +39,3 @@ class TestNote(EntityTestBase):
         sut = Note(DUMMY_LOCALIZABLE)
         sut.entity = entity
         assert sut.entity is entity
-
-    async def test_dump_linked_data__should_dump_full(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        note = Note("The Note", id="my-first-note")
-        expected: Mapping[str, Any] = {
-            "@id": "https://example.com/note/my-first-note/index.json",
-            "@type": "https://schema.org/Thing",
-            "id": "my-first-note",
-            "privacy": False,
-            "text": {default_locale_tag: "The Note"},
-            "entity": None,
-            "links": [],
-        }
-        actual = await assert_dumps_linked_data(note)
-        assert actual == expected
-
-    async def test_dump_linked_data__should_dump_private(
-        self, assert_dumps_linked_data: AssertDumpsLinkedData
-    ) -> None:
-        note = Note(
-            "The Note",
-            id="my-first-note",
-            privacy=Privacy.PRIVATE,
-        )
-        expected: Mapping[str, Any] = {
-            "@id": "https://example.com/note/my-first-note/index.json",
-            "@type": "https://schema.org/Thing",
-            "id": "my-first-note",
-            "privacy": True,
-            "links": [],
-            "entity": None,
-        }
-        actual = await assert_dumps_linked_data(note)
-        assert actual == expected
