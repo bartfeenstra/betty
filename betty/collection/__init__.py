@@ -27,7 +27,7 @@ class MutableCollection[ItemT](Collection[ItemT]):
         """
 
 
-class ResolvedKeyCollection[KeyT, ResolvableKeyT](metaclass=ABCMeta):
+class ResolvableKeyCollection[KeyT, ResolvableKeyT](metaclass=ABCMeta):
     """
     A collection that can resolve a wide range of data to its internal key type.
     """
@@ -41,7 +41,7 @@ class ResolvedKeyCollection[KeyT, ResolvableKeyT](metaclass=ABCMeta):
         """
 
 
-class ResolvedValueCollection[ValueT, ResolvableValueT](metaclass=ABCMeta):
+class ResolvableValueCollection[ValueT, ResolvableValueT](metaclass=ABCMeta):
     """
     A collection that can resolve a wide range of data to its internal value type.
     """
@@ -56,7 +56,7 @@ class ResolvedValueCollection[ValueT, ResolvableValueT](metaclass=ABCMeta):
 
 
 class UpdatableCollection[ValueT, ResolvableValueT](
-    ResolvedValueCollection[ValueT, ResolvableValueT], MutableCollection[ValueT]
+    ResolvableValueCollection[ValueT, ResolvableValueT], MutableCollection[ValueT]
 ):
     """
     A mutable collection that can be updated with new values.
@@ -82,7 +82,7 @@ class UpdatableCollection[ValueT, ResolvableValueT](
 
 
 class ExtendableCollection[ValueT, ResolvableValueT](
-    ResolvedValueCollection[ValueT, ResolvableValueT], MutableCollection[ValueT]
+    ResolvableValueCollection[ValueT, ResolvableValueT], MutableCollection[ValueT]
 ):
     """
     An ordered collection that can be extended with new values.

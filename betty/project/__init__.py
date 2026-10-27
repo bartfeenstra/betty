@@ -30,6 +30,7 @@ from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
 from betty.collection.sequence import MutableBettySequence
 from betty.collections.catalog.dict import DictCatalog, FrozenDictCatalog
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.collections.sequence.list import List
 from betty.copyright_notice import (
     CopyrightNoticeDefinition,
@@ -124,7 +125,6 @@ from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
-from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator, Iterable, Sequence
@@ -305,16 +305,14 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         presumed to have died.
         """
         self.locales: Catalog[Locale, ResolvableLocale, ProjectLocale] = (
-            FrozenDictCatalog(
-                {
-                    project_locale.locale: project_locale
+            FrozenDictCatalog[Locale, ResolvableLocale, ProjectLocale](
+                lambda locale: locale.locale,
+                (
+                    locale
+                    if isinstance(locale, ProjectLocale)
+                    else ProjectLocale(resolve_locale(locale))
                     for locale in (locales or (default_locale,))
-                    if (
-                        project_locale := locale
-                        if isinstance(locale, ProjectLocale)
-                        else ProjectLocale(resolve_locale(locale))
-                    )
-                },
+                ),
                 key=resolve_locale,
             )
         )
@@ -497,21 +495,13 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         """
         Which entity types to generate list HTML pages for.
         """
-        if self._generate_entity_list_html is None:
-            entity_types = [
-                entity_type
-                async for entity_type in self.plugins[EntityDefinition]
-                if entity_type.public_facing
-            ]
-        else:
-            entity_types = await gather(
+        return FrozenDictCatalog(
+            resolve_id,
+            await gather(
                 *map(
                     self.plugins[EntityDefinition].get, self._generate_entity_list_html
                 )
-            )
-        return FrozenDictCatalog(
-            {entity_type.id: entity_type for entity_type in entity_types},
-            key=resolve_id,
+            ),
         )
 
     @service
@@ -782,7 +772,7 @@ class ProjectData(Object):
                 label=EnricherDefinition.definition.label_plural,
                 manufacturer=lambda values: DictCatalog(
                     lambda data: data.plugin_id,
-                    [] if values is None else list(values),
+                    values or (),
                     key=resolve_id,
                     value=EnricherManufacturer.resolve,
                 ),
@@ -809,7 +799,7 @@ class ProjectData(Object):
                 label=ServiceProviderDefinition.definition.label_plural,
                 manufacturer=lambda values: DictCatalog(
                     lambda data: data.plugin_id,
-                    [] if values is None else list(values),
+                    values or (),
                     key=resolve_id,
                     value=ServiceProviderManufacturer.resolve,
                 ),
@@ -832,7 +822,7 @@ class ProjectData(Object):
                 value=MachineName,
                 manufacturer=lambda values: List[
                     MachineName, ResolvableId[EntityDefinition]
-                ](values, value=resolve_id),
+                ](values or (), value=resolve_id),
             ),
             optional=True,
             porter=OmitFieldPorter.new(not_),
@@ -886,7 +876,7 @@ class ProjectData(Object):
                 label=LoaderDefinition.definition.label_plural,
                 manufacturer=lambda values: DictCatalog(
                     lambda data: data.plugin_id,
-                    [] if values is None else list(values),
+                    values or (),
                     key=resolve_id,
                     value=LoaderManufacturer.resolve,
                 ),
@@ -907,7 +897,7 @@ class ProjectData(Object):
                 order_dump=True,
                 manufacturer=lambda values: DictCatalog(
                     lambda item: item.locale,
-                    [] if values is None else list(values),
+                    values or (),
                     key=resolve_locale,
                     value=lambda value: (
                         value

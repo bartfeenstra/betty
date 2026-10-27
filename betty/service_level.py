@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, Final, override
 from typing_extensions import disjoint_base
 
 from betty.collections.catalog.dict import FrozenDictCatalog
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.definition.id import resolve_id
 from betty.functools import raise_
 from betty.life_cycle.manage import ManagedLifeCycle
@@ -18,7 +19,6 @@ from betty.plugin import PluginDefinition
 from betty.plugin.discovery import PluginDiscoverer
 from betty.prop import HasProps
 from betty.services.simple import service
-from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -64,9 +64,7 @@ class ServiceLevel(HasProps, ManagedLifeCycle):
         self._plugin_discovery = plugins
 
     @service
-    def plugins(
-        self,
-    ) -> _Plugins:
+    def plugins(self) -> _Plugins:
         """
         The available plugin types and plugins.
         """
@@ -82,6 +80,7 @@ class ServiceLevel(HasProps, ManagedLifeCycle):
         ]
         plugin_types.extend(self._plugin_discovery.keys())
         return _Plugins(
+            lambda discoverer: discoverer.type.definition().id,
             {
                 plugin_type.definition.id: PluginDiscoverer(
                     self,
@@ -92,10 +91,7 @@ class ServiceLevel(HasProps, ManagedLifeCycle):
             },
             key=resolve_id,
             missing=lambda key: raise_(
-                _PluginTypeNotFound(
-                    resolve_id(key),
-                    [x.type.definition.id for x in self.plugins],
-                )
+                _PluginTypeNotFound(resolve_id(key), self.plugins.keys())
             ),
         )
 

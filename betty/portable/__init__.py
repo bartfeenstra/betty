@@ -11,8 +11,8 @@ from typing import Any, Final, TypeGuard
 
 from typing_extensions import sentinel
 
+from betty.collections.mapping.dict import FrozenDict
 from betty.typing import (
-    FrozenDict,
     RuntimeCheckableImmutableMapping,
     RuntimeCheckableImmutableSequence,
     RuntimeCheckableMutableMapping,

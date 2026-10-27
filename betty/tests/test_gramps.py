@@ -10,6 +10,7 @@ from unittest.mock import ANY
 import pytest
 from babel import Locale
 
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.copyright_notices.public_domain import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
@@ -43,7 +44,6 @@ from betty.project import Project
 from betty.roles.subject import Subject
 from betty.subprocess import CalledSubprocessError
 from betty.test_utils.user.ui import StaticUi
-from betty.typing import empty_frozen_dict
 from betty.user import Severity
 
 if TYPE_CHECKING:

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, TypeGuard, final, override
 
-from betty.typing import empty_frozen_dict
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.url_generator import UnsupportedResource, UrlGenerator
 
 if TYPE_CHECKING:

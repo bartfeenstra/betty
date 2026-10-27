@@ -16,7 +16,7 @@ from betty.collection.mapping import BettyMapping
 from betty.collections.mapping.adapter import (
     MappingAdapter as MappingAdapter,
 )
-from betty.collections.mapping.dict import Dict
+from betty.collections.mapping.dict import Dict, FrozenDict, empty_frozen_dict
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderManufacturer,
@@ -50,7 +50,6 @@ from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.webpack.build import EntryPointProvider
 from betty.services.simple import service
-from betty.typing import FrozenDict, empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping, Sequence

@@ -64,7 +64,7 @@ def new_plugin_definition_datas_attr[
                 value=item,
                 label=plugin_type.definition.label_plural,
                 manufacturer=lambda values: DictCatalog(
-                    [] if values is None else list(values), key=lambda item: item.id
+                    lambda item: item.id, values or ()
                 ),
             ),
             label=label,

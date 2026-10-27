@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
-from betty.collections.mapping.dict import Dict
+from betty.collections.mapping.dict import Dict, empty_frozen_dict
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.collection.mapping import MappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -39,7 +39,6 @@ from betty.project import Project
 from betty.prop import HasProps
 from betty.role import ResolvableRoleManufacturer, RoleManufacturer
 from betty.sample import Sample, Samples, Size
-from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -81,7 +80,7 @@ def _new_plugin_mapping_attr[
                     str,
                     PluginManufacturerT,
                     ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],
-                ]({} if values is None else values, value=manufacturer.resolve),
+                ](values or {}, value=manufacturer.resolve),
                 key=StrDefinition(label=gramps_label),
                 value=manufacturer,
                 label=manufacturer.definition.plugin_type.definition.label_plural,

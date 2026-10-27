@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, TypeGuard
 
-from betty.typing import empty_frozen_dict
+from betty.collections.mapping.dict import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence

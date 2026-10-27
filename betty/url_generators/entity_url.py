@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, TypeGuard, final, override
 from urllib.parse import urlsplit
 
-from betty.typing import empty_frozen_dict
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.url_generator import UrlGenerator
 
 if TYPE_CHECKING:

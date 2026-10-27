@@ -11,7 +11,6 @@ from betty.collection import UpdatableCollection
 from betty.collection.catalog import Catalog, MutableCatalog
 from betty.freezer import Frozen
 from betty.pipeline import pipe
-from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
@@ -25,7 +24,7 @@ class _DictCatalog[KeyT, ResolvableKeyT, ValueT](Catalog[KeyT, ResolvableKeyT, V
     def __init__(
         self,
         keyer: Callable[[ValueT], KeyT],
-        values: Iterable[ValueT] = empty_frozen_dict,
+        values: Iterable[ValueT] = (),
         /,
         *,
         key: KeyResolver[KeyT, ResolvableKeyT] = pipe,
@@ -33,7 +32,7 @@ class _DictCatalog[KeyT, ResolvableKeyT, ValueT](Catalog[KeyT, ResolvableKeyT, V
     ):
         self.__key = key
         self._keyer = keyer
-        self._values = {key(value): value for value in values}
+        self._values = {keyer(value): value for value in values}
         if missing:
             # @todo Finish this
             # @todo Can we do, in the class body, ``__missing__ = KeyError`` and allow overrides?

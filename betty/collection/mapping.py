@@ -10,13 +10,13 @@ from typing import overload, override
 
 from betty.collection import (
     MutableCollection,
-    ResolvedKeyCollection,
-    ResolvedValueCollection,
+    ResolvableKeyCollection,
+    ResolvableValueCollection,
 )
 
 
 class BettyMapping[KeyT, ResolvableKeyT, ValueT](
-    ResolvedKeyCollection[KeyT, ResolvableKeyT], Mapping[KeyT, ValueT]
+    ResolvableKeyCollection[KeyT, ResolvableKeyT], Mapping[KeyT, ValueT]
 ):
     """
     A mutable mapping of resolvable keys.
@@ -46,7 +46,7 @@ class BettyMapping[KeyT, ResolvableKeyT, ValueT](
 class MutableBettyMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     BettyMapping[KeyT, ResolvableKeyT, ValueT],
     MutableCollection[KeyT],
-    ResolvedValueCollection[ValueT, ResolvableValueT],
+    ResolvableValueCollection[ValueT, ResolvableValueT],
     MutableMapping[KeyT, ValueT],
 ):
     """

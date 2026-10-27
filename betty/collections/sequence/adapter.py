@@ -6,16 +6,18 @@ from __future__ import annotations
 
 from collections.abc import Iterable, MutableSequence, Sequence
 from contextlib import suppress
-from typing import Any, overload, override
+from itertools import chain
+from typing import TYPE_CHECKING, Any, overload, override
 
-from ty_extensions import Intersection
-
-from betty.collection import ResolvedValueCollection
+from betty.collection import ResolvableValueCollection
 from betty.collection.sequence import MutableBettySequence
+
+if TYPE_CHECKING:
+    from ty_extensions import Intersection
 
 
 class SequenceAdapter[ValueT, ResolvableValueT, WrappedT: Sequence](
-    Sequence[ValueT], ResolvedValueCollection[ValueT, ResolvableValueT]
+    ResolvableValueCollection[ValueT, ResolvableValueT], Sequence[ValueT]
 ):
     """
     Decorate another sequence to resolve any values before proxying them.
@@ -56,9 +58,7 @@ class SequenceAdapter[ValueT, ResolvableValueT, WrappedT: Sequence](
 
 
 class MutableSequenceAdapter[ValueT, ResolvableValueT, WrappedT: MutableSequence](
-    SequenceAdapter[
-        ValueT, ResolvableValueT, Intersection[WrappedT, MutableSequence[ValueT]]
-    ],
+    SequenceAdapter[ValueT, ResolvableValueT, WrappedT],
     MutableBettySequence[ValueT, ResolvableValueT],
 ):
     """
@@ -91,5 +91,9 @@ class MutableSequenceAdapter[ValueT, ResolvableValueT, WrappedT: MutableSequence
         del self.__wrapped__[index]
 
     @override
-    def extend(self, values: Iterable[ValueT | ResolvableValueT]) -> None:
+    def append(self, *values: ValueT | ResolvableValueT) -> None:
         self.__wrapped__.extend(map(self.resolve_value, values))
+
+    @override
+    def extend(self, *others: Any) -> None:
+        self.append(*chain(others))

@@ -8,11 +8,11 @@ from abc import abstractmethod
 from collections.abc import Collection, Iterable
 from typing import Any, override
 
-from betty.collection import ResolvedKeyCollection, UpdatableCollection
+from betty.collection import ResolvableKeyCollection, UpdatableCollection
 
 
 class Catalog[KeyT, ResolvableKeyT, ValueT](
-    ResolvedKeyCollection[KeyT, ResolvableKeyT], Collection[ValueT]
+    ResolvableKeyCollection[KeyT, ResolvableKeyT], Collection[ValueT]
 ):
     """
     A catalog.

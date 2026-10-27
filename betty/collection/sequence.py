@@ -8,13 +8,13 @@ from abc import abstractmethod
 from collections.abc import Iterable, MutableSequence
 from typing import overload, override
 
-from betty.collection import ExtendableCollection, ResolvedValueCollection
+from betty.collection import ExtendableCollection, ResolvableValueCollection
 
 
 class MutableBettySequence[ValueT, ResolvableValueT](
     ExtendableCollection[ValueT, ResolvableValueT],
-    ResolvedValueCollection[ValueT, ResolvableValueT],
     MutableSequence[ValueT],
+    ResolvableValueCollection[ValueT, ResolvableValueT],
 ):
     """
     A mutable sequence of resolved values.
@@ -39,9 +39,4 @@ class MutableBettySequence[ValueT, ResolvableValueT](
 
     @abstractmethod
     def __setitem__(self, index, value):
-        pass
-
-    @override
-    @abstractmethod
-    def extend(self, values: Iterable[ValueT | ResolvableValueT]) -> None:
         pass

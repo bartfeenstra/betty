@@ -33,12 +33,13 @@ from aioresponses import aioresponses
 from jinja2 import Environment, Template
 
 from betty.app import App
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.exception import do_raise
 from betty.licenses.spdx import SpdxLicenseDiscoverer
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.project import Project, ProjectLocale
 from betty.stores.file import TransientBinaryFileStore
-from betty.typing import Unreachable, empty_frozen_dict
+from betty.typing import Unreachable
 
 if TYPE_CHECKING:
     from collections.abc import (  # noqa: I001

@@ -7,12 +7,14 @@ from __future__ import annotations
 from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequence
 from contextlib import suppress
 from itertools import chain
-from typing import Any, overload, override
+from typing import TYPE_CHECKING, Any, overload, override
 
-from ty_extensions import Intersection
 from typing_extensions import sentinel
 
 from betty.collection.mapping import BettyMapping, MutableBettyMapping
+
+if TYPE_CHECKING:
+    from ty_extensions import Intersection
 
 
 class MappingAdapter[KeyT, ResolvableKeyT, ValueT, WrappedT: Mapping](
@@ -68,12 +70,7 @@ class MutableMappingAdapter[
     ResolvableValueT,
     WrappedT: MutableMapping,
 ](
-    MappingAdapter[
-        KeyT,
-        ResolvableKeyT,
-        ValueT,
-        Intersection[WrappedT, MutableMapping[KeyT, ValueT]],
-    ],
+    MappingAdapter[KeyT, ResolvableKeyT, ValueT, WrappedT],
     MutableBettyMapping[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
 ):
     """
