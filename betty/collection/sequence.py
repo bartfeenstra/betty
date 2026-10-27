@@ -8,11 +8,16 @@ from abc import abstractmethod
 from collections.abc import Iterable, MutableSequence
 from typing import overload, override
 
-from betty.collection import ExtendableCollection, ResolvableValueCollection
+from betty.collection import (
+    AppendableCollection,
+    ExtendableCollection,
+    ResolvableValueCollection,
+)
 
 
 class MutableBettySequence[ValueT, ResolvableValueT](
-    ExtendableCollection[ValueT, ResolvableValueT],
+    AppendableCollection[ValueT, ResolvableValueT],
+    ExtendableCollection[ValueT, ResolvableValueT, Iterable[ValueT | ResolvableValueT]],
     MutableSequence[ValueT],
     ResolvableValueCollection[ValueT, ResolvableValueT],
 ):

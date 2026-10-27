@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from typing_extensions import disjoint_base
 
-from betty.collection import UpdatableCollection
 from betty.collection.catalog import Catalog, MutableCatalog
 from betty.freezer import Frozen
 from betty.pipeline import pipe
@@ -42,6 +41,9 @@ class _DictCatalog[KeyT, ResolvableKeyT, ValueT](Catalog[KeyT, ResolvableKeyT, V
             # @todo
             # @todo
             self.__missing__ = missing
+
+    def __hash__(self) -> int:
+        return hash(tuple(self._values.items()))
 
     @final
     @override
@@ -84,7 +86,6 @@ class FrozenDictCatalog[KeyT, ResolvableKeyT, ValueT](
 class DictCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     _DictCatalog[KeyT, ResolvableKeyT, ValueT],
     MutableCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
-    UpdatableCollection[ValueT, ResolvableValueT],
 ):
     """
     A mutable catalog backed by a dictionary.

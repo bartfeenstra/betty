@@ -8,7 +8,11 @@ from abc import abstractmethod
 from collections.abc import Collection, Iterable
 from typing import Any, override
 
-from betty.collection import ResolvableKeyCollection, UpdatableCollection
+from betty.collection import (
+    AddableCollection,
+    ResolvableKeyCollection,
+    UpdatableCollection,
+)
 
 
 class Catalog[KeyT, ResolvableKeyT, ValueT](
@@ -36,7 +40,9 @@ class Catalog[KeyT, ResolvableKeyT, ValueT](
 
 # @todo Do we want to add .pop()?
 class MutableCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
-    Catalog[KeyT, ResolvableKeyT, ValueT], UpdatableCollection[ValueT, ResolvableValueT]
+    Catalog[KeyT, ResolvableKeyT, ValueT],
+    AddableCollection[ValueT, ResolvableValueT],
+    UpdatableCollection[ValueT, ResolvableValueT, Iterable[ValueT | ResolvableValueT]],
 ):
     """
     A mutable catalog.

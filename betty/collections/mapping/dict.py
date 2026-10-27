@@ -4,9 +4,8 @@ Dictionaries.
 
 from __future__ import annotations
 
-import builtins
-import sys
-from typing import TYPE_CHECKING, Any, Final, final, overload, override
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, Final, final, override
 
 from typing_extensions import disjoint_base
 
@@ -15,24 +14,11 @@ from betty.freezer import Frozen
 from betty.pipeline import pipe
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
-
     from betty.collections import KeyResolver, ValueResolver
 
 
-type _CommonFrozenDict[KeyT, ValueT] = (
-    dict[KeyT, ValueT] | FrozenDict[KeyT, KeyT, ValueT]
-)
-if sys.version_info >= (3, 15):
-    type _OtherFrozenDict[KeyT, ValueT] = (
-        _CommonFrozenDict[KeyT, ValueT] | builtins.frozendict[KeyT, ValueT]
-    )
-else:
-    type _OtherFrozenDict[KeyT, ValueT] = _CommonFrozenDict[KeyT, ValueT]
-
-
 class _Dict[KeyT, ResolvableKeyT, ValueT](
-    MappingAdapter[KeyT, ResolvableKeyT, ValueT, dict[KeyT, ValueT]],
+    MappingAdapter[KeyT, ResolvableKeyT, ValueT, dict[KeyT, ValueT]], Mapping[Any, Any]
 ):
     __slots__ = ("__key_resolver",)
 
@@ -68,42 +54,6 @@ class FrozenDict[KeyT, ResolvableKeyT, ValueT](
 
     def __hash__(self) -> int:
         return hash(tuple(self.__wrapped__.items()))
-
-    def __or__[OtherKeyT, OtherValueT](
-        self, other: _OtherFrozenDict[OtherKeyT, OtherValueT], /
-    ) -> FrozenDict[KeyT | OtherKeyT, ValueT | OtherValueT]:
-        # @todo this would benefit from a derive() factory on our own to-be-added BettyCollection?
-        return FrozenDict(
-            self.__wrapped__
-            | (other._values if isinstance(other, FrozenDict) else other)
-        )
-
-    def __ior__[OtherKeyT, OtherValueT](
-        self, other: _OtherFrozenDict[OtherKeyT, OtherValueT], /
-    ) -> FrozenDict[KeyT | OtherKeyT, ValueT | OtherValueT]:
-        return self.__or__(other)
-
-    @overload
-    @classmethod
-    def fromkeys[FromKeyT, FromValueT](
-        cls, keys: Iterable[FromKeyT], value: FromValueT, /
-    ) -> FrozenDict[FromKeyT, FromValueT]:
-        pass
-
-    @overload
-    @classmethod
-    def fromkeys[FromKeyT](
-        cls, keys: Iterable[FromKeyT], value: None = None, /
-    ) -> FrozenDict[FromKeyT, None]:
-        pass
-
-    @classmethod
-    def fromkeys(cls, keys, value=None, /):
-        """
-        Create a new instance from the given keys and value.
-        """
-        # @todo this would benefit from a derive() factory on our own to-be-added BettyCollection?
-        return cls(dict.fromkeys(keys, value))
 
 
 empty_frozen_dict: Final[FrozenDict[Any, Any, Any]] = FrozenDict()

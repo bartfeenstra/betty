@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Collection
-from typing import TYPE_CHECKING, Any, overload
+from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRichComparison
@@ -55,11 +55,17 @@ class ResolvableValueCollection[ValueT, ResolvableValueT](metaclass=ABCMeta):
         """
 
 
-class UpdatableCollection[ValueT, ResolvableValueT](
+class _OtherCollection[OtherT]:
+    """
+    A mixin class to ensure other classes all operate on the same type of 'other' collection.
+    """
+
+
+class AddableCollection[ValueT, ResolvableValueT](
     ResolvableValueCollection[ValueT, ResolvableValueT], MutableCollection[ValueT]
 ):
     """
-    A mutable collection that can be updated with new values.
+    A mutable collection to which values can be added.
     """
 
     __slots__ = ()
@@ -70,22 +76,30 @@ class UpdatableCollection[ValueT, ResolvableValueT](
         Add one or more values to the collection, overwriting existing duplicates.
         """
 
-    # @todo What to type ``others`` on?
-    # @todo Do we need something like OtherT, also for comparisons and similar operations?
-    # @todo
-    # @todo
+
+class UpdatableCollection[ValueT, ResolvableValueT, OtherT](
+    _OtherCollection[OtherT],
+    ResolvableValueCollection[ValueT, ResolvableValueT],
+    MutableCollection[ValueT],
+):
+    """
+    A mutable collection that can be updated with new values.
+    """
+
+    __slots__ = ()
+
     @abstractmethod
-    def update(self, *others: Any) -> None:
+    def update(self, *others: OtherT) -> None:
         """
         Update the collection with the values of all the others, overwriting existing duplicates.
         """
 
 
-class ExtendableCollection[ValueT, ResolvableValueT](
+class AppendableCollection[ValueT, ResolvableValueT](
     ResolvableValueCollection[ValueT, ResolvableValueT], MutableCollection[ValueT]
 ):
     """
-    An ordered collection that can be extended with new values.
+    An ordered collection to which values can be appended.
     """
 
     __slots__ = ()
@@ -96,11 +110,36 @@ class ExtendableCollection[ValueT, ResolvableValueT](
         Append one or more values to the collection.
         """
 
-    # @todo What to type ``others`` on?
+
+class ExtendableCollection[ValueT, ResolvableValueT, OtherT](
+    _OtherCollection[OtherT],
+    ResolvableValueCollection[ValueT, ResolvableValueT],
+    MutableCollection[ValueT],
+):
+    """
+    An ordered collection that can be extended with new values.
+    """
+
+    __slots__ = ()
+
     @abstractmethod
-    def extend(self, *others: Any) -> None:
+    def extend(self, *others: OtherT) -> None:
         """
         Extend the collection with the values of all the others.
+        """
+
+
+class ReversibleCollection[ItemT](MutableCollection[ItemT]):
+    """
+    A collection that can reverse the order of its items.
+    """
+
+    __slots__ = ()
+
+    @abstractmethod
+    def reverse(self) -> None:
+        """
+        Reverse the order of the items.
         """
 
 
@@ -134,10 +173,4 @@ class SortableCollection[ItemT](MutableCollection[ItemT]):
 
         If ``key`` is ``None``, sort the items themselves. Otherwise, sort the items using ``key``'s return value for
         each item.
-        """
-
-    @abstractmethod
-    def reverse(self) -> None:
-        """
-        Reverse the order of the items.
         """

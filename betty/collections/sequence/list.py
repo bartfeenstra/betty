@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final, override
 
 from typing_extensions import disjoint_base
 
-from betty.collection import SortableCollection, SortKey
+from betty.collection import ReversibleCollection, SortableCollection, SortKey
 from betty.collections.sequence.adapter import MutableSequenceAdapter
 from betty.pipeline import pipe
 
@@ -22,8 +22,8 @@ if TYPE_CHECKING:
 @disjoint_base
 class List[ValueT, ResolvableValueT](
     MutableSequenceAdapter[ValueT, ResolvableValueT, list[ValueT]],
+    ReversibleCollection[ValueT],
     SortableCollection[ValueT],
-    # @todo Is this not inherited, maybe from Sequence?
     Reversible,
 ):
     """
@@ -56,3 +56,7 @@ class List[ValueT, ResolvableValueT](
         self, *, key: SortKey[ValueT] | None = None, reverse: bool = False
     ) -> None:
         self.__wrapped__.sort(key=key, reverse=reverse)
+
+    @override
+    def __reversed__(self):
+        return self.__wrapped__.__reversed__()
