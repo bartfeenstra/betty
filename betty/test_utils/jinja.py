@@ -10,8 +10,6 @@ from lxml.etree import ParserError
 from lxml.html import document_fromstring
 
 from betty.file import read
-from betty.json_schema import AllOf, Ref
-from betty.json_schemas.project import ProjectSchema
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -33,22 +31,3 @@ async def assert_betty_html(project: Project, url_path: str) -> Path:
         ) from None  # pragma: no cover
 
     return betty_html_file
-
-
-async def assert_betty_json(project: Project, url_path: str, def_name: str) -> Path:
-    """
-    Assert that an entity's JSON resource exists and is valid.
-    """
-    import json
-
-    betty_json_file = project.www_directory / url_path.lstrip("/")
-    betty_json = json.loads(await read(betty_json_file))
-
-    project_schema = await ProjectSchema.new(project)
-    # Somehow $ref cannot be top-level in our case, so wrap it.
-    schema = AllOf(Ref(def_name))
-    project_schema.embed(schema)
-
-    schema.validate(betty_json)
-
-    return betty_json_file

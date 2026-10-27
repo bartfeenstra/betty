@@ -322,12 +322,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Sleep": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/js_resources/webpack_entry_point_loader.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/json_schema.py": {
-        "Schema": {
-            "validate": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
-    "betty/json_schemas/project.py": MissingReason.SHOULD_BE_COVERED,
     "betty/life_cycle/__init__.py": {
         "AlreadyBootstrapped": MissingReason.STATIC_CONTENT_ONLY,
         "AlreadyShutDown": MissingReason.STATIC_CONTENT_ONLY,

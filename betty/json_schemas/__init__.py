@@ -1,3 +1,0 @@
-"""
-Concrete, reusable JSON Schemas.
-"""

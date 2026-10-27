@@ -17,7 +17,6 @@ intersphinx_mapping = {
     "babel": ("https://babel.pocoo.org/en/stable/", None),
     "geopy": ("https://geopy.readthedocs.io/en/stable/", None),
     "jinja2": ("https://jinja.palletsprojects.com/en/latest/", None),
-    "jsonschema": ("https://python-jsonschema.readthedocs.io/en/stable/", None),
     "markupsafe": ("https://markupsafe.palletsprojects.com/en/latest/", None),
     "pillow": ("https://pillow.readthedocs.io/en/stable/", None),
     "polib": ("https://polib.readthedocs.io/en/latest/", None),
