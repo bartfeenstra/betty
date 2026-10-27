@@ -25,7 +25,6 @@ from betty.jobs.generate_favicon import GenerateFavicon
 from betty.jobs.generate_json_error_responses import GenerateJsonErrorResponses
 from betty.jobs.generate_json_schema import GenerateJsonSchema
 from betty.jobs.generate_localized_public_assets import GenerateLocalizedPublicAssets
-from betty.jobs.generate_openapi import GenerateOpenapi
 from betty.jobs.generate_robots_txt import GenerateRobotsTxt
 from betty.jobs.generate_sitemap import GenerateSitemap
 from betty.jobs.generate_static_public_assets import GenerateStaticPublicAssets
@@ -76,7 +75,6 @@ async def generate(project: Project, *, context: Context | None = None) -> None:
             GenerateStaticPublicAssets(project=project),
             GenerateSitemap(project=project),
             GenerateRobotsTxt(project=project),
-            GenerateOpenapi(project=project),
             GenerateLocalizedPublicAssets(project=project),
             GenerateJsonSchema(project=project),
             GenerateJsonErrorResponses(project=project),
