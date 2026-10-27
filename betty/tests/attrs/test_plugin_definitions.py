@@ -4,10 +4,9 @@ from typing import override
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.plugin.definition import (
-    PluginDefinitionData,
-    PluginDefinitionDefinition,
+    PluginDefinitionConfig,
+    PluginDefinitionConfigDefinition,
 )
-from betty.definition.human_facing import HumanFacingDefinition
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.test_utils.locale.localizable import dummy_countable_localizable
 from betty.typing import Unreachable
@@ -19,16 +18,16 @@ from betty.typing import Unreachable
     label_plural="dummy plugin",
     label_countable=dummy_countable_localizable,
 )
-class _DummyPluginDefinition(PluginDefinition, HumanFacingDefinition):
+class _DummyPluginDefinition(PluginDefinition, ObjectDefinition):
     pass
 
 
 @ObjectDefinition(label="-")
 class _Owner(Object):
-    @PluginDefinitionDefinition(_DummyPluginDefinition)
-    class _Item(PluginDefinitionData[_DummyPluginDefinition]):
+    @PluginDefinitionConfigDefinition(_DummyPluginDefinition)
+    class _Item(PluginDefinitionConfig[_DummyPluginDefinition]):
         @override
-        def new_plugin(self) -> _DummyPluginDefinition:
+        def new_definition(self) -> _DummyPluginDefinition:
             raise Unreachable
 
     def __init__(self, plugins: Iterable[_Item] = ()):

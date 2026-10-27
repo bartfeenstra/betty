@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-02 17:52+0000\n"
+"POT-Creation-Date: 2026-11-02 19:48+0000\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -1253,9 +1253,6 @@ msgstr "இடங்கள்"
 
 msgid "Plain text"
 msgstr "சாதாரண எழுத்து"
-
-msgid "Plugin ID"
-msgstr "செருகுநிரல் அடையாளம்"
 
 msgid "Plugins"
 msgstr "செருகுநிரல்கள்"

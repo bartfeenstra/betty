@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from betty.datas.plugin.definition.copyright_notice import CopyrightNoticeDefinitionData
+from betty.datas.plugin.definition.copyright_notice import (
+    CopyrightNoticeDefinitionConfig,
+)
 
 
-class TestCopyrightNoticeDefinitionData:
+class TestCopyrightNoticeDefinitionConfig:
     def test_summary(self) -> None:
         summary = "My First Summary"
-        sut = CopyrightNoticeDefinitionData(
+        sut = CopyrightNoticeDefinitionConfig(
             id="-dummy",
             label="-",
             summary=summary,
@@ -16,36 +18,36 @@ class TestCopyrightNoticeDefinitionData:
 
     def test_text(self) -> None:
         text = "My First Text"
-        sut = CopyrightNoticeDefinitionData(
+        sut = CopyrightNoticeDefinitionConfig(
             id="-dummy", label="-", summary="-", text=text
         )
         assert sut.text == text
 
-    def test_new_plugin__minimal(self) -> None:
+    def test_new_definition__minimal(self) -> None:
         plugin_id = "my-first-copyright-notice"
         label = "My First Label"
         summary = "My First Summary"
         text = "My First Text"
-        sut = CopyrightNoticeDefinitionData(
+        sut = CopyrightNoticeDefinitionConfig(
             id=plugin_id,
             label=label,
             summary=summary,
             text=text,
         )
-        plugin = sut.new_plugin()
+        plugin = sut.new_definition()
         assert plugin.id == plugin_id
         assert plugin.label == label
         assert plugin.cls().summary == summary
         assert plugin.cls().text == text
 
-    def test_new_plugin__full(self) -> None:
+    def test_new_definition__full(self) -> None:
         description = "My First Description"
-        sut = CopyrightNoticeDefinitionData(
+        sut = CopyrightNoticeDefinitionConfig(
             id="my-first-copyright-notice",
             label="-",
             description=description,
             summary="-",
             text="-",
         )
-        plugin = sut.new_plugin()
+        plugin = sut.new_definition()
         assert plugin.description == description

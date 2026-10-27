@@ -12,8 +12,8 @@ from betty.collection.keyed import MutableKeyedCollection
 from betty.collections.keyed.adapter import MutableKeyedCollectionAdapter
 from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.datas.aggregate.record import FieldDefinition
-from betty.datas.plugin.definition import PluginDefinitionData
-from betty.definition.human_facing import HumanFacingDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.plugin.definition import PluginDefinitionConfig
 from betty.definition.id import ResolvableId
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
@@ -30,10 +30,10 @@ if TYPE_CHECKING:
 
 
 def new_plugin_definition_datas_attr[
-    DefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
+    DefinitionT: Intersection[PluginDefinition, ObjectDefinition]
 ](
     plugin_type: type[DefinitionT],
-    item: type[PluginDefinitionData[DefinitionT]],
+    item: type[PluginDefinitionConfig[DefinitionT]],
     *,
     label: AnyLocalizable | None = None,
     description: AnyLocalizable | None = None,
@@ -42,13 +42,13 @@ def new_plugin_definition_datas_attr[
     MutableKeyedCollection[
         MachineName,
         ResolvableId[DefinitionT],
-        PluginDefinitionData[DefinitionT],
-        PluginDefinitionData[DefinitionT],
+        PluginDefinitionConfig[DefinitionT],
+        PluginDefinitionConfig[DefinitionT],
     ],
-    Iterable[PluginDefinitionData[DefinitionT]],
+    Iterable[PluginDefinitionConfig[DefinitionT]],
 ]:
     """
-    Create attribute containing a :py:class:`betty.collection.keyed.KeyedCollection` of :py:class:`betty.datas.plugin.definition.PluginDefinitionData`.
+    Create attribute containing a :py:class:`betty.collection.keyed.KeyedCollection` of :py:class:`betty.datas.plugin.definition.PluginDefinitionConfig`.
     """
     return CollectionOwnerAttr(
         FieldDefinition(
@@ -56,12 +56,12 @@ def new_plugin_definition_datas_attr[
                 MutableKeyedCollection[
                     MachineName,
                     ResolvableId[DefinitionT],
-                    PluginDefinitionData[DefinitionT],
-                    PluginDefinitionData[DefinitionT],
+                    PluginDefinitionConfig[DefinitionT],
+                    PluginDefinitionConfig[DefinitionT],
                 ],
-                PluginDefinitionData[DefinitionT],
+                PluginDefinitionConfig[DefinitionT],
             ](
-                value=item,
+                value=item,  # ty: ignore[invalid-argument-type]
                 label=plugin_type.definition.label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values), key=lambda item: item.id
