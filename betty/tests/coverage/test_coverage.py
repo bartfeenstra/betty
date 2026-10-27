@@ -210,11 +210,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/datas/date.py": {
         "AnyDateDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/datas/plugin/definition/__init__.py": {
-        "PluginDefinitionData": {
-            "new_plugin": MissingReason.ABSTRACT,
-        },
-    },
     "betty/datas/plugin/manufacturer/sequence.py": {
         "PluginManufacturerSequenceDefinition": MissingReason.SHOULD_BE_COVERED,
     },

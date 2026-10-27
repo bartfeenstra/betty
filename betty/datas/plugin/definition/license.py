@@ -7,8 +7,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attrs.localizable import new_localizable_attr
-from betty.datas.plugin.definition import PluginDefinitionDefinition
-from betty.datas.plugin.definition.human_facing import HumanFacingPluginDefinitionData
+from betty.datas.definition.human_facing import HumanFacingDefinitionConfig
+from betty.datas.plugin.definition import (
+    PluginDefinitionConfig,
+    PluginDefinitionConfigDefinition,
+)
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
 from betty.sample import Sample, Samples
@@ -18,11 +21,11 @@ if TYPE_CHECKING:
 
 
 @final
-@PluginDefinitionDefinition(
+@PluginDefinitionConfigDefinition(
     LicenseDefinition,
     samples=Samples(
         lambda: Sample(
-            LicenseDefinitionData(
+            LicenseDefinitionConfig(
                 id="my-first-license",
                 label="My First License",
                 summary="My First License is my first license",
@@ -32,11 +35,14 @@ if TYPE_CHECKING:
         )
     ),
 )
-class LicenseDefinitionData(HumanFacingPluginDefinitionData[LicenseDefinition]):
+class LicenseDefinitionConfig(
+    HumanFacingDefinitionConfig[LicenseDefinition],
+    PluginDefinitionConfig[LicenseDefinition],
+):
     """
     Configure a :py:class:`betty.license.LicenseDefinition`.
 
-    .. data:: betty.datas.license_definition:LicenseDefinitionData
+    .. data:: betty.datas.license_definition:LicenseDefinitionConfig
     """
 
     summary = new_localizable_attr(label=_("Summary"))
@@ -54,7 +60,7 @@ class LicenseDefinitionData(HumanFacingPluginDefinitionData[LicenseDefinition]):
         self.text = text
 
     @override
-    def new_plugin(self) -> LicenseDefinition:
+    def new_definition(self) -> LicenseDefinition:
         configuration = self
 
         @LicenseDefinition(
@@ -62,7 +68,7 @@ class LicenseDefinitionData(HumanFacingPluginDefinitionData[LicenseDefinition]):
             label=self.label,
             description=self.description,
         )
-        class _LicenseDefinitionDataLicense(License):
+        class _LicenseDefinitionConfigLicense(License):
             @override
             @property
             def summary(self) -> Localizable:
@@ -73,4 +79,4 @@ class LicenseDefinitionData(HumanFacingPluginDefinitionData[LicenseDefinition]):
             def text(self) -> Localizable:
                 return configuration.text
 
-        return _LicenseDefinitionDataLicense.definition
+        return _LicenseDefinitionConfigLicense.definition

@@ -6,11 +6,14 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.datas.plugin.definition import PluginDefinitionDefinition
-from betty.datas.plugin.definition.human_facing import (
-    CountableHumanFacingPluginDefinitionData,
+from betty.datas.definition.human_facing import (
+    CountableHumanFacingDefinitionConfig,
 )
-from betty.datas.plugin.definition.ordered import OrderedPluginDefinitionData
+from betty.datas.definition.ordered import OrderedDefinitionConfig
+from betty.datas.plugin.definition import (
+    PluginDefinitionConfig,
+    PluginDefinitionConfigDefinition,
+)
 from betty.event_type import EventType, EventTypeDefinition
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
@@ -18,11 +21,11 @@ from betty.sample import Sample, Samples
 
 
 @final
-@PluginDefinitionDefinition(
+@PluginDefinitionConfigDefinition(
     EventTypeDefinition,
     samples=Samples(
         lambda: Sample(
-            EventTypeDefinitionData(
+            EventTypeDefinitionConfig(
                 id="moon-landing",
                 label="Moon landing",
                 label_plural="Moon landings",
@@ -37,18 +40,17 @@ from betty.sample import Sample, Samples
         )
     ),
 )
-class EventTypeDefinitionData(
-    CountableHumanFacingPluginDefinitionData[EventTypeDefinition],
-    OrderedPluginDefinitionData[EventTypeDefinition],
+class EventTypeDefinitionConfig(
+    CountableHumanFacingDefinitionConfig[EventTypeDefinition],
+    OrderedDefinitionConfig[EventTypeDefinition],
+    PluginDefinitionConfig[EventTypeDefinition],
 ):
     """
     Configure a :py:class:`betty.event_type.EventTypeDefinition`.
-
-    .. data:: betty.datas.event_type_definition:EventTypeDefinition
     """
 
     @override
-    def new_plugin(self) -> EventTypeDefinition:
+    def new_definition(self) -> EventTypeDefinition:
         @EventTypeDefinition(
             self.id,
             label=self.label,
@@ -58,7 +60,7 @@ class EventTypeDefinitionData(
             after=set(self.after),
             before=set(self.before),
         )
-        class _EventTypeDefinitionDataEventType(EventType):
+        class _EventTypeDefinitionConfigEventType(EventType):
             pass
 
-        return _EventTypeDefinitionDataEventType.definition
+        return _EventTypeDefinitionConfigEventType.definition

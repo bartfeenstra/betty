@@ -6,9 +6,12 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.datas.plugin.definition import PluginDefinitionDefinition
-from betty.datas.plugin.definition.human_facing import (
-    CountableHumanFacingPluginDefinitionData,
+from betty.datas.definition.human_facing import (
+    CountableHumanFacingDefinitionConfig,
+)
+from betty.datas.plugin.definition import (
+    PluginDefinitionConfig,
+    PluginDefinitionConfigDefinition,
 )
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
@@ -17,11 +20,11 @@ from betty.sample import Sample, Samples
 
 
 @final
-@PluginDefinitionDefinition(
+@PluginDefinitionConfigDefinition(
     PlaceTypeDefinition,
     samples=Samples(
         lambda: Sample(
-            PlaceTypeDefinitionData(
+            PlaceTypeDefinitionConfig(
                 id="moon",
                 label="Moon",
                 label_plural="Moons",
@@ -36,17 +39,18 @@ from betty.sample import Sample, Samples
         )
     ),
 )
-class PlaceTypeDefinitionData(
-    CountableHumanFacingPluginDefinitionData[PlaceTypeDefinition]
+class PlaceTypeDefinitionConfig(
+    CountableHumanFacingDefinitionConfig[PlaceTypeDefinition],
+    PluginDefinitionConfig[PlaceTypeDefinition],
 ):
     """
     Configure a :py:class:`betty.place_type.PlaceTypeDefinition`.
 
-    .. data:: betty.datas.plage_type_definition:PlaceTypeDefinitionData
+    .. data:: betty.datas.plage_type_definition:PlaceTypeDefinitionConfig
     """
 
     @override
-    def new_plugin(self) -> PlaceTypeDefinition:
+    def new_definition(self) -> PlaceTypeDefinition:
         @PlaceTypeDefinition(
             self.id,
             label=self.label,
@@ -54,7 +58,7 @@ class PlaceTypeDefinitionData(
             label_countable=self.label_countable,
             description=self.description,
         )
-        class _PlaceTypeDefinitionDataPlaceType(PlaceType):
+        class _PlaceTypeDefinitionConfigPlaceType(PlaceType):
             pass
 
-        return _PlaceTypeDefinitionDataPlaceType.definition
+        return _PlaceTypeDefinitionConfigPlaceType.definition

@@ -21,12 +21,12 @@ from betty.datas.aggregate.record import RecordDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.definition.ordered import OrderedDefinition
 from betty.factory import DataManufacturable
 from betty.functools import Result
 from betty.importlib import import_any
 from betty.localizer import default_localizer
 from betty.machine_name import MachineName
-from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 from betty.service_level import ServiceLevel
 
@@ -159,7 +159,7 @@ class _PluginDirective(SphinxDirective):
    * - Configuration
      - {configuration_content}
 """
-        if isinstance(plugin, OrderedPluginDefinition):
+        if isinstance(plugin, OrderedDefinition):
             if after_content := self._build_other_plugins_references([
                 after_plugin
                 for plugin_id in filter(plugin.after, plugins[plugin.definition.id])

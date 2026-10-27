@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, Self, final
 
+from betty.definition.ordered import Order, OrderedDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
         "{count} JavaScript resource", "{count} JavaScript resources"
     ),
 )
-class JsResourceDefinition(OrderedPluginDefinition):
+class JsResourceDefinition(OrderedDefinition, PluginDefinition):
     """
     .. plugin_type:: js-resource.
     """

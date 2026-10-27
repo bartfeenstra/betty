@@ -1,8 +1,8 @@
 from typing import override
 
 from betty.datas.plugin.definition import (
-    PluginDefinitionData,
-    PluginDefinitionDefinition,
+    PluginDefinitionConfig,
+    PluginDefinitionConfigDefinition,
 )
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizer import default_localizer
@@ -22,47 +22,47 @@ class _DummyPluginDefinition(PluginDefinition, HumanFacingDefinition):
     pass
 
 
-@PluginDefinitionDefinition(_DummyPluginDefinition)
-class _DummyPluginDefinitionData(PluginDefinitionData[_DummyPluginDefinition]):
+@PluginDefinitionConfigDefinition(_DummyPluginDefinition)
+class _DummyPluginDefinitionConfig(PluginDefinitionConfig[_DummyPluginDefinition]):
     @override
-    def new_plugin(self) -> _DummyPluginDefinition:
+    def new_definition(self) -> _DummyPluginDefinition:
         raise Unreachable
 
 
-class TestPluginDefinitionData:
+class TestPluginDefinitionConfig:
     def test_id(self) -> None:
         plugin_id = "hello-world"
-        sut = _DummyPluginDefinitionData(id=plugin_id)
+        sut = _DummyPluginDefinitionConfig(id=plugin_id)
         assert sut.id == plugin_id
 
 
 class TestPluginDefinitionDefinition:
     def test_label(self) -> None:
-        assert PluginDefinitionDefinition(_DummyPluginDefinition).label.localize(
+        assert PluginDefinitionConfigDefinition(_DummyPluginDefinition).label.localize(
             default_localizer
         )
 
     def test_porter__dump(self) -> None:
-        assert _DummyPluginDefinitionData.definition.porter.dump(
-            _DummyPluginDefinitionData(id="hello-world")
+        assert _DummyPluginDefinitionConfig.definition.porter.dump(
+            _DummyPluginDefinitionConfig(id="hello-world")
         ) == {"id": "hello-world"}
 
     def test_porter__dump_keyed(self) -> None:
-        porter = _DummyPluginDefinitionData.definition.porter
+        porter = _DummyPluginDefinitionConfig.definition.porter
         assert isinstance(porter, KeyedPorter)
-        assert porter.dump_keyed(_DummyPluginDefinitionData(id="hello-world")) == (
+        assert porter.dump_keyed(_DummyPluginDefinitionConfig(id="hello-world")) == (
             "hello-world",
             {},
         )
 
     def test_porter__load(self) -> None:
-        assert _DummyPluginDefinitionData.definition.porter.load({
+        assert _DummyPluginDefinitionConfig.definition.porter.load({
             "id": "hello-world"
-        }) == _DummyPluginDefinitionData(id="hello-world")
+        }) == _DummyPluginDefinitionConfig(id="hello-world")
 
     def test_porter__load_keyed(self) -> None:
-        porter = _DummyPluginDefinitionData.definition.porter
+        porter = _DummyPluginDefinitionConfig.definition.porter
         assert isinstance(porter, KeyedPorter)
-        assert porter.load_keyed("hello-world", {}) == _DummyPluginDefinitionData(
+        assert porter.load_keyed("hello-world", {}) == _DummyPluginDefinitionConfig(
             id="hello-world"
         )

@@ -8,8 +8,11 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from betty.attrs.localizable import new_localizable_attr
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.datas.plugin.definition import PluginDefinitionDefinition
-from betty.datas.plugin.definition.human_facing import HumanFacingPluginDefinitionData
+from betty.datas.definition.human_facing import HumanFacingDefinitionConfig
+from betty.datas.plugin.definition import (
+    PluginDefinitionConfig,
+    PluginDefinitionConfigDefinition,
+)
 from betty.localizables.gettext import _
 from betty.sample import Sample, Samples
 
@@ -18,11 +21,11 @@ if TYPE_CHECKING:
 
 
 @final
-@PluginDefinitionDefinition(
+@PluginDefinitionConfigDefinition(
     CopyrightNoticeDefinition,
     samples=Samples(
         lambda: Sample(
-            CopyrightNoticeDefinitionData(
+            CopyrightNoticeDefinitionConfig(
                 id="my-first-copyright-notice",
                 label="My First Copyright Notice",
                 summary="My First Copyright Notice is my first copyright notice",
@@ -32,13 +35,14 @@ if TYPE_CHECKING:
         )
     ),
 )
-class CopyrightNoticeDefinitionData(
-    HumanFacingPluginDefinitionData[CopyrightNoticeDefinition]
+class CopyrightNoticeDefinitionConfig(
+    HumanFacingDefinitionConfig[CopyrightNoticeDefinition],
+    PluginDefinitionConfig[CopyrightNoticeDefinition],
 ):
     """
     Configure a :py:class:`betty.copyright_notice.CopyrightNoticeDefinition`.
 
-    .. data:: betty.datas.copyright_notice_definition:CopyrightNoticeDefinitionData
+    .. data:: betty.datas.copyright_notice_definition:CopyrightNoticeDefinitionConfig
     """
 
     summary = new_localizable_attr(label=_("Summary"))
@@ -56,7 +60,7 @@ class CopyrightNoticeDefinitionData(
         self.text = text
 
     @override
-    def new_plugin(self) -> CopyrightNoticeDefinition:
+    def new_definition(self) -> CopyrightNoticeDefinition:
         configuration = self
 
         @CopyrightNoticeDefinition(
@@ -64,7 +68,7 @@ class CopyrightNoticeDefinitionData(
             label=self.label,
             description=self.description,
         )
-        class _CopyrightNoticeDefinitionDataCopyrightNotice(CopyrightNotice):
+        class _CopyrightNoticeDefinitionConfigCopyrightNotice(CopyrightNotice):
             @override
             @property
             def summary(self) -> Localizable:
@@ -75,4 +79,4 @@ class CopyrightNoticeDefinitionData(
             def text(self) -> Localizable:
                 return configuration.text
 
-        return _CopyrightNoticeDefinitionDataCopyrightNotice.definition
+        return _CopyrightNoticeDefinitionConfigCopyrightNotice.definition

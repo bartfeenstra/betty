@@ -9,9 +9,9 @@ from asyncio import gather
 from graphlib import TopologicalSorter
 from typing import TYPE_CHECKING, final, override
 
+from betty.definition.ordered import OrderedDefinition
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
-from betty.plugin.ordered import OrderedPluginDefinition
 from betty.service_level import resolve_service_level
 from betty.services.plugin import (
     PluginServiceManager,
@@ -61,11 +61,11 @@ class CollectionPluginServiceManager[
     @final
     def __sort_plugins(self, plugins: Iterable[DefinitionT]) -> Iterable[MachineName]:
         plugins = sorted(plugins, key=lambda plugin: plugin.id)
-        if issubclass(self.plugin_type, OrderedPluginDefinition):
+        if issubclass(self.plugin_type, OrderedDefinition):
             plugin_ids = {plugin.id for plugin in plugins}
             sorter = TopologicalSorter[MachineName]()
             for plugin in plugins:
-                assert isinstance(plugin, OrderedPluginDefinition)
+                assert isinstance(plugin, OrderedDefinition)
                 sorter.add(plugin.id)
                 other_plugin_ids = plugin_ids - {plugin.id}
                 for after in filter(plugin.after, other_plugin_ids):

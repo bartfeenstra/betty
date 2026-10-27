@@ -6,9 +6,12 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.datas.plugin.definition import PluginDefinitionDefinition
-from betty.datas.plugin.definition.human_facing import (
-    CountableHumanFacingPluginDefinitionData,
+from betty.datas.definition.human_facing import (
+    CountableHumanFacingDefinitionConfig,
+)
+from betty.datas.plugin.definition import (
+    PluginDefinitionConfig,
+    PluginDefinitionConfigDefinition,
 )
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
@@ -17,11 +20,11 @@ from betty.sample import Sample, Samples
 
 
 @final
-@PluginDefinitionDefinition(
+@PluginDefinitionConfigDefinition(
     RoleDefinition,
     samples=Samples(
         lambda: Sample(
-            RoleDefinitionData(
+            RoleDefinitionConfig(
                 id="astronaut",
                 label="Astronaut",
                 label_plural="Astronauts",
@@ -36,15 +39,18 @@ from betty.sample import Sample, Samples
         )
     ),
 )
-class RoleDefinitionData(CountableHumanFacingPluginDefinitionData[RoleDefinition]):
+class RoleDefinitionConfig(
+    CountableHumanFacingDefinitionConfig[RoleDefinition],
+    PluginDefinitionConfig[RoleDefinition],
+):
     """
     Configure a :py:class:`betty.role.RoleDefinition`.
 
-    .. data:: betty.datas.role_definitin:RoleDefinitionData
+    .. data:: betty.datas.role_definitin:RoleDefinitionConfig
     """
 
     @override
-    def new_plugin(self) -> RoleDefinition:
+    def new_definition(self) -> RoleDefinition:
         @RoleDefinition(
             self.id,
             label=self.label,
@@ -52,7 +58,7 @@ class RoleDefinitionData(CountableHumanFacingPluginDefinitionData[RoleDefinition
             label_countable=self.label_countable,
             description=self.description,
         )
-        class _RoleDefinitionDataRole(Role):
+        class _RoleDefinitionConfigRole(Role):
             pass
 
-        return _RoleDefinitionDataRole.definition
+        return _RoleDefinitionConfigRole.definition

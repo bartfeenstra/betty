@@ -1,5 +1,5 @@
 """
-Human-facing plugin definition data.
+Human-facing definition data.
 """
 
 from __future__ import annotations
@@ -9,13 +9,12 @@ from typing import TYPE_CHECKING, Any
 from betty.attrs.countable_localizable import new_countable_localizable_attr
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.optional import OptionalAttr
-from betty.datas.plugin.definition import PluginDefinitionData
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.human_facing import (
     CountableHumanFacingDefinition,
     HumanFacingDefinition,
 )
 from betty.localizables.gettext import _
-from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
@@ -23,13 +22,13 @@ if TYPE_CHECKING:
     from betty.localizable import ResolvableCountableLocalizable, ResolvableLocalizable
 
 
-class HumanFacingPluginDefinitionData[
-    DefinitionT: Intersection[PluginDefinition, HumanFacingDefinition]
-](PluginDefinitionData[DefinitionT]):
+class HumanFacingDefinitionConfig[
+    DefinitionT: Intersection[
+        HumanFacingDefinition, ObjectDefinition[HumanFacingDefinitionConfig]
+    ]
+](Object[DefinitionT]):
     """
     Configure a :py:class:`betty.definition.human_facing.HumanFacingDefinition`.
-
-    .. data:: betty.datas.human_facing_plugin_definition:HumanFacingPluginDefinitionData
     """
 
     label = new_localizable_attr(label=_("Label"))
@@ -47,13 +46,11 @@ class HumanFacingPluginDefinitionData[
         self.description = description
 
 
-class CountableHumanFacingPluginDefinitionData[
-    DefinitionT: Intersection[PluginDefinition, CountableHumanFacingDefinition]
-](HumanFacingPluginDefinitionData[DefinitionT]):
+class CountableHumanFacingDefinitionConfig[DefinitionT: CountableHumanFacingDefinition](
+    HumanFacingDefinitionConfig[DefinitionT]
+):
     """
     Configure a :py:class:`betty.definition.human_facing.CountableHumanFacingDefinition`.
-
-    .. data:: betty.datas.countable_human_facing_plugin_definition:CountableHumanFacingPluginDefinitionData
     """
 
     label_plural = new_localizable_attr(label=_("Label (plural)"))

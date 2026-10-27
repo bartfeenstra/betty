@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from betty.datas.plugin.definition.copyright_notice import CopyrightNoticeDefinitionData
+from betty.datas.plugin.definition.copyright_notice import (
+    CopyrightNoticeDefinitionConfig,
+)
 from betty.localizables.plain import Plain
 
 
-class TestCopyrightNoticeDefinitionData:
+class TestCopyrightNoticeDefinitionConfig:
     def test_summary(self) -> None:
         summary = Plain("My First Summary")
-        sut = CopyrightNoticeDefinitionData(
+        sut = CopyrightNoticeDefinitionConfig(
             id="-dummy",
             label="-",
             summary=summary,
@@ -17,7 +19,7 @@ class TestCopyrightNoticeDefinitionData:
 
     def test_text(self) -> None:
         text = Plain("My First Summary")
-        sut = CopyrightNoticeDefinitionData(
+        sut = CopyrightNoticeDefinitionConfig(
             id="-dummy", label="-", summary="-", text=text
         )
         assert sut.text is text
@@ -27,13 +29,13 @@ class TestCopyrightNoticeDefinitionData:
         label = Plain("-")
         summary = Plain("-")
         text = Plain("-")
-        sut = CopyrightNoticeDefinitionData(
+        sut = CopyrightNoticeDefinitionConfig(
             id=plugin_id,
             label=label,
             summary=summary,
             text=text,
         )
-        plugin = sut.new_plugin()
+        plugin = sut.new_definition()
         assert plugin.id == plugin_id
         assert plugin.label is label
         assert plugin.cls().summary is summary
@@ -41,12 +43,12 @@ class TestCopyrightNoticeDefinitionData:
 
     def test_new_plugin__full(self) -> None:
         description = Plain("-")
-        sut = CopyrightNoticeDefinitionData(
+        sut = CopyrightNoticeDefinitionConfig(
             id="my-first-copyright-notice",
             label="-",
             description=description,
             summary="-",
             text="-",
         )
-        plugin = sut.new_plugin()
+        plugin = sut.new_definition()
         assert plugin.description is description

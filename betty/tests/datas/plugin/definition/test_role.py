@@ -1,24 +1,24 @@
 from __future__ import annotations
 
-from betty.datas.plugin.definition.role import RoleDefinitionData
+from betty.datas.plugin.definition.role import RoleDefinitionConfig
 from betty.localizables.plain import Plain
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
 )
 
 
-class TestRoleDefinitionData:
+class TestRoleDefinitionConfig:
     def test_new_plugin__minimal(self) -> None:
         plugin_id = "my-first-role"
         label = Plain("-")
         label_plural = Plain("-")
-        sut = RoleDefinitionData(
+        sut = RoleDefinitionConfig(
             id=plugin_id,
             label=label,
             label_plural=label_plural,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
-        plugin = sut.new_plugin()
+        plugin = sut.new_definition()
         assert plugin.id == plugin_id
         assert plugin.label is label
         assert plugin.label_plural is label_plural
@@ -26,12 +26,12 @@ class TestRoleDefinitionData:
 
     def test_new_plugin__full(self) -> None:
         description = Plain("-")
-        sut = RoleDefinitionData(
+        sut = RoleDefinitionConfig(
             id="my-first-role",
             label="-",
             label_plural="-",
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             description=description,
         )
-        plugin = sut.new_plugin()
+        plugin = sut.new_definition()
         assert plugin.description is description

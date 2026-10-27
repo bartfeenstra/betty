@@ -3,9 +3,9 @@ from typing import override
 
 from betty.definition import ResolvableDefinition
 from betty.definition.id import resolve_id
+from betty.definition.ordered import OrderedDefinition
 from betty.machine_name import MachineName
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.ordered import OrderedPluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.service_level import HasServiceLevel, ServiceLevel
 from betty.services.plugin import (
     HasPluginServices,
@@ -25,7 +25,7 @@ from betty.typing import Unreachable
     label_plural="dummy plugin",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
-class _DummyOrderedPluginDefinition(OrderedPluginDefinition):
+class _DummyOrderedPluginDefinition(OrderedDefinition, PluginDefinition):
     pass
 
 
