@@ -8,15 +8,16 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-07-06 22:23+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2026-10-28 16:51+0000\n"
+"Last-Translator: Bart Feenstra <bartfeenstra@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Welsh <https://hosted.weblate.org/projects/betty/betty-0-4-x/cy/>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"Language: cy\n"
+"Language: cy-GB\n"
 "Plural-Forms: nplurals=6; plural=(n==0) ? 0 : (n==1) ? 1 : (n==2) ? 2 : (n==3) ? 3 :(n==6) ? 4 : 5;\n"
+"X-Generator: Weblate 2026.11.dev0\n"
 
 #, python-brace-format
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
@@ -36,7 +37,7 @@ msgstr ""
 
 #, python-format
 msgid "%(date)s in %(place)s"
-msgstr ""
+msgstr "%(date)s yn %(place)s"
 
 #, python-format
 msgid "%(event)s of %(subjects)s"
@@ -167,7 +168,7 @@ msgid "Betty will talk to you in {locale}"
 msgstr ""
 
 msgid "Birth"
-msgstr ""
+msgstr "Genedigaeth"
 
 msgid "Borough"
 msgstr ""
@@ -283,7 +284,7 @@ msgid "Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml famil
 msgstr ""
 
 msgid "Country"
-msgstr ""
+msgstr "Gwlad"
 
 msgid "County"
 msgstr ""
@@ -308,7 +309,7 @@ msgid "Cremation"
 msgstr ""
 
 msgid "Death"
-msgstr ""
+msgstr "Marwolaeth"
 
 msgid "Department"
 msgstr ""
@@ -377,13 +378,13 @@ msgid "Enrich your ancestry with information from Wikipedia"
 msgstr ""
 
 msgid "Entity type"
-msgstr ""
+msgstr "Math o endid"
 
 msgid "Event"
-msgstr ""
+msgstr "Digwyddiad"
 
 msgid "Events"
-msgstr ""
+msgstr "Digwyddiadau"
 
 #, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
@@ -399,10 +400,10 @@ msgid "External links"
 msgstr ""
 
 msgid "Facts"
-msgstr ""
+msgstr "Ffeithiau"
 
 msgid "Family"
-msgstr ""
+msgstr "Teulu"
 
 msgid "Farm"
 msgstr ""
@@ -411,7 +412,7 @@ msgid "Female"
 msgstr ""
 
 msgid "File"
-msgstr ""
+msgstr "Ffeil"
 
 msgid "File reference"
 msgstr ""
@@ -420,10 +421,10 @@ msgid "File references"
 msgstr ""
 
 msgid "Files"
-msgstr ""
+msgstr "Ffeiliau"
 
 msgid "Filters"
-msgstr ""
+msgstr "Hidlyddion"
 
 msgid "Find Betty on GitHub"
 msgstr ""
@@ -513,14 +514,14 @@ msgid "Invalid YAML: {error}."
 msgstr ""
 
 msgid "Keywords"
-msgstr ""
+msgstr "Geiriau allweddol"
 
 msgid "Language"
-msgstr ""
+msgstr "Iaith"
 
 #, python-format
 msgid "Last modified on %(last_modified)s"
-msgstr ""
+msgstr "Diweddarwyd ddiwethaf ar %(last_modified)s"
 
 msgid "License"
 msgstr ""
@@ -602,13 +603,13 @@ msgid "Media references"
 msgstr ""
 
 msgid "Menu"
-msgstr ""
+msgstr "Dewislen"
 
 msgid "Missing"
 msgstr ""
 
 msgid "Municipality"
-msgstr ""
+msgstr "Bwrdeistref"
 
 msgid "Neighborhood"
 msgstr ""
@@ -620,10 +621,10 @@ msgid "Non-binary"
 msgstr ""
 
 msgid "Note"
-msgstr ""
+msgstr "Nodyn"
 
 msgid "Notes"
-msgstr ""
+msgstr "Nodiadau"
 
 msgid "Number"
 msgstr ""
@@ -650,13 +651,13 @@ msgid "Parish"
 msgstr ""
 
 msgid "People"
-msgstr ""
+msgstr "Pobl"
 
 msgid "Permanent link to this section."
 msgstr ""
 
 msgid "Person"
-msgstr ""
+msgstr "Person"
 
 msgid "Person name"
 msgstr ""
@@ -665,10 +666,10 @@ msgid "Person names"
 msgstr ""
 
 msgid "Place"
-msgstr ""
+msgstr "Lle"
 
 msgid "Places"
-msgstr ""
+msgstr "Lleoedd"
 
 #, python-brace-format
 msgid "Plugin {plugin_label} ({plugin_id}) is not configurable, but configuration was given."
@@ -714,16 +715,16 @@ msgid "Project author"
 msgstr ""
 
 msgid "Province"
-msgstr ""
+msgstr "Talaith"
 
 msgid "Public domain"
 msgstr ""
 
 msgid "Read more"
-msgstr ""
+msgstr "Darllen mwy"
 
 msgid "Read more on Wikipedia."
-msgstr ""
+msgstr "Darllenwch fwy ar Wikipedia."
 
 msgid "Read the Betty documentation"
 msgstr ""
@@ -735,7 +736,7 @@ msgid "Region"
 msgstr ""
 
 msgid "Reset"
-msgstr ""
+msgstr "Ailosod"
 
 msgid "Residence"
 msgstr ""
@@ -752,7 +753,7 @@ msgid "Saved your project to {configuration_file}."
 msgstr ""
 
 msgid "Search"
-msgstr ""
+msgstr "Chwilio"
 
 msgid "Serve a generated site"
 msgstr ""
@@ -896,7 +897,7 @@ msgid "This source's details are unavailable to protect people's privacy."
 msgstr ""
 
 msgid "Timeline"
-msgstr ""
+msgstr "Llinell amser"
 
 msgid "Toggle full screen"
 msgstr ""
@@ -944,11 +945,11 @@ msgid "View the documentation"
 msgstr ""
 
 msgid "Village"
-msgstr ""
+msgstr "Pentref"
 
 #, python-format
 msgid "Welcome to %(project_title)s"
-msgstr ""
+msgstr "Croeso i %(project_title)s"
 
 msgid "What is the path to your exported Gramps family tree file?"
 msgstr ""
@@ -1063,7 +1064,7 @@ msgstr ""
 
 #, python-format
 msgid "in %(place)s"
-msgstr ""
+msgstr "yn %(place)s"
 
 #, python-format
 msgid "in %(source)s"
