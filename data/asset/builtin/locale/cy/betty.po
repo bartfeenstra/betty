@@ -8,24 +8,25 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-10-26 13:29+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2026-10-27 19:27+0000\n"
+"Last-Translator: Bart Feenstra <bartfeenstra@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Welsh <https://hosted.weblate.org/projects/betty/betty-0-5-x/cy/>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 "Language: cy\n"
 "Plural-Forms: nplurals=6; plural=(n==0) ? 0 : (n==1) ? 1 : (n==2) ? 2 : (n==3) ? 3 :(n==6) ? 4 : 5;\n"
+"X-Generator: Weblate 2026.11.dev0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
 msgid "\"{text}\""
-msgstr ""
+msgstr "\"{text}\""
 
 #, python-format
 msgid "%(date)s in %(place)s"
-msgstr ""
+msgstr "%(date)s yn %(place)s"
 
 #, python-format
 msgid "%(event)s of %(subjects)s"
@@ -40,7 +41,7 @@ msgid ", "
 msgstr ""
 
 msgid "A Betty demonstration"
-msgstr ""
+msgstr "Arddangosiad Betty"
 
 msgid "A countable localizable string"
 msgstr ""
@@ -240,10 +241,10 @@ msgid "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty'
 msgstr ""
 
 msgid "Birth"
-msgstr ""
+msgstr "Genedigaeth"
 
 msgid "Births"
-msgstr ""
+msgstr "Genedigaethau"
 
 msgid "Borough"
 msgstr ""
@@ -510,10 +511,10 @@ msgid "Day"
 msgstr ""
 
 msgid "Death"
-msgstr ""
+msgstr "Marwolaeth"
 
 msgid "Deaths"
-msgstr ""
+msgstr "Marwolaethau"
 
 msgid "Debugging mode"
 msgstr ""
@@ -637,13 +638,13 @@ msgid "Entity reference"
 msgstr ""
 
 msgid "Entity type"
-msgstr ""
+msgstr "Math o endid"
 
 msgid "Entity types to generate list HTML pages for"
 msgstr ""
 
 msgid "Event"
-msgstr ""
+msgstr "Digwyddiad"
 
 msgid "Event type"
 msgstr ""
@@ -652,7 +653,7 @@ msgid "Event types"
 msgstr ""
 
 msgid "Events"
-msgstr ""
+msgstr "Digwyddiadau"
 
 #, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
@@ -693,7 +694,7 @@ msgid "Farms"
 msgstr ""
 
 msgid "File"
-msgstr ""
+msgstr "Ffeil"
 
 msgid "File referees"
 msgstr ""
@@ -705,7 +706,7 @@ msgid "File references"
 msgstr ""
 
 msgid "Files"
-msgstr ""
+msgstr "Ffeiliau"
 
 msgid "Filters"
 msgstr ""
@@ -896,7 +897,7 @@ msgid "Label (plural)"
 msgstr ""
 
 msgid "Language"
-msgstr ""
+msgstr "Iaith"
 
 #, python-format
 msgid "Last modified on %(last_modified)s"
@@ -1010,7 +1011,7 @@ msgid "Machine name"
 msgstr ""
 
 msgid "Man"
-msgstr ""
+msgstr "Dyn"
 
 msgid "Map"
 msgstr ""
@@ -1046,7 +1047,7 @@ msgid "Men"
 msgstr ""
 
 msgid "Menu"
-msgstr ""
+msgstr "Dewislen"
 
 msgid "Minimum height"
 msgstr ""
@@ -1101,7 +1102,7 @@ msgid "Neighborhoods"
 msgstr ""
 
 msgid "Netherlands"
-msgstr ""
+msgstr "Yr Iseldiroedd"
 
 msgid "Next page"
 msgstr ""
@@ -1127,10 +1128,10 @@ msgid "North Holland Archives"
 msgstr ""
 
 msgid "Note"
-msgstr ""
+msgstr "Nodyn"
 
 msgid "Notes"
-msgstr ""
+msgstr "Nodiadau"
 
 msgid "Number"
 msgstr ""
@@ -1210,7 +1211,7 @@ msgid "Path"
 msgstr ""
 
 msgid "People"
-msgstr ""
+msgstr "Pobl"
 
 msgid "People of unknown gender"
 msgstr ""
@@ -1222,7 +1223,7 @@ msgid "Permanent link to this section."
 msgstr ""
 
 msgid "Person"
-msgstr ""
+msgstr "Person"
 
 msgid "Person name"
 msgstr ""
@@ -1234,7 +1235,7 @@ msgid "Person of unknown gender"
 msgstr ""
 
 msgid "Place"
-msgstr ""
+msgstr "Lle"
 
 msgid "Place name"
 msgstr ""
@@ -1249,7 +1250,7 @@ msgid "Place types"
 msgstr ""
 
 msgid "Places"
-msgstr ""
+msgstr "Lleoedd"
 
 msgid "Plain text"
 msgstr ""
@@ -1348,14 +1349,14 @@ msgid "Rate limits ensure that Betty's HTTP client does not make more requests t
 msgstr ""
 
 msgid "Read more"
-msgstr ""
+msgstr "Darllen mwy"
 
 #, python-brace-format
 msgid "Read more at {url}"
-msgstr ""
+msgstr "Darllenwch fwy yn {url}"
 
 msgid "Read more on Wikipedia."
-msgstr ""
+msgstr "Darllenwch fwy ar Wikipedia."
 
 msgid "Read the Betty documentation"
 msgstr ""
@@ -1397,7 +1398,7 @@ msgid "Renderers"
 msgstr ""
 
 msgid "Reset"
-msgstr ""
+msgstr "Ailosod"
 
 msgid "Residence"
 msgstr ""
@@ -1433,7 +1434,7 @@ msgid "Saved your project to {configuration_file}."
 msgstr ""
 
 msgid "Search"
-msgstr ""
+msgstr "Chwilio"
 
 msgid "Secondary color"
 msgstr ""
@@ -1841,11 +1842,11 @@ msgid "Visually hide heading"
 msgstr ""
 
 msgid "Welcome"
-msgstr ""
+msgstr "Croeso"
 
 #, python-format
 msgid "Welcome to %(project_title)s"
-msgstr ""
+msgstr "Croeso i %(project_title)s"
 
 msgid "What is the path to your exported Gramps family tree file?"
 msgstr ""
@@ -1905,7 +1906,7 @@ msgid "Witnesses"
 msgstr ""
 
 msgid "Woman"
-msgstr ""
+msgstr "Menyw"
 
 msgid "Women"
 msgstr ""
@@ -1996,7 +1997,7 @@ msgstr ""
 
 #, python-format
 msgid "in %(place)s"
-msgstr ""
+msgstr "yn %(place)s"
 
 #, python-format
 msgid "in %(source)s"
@@ -2641,12 +2642,12 @@ msgstr ""
 #, python-brace-format
 msgctxt "localizable-join-and"
 msgid "{first} and {second}"
-msgstr ""
+msgstr "{first} ac {second}"
 
 #, python-brace-format
 msgctxt "localizable-join-or"
 msgid "{first} or {second}"
-msgstr ""
+msgstr "{first} neu {second}"
 
 #, python-brace-format
 msgid "{individual_name} {affiliation_name}"
@@ -2663,12 +2664,12 @@ msgstr ""
 #, python-brace-format
 msgctxt "localizable-join-and-many"
 msgid "{most}, and {last}"
-msgstr ""
+msgstr "{most}, ac {last}"
 
 #, python-brace-format
 msgctxt "localizable-join-or-many"
 msgid "{most}, or {last}"
-msgstr ""
+msgstr "{most}, neu {last}"
 
 #, python-brace-format
 msgid "{path} is not a directory."
