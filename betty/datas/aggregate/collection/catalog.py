@@ -1,5 +1,5 @@
 """
-Keyed collection definitions.
+Catalog definitions.
 """
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.sequence import assert_sequence
-from betty.collection.keyed import KeyedCollection, MutableKeyedCollection
+from betty.collection.catalog import Catalog, MutableCatalog
 from betty.datas.aggregate.collection import (
     CollectionDefinition,
     CollectionManufacturer,
@@ -30,11 +30,11 @@ if TYPE_CHECKING:
     )
 
 
-class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
-    CollectionDefinition[KeyedCollectionT, ValueT, Iterable[ValueT]]
+class CatalogDefinition[CatalogT: Catalog, ValueT](
+    CollectionDefinition[CatalogT, ValueT, Iterable[ValueT]]
 ):
     """
-    A definition for :py:class:`betty.collection.keyed.KeyedCollection`.
+    A definition for :py:class:`betty.collection.catalog.Catalog`.
     """
 
     def __init__(
@@ -44,8 +44,7 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
         order_dump: bool = False,
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        manufacturer: CollectionManufacturer[KeyedCollectionT, Iterable[ValueT]]
-        | None = None,
+        manufacturer: CollectionManufacturer[CatalogT, Iterable[ValueT]] | None = None,
     ):
         super().__init__(
             label=label,
@@ -59,7 +58,7 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
         assert isinstance(value_porter, KeyedPorter)
         self._value_porter: KeyedPorter[ValueT] = value_porter
 
-    def _load(self, portable: PortableData, /) -> KeyedCollectionT:
+    def _load(self, portable: PortableData, /) -> CatalogT:
         if self._order_dump:
             values = assert_sequence(self._value_porter.load)(portable)
         else:
@@ -69,30 +68,30 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
             ]
         return self.new(values)
 
-    def _dump(self, data: KeyedCollectionT) -> PortableMapping | PortableSequence:
+    def _dump(self, data: CatalogT) -> PortableMapping | PortableSequence:
         if self._order_dump:
             return [self._value_porter.dump(value) for value in data]
         return dict(self._value_porter.dump_keyed(item_data) for item_data in data)
 
 
-class MutableKeyedCollectionDefinition[
-    KeyedCollectionT: MutableKeyedCollection,
+class MutableCatalogDefinition[
+    CatalogT: MutableCatalog,
     ValueT,
 ](
-    KeyedCollectionDefinition[KeyedCollectionT, ValueT],
-    MutableCollectionDefinition[KeyedCollectionT, ValueT, Iterable[ValueT]],
+    CatalogDefinition[CatalogT, ValueT],
+    MutableCollectionDefinition[CatalogT, ValueT, Iterable[ValueT]],
 ):
     """
-    A definition for :py:class:`betty.collection.keyed.MutableKeyedCollection`.
+    A definition for :py:class:`betty.collection.catalog.MutableCatalog`.
     """
 
     @final
     @override
-    def clear(self, data: KeyedCollectionT, /) -> None:
+    def clear(self, data: CatalogT, /) -> None:
         data.clear()
 
     @final
     @override
-    def replace(self, data: KeyedCollectionT, values: Iterable[ValueT], /) -> None:
+    def replace(self, data: CatalogT, values: Iterable[ValueT], /) -> None:
         data.clear()
         data.add(*values)

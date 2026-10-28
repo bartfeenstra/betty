@@ -22,25 +22,24 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from betty.associations.to_many import ToMany
-    from betty.collection.keyed import MutableKeyedCollection
     from betty.project import Project
 
 
 @final
 class ToManyCollection[AssociateT: Entity](
-    MutableCollection[AssociateT],
-    Sequence[AssociateT],
+    MutableCollection[AssociateT], Sequence[AssociateT]
 ):
     r"""
     A collection of \*-to-many associates.
     """
 
-    _upstream: MutableKeyedCollection[
-        tuple[type[AssociateT], str],
-        tuple[type[AssociateT], str],
-        Associate[AssociateT],
-        Associate[AssociateT],
-    ]
+    __slots__ = (
+        "_associates",
+        "_association",
+        "_owner",
+        "_owner_if_entity",
+        "_unresolved",
+    )
 
     def __init__(
         self,

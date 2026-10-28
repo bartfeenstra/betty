@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.collection.sequence import MutableResolvedSequence
-from betty.collections.sequence.list import ResolvedList
+from betty.collection.sequence import MutableBettySequence
+from betty.collections.sequence.list import List
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.definition.cls import ClsDefinition
 from betty.plugin import PluginDefinition
@@ -25,7 +25,7 @@ class PluginManufacturerSequenceDefinition[
     PluginManufacturerT: PluginManufacturer,
 ](
     SequenceDefinition[
-        MutableResolvedSequence[
+        MutableBettySequence[
             PluginManufacturerT,
             ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],
         ],
@@ -44,10 +44,10 @@ class PluginManufacturerSequenceDefinition[
         description: ResolvableLocalizable | None = None,
     ):
         super().__init__(
-            manufacturer=lambda values: ResolvedList[
+            manufacturer=lambda values: List[
                 PluginManufacturerT,
                 ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],
-            ](values, value_resolver=manufacturer.resolve),
+            ](values, value=manufacturer.resolve),
             value=manufacturer,
             label=manufacturer.definition.plugin_type.definition.label_plural
             if label is None

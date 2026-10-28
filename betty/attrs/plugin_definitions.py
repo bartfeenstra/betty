@@ -8,9 +8,9 @@ from operator import not_
 from typing import TYPE_CHECKING
 
 from betty.attrs.owner import CollectionOwnerAttr
-from betty.collection.keyed import MutableKeyedCollection
-from betty.collections.keyed.adapter import MutableKeyedCollectionAdapter
-from betty.datas.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.collection.catalog import MutableCatalog
+from betty.collections.catalog.dict import DictCatalog
+from betty.datas.aggregate.collection.catalog import CatalogDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.plugin.definition import PluginDefinitionData
 from betty.definition.human_facing import HumanFacingDefinition
@@ -39,7 +39,7 @@ def new_plugin_definition_datas_attr[
     description: ResolvableLocalizable | None = None,
 ) -> CommonAttr[
     HasProps,
-    MutableKeyedCollection[
+    MutableCatalog[
         MachineName,
         ResolvableId[DefinitionT],
         PluginDefinitionData[DefinitionT],
@@ -48,12 +48,12 @@ def new_plugin_definition_datas_attr[
     Iterable[PluginDefinitionData[DefinitionT]],
 ]:
     """
-    Create attribute containing a :py:class:`betty.collection.keyed.KeyedCollection` of :py:class:`betty.datas.plugin.definition.PluginDefinitionData`.
+    Create attribute containing a :py:class:`betty.collection.catalog.Catalog` of :py:class:`betty.datas.plugin.definition.PluginDefinitionData`.
     """
     return CollectionOwnerAttr(
         FieldDefinition(
-            KeyedCollectionDefinition[
-                MutableKeyedCollection[
+            CatalogDefinition[
+                MutableCatalog[
                     MachineName,
                     ResolvableId[DefinitionT],
                     PluginDefinitionData[DefinitionT],
@@ -63,8 +63,8 @@ def new_plugin_definition_datas_attr[
             ](
                 value=item,
                 label=plugin_type.definition.label_plural,
-                manufacturer=lambda values: MutableKeyedCollectionAdapter(
-                    [] if values is None else list(values), key=lambda item: item.id
+                manufacturer=lambda values: DictCatalog(
+                    lambda item: item.id, values or ()
                 ),
             ),
             label=label,

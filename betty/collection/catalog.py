@@ -1,22 +1,31 @@
 """
-Keyed collection types and implementations.
+Catalogs.
 """
 
 from __future__ import annotations
 
 from abc import abstractmethod
 from collections.abc import Collection, Iterable
+from typing import Any, override
 
-from betty.collection import MutableCollection
+from betty.collection import (
+    AddableCollection,
+    ResolvableKeyCollection,
+    UpdatableCollection,
+)
 
 
-class KeyedCollection[KeyT, ResolvableKeyT, ValueT](Collection[ValueT]):
+class Catalog[KeyT, ResolvableKeyT, ValueT](
+    ResolvableKeyCollection[KeyT, ResolvableKeyT], Collection[ValueT]
+):
     """
-    A collection of values that are accessible by their keys.
+    A catalog.
 
     This is different from a mapping in that iteration takes place over values, not keys, and that callers cannot
     necessarily associate keys with values themselves (this may be done automatically by implementations).
     """
+
+    __slots__ = ()
 
     @abstractmethod
     def keys(self) -> Iterable[KeyT]:
@@ -29,19 +38,17 @@ class KeyedCollection[KeyT, ResolvableKeyT, ValueT](Collection[ValueT]):
         pass
 
 
-class MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
-    KeyedCollection[KeyT, ResolvableKeyT, ValueT],
-    MutableCollection[ValueT],
+# @todo Do we want to add .pop()?
+class MutableCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
+    Catalog[KeyT, ResolvableKeyT, ValueT],
+    AddableCollection[ValueT, ResolvableValueT],
+    UpdatableCollection[ValueT, ResolvableValueT, Iterable[ValueT | ResolvableValueT]],
 ):
     """
-    A mutable ordered collection of values that are accessible by their keys.
+    A mutable catalog.
     """
 
-    @abstractmethod
-    def add(self, *values: ValueT | ResolvableValueT) -> None:
-        """
-        Add one or more values to the collection.
-        """
+    __slots__ = ()
 
     @abstractmethod
     def remove(self, *keys: KeyT | ResolvableKeyT) -> None:
@@ -52,3 +59,8 @@ class MutableKeyedCollection[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     @abstractmethod
     def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
         pass
+
+    @override
+    def update(self, *others: Any) -> None:
+        for other in others:
+            self.add(*other)

@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.media_type import (
     MissingMediaType,
     match_media_type,
     resolve_media_type,
 )
 from betty.media_types.html import HTML
-from betty.typing import empty_frozen_dict
 from betty.url_generator import UrlGenerator
 
 if TYPE_CHECKING:

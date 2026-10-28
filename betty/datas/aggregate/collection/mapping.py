@@ -4,7 +4,7 @@ Key-value mapping data types.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping, MutableMapping
+from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.assertions.mapping import assert_mapping
@@ -21,11 +21,8 @@ if TYPE_CHECKING:
     from betty.portable import PortableData, Porter
 
 
-type NewMapping[KeyT, ValueT] = Mapping[KeyT, ValueT] | Iterable[tuple[KeyT, ValueT]]
-
-
 class MappingDefinition[MappingT: Mapping[Any, Any], KeyT, ValueT](
-    CollectionDefinition[MappingT, KeyT, NewMapping[KeyT, ValueT]]
+    CollectionDefinition[MappingT, KeyT, Mapping[KeyT, ValueT]]
 ):
     """
     A key-value mapping data definition.
@@ -38,7 +35,7 @@ class MappingDefinition[MappingT: Mapping[Any, Any], KeyT, ValueT](
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
         label: ResolvableLocalizable,
         description: ResolvableLocalizable | None = None,
-        manufacturer: CollectionManufacturer[MappingT, NewMapping[KeyT, ValueT]]
+        manufacturer: CollectionManufacturer[MappingT, Mapping[KeyT, ValueT]]
         | None = None,
         porter: Porter[MappingT] | None = None,
     ):
@@ -70,7 +67,7 @@ class MappingDefinition[MappingT: Mapping[Any, Any], KeyT, ValueT](
 
 class MutableMappingDefinition[MappingT: MutableMapping[Any, Any], KeyT, ValueT](
     MappingDefinition[MappingT, KeyT, ValueT],
-    MutableCollectionDefinition[MappingT, KeyT, NewMapping[KeyT, ValueT]],
+    MutableCollectionDefinition[MappingT, KeyT, Mapping[KeyT, ValueT]],
 ):
     """
     A mutable key-value mapping data definition.
@@ -83,6 +80,6 @@ class MutableMappingDefinition[MappingT: MutableMapping[Any, Any], KeyT, ValueT]
 
     @final
     @override
-    def replace(self, data: MappingT, values: NewMapping[KeyT, ValueT], /) -> None:
+    def replace(self, data: MappingT, values: Mapping[KeyT, ValueT], /) -> None:
         data.clear()
         data.update(values)

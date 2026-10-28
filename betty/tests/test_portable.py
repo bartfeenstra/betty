@@ -6,6 +6,7 @@ from typing import Any
 
 import pytest
 
+from betty.collections.mapping.dict import FrozenDict
 from betty.portable import (
     OptionalImmutablePortableData,
     OptionalMutablePortableData,
@@ -14,7 +15,6 @@ from betty.portable import (
     is_portable_scalar,
     unfreeze_portable_data,
 )
-from betty.typing import FrozenDict
 
 
 @pytest.mark.parametrize(

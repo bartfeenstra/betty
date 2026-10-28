@@ -16,6 +16,7 @@ from aiohttp_client_cache.session import CachedSession
 from betty import about
 from betty.asyncio import ResolvableAwaitable, resolve_await
 from betty.attrs.locale import new_locale_attr
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
 from betty.gettext import TranslationsRepository
@@ -35,13 +36,13 @@ from betty.serializers.json import Json
 from betty.service import Service
 from betty.services.asset import AssetRepositoryService
 from betty.services.plugin import HasPluginServices
-from betty.services.plugin.definition.collection.keyed import PluginDefinitionsService
-from betty.services.plugin.instance.collection.keyed import PluginInstancesService
+from betty.services.plugin.definition.collection.catalog import PluginDefinitionsService
+from betty.services.plugin.instance.collection.catalog import PluginInstancesService
 from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
-from betty.typing import Unreachable, empty_frozen_dict
+from betty.typing import Unreachable
 from betty.uis.console import Console
 from betty.uis.no_op import NoOpUi
 from betty.user.ui import Ui

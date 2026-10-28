@@ -12,11 +12,11 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset_directories.raspberry_mint import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
-from betty.collection.mapping import ResolvedMapping
+from betty.collection.mapping import BettyMapping
 from betty.collections.mapping.adapter import (
-    MutableResolvedMappingAdapter,
-    ResolvedMappingAdapter,
+    MappingAdapter as MappingAdapter,
 )
+from betty.collections.mapping.dict import Dict, FrozenDict, empty_frozen_dict
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderManufacturer,
@@ -50,7 +50,6 @@ from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.webpack.build import EntryPointProvider
 from betty.services.simple import service
-from betty.typing import empty_frozen_dict
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping, Sequence
@@ -59,7 +58,7 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.pathlib import StrPath
 
-type RegionalContent = ResolvedMapping[str, ResolvableRegion, Sequence[ContentBuilder]]
+type RegionalContent = BettyMapping[str, ResolvableRegion, Sequence[ContentBuilder]]
 type ResolvableRegionalContent = Mapping[
     ResolvableRegion, Iterable[ResolvableContentBuilderManufacturer]
 ]
@@ -118,8 +117,8 @@ class RaspberryMintData(Object):
     regional_content = CollectionOwnerAttr(
         FieldDefinition(
             MutableMappingDefinition(
-                manufacturer=lambda values: MutableResolvedMappingAdapter(
-                    {} if values is None else dict(values), key_resolver=Region.resolve
+                manufacturer=lambda values: Dict(
+                    {} if values is None else dict(values), key=Region.resolve
                 ),
                 label=_("Regions"),
                 key=StrDefinition(label=_("Region")),
@@ -312,7 +311,7 @@ class RaspberryMint(
                 **await content.get(),
                 **self._regional_content_manufacturers,
             }
-        return ResolvedMappingAdapter(
+        return FrozenDict(
             defaultdict(
                 tuple,
                 zip(
@@ -329,7 +328,7 @@ class RaspberryMint(
                     strict=False,
                 ),
             ),
-            key_resolver=Region.resolve,
+            key=Region.resolve,
         )
 
 

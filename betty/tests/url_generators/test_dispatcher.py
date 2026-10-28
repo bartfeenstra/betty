@@ -4,11 +4,11 @@ from typing import Any, TypeGuard, override
 
 import pytest
 
+from betty.collections.mapping.dict import empty_frozen_dict
 from betty.locale import ResolvableLocale
 from betty.media_type import ResolvableMediaType
 from betty.media_types.html import HTML
 from betty.media_types.json import JSON
-from betty.typing import empty_frozen_dict
 from betty.url_generator import UnsupportedResource, UrlGenerator
 from betty.url_generators.dispatcher import UrlGeneratorDispatcher
 
