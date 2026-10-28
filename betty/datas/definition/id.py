@@ -14,14 +14,18 @@ from betty.porters.fields import FieldsPorter
 from betty.porters.keyed_mapping import KeyedMappingPorter
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.data import ResolvableDataPorter
-    from betty.datas.aggregate.record.object import Object
+    from betty.datas.aggregate.record.object import Object, ObjectDefinition
     from betty.machine_name import ResolvableMachineName
 
 
-class IdentifiableDefinitionConfigDefinition[DefinitionT: IdentifiableDefinition](
-    DefinitionConfigDefinition[DefinitionT]
-):
+class IdentifiableDefinitionConfigDefinition[
+    DefinitionT: Intersection[
+        IdentifiableDefinition, ObjectDefinition[IdentifiableDefinitionConfig]
+    ]
+](DefinitionConfigDefinition[DefinitionT]):
     """
     Define identifiable definition configuration.
     """
@@ -40,9 +44,11 @@ class IdentifiableDefinitionConfigDefinition[DefinitionT: IdentifiableDefinition
         )
 
 
-class IdentifiableDefinitionConfig[DefinitionT: IdentifiableDefinition](
-    DefinitionConfig[DefinitionT]
-):
+class IdentifiableDefinitionConfig[
+    DefinitionT: Intersection[
+        IdentifiableDefinition, ObjectDefinition[IdentifiableDefinitionConfig]
+    ]
+](DefinitionConfig[DefinitionT]):
     """
     Configure a :py:class:`betty.definition.IdentifiableDefinition`.
     """

@@ -46,9 +46,12 @@ class HumanFacingDefinitionConfig[
         self.description = description
 
 
-class CountableHumanFacingDefinitionConfig[DefinitionT: CountableHumanFacingDefinition](
-    HumanFacingDefinitionConfig[DefinitionT]
-):
+class CountableHumanFacingDefinitionConfig[
+    DefinitionT: Intersection[
+        CountableHumanFacingDefinition,
+        ObjectDefinition[CountableHumanFacingDefinitionConfig],
+    ]
+](Object[DefinitionT]):
     """
     Configure a :py:class:`betty.definition.human_facing.CountableHumanFacingDefinition`.
     """
