@@ -41,9 +41,8 @@ class MapsTestBase:
     A base class for testing maps.
     """
 
-    def get_other_extensions(
-        self,
-    ) -> Iterable[ResolvableId[ServiceProviderDefinition]]:
+    @classmethod
+    def get_other_extensions(cls) -> Iterable[ResolvableId[ServiceProviderDefinition]]:
         """
         Get the other extensions to enable while performing the tests.
 
@@ -52,7 +51,8 @@ class MapsTestBase:
         raise AbstractMethod
 
     @pytest.fixture(scope="session")
-    async def server(self) -> AsyncIterator[Server]:
+    @classmethod
+    async def server(cls) -> AsyncIterator[Server]:
         """
         Serve a test page with a map, navigate to it, and return the Playwright Page fixture.
         """
@@ -61,7 +61,7 @@ class MapsTestBase:
                 service_providers=[
                     Maps,
                     *map(
-                        ServiceProviderManufacturer.resolve, self.get_other_extensions()
+                        ServiceProviderManufacturer.resolve, cls.get_other_extensions()
                     ),
                 ],
             ) as project,

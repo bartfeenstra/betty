@@ -18,9 +18,10 @@ class TestSearchUi:
     individual_name: Final[str] = "Janet"
 
     @pytest.fixture(scope="session")
-    async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
+    @classmethod
+    async def served_project(cls) -> AsyncIterator[tuple[Project, Server]]:
         person = Person(id="my-first-person")
-        PersonName(individual=self.individual_name, person=person)
+        PersonName(individual=cls.individual_name, person=person)
         async with (
             Project.new_isolated(service_providers=[RaspberryMint]) as project,
             project,
