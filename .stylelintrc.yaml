@@ -4,6 +4,7 @@ extends:
 plugins:
   - stylelint-no-unsupported-browser-features
 rules:
+  at-rule-prelude-no-invalid: null
   import-notation: string
   no-descending-specificity: ~
   scss/at-extend-no-missing-placeholder: null
