@@ -53,7 +53,6 @@ if TYPE_CHECKING:
 
     from pytest_mock import MockerFixture
 
-    from betty.app import App
     from betty.event_type import ResolvableEventTypeManufacturer
     from betty.place_type import ResolvablePlaceTypeManufacturer
     from betty.role import ResolvableRoleManufacturer
@@ -136,10 +135,10 @@ class TestGrampsLoader:
     attribute_prefix_key: Final[str] = "pre3f1x"
     project_name: Final[str] = "pr0j3ct"
 
-    @pytest_asyncio.fixture(scope="class", loop_scope="class")
+    @pytest_asyncio.fixture(scope="class")
     @classmethod
-    async def isolated_project(cls, isolated_app: App) -> AsyncIterator[Project]:
-        async with Project.new_isolated(app=isolated_app) as project, project:
+    async def isolated_project(cls) -> AsyncIterator[Project]:
+        async with Project.new_isolated() as project, project:
             yield project
 
     async def test_load_gramps(self, isolated_project: Project, tmp_path: Path) -> None:

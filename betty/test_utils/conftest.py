@@ -18,11 +18,10 @@ __all__ = [
     "isolated_project",
     "isolated_project_factory",
     "page",
-    "process_pool",
 ]
 import re
 import tarfile
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 from io import BytesIO
 from json import dumps
 from typing import TYPE_CHECKING, Any, Final, Literal, Protocol, final
@@ -35,7 +34,6 @@ from jinja2 import Environment, Template
 from betty.app import App
 from betty.exception import do_raise
 from betty.licenses.spdx import SpdxLicenseDiscoverer
-from betty.multiprocessing import ProcessPoolExecutor
 from betty.project import Project, ProjectLocale
 from betty.stores.file import TransientBinaryFileStore
 from betty.typing import Unreachable, empty_frozen_dict
@@ -93,23 +91,12 @@ async def binary_file_cache(tmp_path: Path) -> TransientBinaryFileStore:
     return TransientBinaryFileStore(tmp_path)
 
 
-@pytest.fixture(scope="session")
-async def process_pool() -> AsyncIterator[futures.ProcessPoolExecutor]:
-    """
-    Create a new, temporary :py:class:`betty.app.App`.
-    """
-    with ProcessPoolExecutor() as process_pool:
-        yield process_pool
-
-
-@pytest.fixture(scope="session")
-async def isolated_app(
-    process_pool: futures.ProcessPoolExecutor,
-) -> AsyncIterator[App]:
+@pytest.fixture
+async def isolated_app() -> AsyncIterator[App]:
     """
     Create a new, isolated, temporary :py:class:`betty.app.App`.
     """
-    async with App.new_isolated(process_pool=process_pool) as app, app:
+    async with App.new_isolated() as app, app:
         yield app
 
 
@@ -129,13 +116,10 @@ class IsolatedAppFactory(Protocol):
 
 
 @pytest.fixture(scope="session")
-def isolated_app_factory(
-    process_pool: futures.ProcessPoolExecutor,
-) -> IsolatedAppFactory:
+def isolated_app_factory() -> IsolatedAppFactory:
     """
     Get a factory to create a new, isolated, temporary :py:class:`betty.app.App`.
     """
-    fixture_process_pool = process_pool
 
     @asynccontextmanager
     async def _isolated_app_factory(
@@ -150,7 +134,7 @@ def isolated_app_factory(
         async with App.new_isolated(
             binary_file_cache_directory=binary_file_cache_directory,
             cache=cache,
-            process_pool=process_pool or fixture_process_pool,
+            process_pool=process_pool,
             plugins=plugins,
             ui=ui,
         ) as app:
@@ -202,7 +186,9 @@ class IsolatedProjectFactory(Protocol):
 
 
 @pytest.fixture(scope="session")
-def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
+def isolated_project_factory(
+    isolated_app_factory: IsolatedAppFactory,
+) -> IsolatedProjectFactory:
     """
     Get a factory to create a new, isolated, temporary :py:class:`betty.project.Project`.
     """
@@ -235,31 +221,36 @@ def isolated_project_factory(isolated_app: App) -> IsolatedProjectFactory:
         title: ResolvableLocalizable | None = None,
         url: str | None = None,
     ) -> AsyncGenerator[Project]:
-        async with Project.new_isolated(
-            ancestry=ancestry,
-            app=app or isolated_app,
-            assets=assets,
-            author=author,
-            cache=cache,
-            clean_urls=clean_urls,
-            debug=debug,
-            directory=directory,
-            enrichers=enrichers,
-            service_providers=service_providers,
-            generate_entity_list_html=generate_entity_list_html,
-            lifetime_threshold=lifetime_threshold,
-            links=links,
-            loaders=loaders,
-            locales=locales,
-            logo=logo,
-            name=name,
-            plugins=plugins,
-            servers=servers,
-            supported_plugins=supported_plugins,
-            title=title,
-            url=url,
-        ) as project:
-            yield project
+        async with AsyncExitStack() as exit_stack:
+            if app is None:
+                app = await exit_stack.enter_async_context(
+                    await exit_stack.enter_async_context(isolated_app_factory())
+                )
+            async with Project.new_isolated(
+                ancestry=ancestry,
+                app=app or isolated_app,
+                assets=assets,
+                author=author,
+                cache=cache,
+                clean_urls=clean_urls,
+                debug=debug,
+                directory=directory,
+                enrichers=enrichers,
+                service_providers=service_providers,
+                generate_entity_list_html=generate_entity_list_html,
+                lifetime_threshold=lifetime_threshold,
+                links=links,
+                loaders=loaders,
+                locales=locales,
+                logo=logo,
+                name=name,
+                plugins=plugins,
+                servers=servers,
+                supported_plugins=supported_plugins,
+                title=title,
+                url=url,
+            ) as project:
+                yield project
 
     return _isolated_project_factory
 
@@ -531,7 +522,7 @@ class AssertTemplateString(Protocol):
         """
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def assert_template_string(
     isolated_project_factory: IsolatedProjectFactory,
 ) -> AssertTemplateString:
@@ -585,7 +576,7 @@ class AssertTemplateFile(Protocol):
         """
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def assert_template_file(
     isolated_project_factory: IsolatedProjectFactory,
 ) -> AssertTemplateFile:

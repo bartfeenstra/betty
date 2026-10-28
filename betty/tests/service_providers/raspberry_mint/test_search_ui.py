@@ -17,7 +17,7 @@ from betty.tests.conftest import playwright_test, webpack_test
 class TestSearchUi:
     individual_name: Final[str] = "Janet"
 
-    @pytest.fixture(scope="session")
+    @pytest.fixture(scope="class")
     @classmethod
     async def served_project(cls) -> AsyncIterator[tuple[Project, Server]]:
         person = Person(id="my-first-person")

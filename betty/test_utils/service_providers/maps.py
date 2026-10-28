@@ -50,7 +50,7 @@ class MapsTestBase:
         """
         raise AbstractMethod
 
-    @pytest.fixture(scope="session")
+    @pytest.fixture(scope="class")
     @classmethod
     async def server(cls) -> AsyncIterator[Server]:
         """
