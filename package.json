@@ -28,5 +28,15 @@
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.70.1"
   },
-  "type": "module"
+  "type": "module",
+  "allowScripts": {
+    "@parcel/watcher": true,
+    "@scarf/scarf": true,
+    "@tree-sitter-grammars/tree-sitter-yaml": true,
+    "tree-sitter": true,
+    "tree-sitter": true,
+    "core-js": true,
+    "core-js-pure": true,
+    "tree-sitter-json": true
+  }
 }
