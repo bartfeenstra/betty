@@ -36,7 +36,6 @@ class TestMaps:
 
 class TestMapsMaps(MapsTestBase):
     @override
-    def get_other_extensions(
-        self,
-    ) -> Iterable[ResolvableId[ServiceProviderDefinition]]:
+    @classmethod
+    def get_other_extensions(cls) -> Iterable[ResolvableId[ServiceProviderDefinition]]:
         return ()

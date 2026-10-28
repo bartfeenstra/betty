@@ -9,7 +9,6 @@ from betty.test_utils.service_providers.maps import MapsTestBase
 
 class TestMaps(MapsTestBase):
     @override
-    def get_other_extensions(
-        self,
-    ) -> Iterable[ResolvableId[ServiceProviderDefinition]]:
+    @classmethod
+    def get_other_extensions(cls) -> Iterable[ResolvableId[ServiceProviderDefinition]]:
         return (RaspberryMint,)
