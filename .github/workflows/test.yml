@@ -3,6 +3,7 @@ name: Test
 permissions: {}
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '47 * * * *'
   pull_request:
