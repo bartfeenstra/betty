@@ -21,7 +21,6 @@ intersphinx_mapping = {
     "pillow": ("https://pillow.readthedocs.io/en/stable/", None),
     "polib": ("https://polib.readthedocs.io/en/latest/", None),
     "python": ("https://docs.python.org/3/", None),
-    "referencing": ("https://referencing.readthedocs.io/en/stable/", None),
 }
 html_favicon = str(builtin_asset_directory / "public" / "static" / "betty-512x512.png")
 html_logo = str(builtin_asset_directory / "public" / "static" / "betty-512x512.png")
