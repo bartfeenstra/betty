@@ -23,5 +23,9 @@
   "scripts": {
     "webpack": "webpack --config webpack.config.js"
   },
-  "type": "module"
+  "type": "module",
+  "allowScripts": {
+    "@parcel/watcher": true,
+    "core-js": true
+  }
 }
