@@ -28,7 +28,7 @@ updates:
       prefix: npm dependencies (development)
       include: scope
   - package-ecosystem: npm
-    directory: js
+    directory: data/js/
     schedule:
       interval: daily
     assignees:
@@ -37,7 +37,7 @@ updates:
       prefix: npm dependencies (Betty built-in)
       include: scope
   - package-ecosystem: npm
-    directory: betty/data/webpack/maps/
+    directory: data/webpack/maps/
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
@@ -48,7 +48,7 @@ updates:
       prefix: npm dependencies (Maps extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/data/webpack/raspberry-mint/
+    directory: data/webpack/raspberry-mint/
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
@@ -59,7 +59,7 @@ updates:
       prefix: npm dependencies (Raspberry Mint extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/data/webpack/trees/
+    directory: data/webpack/trees/
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
@@ -70,7 +70,7 @@ updates:
       prefix: npm dependencies (Trees extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/data/webpack/webpack/
+    directory: data/webpack/webpack/
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
