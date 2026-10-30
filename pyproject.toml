@@ -351,7 +351,7 @@ test = [
     'requests ~= 2.32',
     'ruff ~= 0.17.0',
     'slotscheck ~= 0.21',
-    'ty == 0.0.94',
+    'ty == 0.0.95',
     'types-babel ~= 2.11',
     'types-docutils ~= 0.21',
     'types-lxml >= 2024.9.16',
