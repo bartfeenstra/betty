@@ -120,13 +120,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Type": MissingReason.COVERED_ELSEWHERE,
         "TypeABCMeta": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/commands/dev_profile_demo.py": MissingReason.DEVELOPMENT,
+    "betty/commands/project.py": {
+        "ConfigurationFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/console.py": {
         "Command": MissingReason.SHOULD_BE_COVERED,
         "SystemExitCode": MissingReason.ENUM,
-    },
-    "betty/consoles/project.py": {
-        "ConfigurationFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/concurrent.py": {
         "ThreadSafeLock": {

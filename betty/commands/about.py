@@ -9,8 +9,8 @@ from rich.table import Table
 
 from betty import about
 from betty.app import App
+from betty.commands.project import add_project_argument
 from betty.console import Command, CommandDefinition, CommandResult
-from betty.consoles.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _

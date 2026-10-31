@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty import load
 from betty.app import App
+from betty.commands.project import add_project_argument
 from betty.console import Command, CommandDefinition, CommandResult
-from betty.consoles.project import add_project_argument
 from betty.factory import Manufacturable
 from betty.job import Context
 from betty.localizables.gettext import _

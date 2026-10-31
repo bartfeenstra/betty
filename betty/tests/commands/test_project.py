@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.app import App
+from betty.commands.project import add_project_argument
 from betty.console import CommandResult, call_command_func
-from betty.consoles.project import add_project_argument
 from betty.exception import HumanFacingException
 from betty.file import write
 from betty.project import Project
