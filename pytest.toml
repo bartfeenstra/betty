@@ -2,4 +2,8 @@
 asyncio_mode = "auto"
 testpaths = ["betty/tests"]
 addopts = ["--browser", "chromium", "--browser", "firefox"]
-markers = ["duration(duration): set the test's estimated duration"]
+markers = [
+    "duration(duration): set the test's estimated duration",
+    "playwright(): mark a test as using Playwright",
+    "webpack(): mark a test as using Webpack",
+]

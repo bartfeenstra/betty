@@ -4,14 +4,15 @@ import asyncio
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
-from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.console.project import add_project_argument
+from betty.console import Command, CommandDefinition, CommandResult
+from betty.consoles.project import add_project_argument
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
-    import argparse
+    from argparse import ArgumentParser
 
+    from betty.console import CommandFunction
     from betty.project import Project
 
 
@@ -36,7 +37,7 @@ class Serve(Manufacturable, Command):
         return cls(app)
 
     @override
-    async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+    async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
         parser.add_argument(
             "-s",
             "--server",
@@ -45,7 +46,9 @@ class Serve(Manufacturable, Command):
         )
         return await add_project_argument(parser, self._command_function, self._app)
 
-    async def _command_function(self, project: Project, server_id: str | None) -> None:
+    async def _command_function(
+        self, project: Project, server_id: str | None
+    ) -> CommandResult:
         async with project:
             if server_id is None:
                 server = await next(iter(project.servers))

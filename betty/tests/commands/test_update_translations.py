@@ -10,7 +10,7 @@ from betty.asset import AssetDirectoryDefinition
 from betty.commands.update_translations import (
     UpdateTranslations,
 )
-from betty.console import CommandDefinition, SystemExitCode
+from betty.console import CommandDefinition, ExitCode
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 
@@ -34,29 +34,21 @@ class TestUpdateTranslations:
             yield app
 
     async def test_configure__minimal(
-        self,
-        mocker: MockerFixture,
-        isolated_app_with_assets: App,
-        tmp_path: Path,
+        self, mocker: MockerFixture, isolated_app_with_assets: App, tmp_path: Path
     ) -> None:
         source = tmp_path / "source"
         source.mkdir()
         m_update_translations = mocker.patch("betty.gettext.update_translations")
         await run(
-            isolated_app_with_assets,
+            UpdateTranslations(isolated_app_with_assets),
             "update-translations",
             "dummy",
             str(source),
         )
-        m_update_translations.assert_awaited_once_with(
-            ANY, [source], [], ui=isolated_app_with_assets.ui
-        )
+        m_update_translations.assert_awaited_once_with(ANY, [source], [], context=ANY)
 
     async def test_configure__with_exclude(
-        self,
-        mocker: MockerFixture,
-        isolated_app_with_assets: App,
-        tmp_path: Path,
+        self, mocker: MockerFixture, isolated_app_with_assets: App, tmp_path: Path
     ) -> None:
         source = tmp_path / "source"
         source.mkdir()
@@ -65,14 +57,14 @@ class TestUpdateTranslations:
             exclude.mkdir()
         m_update_translations = mocker.patch("betty.gettext.update_translations")
         await run(
-            isolated_app_with_assets,
+            UpdateTranslations(isolated_app_with_assets),
             "update-translations",
             "dummy",
             str(source),
             *[arg for exclude in excludes for arg in ("--exclude", str(exclude))],
         )
         m_update_translations.assert_awaited_once_with(
-            ANY, [source], list(excludes), ui=isolated_app_with_assets.ui
+            ANY, [source], list(excludes), context=ANY
         )
 
     async def test_configure__with_unknown_asset(
@@ -81,11 +73,11 @@ class TestUpdateTranslations:
         source = tmp_path / "source"
         source.mkdir()
         await run(
-            isolated_app_with_assets,
+            UpdateTranslations(isolated_app_with_assets),
             "update-translations",
             "unknown-asset-id",
             str(source),
-            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+            expected_exit_code=ExitCode.ERROR_USAGE,
         )
 
     async def test_configure__with_asset_not_found(
@@ -94,20 +86,20 @@ class TestUpdateTranslations:
         source = tmp_path / "source"
         source.mkdir()
         await run(
-            isolated_app_with_assets,
+            UpdateTranslations(isolated_app_with_assets),
             "update-translations",
             "dummy-not-found",
             str(source),
-            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+            expected_exit_code=ExitCode.ERROR_USAGE,
         )
 
     async def test_configure__with_invalid_source_directory(
         self, isolated_app_with_assets: App, tmp_path: Path
     ) -> None:
         await run(
-            isolated_app_with_assets,
+            UpdateTranslations(isolated_app_with_assets),
             "update-translations",
             "dummy",
             str(tmp_path / "non-existent-source"),
-            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+            expected_exit_code=ExitCode.ERROR_USAGE,
         )

@@ -9,8 +9,8 @@ from rich.table import Table
 
 from betty import about
 from betty.app import App
-from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.console.project import add_project_argument
+from betty.console import Command, CommandDefinition, CommandResult
+from betty.consoles.project import add_project_argument
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
@@ -18,9 +18,10 @@ from betty.localizables.markup import Quote
 from betty.uis.console import Console
 
 if TYPE_CHECKING:
-    import argparse
+    from argparse import ArgumentParser
     from collections.abc import MutableSequence
 
+    from betty.console import CommandFunction
     from betty.project import Project
 
 
@@ -45,12 +46,12 @@ class About(Manufacturable, Command):
         return cls(app)
 
     @override
-    async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+    async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
         return await add_project_argument(
             parser, self._command_function, self._app, required=False
         )
 
-    async def _command_function(self, project: Project | None) -> None:
+    async def _command_function(self, project: Project | None) -> CommandResult:
         ui = self._app.ui
         assert isinstance(ui, Console)
         try:

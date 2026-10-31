@@ -264,7 +264,7 @@ class CallableDecorator[**P, ReturnT, **DecoratedP, DecoratedReturnT]:
 
     @overload
     def __call__(
-        self, decorated: DecoratedCallableType[DecoratedP, DecoratedReturnT]
+        self, decorated: DecoratedCallableType[DecoratedP, DecoratedReturnT], /
     ) -> DecoratedCallable[P, ReturnT]:
         pass
 

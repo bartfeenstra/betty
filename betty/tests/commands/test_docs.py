@@ -1,7 +1,8 @@
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.console import SystemExitCode
+from betty.commands.docs import Docs
+from betty.console import ExitCode
 from betty.servers.no_op import NoOpServer
 from betty.test_utils.console import run
 
@@ -14,4 +15,4 @@ class TestDocs:
             side_effect=KeyboardInterrupt,
         )
 
-        await run(isolated_app, "docs", expected_exit_code=SystemExitCode.USER_QUIT)
+        await run(Docs(isolated_app), "docs", expected_exit_code=ExitCode.USER_QUIT)

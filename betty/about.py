@@ -30,25 +30,19 @@ information because that may disclose security issues.
 """
 
 
-is_stable: Final[bool] = version != _dev_version
-"""
-Whether the current Betty installation is a stable version.
-"""
-
-
-is_development: Final[bool] = not is_stable
+is_dev: Final[bool] = version.startswith(_dev_version)
 """
 Whether the current Betty installation is an unstable development version.
 """
 
 
-version_label: Final[str] = "development" if is_development else version
+version_label: Final[str] = "development" if is_dev else version
 """
 The human-readable label for the current Betty installation's version.
 """
 
 
-version_major_label: Final[str] = "development" if is_development else version_major
+version_major_label: Final[str] = "development" if is_dev else version_major
 """
 The human-readable label for the current Betty installation's major version.
 

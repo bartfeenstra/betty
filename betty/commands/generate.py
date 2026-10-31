@@ -4,16 +4,17 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty import load
 from betty.app import App
-from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.console.project import add_project_argument
+from betty.console import Command, CommandDefinition, CommandResult
+from betty.consoles.project import add_project_argument
 from betty.factory import Manufacturable
 from betty.job import Context
 from betty.localizables.gettext import _
 from betty.project import generate
 
 if TYPE_CHECKING:
-    import argparse
+    from argparse import ArgumentParser
 
+    from betty.console import CommandFunction
     from betty.project import Project
 
 
@@ -34,10 +35,10 @@ class Generate(Manufacturable, Command):
         return cls(app)
 
     @override
-    async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+    async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
         return await add_project_argument(parser, self._command_function, self._app)
 
-    async def _command_function(self, project: Project) -> None:
+    async def _command_function(self, project: Project) -> CommandResult:
         async with (
             project,
             project.upstream.ui.progress(_("Generating site…")) as progress,

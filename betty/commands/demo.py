@@ -4,7 +4,7 @@ import asyncio
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console import Command, CommandDefinition, CommandResult
 from betty.demo import generate
 from betty.demo.project import create_project
 from betty.factory import Manufacturable
@@ -13,7 +13,9 @@ from betty.localizables.gettext import _
 from betty.servers import demo
 
 if TYPE_CHECKING:
-    import argparse
+    from argparse import ArgumentParser
+
+    from betty.console import CommandFunction
 
 
 @final
@@ -33,7 +35,7 @@ class Demo(Manufacturable, Command):
         return cls(app)
 
     @override
-    async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+    async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
         parser.add_argument(
             "--path",
             help="The path to the project directory to generate the demonstration site into instead of serving the site in a browser window.",
@@ -44,7 +46,9 @@ class Demo(Manufacturable, Command):
         )
         return self._command_function
 
-    async def _command_function(self, *, path: str | None, url: str | None) -> None:
+    async def _command_function(
+        self, *, path: str | None, url: str | None
+    ) -> CommandResult:
         if path is None:
             async with demo.DemoServer(self._app) as server:
                 await server.show()

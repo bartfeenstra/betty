@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.app import App, AppData
 from betty.argparse import assertion_to_argument_type
 from betty.assertions.locale import assert_locale
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console import Command, CommandDefinition, CommandResult
 from betty.factory import Manufacturable
 from betty.locale import default_locale, to_language_tag
 from betty.localizables.gettext import _
@@ -14,9 +14,11 @@ from betty.portable.file import assert_load_file, dump_file
 from betty.user import Severity
 
 if TYPE_CHECKING:
-    import argparse
+    from argparse import ArgumentParser
 
     from babel import Locale
+
+    from betty.console import CommandFunction
 
 
 @final
@@ -36,7 +38,7 @@ class Config(Manufacturable, Command):
         return cls(app)
 
     @override
-    async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+    async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
         parser.add_argument(
             "--locale",
             default=default_locale,
@@ -49,7 +51,7 @@ class Config(Manufacturable, Command):
         )
         return self._command_function
 
-    async def _command_function(self, *, locale: Locale) -> None:
+    async def _command_function(self, *, locale: Locale) -> CommandResult:
         serializers = await gather(*self._app.serializers)
 
         if AppData.FILE.exists():

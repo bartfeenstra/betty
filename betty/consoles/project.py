@@ -1,5 +1,5 @@
 """
-Project support for the Console.
+Project support for consoles.
 """
 
 from __future__ import annotations
@@ -20,11 +20,11 @@ from betty.project import Project, ProjectData
 from betty.user import Severity
 
 if TYPE_CHECKING:
-    import argparse
+    from argparse import ArgumentParser
     from collections.abc import Iterable
 
     from betty.app import App
-    from betty.console.command import CommandFunction
+    from betty.console import CommandFunction, CommandResult
     from betty.serialize import Serializer
     from betty.user.ui import Ui
 
@@ -36,7 +36,7 @@ class ConfigurationFileNotFound(HumanFacingException):
 
 
 async def add_project_argument(
-    parser: argparse.ArgumentParser,
+    parser: ArgumentParser,
     command_function: CommandFunction,
     app: App,
     *,
@@ -60,7 +60,7 @@ async def add_project_argument(
 
     async def _command_function_with_project_argument(
         *, project_configuration_file: Path | None = None, **kwargs: Any
-    ) -> None:
+    ) -> CommandResult:
         project: Project | None
         try:
             (

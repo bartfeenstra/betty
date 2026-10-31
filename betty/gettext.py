@@ -16,6 +16,7 @@ from betty.babel import run_babel
 from betty.concurrent import Ledger, ThreadSafeLock
 from betty.file import read
 from betty.hashid import hashid_file_meta
+from betty.job import Context
 from betty.locale import (
     ResolvableLocale,
     default_locale,
@@ -75,7 +76,9 @@ async def _new_translation(
         )
 
 
-async def update_builtin_translations(override_output: Path | None = None, /) -> None:
+async def update_builtin_translations(
+    override_output: Path | None = None, /, *, context: Context | None = None
+) -> None:
     """
     Update the translations for Betty itself.
     """
@@ -86,17 +89,25 @@ async def update_builtin_translations(override_output: Path | None = None, /) ->
     await _update_translations(
         builtin.assets if override_output is None else override_output,
         _find_source_files({source_directory, dirs.asset_directory}, {test_directory}),
+        context=context,
     )
 
 
-async def _update_translations(output: StrPath, inputs: Iterable[StrPath]) -> None:
+async def _update_translations(
+    output: StrPath, inputs: Iterable[StrPath], /, *, context: Context | None = None
+) -> None:
     """
     Update all existing translations based on changes in translatable strings.
     """
+    if context is None:
+        context = Context()
+    progress = context.progress
     output = resolve_path(output)
+    output_po_files = tuple(output.glob("locale/*/betty.po"))
     pot_file = output / "locale" / "betty.pot"
-    await to_thread(pot_file.parent.mkdir, exist_ok=True, parents=True)
 
+    await progress.add(len(output_po_files) + 1)
+    await to_thread(pot_file.parent.mkdir, exist_ok=True, parents=True)
     await run_babel(
         "",
         "extract",
@@ -113,7 +124,9 @@ async def _update_translations(output: StrPath, inputs: Iterable[StrPath]) -> No
         "Bart Feenstra & contributors",
         *map(str, inputs),
     )
-    for output_po_file in output.glob("locale/*/betty.po"):
+    await progress.done()
+
+    async def _update_translation(output_po_file: Path, /) -> None:
         await run_babel(
             "",
             "update",
@@ -129,6 +142,9 @@ async def _update_translations(output: StrPath, inputs: Iterable[StrPath]) -> No
             "--output-file",
             str(output_po_file),
         )
+        await progress.done()
+
+    await gather(*map(_update_translation, output_po_files))
 
 
 async def new_translation(
@@ -141,12 +157,19 @@ async def new_translation(
 
 
 async def update_translations(
-    output: StrPath, inputs: Iterable[StrPath], excludes: Iterable[StrPath], ui: Ui
+    output: StrPath,
+    inputs: Iterable[StrPath],
+    excludes: Iterable[StrPath],
+    /,
+    *,
+    context: Context | None = None,
 ) -> None:
     """
     Update translations.
     """
-    await _update_translations(output, _find_source_files(inputs, excludes))
+    await _update_translations(
+        output, _find_source_files(inputs, excludes), context=context
+    )
 
 
 def _find_source_files(

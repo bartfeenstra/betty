@@ -7,6 +7,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
+from betty.commands.clear_caches import ClearCaches
 from betty.file import write
 from betty.project import Project, ProjectData
 from betty.stores.file import TransientPickledFileStore
@@ -130,20 +131,20 @@ class TestClearCaches:
     ) -> None:
         user = StaticUi(confirmations=[False])
         async with assert_app_cache_directories(True, user) as app:
-            await run(app, "clear-caches")
+            await run(ClearCaches(app), "clear-caches")
 
     async def test_configure__with_confirmation(
         self, assert_app_cache_directories: AssertAppCacheDirectories
     ) -> None:
         user = StaticUi(confirmations=[True])
         async with assert_app_cache_directories(False, user) as app:
-            await run(app, "clear-caches")
+            await run(ClearCaches(app), "clear-caches")
 
     async def test_configure__with_yes(
         self, assert_app_cache_directories: AssertAppCacheDirectories
     ) -> None:
         async with assert_app_cache_directories(False, None) as app:
-            await run(app, "clear-caches", "--yes")
+            await run(ClearCaches(app), "clear-caches", "--yes")
 
     async def test_configure__with_project_without_confirmation(
         self,
@@ -156,7 +157,10 @@ class TestClearCaches:
             assert_project_cache_directories(True, app) as project,
         ):
             await run(
-                app, "clear-caches", "--project", str(project.directory / "betty.json")
+                ClearCaches(app),
+                "clear-caches",
+                "--project",
+                str(project.directory / "betty.json"),
             )
 
     async def test_configure__with_project_with_confirmation(
@@ -170,7 +174,10 @@ class TestClearCaches:
             assert_project_cache_directories(False, app) as project,
         ):
             await run(
-                app, "clear-caches", "--project", str(project.directory / "betty.json")
+                ClearCaches(app),
+                "clear-caches",
+                "--project",
+                str(project.directory / "betty.json"),
             )
 
     async def test_configure__with_project_with_yes(
@@ -183,7 +190,7 @@ class TestClearCaches:
             assert_project_cache_directories(False, app) as project,
         ):
             await run(
-                app,
+                ClearCaches(app),
                 "clear-caches",
                 "--yes",
                 "--project",

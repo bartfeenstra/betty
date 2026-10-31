@@ -1,6 +1,6 @@
 [run]
 omit =
-    betty/commands/dev_profile_demo.py
+    */_dev*
     betty/sphinx/extension/betty.py
 branch = True
 concurrency =
@@ -11,7 +11,7 @@ source = betty
 
 [report]
 omit =
-    betty/commands/dev_profile_demo.py
+    */_dev*
     betty/sphinx/extension/betty.py
 exclude_also =
     ^\s*pragma: no cover$

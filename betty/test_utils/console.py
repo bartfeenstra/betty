@@ -7,12 +7,47 @@ from __future__ import annotations
 from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import dataclass
 from io import StringIO
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, final, override
 
-from betty.console import SystemExitCode, main
+from betty import console
+from betty.console import Command, CommandDefinition, CommandFunction, ExitCode
+from betty.uis.no_op import NoOpUi
 
 if TYPE_CHECKING:
-    from betty.app import App
+    from argparse import ArgumentParser
+
+    from betty.user.ui import Ui
+
+
+@CommandDefinition("no-op", label="No-op")
+class NoOpCommand(Command):
+    """
+    A command that does nothing.
+    """
+
+    @override
+    async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
+        return self._command_function
+
+    async def _command_function(self) -> None:
+        return None
+
+
+def new_raising_command(exception: BaseException, /) -> CommandDefinition:
+    """
+    Create a new command that raises the given exception.
+    """
+
+    @CommandDefinition("raising", label="Raising")
+    class _RaisingCommand(Command):
+        @override
+        async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
+            return self._invoke
+
+        async def _invoke(self) -> None:
+            raise exception
+
+    return _RaisingCommand.definition
 
 
 @final
@@ -28,7 +63,10 @@ class Result:
 
 
 async def run(
-    app: App, *args: str, expected_exit_code: SystemExitCode = SystemExitCode.OK
+    command: console.Command | None,
+    *args: str,
+    expected_exit_code: ExitCode = ExitCode.OK,
+    ui: Ui | None = None,
 ) -> Result:
     """
     Run a Betty console command.
@@ -37,7 +75,7 @@ async def run(
     stdout_f = StringIO()
     with redirect_stderr(stderr_f), redirect_stdout(stdout_f):
         try:
-            await main(app, args)
+            await console.run([command] if command else (), args, ui=ui or NoOpUi())
         except SystemExit as exception:
             if exception.code is None:
                 exit_code = 0  # pragma: no cover

@@ -1,128 +1,55 @@
-import argparse
+from argparse import Namespace
 from asyncio import CancelledError
-from collections.abc import Awaitable, Callable
-from threading import Thread
-from typing import Any, override
+from typing import Any
 
 import pytest
-from pytest_mock import MockerFixture
 
-from betty.app import App
-from betty.console import SystemExitCode, call_command_func, main_from_environment
-from betty.console.command import Command, CommandDefinition
+from betty.console import CommandDefinition, CommandExit, ExitCode, call_command_func
 from betty.exception import HumanFacingException
-from betty.functools import Result, suppress
-from betty.test_utils.conftest import IsolatedAppFactory
-from betty.test_utils.console import run
+from betty.test_utils.console import NoOpCommand, new_raising_command, run
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+from betty.uis.no_op import NoOpUi
 from betty.user import Severity
 
 
-@CommandDefinition("no-op", label="No-op")
-class _NoOpCommand(Command):
-    @override
-    async def configure(
-        self, parser: argparse.ArgumentParser
-    ) -> Callable[..., Awaitable[None]]:
-        return self._invoke
-
-    async def _invoke(self) -> None:
-        pass
+class TestCommandExit:
+    def test(self) -> None:
+        assert str(CommandExit(None)) == "A command exited with code 0"
 
 
-def _create_raising_command(exception: BaseException) -> CommandDefinition:
-    @CommandDefinition("raising", label="Raising")
-    class _RaisingCommand(Command):
-        @override
-        async def configure(
-            self, parser: argparse.ArgumentParser
-        ) -> Callable[..., Awaitable[None]]:
-            return self._invoke
-
-        async def _invoke(self) -> None:
-            raise exception
-
-    return _RaisingCommand.definition
+async def test_run__without_arguments() -> None:
+    await run(None, expected_exit_code=ExitCode.ERROR_USAGE)
 
 
-async def test_main__without_arguments(isolated_app: App) -> None:
-    await run(isolated_app, expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE)
+async def test_run__help() -> None:
+    await run(None, "--help")
 
 
-async def test_main__help(isolated_app: App) -> None:
-    await run(isolated_app, "--help")
+async def test_run__commands() -> None:
+    await run(None, "--commands")
 
 
-async def test_main__commands(isolated_app: App) -> None:
-    await run(isolated_app, "--commands")
-
-
-async def test_main__with_unknown_command(isolated_app: App) -> None:
-    await run(
-        isolated_app,
-        "unknown-command",
-        expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
-    )
+async def test_run__with_unknown_command() -> None:
+    await run(None, "unknown-command", expected_exit_code=ExitCode.ERROR_USAGE)
 
 
 @pytest.mark.parametrize(
     ("expected", "command"),
     [
-        (SystemExitCode.OK, _NoOpCommand.definition),
+        (ExitCode.OK, NoOpCommand.definition),
         (
-            SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
+            ExitCode.ERROR_UNEXPECTED_RECOVERABLE,
+            new_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
         ),
-        (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
-        (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
-        (SystemExitCode.ERROR_UNEXPECTED, _create_raising_command(RuntimeError())),
+        (ExitCode.USER_QUIT, new_raising_command(CancelledError())),
+        (ExitCode.USER_QUIT, new_raising_command(KeyboardInterrupt())),
+        (ExitCode.ERROR_UNEXPECTED_UNRECOVERABLE, new_raising_command(RuntimeError())),
     ],
 )
-async def test_main__with_user_facing_exception(
-    expected: SystemExitCode,
-    command: CommandDefinition,
-    isolated_app_factory: IsolatedAppFactory,
+async def test_run__with_user_facing_exception(
+    expected: ExitCode, command: CommandDefinition
 ) -> None:
-    async with isolated_app_factory(plugins={CommandDefinition: [command]}) as app, app:
-        await run(app, command.id, expected_exit_code=expected)
-
-
-@pytest.mark.parametrize(
-    ("expected", "command"),
-    [
-        (SystemExitCode.OK, _NoOpCommand.definition),
-        (
-            SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
-        ),
-        (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
-        (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
-        (SystemExitCode.ERROR_UNEXPECTED, _create_raising_command(RuntimeError())),
-    ],
-)
-async def test_main_from_environment(
-    expected: SystemExitCode,
-    command: CommandDefinition,
-    isolated_app_factory: IsolatedAppFactory,
-    mocker: MockerFixture,
-) -> None:
-    def _target() -> None:
-        mocker.patch(
-            "betty.app.App.new_from_environment",
-            return_value=isolated_app_factory(plugins={CommandDefinition: [command]}),
-        )
-        mocker.patch("sys.argv", new=["betty", command.id])
-        main_from_environment()
-
-    # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
-    result = Result(_target)
-    thread = Thread(target=suppress(result, BaseException))
-    thread.start()
-    thread.join()
-
-    with pytest.raises(SystemExit) as exc_info:
-        result.result()
-    assert exc_info.value.code is expected
+    await run(command.cls(), command.id, expected_exit_code=expected)
 
 
 class TestVerbosity:
@@ -136,21 +63,13 @@ class TestVerbosity:
             (Severity.DEBUG, "-vv"),
         ],
     )
-    async def test(
-        self,
-        expected: Severity,
-        isolated_app_factory: IsolatedAppFactory,
-        severity: str | None,
-    ) -> None:
-        async with (
-            isolated_app_factory(plugins={CommandDefinition: [_NoOpCommand]}) as app,
-            app,
-        ):
-            args = ["no-op"]
-            if severity is not None:
-                args.append(severity)
-            await run(app, *args)
-            assert app.ui.severity is expected
+    async def test(self, expected: Severity, severity: str | None) -> None:
+        ui = NoOpUi()
+        args = ["no-op"]
+        if severity is not None:
+            args.append(severity)
+        await run(NoOpCommand(), *args, ui=ui)
+        assert ui.severity is expected
 
 
 async def test_call_command_func() -> None:
@@ -158,9 +77,16 @@ async def test_call_command_func() -> None:
         "foo": 123,
         "bar": False,
     }
-    namespace = argparse.Namespace(**expected, _internal=None)
+    namespace = Namespace(**expected, _internal=None)
 
     async def _command_func(**kwargs: Any) -> None:
         assert kwargs == expected
 
-    await call_command_func(_command_func, namespace)
+    assert await call_command_func(_command_func, namespace) is ExitCode.OK
+
+
+class TestCommandDefinition:
+    def test_aliases(self) -> None:
+        alias = "hello-world"
+        sut = CommandDefinition("-", label="-", aliases=[alias])
+        assert list(sut.aliases) == [alias]

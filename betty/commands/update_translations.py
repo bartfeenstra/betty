@@ -7,15 +7,18 @@ from betty.app import App
 from betty.argparse import assertion_to_argument_type
 from betty.assertions.directory import assert_directory
 from betty.asset import AssetDirectoryDefinition
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console import Command, CommandDefinition, CommandResult
 from betty.factory import Manufacturable
+from betty.job import Context
 from betty.localizables.gettext import _
 from betty.plugin.error import PluginNotFound
 
 if TYPE_CHECKING:
-    import argparse
+    from argparse import ArgumentParser
     from collections.abc import Mapping
     from pathlib import Path
+
+    from betty.console import CommandFunction
 
 
 @final
@@ -38,7 +41,7 @@ class UpdateTranslations(Manufacturable, Command):
         return cls(app)
 
     @override
-    async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+    async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
         assets: Mapping[str, AssetDirectoryDefinition] = {
             asset.id: asset
             async for asset in self._app.plugins[AssetDirectoryDefinition]
@@ -82,7 +85,9 @@ class UpdateTranslations(Manufacturable, Command):
         output: AssetDirectoryDefinition,
         inputs: tuple[Path],
         excludes: tuple[Path],
-    ) -> None:
-        await gettext.update_translations(
-            output.assets, inputs, excludes, ui=self._app.ui
-        )
+    ) -> CommandResult:
+        async with self._app.ui.progress(_("Updating translations...")) as progress:
+            context = Context(progress=progress)
+            await gettext.update_translations(
+                output.assets, inputs, excludes, context=context
+            )

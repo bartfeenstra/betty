@@ -4,13 +4,15 @@ import asyncio
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console import Command, CommandDefinition, CommandResult
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.servers import documentation
 
 if TYPE_CHECKING:
-    import argparse
+    from argparse import ArgumentParser
+
+    from betty.console import CommandFunction
 
 
 @final
@@ -36,10 +38,10 @@ class Docs(Manufacturable, Command):
         return cls(app)
 
     @override
-    async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+    async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
         return self._command_function
 
-    async def _command_function(self) -> None:
+    async def _command_function(self) -> CommandResult:
         server = documentation.DocumentationServer(
             self._app.binary_file_cache.with_scope("documentation").directory,
             ui=self._app.ui,

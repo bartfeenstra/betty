@@ -11,8 +11,7 @@ from betty.asset import AssetDirectoryDefinition
 from betty.commands.new_translation import (
     NewTranslation,
 )
-from betty.console import SystemExitCode
-from betty.console.command import CommandDefinition
+from betty.console import CommandDefinition, ExitCode
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 
@@ -36,14 +35,12 @@ class TestNewTranslation:
             yield app
 
     async def test_configure__minimal(
-        self,
-        mocker: MockerFixture,
-        isolated_app_with_assets: App,
+        self, mocker: MockerFixture, isolated_app_with_assets: App
     ) -> None:
         locale = "nl"
         m_new_translation = mocker.patch("betty.gettext.new_translation")
         await run(
-            isolated_app_with_assets,
+            NewTranslation(isolated_app_with_assets),
             "new-translation",
             "dummy",
             locale,
@@ -54,20 +51,20 @@ class TestNewTranslation:
         self, isolated_app_with_assets: App
     ) -> None:
         await run(
-            isolated_app_with_assets,
+            NewTranslation(isolated_app_with_assets),
             "new-translation",
             "unknown-asset-id",
             "nl-NL",
-            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+            expected_exit_code=ExitCode.ERROR_USAGE,
         )
 
     async def test_configure__with_invalid_locale(
         self, isolated_app_with_assets: App
     ) -> None:
         await run(
-            isolated_app_with_assets,
+            NewTranslation(isolated_app_with_assets),
             "new-translation",
             "dummy",
             "",
-            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+            expected_exit_code=ExitCode.ERROR_USAGE,
         )

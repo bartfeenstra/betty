@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 21:03+0000\n"
+"POT-Creation-Date: 2026-10-28 21:06+0000\n"
 "PO-Revision-Date: 2026-10-28 00:01+0000\n"
 "Last-Translator: Bart Feenstra <bartfeenstra@users.noreply.hosted.weblate.org>\n"
 "Language: nl_NL\n"
@@ -857,9 +857,6 @@ msgstr "Ongeldige plural tag(s) {plural_tags} voor de {locale}-vertalingen."
 #, python-brace-format
 msgid "Invalid region {invalid_region}."
 msgstr "Ongeldige regio {invalid_region}."
-
-msgid "It appears you called Betty without a command or arguments"
-msgstr "Het lijkt erop dat je Betty hebt aangeroepen zonder een commando of argumenten"
 
 msgid "JavaScript resource"
 msgstr "JavaScript-resource"
@@ -1809,15 +1806,15 @@ msgstr "Onbekenden"
 msgid "Unsupported file {unsupported}. Supported types are: {supported}."
 msgstr "Niet ondersteund bestand {unsupported}. Ondersteunde bestandstypes zijn: {supported}."
 
-msgid "Update all existing translations for Betty itself"
-msgstr "Update alle bestaande vertalingen voor Betty zelf"
-
 msgid "Update existing translations"
 msgstr "Update bestaande vertalingen"
 
 #, python-brace-format
 msgid "Updated {updated_derivations} {event_type} events based on existing information."
 msgstr "{updated_derivations} {event_type}-gebeurtenissen bijgewerkt op basis van bestaande informatie."
+
+msgid "Updating translations..."
+msgstr ""
 
 msgid "Usage: "
 msgstr "Gebruik: "

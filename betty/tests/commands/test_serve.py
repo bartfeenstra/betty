@@ -5,7 +5,8 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.console import SystemExitCode
+from betty.commands.serve import Serve
+from betty.console import ExitCode
 from betty.file import write
 from betty.project import ProjectData
 from betty.servers.no_op import NoOpServer
@@ -31,11 +32,11 @@ class TestServe:
         )
 
         await run(
-            isolated_app,
+            Serve(isolated_app),
             "serve",
             "--project",
             str(tmp_path / "betty.json"),
-            expected_exit_code=SystemExitCode.USER_QUIT,
+            expected_exit_code=ExitCode.USER_QUIT,
         )
 
     async def test_configure__with_explicit_server(
@@ -54,11 +55,11 @@ class TestServe:
         )
 
         await run(
-            isolated_app,
+            Serve(isolated_app),
             "serve",
             "--project",
             str(tmp_path / "betty.json"),
             "--server",
             "builtin",
-            expected_exit_code=SystemExitCode.USER_QUIT,
+            expected_exit_code=ExitCode.USER_QUIT,
         )
