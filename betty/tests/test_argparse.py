@@ -1,4 +1,4 @@
-import argparse
+from argparse import ArgumentParser, ArgumentTypeError
 
 import pytest
 
@@ -13,7 +13,7 @@ def test_assertion_to_argument_type__with_error() -> None:
     def _assertion(_: str) -> None:
         raise HumanFacingException(message)
 
-    with pytest.raises(argparse.ArgumentTypeError, match=message):
+    with pytest.raises(ArgumentTypeError, match=message):
         assertion_to_argument_type(_assertion, localizer=default_localizer)("Value")
 
 
@@ -28,14 +28,14 @@ def test_assertion_to_argument_type__without_error() -> None:
 
 
 async def test_add_yes_argument__without_argument() -> None:
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser()
     add_yes_argument(parser, localizer=default_localizer)
     namespace = parser.parse_args([])
     assert not namespace.yes
 
 
 async def test_add_yes_argument__with_argument() -> None:
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser()
     add_yes_argument(parser, localizer=default_localizer)
     namespace = parser.parse_args(["--yes"])
     assert namespace.yes

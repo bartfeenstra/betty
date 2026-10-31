@@ -2,6 +2,7 @@ from pathlib import Path
 
 from babel import Locale
 
+from betty.commands.new import New
 from betty.data import Data
 from betty.loaders.gramps import Gramps, GrampsData
 from betty.locale import default_locale_tag, to_language_tag
@@ -45,7 +46,7 @@ class TestNew:
             ],
         )
         async with isolated_app_factory(ui=user) as app, app:
-            await run(app, "new")
+            await run(New(app), "new")
             configuration = _assert_new(configuration_file)
         assert configuration.title.localize(default_localizer) == title
         assert configuration.name == "my-first-project"
@@ -76,7 +77,7 @@ class TestNew:
         )
         configuration_file = tmp_path / "betty.json"
         async with isolated_app_factory(ui=user) as app, app:
-            await run(app, "new")
+            await run(New(app), "new")
             _assert_new(configuration_file)
 
     async def test_configure__with_single_locale(
@@ -101,7 +102,7 @@ class TestNew:
             ],
         )
         async with isolated_app_factory(ui=user) as app, app:
-            await run(app, "new")
+            await run(New(app), "new")
             configuration = _assert_new(configuration_file)
         assert configuration.name == "mijn-eerste-project"
         locale_configurations = configuration.locales
@@ -135,7 +136,7 @@ class TestNew:
             ],
         )
         async with isolated_app_factory(ui=user) as app, app:
-            await run(app, "new")
+            await run(New(app), "new")
             configuration = _assert_new(configuration_file)
         assert configuration.name == "mijn-eerste-project"
         assert len(configuration.locales) == 2
@@ -162,7 +163,7 @@ class TestNew:
             ],
         )
         async with isolated_app_factory(ui=user) as app, app:
-            await run(app, "new")
+            await run(New(app), "new")
             configuration = _assert_new(configuration_file)
         assert configuration.name == name
 
@@ -187,7 +188,7 @@ class TestNew:
             ],
         )
         async with isolated_app_factory(ui=user) as app, app:
-            await run(app, "new")
+            await run(New(app), "new")
             configuration = _assert_new(configuration_file)
             assert Gramps in configuration.loaders
             portable_gramps_configuration = configuration.loaders[Gramps].plugin_data

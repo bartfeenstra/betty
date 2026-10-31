@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 21:03+0000\n"
+"POT-Creation-Date: 2026-10-28 21:06+0000\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -858,9 +858,6 @@ msgstr "{locale} மொழிபெயர்ப்புகளுக்கு �
 #, python-brace-format
 msgid "Invalid region {invalid_region}."
 msgstr "தவறான பகுதி {invalid_region}."
-
-msgid "It appears you called Betty without a command or arguments"
-msgstr "கட்டளை அல்லது வாதங்கள் இல்லாமல் பெட்டியை நீங்கள் அழைத்ததாகத் தெரிகிறது"
 
 msgid "JavaScript resource"
 msgstr "சாவாச்கிரிப்ட் சான்று"
@@ -1810,15 +1807,15 @@ msgstr "தெரியாதவர்கள்"
 msgid "Unsupported file {unsupported}. Supported types are: {supported}."
 msgstr "ஆதரிக்கப்படாத கோப்பு {unsupported}. ஆதரிக்கப்படும் வகைகள்: {supported}."
 
-msgid "Update all existing translations for Betty itself"
-msgstr "பெட்டிக்காக ஏற்கனவே உள்ள அனைத்து மொழிபெயர்ப்புகளையும் புதுப்பிக்கவும்"
-
 msgid "Update existing translations"
 msgstr "ஏற்கனவே உள்ள மொழிபெயர்ப்புகளைப் புதுப்பிக்கவும்"
 
 #, python-brace-format
 msgid "Updated {updated_derivations} {event_type} events based on existing information."
 msgstr "ஏற்கனவே உள்ள தகவலின் அடிப்படையில் {updated_derivations} {event_type} நிகழ்வுகள் புதுப்பிக்கப்பட்டன."
+
+msgid "Updating translations..."
+msgstr ""
 
 msgid "Usage: "
 msgstr "பயன்பாடு: "

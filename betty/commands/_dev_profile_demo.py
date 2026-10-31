@@ -1,28 +1,24 @@
-from __future__ import annotations  # noqa: D100
+from __future__ import annotations
 
 from asyncio import to_thread
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING, Self, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty import dirs
-from betty.about import is_development
 from betty.app import App
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.commands._dev import DevCommand
+from betty.console import CommandDefinition, CommandResult
 from betty.demo.generate import generate_with_cleanup
 from betty.demo.project import create_project
-from betty.factory import Manufacturable
 from betty.job import Context
-from betty.requirement import UnmetRequirement
 from betty.user import Severity
 
 if TYPE_CHECKING:
-    import argparse
-    from collections.abc import Iterable
+    from argparse import ArgumentParser
 
     from yappi import YFuncStats
 
-    from betty.plugin.discovery import ResolvableDiscovery
-    from betty.service_level import ServiceLevel
+    from betty.console import CommandFunction
     from betty.user.ui import Ui
 
 
@@ -51,22 +47,13 @@ def _print(stats: YFuncStats, sort_column: str, sort_direction: str) -> None:
 @CommandDefinition(
     "dev-profile-demo", label="Profile the generation of the demonstration site"
 )
-class DevProfileDemo(Manufacturable, Command):
+class DevProfileDemo(DevCommand):
     """
     .. plugin:: command:dev-profile-demo.
     """
 
-    def __init__(self, app: App, /):
-        self._app = app
-
     @override
-    @App.require
-    @classmethod
-    async def new(cls, app: App, /) -> Self:
-        return cls(app)
-
-    @override
-    async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+    async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
         parser.set_defaults(
             clock_type="CPU",
             force=False,
@@ -150,7 +137,7 @@ class DevProfileDemo(Manufacturable, Command):
 
     async def _command_function(
         self, *, clock_type: str, force: bool, sort_column: str, sort_direction: str
-    ) -> None:
+    ) -> CommandResult:
         import yappi
 
         stats_file = (
@@ -175,9 +162,3 @@ class DevProfileDemo(Manufacturable, Command):
             await self._app.ui.message(
                 f"Showing newly generated stats from {stats_file}", Severity.INFO
             )
-
-
-def _discover(_: ServiceLevel) -> Iterable[ResolvableDiscovery[CommandDefinition]]:
-    if not is_development:
-        raise UnmetRequirement("This is only available when developing Betty")
-    yield DevProfileDemo

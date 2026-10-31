@@ -8,15 +8,16 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.app import App
 from betty.argparse import add_yes_argument
-from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.console.project import add_project_argument
+from betty.console import Command, CommandDefinition, CommandResult
+from betty.consoles.project import add_project_argument
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.user import Severity
 
 if TYPE_CHECKING:
-    import argparse
+    from argparse import ArgumentParser
 
+    from betty.console import CommandFunction
     from betty.project import Project
 
 
@@ -46,13 +47,15 @@ class ClearCaches(Manufacturable, Command):
         return cls(app)
 
     @override
-    async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+    async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
         add_yes_argument(parser, localizer=self._app.ui.localizer)
         return await add_project_argument(
             parser, self._command_function, self._app, required=False
         )
 
-    async def _command_function(self, project: Project | None, yes: bool) -> None:
+    async def _command_function(
+        self, project: Project | None, yes: bool
+    ) -> CommandResult:
         if not yes:
             yes = await self._app.ui.ask_confirmation(
                 _("Are you sure you want to clear all caches?")

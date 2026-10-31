@@ -121,13 +121,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "TypeABCMeta": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/commands/dev_profile_demo.py": MissingReason.DEVELOPMENT,
-    "betty/console/__init__.py": {
+    "betty/console.py": {
+        "Command": MissingReason.SHOULD_BE_COVERED,
         "SystemExitCode": MissingReason.ENUM,
     },
-    "betty/console/command.py": {
-        "Command": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/console/project.py": {
+    "betty/consoles/project.py": {
         "ConfigurationFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/concurrent.py": {
@@ -193,6 +191,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "CollectionPluginServiceManager": {
             "new_service_item": MissingReason.ABSTRACT,
         },
+    },
+    "betty/sys.py": {
+        "ExitCode": MissingReason.ENUM,
     },
     "betty/data.py": {
         "Data": MissingReason.ABSTRACT,

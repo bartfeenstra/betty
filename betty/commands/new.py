@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Self, final, override
 from betty.app import App
 from betty.assertions.locale import assert_locale
 from betty.assertions.path import assert_path
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console import Command, CommandDefinition, CommandResult
 from betty.enrichers.deriver import Deriver
 from betty.enrichers.privatizer import Privatizer
 from betty.enrichers.wiki import Wiki as WikiEnricher
@@ -27,11 +27,12 @@ from betty.service_providers.wiki import Wiki as WikiExtension
 from betty.user.ui import NoDefault
 
 if TYPE_CHECKING:
-    import argparse
+    from argparse import ArgumentParser
     from collections.abc import Sequence
 
     from babel import Locale
 
+    from betty.console import CommandFunction
     from betty.localizable import Localizable
     from betty.user.ui import Ui
 
@@ -53,10 +54,10 @@ class New(Manufacturable, Command):
         return cls(app)
 
     @override
-    async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+    async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
         return self._command_function
 
-    async def _command_function(self) -> None:
+    async def _command_function(self) -> CommandResult:
         serializers = await gather(*self._app.serializers)
         configuration = _new_default_configuration()
 

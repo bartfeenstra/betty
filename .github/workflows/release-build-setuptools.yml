@@ -11,10 +11,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: 'Python 3.14'
+          - name: 'Python 3.15'
             os: ubuntu-latest
             nodejs: 26.x
-            python: '3.14'
+            python: '3.15'
     steps:
       - name: Check out the source code
         uses: actions/checkout@v7
@@ -53,8 +53,11 @@ jobs:
         with:
           node-version: ${{ matrix.nodejs }}
 
+      - name: Install Betty
+        run: python ./bin/install.py
+
       - name: Build the distributions
-        run: ./bin/build-package.py '${{ github.event.release.tag_name }}'
+        run: betty dev-build-package '${{ github.event.release.tag_name }}'
 
       - name: Publish the distributions to PyPI
         run: twine upload -u __token__ ./dist/*

@@ -13,7 +13,7 @@ Betty uses `gettext <https://www.gnu.org/software/gettext/>`_ to manage its tran
 Working on translatable strings
 -------------------------------
 
-Run ``betty dev-update-translations`` to update the translations files with the changes you made.
+Run ``betty dev dev-update-translations`` to update the translations files with the changes you made.
 
 
 Translating Betty

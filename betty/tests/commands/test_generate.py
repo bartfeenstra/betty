@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock
 from pytest_mock import MockerFixture
 
 from betty.app import App
+from betty.commands.generate import Generate
 from betty.file import write
 from betty.project import ProjectData
 from betty.test_utils.console import run
@@ -25,7 +26,7 @@ class TestGenerate:
             dumps(configuration.definition.porter.dump(configuration)),
         )
         await run(
-            isolated_app,
+            Generate(isolated_app),
             "generate",
             "--project",
             str(tmp_path / "betty.json"),

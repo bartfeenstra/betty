@@ -53,6 +53,7 @@ class RequirableDecorator[CheckT](CallableDecorator, metaclass=ABCMeta):
         decorated: DecoratedCallableType[
             Concatenate[CheckT, P], ResolvableAwaitable[ReturnT]
         ],
+        /,
     ) -> DecoratedCallable[Concatenate[ServiceLevel, P], Awaitable[ReturnT]]:
         pass
 
@@ -90,14 +91,14 @@ class _RequirableDecorator[CheckT, **P, ReturnT]:
         self._decorated = decorated
 
     async def __call__(
-        self, services: ServiceLevel, *args: P.args, **kwargs: P.kwargs
+        self, services: ServiceLevel, /, *args: P.args, **kwargs: P.kwargs
     ) -> ReturnT:
         return await resolve_await(
             self._decorated(await self._check(services), *args, **kwargs)
         )
 
 
-async def check(services: ServiceLevel, *requirements: Requirement) -> bool:
+async def check(services: ServiceLevel, /, *requirements: Requirement) -> bool:
     """
     Check if one or more requirements are met.
     """

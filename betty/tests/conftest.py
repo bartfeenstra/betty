@@ -7,7 +7,6 @@ from __future__ import annotations
 from collections.abc import Callable
 from enum import IntEnum
 from inspect import signature
-from os import environ
 from typing import Any, Final, final
 from unittest.mock import Mock
 from warnings import filterwarnings
@@ -75,11 +74,8 @@ def playwright_test[MarkableT: Markable](markable: MarkableT, /) -> MarkableT:
     """
     Mark a test item to require Playwright.
     """
+    markable = pytest.mark.playwright(markable)
     markable = pytest.mark.asyncio(loop_scope="session")(markable)
-    markable = pytest.mark.skipif(
-        bool(environ.get("BETTY_TEST_SKIP_PLAYWRIGHT", "")),
-        reason="Playwright tests are being skipped",
-    )(markable)
     return pytest.mark.duration(Duration.SECONDS)(markable)
 
 
@@ -87,10 +83,7 @@ def webpack_test[MarkableT: Markable](markable: MarkableT, /) -> MarkableT:
     """
     Mark a test item to require Webpack.
     """
-    markable = pytest.mark.skipif(
-        bool(environ.get("BETTY_TEST_SKIP_WEBPACK", "")),
-        reason="Webpack tests are being skipped",
-    )(markable)
+    markable = pytest.mark.webpack(markable)
     return pytest.mark.duration(Duration.MINUTES)(markable)
 
 

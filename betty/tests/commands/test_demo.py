@@ -4,7 +4,8 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.console import SystemExitCode
+from betty.commands.demo import Demo
+from betty.console import ExitCode
 from betty.project import Project
 from betty.servers.no_op import NoOpServer
 from betty.test_utils.console import run
@@ -21,7 +22,7 @@ class TestDemo:
         )
         mocker.patch("betty.servers.demo.DemoServer", new=NoOpServer)
 
-        await run(isolated_app, "demo", expected_exit_code=SystemExitCode.USER_QUIT)
+        await run(Demo(isolated_app), "demo", expected_exit_code=ExitCode.USER_QUIT)
 
     async def test_configure__with_path(
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
@@ -32,7 +33,7 @@ class TestDemo:
 
         project_directory = tmp_path / "project"
 
-        await run(isolated_app, "demo", "--path", str(project_directory))
+        await run(Demo(isolated_app), "demo", "--path", str(project_directory))
 
         m_generate_with_cleanup.assert_called_once()
 
@@ -47,12 +48,7 @@ class TestDemo:
         url = "https://betty.example.com"
 
         await run(
-            isolated_app,
-            "demo",
-            "--path",
-            str(project_directory),
-            "--url",
-            url,
+            Demo(isolated_app), "demo", "--path", str(project_directory), "--url", url
         )
 
         m_generate_with_cleanup.assert_called_once()

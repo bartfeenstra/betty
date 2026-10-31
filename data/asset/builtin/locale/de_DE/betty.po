@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 21:03+0000\n"
+"POT-Creation-Date: 2026-10-28 21:06+0000\n"
 "PO-Revision-Date: 2026-07-17 21:25+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de_DE\n"
@@ -854,9 +854,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Invalid region {invalid_region}."
-msgstr ""
-
-msgid "It appears you called Betty without a command or arguments"
 msgstr ""
 
 msgid "JavaScript resource"
@@ -1803,15 +1800,15 @@ msgstr ""
 msgid "Unsupported file {unsupported}. Supported types are: {supported}."
 msgstr ""
 
-msgid "Update all existing translations for Betty itself"
-msgstr "Alle vorhandenen Übersetzungen für Betty selbst aktualisieren"
-
 msgid "Update existing translations"
 msgstr "Bestehende Übersetzungen aktualisieren"
 
 #, python-brace-format
 msgid "Updated {updated_derivations} {event_type} events based on existing information."
 msgstr "Aktualisierte {updated_derivations} {event_type} Ereignisse auf Grund existierender Informationen."
+
+msgid "Updating translations..."
+msgstr ""
 
 msgid "Usage: "
 msgstr ""

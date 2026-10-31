@@ -1,6 +1,7 @@
 from json import dumps
 from pathlib import Path
 
+from betty.commands.about import About
 from betty.file import write
 from betty.project import ProjectData
 from betty.test_utils.conftest import IsolatedAppFactory
@@ -11,7 +12,7 @@ from betty.uis.console import Console
 class TestAbout:
     async def test_configure(self, isolated_app_factory: IsolatedAppFactory) -> None:
         async with isolated_app_factory(ui=Console()) as app, app:
-            result = await run(app, "about")
+            result = await run(About(app), "about")
             assert "Betty" in result.stdout
 
     async def test_configure__with_project(
@@ -23,5 +24,7 @@ class TestAbout:
                 tmp_path / "betty.json",
                 dumps(configuration.definition.porter.dump(configuration)),
             )
-            result = await run(app, "about", "--project", str(tmp_path / "betty.json"))
+            result = await run(
+                About(app), "about", "--project", str(tmp_path / "betty.json")
+            )
             assert "Betty" in result.stdout

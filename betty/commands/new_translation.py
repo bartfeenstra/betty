@@ -7,16 +7,18 @@ from betty.app import App
 from betty.argparse import assertion_to_argument_type
 from betty.assertions.locale import assert_locale
 from betty.asset import AssetDirectoryDefinition
-from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.console import Command, CommandDefinition, CommandResult
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.plugin.error import PluginNotFound
 
 if TYPE_CHECKING:
-    import argparse
+    from argparse import ArgumentParser
     from collections.abc import Mapping
 
     from babel import Locale
+
+    from betty.console import CommandFunction
 
 
 @final
@@ -36,7 +38,7 @@ class NewTranslation(Manufacturable, Command):
         return cls(app)
 
     @override
-    async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
+    async def configure(self, parser: ArgumentParser, /) -> CommandFunction:
         assets: Mapping[str, AssetDirectoryDefinition] = {
             asset.id: asset
             async for asset in self._app.plugins[AssetDirectoryDefinition]
@@ -67,5 +69,5 @@ class NewTranslation(Manufacturable, Command):
 
     async def _command_function(
         self, output: AssetDirectoryDefinition, locale: Locale
-    ) -> None:
+    ) -> CommandResult:
         await gettext.new_translation(output, locale, ui=self._app.ui)

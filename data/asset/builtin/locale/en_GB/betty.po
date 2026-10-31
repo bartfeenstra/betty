@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 21:03+0000\n"
+"POT-Creation-Date: 2026-10-28 21:06+0000\n"
 "PO-Revision-Date: 2026-10-25 16:51+0000\n"
 "Last-Translator: Andi Chandler <andibing@users.noreply.hosted.weblate.org>\n"
 "Language: en_GB\n"
@@ -857,9 +857,6 @@ msgstr "Invalid plural tag(s) {plural_tags} for {locale} translations."
 #, python-brace-format
 msgid "Invalid region {invalid_region}."
 msgstr "Invalid region {invalid_region}."
-
-msgid "It appears you called Betty without a command or arguments"
-msgstr "It appears you called Betty without a command or arguments"
 
 msgid "JavaScript resource"
 msgstr "JavaScript resource"
@@ -1809,15 +1806,15 @@ msgstr "Unknowns"
 msgid "Unsupported file {unsupported}. Supported types are: {supported}."
 msgstr "Unsupported file {unsupported}. Supported types are: {supported}."
 
-msgid "Update all existing translations for Betty itself"
-msgstr "Update all existing translations for Betty itself"
-
 msgid "Update existing translations"
 msgstr "Update existing translations"
 
 #, python-brace-format
 msgid "Updated {updated_derivations} {event_type} events based on existing information."
 msgstr "Updated {updated_derivations} {event_type} events based on existing information."
+
+msgid "Updating translations..."
+msgstr ""
 
 msgid "Usage: "
 msgstr "Usage: "
