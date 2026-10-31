@@ -64,25 +64,23 @@ class BuiltinServer(Server):
             self._temporary_root_directory = Path(
                 await to_thread(mkdtemp),  # ty:ignore[invalid-argument-type]
             )
-            temprary_www_directory = self._temporary_root_directory
+            temporary_www_directory = self._temporary_root_directory
             for root_path_component in self._root_path.split("/"):
-                temprary_www_directory /= root_path_component
-            if temprary_www_directory != self._temporary_root_directory:
-                temprary_www_directory.parent.mkdir(parents=True, exist_ok=True)
-                await to_thread(symlink, self._www_directory, temprary_www_directory)
+                temporary_www_directory /= root_path_component
+            if temporary_www_directory != self._temporary_root_directory:
+                temporary_www_directory.parent.mkdir(parents=True, exist_ok=True)
+                await to_thread(symlink, self._www_directory, temporary_www_directory)
             www_directory = self._temporary_root_directory
         else:
             www_directory = self._www_directory
         await self._ui.message(
             _("Starting Python's built-in web server…"), Severity.DEBUG
         )
-        for self._port in range(  # noqa: B020
-            self._default_port,
-            65535,
-        ):
+        for port in range(self._default_port, 65535):
+            self._port = port
             with contextlib.suppress(OSError):
                 self._http_server = HTTPServer(
-                    ("", self._port),
+                    ("", port),
                     lambda request, client_address, server: (
                         _BuiltinServerRequestHandler(
                             request,
