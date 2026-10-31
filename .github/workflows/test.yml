@@ -27,7 +27,7 @@ jobs:
             python: '3.15'
             nodejs: null
             install: python ./bin/install.py --no-npm --no-playwright
-            test: betty dev-test-pytest -- -n auto -m 'not playwright and not webpack'
+            test: betty dev-test-pytest -- -n auto --dist worksteal -m 'not playwright and not webpack'
             coverage: true
           - name: 'Python 3.14 (Linux)'
             os: ubuntu-latest
@@ -35,21 +35,21 @@ jobs:
             python: '3.14'
             nodejs: null
             install: python ./bin/install.py --no-npm --no-playwright
-            test: betty dev-test-pytest -- -n auto -m 'not playwright and not webpack'
+            test: betty dev-test-pytest -- -n auto --dist worksteal -m 'not playwright and not webpack'
             coverage: true
           - name: 'Python 3.13 (Linux)'
             os: ubuntu-latest
             poppler: true
             python: '3.13'
             install: python ./bin/install.py --no-npm --no-playwright
-            test: betty dev-test-pytest -- -n auto -m 'not playwright and not webpack'
+            test: betty dev-test-pytest -- -n auto --dist worksteal -m 'not playwright and not webpack'
             coverage: true
           - name: 'Python 3.15 (macOS)'
             os: macos-latest
             poppler: true
             python: '3.15'
             install: python ./bin/install.py --no-npm --no-playwright
-            test: betty dev-test-pytest -- -n auto -m 'not playwright and not webpack'
+            test: betty dev-test-pytest -- -n auto --dist worksteal -m 'not playwright and not webpack'
             coverage: true
           - name: 'Python 3.15 (Windows)'
             os: windows-latest
@@ -57,7 +57,7 @@ jobs:
             python: '3.15'
             nodejs: null
             install: python ./bin/install.py --no-npm --no-playwright
-            test: betty dev-test-pytest -- -n auto -m 'not playwright and not webpack'
+            test: betty dev-test-pytest -- -n auto --dist worksteal -m 'not playwright and not webpack'
             coverage: true
           - name: 'Static tests'
             os: ubuntu-latest
@@ -78,7 +78,7 @@ jobs:
             python: '3.15'
             nodejs: 26.x
             install: python ./bin/install.py
-            test: betty dev-test-pytest -- -n auto -m 'playwright or webpack'
+            test: betty dev-test-pytest -- -n auto --dist worksteal -m 'playwright or webpack'
             coverage: true
           - name: 'Package build'
             os: ubuntu-latest
