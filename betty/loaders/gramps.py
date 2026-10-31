@@ -583,6 +583,7 @@ class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
                 LoadGrampsAncestry(
                     loader=GrampsLoader(
                         self._project,
+                        self._project.ancestry,
                         attribute_prefix_key=self._attribute_prefix_key,
                         event_type_mapping=family_tree.event_types,
                         place_type_mapping=family_tree.place_types,
