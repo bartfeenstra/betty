@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.app import App
 from betty.argparse import add_yes_argument
+from betty.commands.project import add_project_argument
 from betty.console import Command, CommandDefinition, CommandResult
-from betty.consoles.project import add_project_argument
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.user import Severity
