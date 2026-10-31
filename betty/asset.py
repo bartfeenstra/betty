@@ -9,10 +9,10 @@ from asyncio import to_thread
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.concurrent import ThreadSafeLock
+from betty.definition.ordered import Order, OrderedDefinition
 from betty.localizables.gettext import _, ngettext
 from betty.pathlib import resolve_path
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterable, Iterable, Mapping, Sequence
@@ -127,7 +127,7 @@ class StaticAssetRepository(AssetRepository):
     label_plural=_("Asset directories"),
     label_countable=ngettext("{count} asset directory", "{count} asset directories"),
 )
-class AssetDirectoryDefinition(OrderedPluginDefinition):
+class AssetDirectoryDefinition(OrderedDefinition, PluginDefinition):
     """
     .. plugin_type:: asset-directory.
     """

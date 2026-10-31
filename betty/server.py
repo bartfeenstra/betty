@@ -14,6 +14,7 @@ from urllib.parse import urlsplit
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.definition.ordered import Order, OrderedDefinition
 from betty.exception import HumanFacingException
 from betty.functools import Do
 from betty.localizables.gettext import _, ngettext
@@ -23,7 +24,6 @@ from betty.plugin.factory import (
     PluginManufacturer,
     PluginManufacturerDefinition,
 )
-from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.user import Severity
 
 if TYPE_CHECKING:
@@ -132,10 +132,7 @@ class Server(HasDefinition["ServerDefinition"], metaclass=ABCMeta):
     label_countable=ngettext("{count} server", "{count} servers"),
 )
 class ServerDefinition(
-    HumanFacingDefinition,
-    OrderedPluginDefinition,
-    ClsDefinition[Server],
-    PluginDefinition,
+    HumanFacingDefinition, OrderedDefinition, ClsDefinition[Server], PluginDefinition
 ):
     """
     .. plugin_type:: server.

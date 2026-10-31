@@ -1,24 +1,24 @@
 from __future__ import annotations
 
-from betty.datas.plugin.definition.place_type import PlaceTypeDefinitionData
+from betty.datas.plugin.definition.place_type import PlaceTypeDefinitionConfig
 from betty.localizables.plain import Plain
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
 )
 
 
-class TestPlaceTypeDefinitionData:
+class TestPlaceTypeDefinitionConfig:
     def test_new_plugin__minimal(self) -> None:
         plugin_id = "my-first-place-type"
         label = Plain("-")
         label_plural = Plain("-")
-        sut = PlaceTypeDefinitionData(
+        sut = PlaceTypeDefinitionConfig(
             id=plugin_id,
             label=label,
             label_plural=label_plural,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
-        plugin = sut.new_plugin()
+        plugin = sut.new_definition()
         assert plugin.id == plugin_id
         assert plugin.label is label
         assert plugin.label_plural is label_plural
@@ -26,12 +26,12 @@ class TestPlaceTypeDefinitionData:
 
     def test_new_plugin__full(self) -> None:
         description = Plain("-")
-        sut = PlaceTypeDefinitionData(
+        sut = PlaceTypeDefinitionConfig(
             id="my-first-place-type",
             label="-",
             label_plural="-",
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             description=description,
         )
-        plugin = sut.new_plugin()
+        plugin = sut.new_definition()
         assert plugin.description is description

@@ -46,12 +46,14 @@ from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.int import IntDefinition
-from betty.datas.plugin.definition.copyright_notice import CopyrightNoticeDefinitionData
-from betty.datas.plugin.definition.event_type import EventTypeDefinitionData
-from betty.datas.plugin.definition.gender import GenderDefinitionData
-from betty.datas.plugin.definition.license import LicenseDefinitionData
-from betty.datas.plugin.definition.place_type import PlaceTypeDefinitionData
-from betty.datas.plugin.definition.role import RoleDefinitionData
+from betty.datas.plugin.definition.copyright_notice import (
+    CopyrightNoticeDefinitionConfig,
+)
+from betty.datas.plugin.definition.event_type import EventTypeDefinitionConfig
+from betty.datas.plugin.definition.gender import GenderDefinitionConfig
+from betty.datas.plugin.definition.license import LicenseDefinitionConfig
+from betty.datas.plugin.definition.place_type import PlaceTypeDefinitionConfig
+from betty.datas.plugin.definition.role import RoleDefinitionConfig
 from betty.datas.str import StrDefinition
 from betty.definition.id import ResolvableId, resolve_id
 from betty.dirs import builtin_asset_directory
@@ -387,7 +389,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         return cls(
             directory,
             _plugin_discoveries=(
-                plugin.new_plugin()
+                plugin.new_definition()
                 for plugin in (
                     *data.copyright_notices,
                     *data.genders,
@@ -685,17 +687,17 @@ class ProjectLocale(Object, Frozen):
                     Size.FULL
                 ).subject,
                 copyright_notices=[
-                    CopyrightNoticeDefinitionData.definition.samples.get(
+                    CopyrightNoticeDefinitionConfig.definition.samples.get(
                         Size.FULL
                     ).subject
                 ],
                 debug=True,
                 generate_entity_list_html=["person", "place"],
                 event_types=[
-                    EventTypeDefinitionData.definition.samples.get(Size.FULL).subject
+                    EventTypeDefinitionConfig.definition.samples.get(Size.FULL).subject
                 ],
                 genders=[
-                    GenderDefinitionData.definition.samples.get(Size.FULL).subject
+                    GenderDefinitionConfig.definition.samples.get(Size.FULL).subject
                 ],
                 logo=builtin_asset_directory
                 / "public"
@@ -703,15 +705,15 @@ class ProjectLocale(Object, Frozen):
                 / "betty-512x512.png",
                 license=LicenseManufacturer.definition.samples.get(Size.FULL).subject,
                 licenses=[
-                    LicenseDefinitionData.definition.samples.get(Size.FULL).subject
+                    LicenseDefinitionConfig.definition.samples.get(Size.FULL).subject
                 ],
                 lifetime_threshold=123,
                 locales=[ProjectLocale.definition.samples.get(Size.FULL).subject],
                 name="betty-ancestry",
                 place_types=[
-                    PlaceTypeDefinitionData.definition.samples.get(Size.FULL).subject
+                    PlaceTypeDefinitionConfig.definition.samples.get(Size.FULL).subject
                 ],
-                roles=[RoleDefinitionData.definition.samples.get(Size.FULL).subject],
+                roles=[RoleDefinitionConfig.definition.samples.get(Size.FULL).subject],
                 title="Betty's ancestry",
                 url="https://ancestry.example.com/betty",
             ),
@@ -760,7 +762,7 @@ class ProjectData(Object):
         return CopyrightNoticeManufacturer(ProjectAuthor)
 
     copyright_notices = new_plugin_definition_datas_attr(
-        CopyrightNoticeDefinition, CopyrightNoticeDefinitionData
+        CopyrightNoticeDefinition, CopyrightNoticeDefinitionConfig
     )
     """
     The :py:class:`betty.copyright_notice.CopyrightNotice` plugins created by this project.
@@ -799,7 +801,7 @@ class ProjectData(Object):
     """
 
     event_types = new_plugin_definition_datas_attr(
-        EventTypeDefinition, EventTypeDefinitionData
+        EventTypeDefinition, EventTypeDefinitionConfig
     )
     """
     The :py:class:`betty.event_type.EventType` plugins created by this project.
@@ -845,7 +847,7 @@ class ProjectData(Object):
     Which entity types to generate list HTML pages for.
     """
 
-    genders = new_plugin_definition_datas_attr(GenderDefinition, GenderDefinitionData)
+    genders = new_plugin_definition_datas_attr(GenderDefinition, GenderDefinitionConfig)
     """
     The :py:class:`betty.gender.Gender` plugins created by this project.
     """
@@ -860,7 +862,7 @@ class ProjectData(Object):
         return LicenseManufacturer(AllRightsReserved)
 
     licenses = new_plugin_definition_datas_attr(
-        LicenseDefinition, LicenseDefinitionData
+        LicenseDefinition, LicenseDefinitionConfig
     )
     """
     The :py:class:`betty.license.License` plugins created by this project.
@@ -938,13 +940,13 @@ class ProjectData(Object):
     """
 
     place_types = new_plugin_definition_datas_attr(
-        PlaceTypeDefinition, PlaceTypeDefinitionData
+        PlaceTypeDefinition, PlaceTypeDefinitionConfig
     )
     """
     The :py:class:`betty.place_type.PlaceType` plugins created by this project.
     """
 
-    roles = new_plugin_definition_datas_attr(RoleDefinition, RoleDefinitionData)
+    roles = new_plugin_definition_datas_attr(RoleDefinition, RoleDefinitionConfig)
     """
     The :py:class:`betty.role.Role` plugins created by this project.
     """
@@ -974,22 +976,22 @@ class ProjectData(Object):
         author: ResolvableLocalizable | None = None,
         clean_urls: bool = False,
         copyright_notice: ResolvableCopyrightNoticeManufacturer | None = None,
-        copyright_notices: Iterable[CopyrightNoticeDefinitionData] = (),
+        copyright_notices: Iterable[CopyrightNoticeDefinitionConfig] = (),
         debug: bool = False,
         enrichers: Iterable[ResolvableEnricherManufacturer] = (),
-        event_types: Iterable[EventTypeDefinitionData] = (),
+        event_types: Iterable[EventTypeDefinitionConfig] = (),
         service_providers: Iterable[ResolvableServiceProviderManufacturer] = (),
         generate_entity_list_html: Iterable[ResolvableId[EntityDefinition]] = (),
-        genders: Iterable[GenderDefinitionData] = (),
+        genders: Iterable[GenderDefinitionConfig] = (),
         license: ResolvableLicenseManufacturer | None = None,  # noqa: A002
-        licenses: Iterable[LicenseDefinitionData] = (),
+        licenses: Iterable[LicenseDefinitionConfig] = (),
         lifetime_threshold: int = default_lifetime_threshold,
         loaders: Iterable[ResolvableLoaderManufacturer] = (),
         locales: Iterable[ResolvableLocale | ProjectLocale] = (),
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
-        place_types: Iterable[PlaceTypeDefinitionData] = (),
-        roles: Iterable[RoleDefinitionData] = (),
+        place_types: Iterable[PlaceTypeDefinitionConfig] = (),
+        roles: Iterable[RoleDefinitionConfig] = (),
     ):
         super().__init__()
         self.author = author

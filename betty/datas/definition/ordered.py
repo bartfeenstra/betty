@@ -1,5 +1,5 @@
 """
-Ordered plugin definition data.
+Ordered definition data.
 """
 
 from __future__ import annotations
@@ -10,12 +10,12 @@ from typing import TYPE_CHECKING, Any
 from betty.attrs.owner import CollectionOwnerAttr
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.record import FieldDefinition
-from betty.datas.plugin.definition import PluginDefinitionData
-from betty.definition.human_facing import HumanFacingDefinition
+from betty.datas.aggregate.record.object import ObjectDefinition
+from betty.datas.definition.id import IdentifiableDefinitionConfig
 from betty.definition.id import resolve_id
+from betty.definition.ordered import OrderedDefinition
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
-from betty.plugin.ordered import OrderedPluginDefinition
 from betty.porters.omit_field import OmitFieldPorter
 
 if TYPE_CHECKING:
@@ -26,13 +26,15 @@ if TYPE_CHECKING:
     from betty.definition.id import ResolvableId
 
 
-class OrderedPluginDefinitionData[
-    DefinitionT: Intersection[OrderedPluginDefinition, HumanFacingDefinition]
-](PluginDefinitionData[DefinitionT]):
+class OrderedDefinitionConfig[
+    DefinitionT: Intersection[
+        OrderedDefinition, ObjectDefinition[OrderedDefinitionConfig]
+    ]
+](IdentifiableDefinitionConfig[DefinitionT]):
     """
-    Configure a :py:class:`betty.plugin.ordered.OrderedPluginDefinition`.
+    Configure a :py:class:`betty.definition.ordered.OrderedDefinition`.
 
-    .. data:: betty.datas.ordered_plugin_definition:OrderedPluginDefinitionData
+    .. data:: betty.datas.definition.ordered:OrderedDefinitionConfig
     """
 
     after = CollectionOwnerAttr(

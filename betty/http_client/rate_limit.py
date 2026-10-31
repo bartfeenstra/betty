@@ -7,9 +7,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Final, Self, final
 
 from betty.concurrent import RateLimiter, ThreadSafeLock
+from betty.definition.ordered import OrderedDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.ordered import OrderedPluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
     import re
@@ -18,8 +18,8 @@ if TYPE_CHECKING:
     from aiohttp.client_middlewares import ClientHandlerType
     from aiohttp.client_reqrep import ClientRequest, ClientResponse
 
+    from betty.definition.ordered import Order
     from betty.machine_name import ResolvableMachineName
-    from betty.plugin.ordered import Order
     from betty.requirement import Requires
 
 
@@ -79,7 +79,7 @@ class RateLimitMiddleware:
         "Rate limits ensure that Betty's HTTP client does not make more requests to a web service than that service supports or allows, by enforcing a maximum number of requests per timeframe."
     ),
 )
-class RateLimitDefinition(OrderedPluginDefinition):
+class RateLimitDefinition(OrderedDefinition, PluginDefinition):
     """
     .. plugin_type:: http-rate-limit.
     """
