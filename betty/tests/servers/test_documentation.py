@@ -13,6 +13,7 @@ from betty.tests.conftest import Duration
 
 class TestDocumentationServer:
     @pytest.mark.duration(Duration.MINUTES)
+    @pytest.mark.sphinx
     @pytest.mark.timeout(600)
     async def test(self, mocker: MockerFixture, tmp_path: Path) -> None:
         mocker.patch("webbrowser.open_new_tab")

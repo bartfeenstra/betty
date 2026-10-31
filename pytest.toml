@@ -14,5 +14,6 @@ addopts = [
 markers = [
     "duration(duration): set the test's estimated duration",
     "playwright(): mark a test as using Playwright",
+    "sphinx(): mark a test as using Sphinx",
     "webpack(): mark a test as using Webpack",
 ]
