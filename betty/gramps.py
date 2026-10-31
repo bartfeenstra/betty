@@ -135,6 +135,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.associations.has_file_references import HasFileReferences
+    from betty.entity.collection.pool import EntityPool
     from betty.event_type import EventType
     from betty.localizables.static import StaticTranslationsMapping
     from betty.machine_name import ResolvableMachineName
@@ -344,6 +345,8 @@ class GrampsLoader:
     def __init__(
         self,
         project: Project,
+        ancestry: EntityPool,
+        /,
         *,
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[
@@ -357,6 +360,8 @@ class GrampsLoader:
     ):
         super().__init__()
         self._project = project
+        self._ui = project.upstream.ui
+        self._ancestry = ancestry
         self._handles_to_entities: MutableMapping[str, Entity] = {}
         self._attribute_prefix_key = attribute_prefix_key
         self._added_entity_counts: MutableMapping[type[Entity], int] = defaultdict(
@@ -383,7 +388,7 @@ class GrampsLoader:
         try:
             return await subprocess.run_process(
                 [str(self._gramps_executable), *runnee],
-                ui=self._project.upstream.ui,
+                ui=self._ui,
             )
         except subprocess.CalledSubprocessError as error:
             raise UserFacingGrampsError(
@@ -415,7 +420,7 @@ class GrampsLoader:
         :raises betty.gramps.error.GrampsError:
         """
         file = resolve_path(file).resolve()
-        await self._project.upstream.ui.message(
+        await self._ui.message(
             _("Loading {file_path}…").format(
                 file_path=str(file),
             ),
@@ -548,16 +553,16 @@ class GrampsLoader:
             if mediapath.text is not None:
                 media = Path(mediapath.text).resolve()
 
-        with self._project.ancestry.unchecked():
+        with self._ancestry.unchecked():
             await self._load_notes(database)
-            await self._project.upstream.ui.message(
+            await self._ui.message(
                 _("Loaded {note_count} notes.").format(
                     note_count=str(self._added_entity_counts[Note])
                 ),
                 Severity.INFO,
             )
             await self._load_objects(database, media)
-            await self._project.upstream.ui.message(
+            await self._ui.message(
                 _("Loaded {file_count} files.").format(
                     file_count=str(self._added_entity_counts[File])
                 ),
@@ -566,7 +571,7 @@ class GrampsLoader:
 
             await self._load_repositories(database)
             repository_count = self._added_entity_counts[Source]
-            await self._project.upstream.ui.message(
+            await self._ui.message(
                 _("Loaded {repository_count} repositories as sources.").format(
                     repository_count=str(repository_count)
                 ),
@@ -574,7 +579,7 @@ class GrampsLoader:
             )
 
             await self._load_sources(database)
-            await self._project.upstream.ui.message(
+            await self._ui.message(
                 _("Loaded {source_count} sources.").format(
                     source_count=str(
                         self._added_entity_counts[Source] - repository_count
@@ -584,7 +589,7 @@ class GrampsLoader:
             )
 
             await self._load_citations(database)
-            await self._project.upstream.ui.message(
+            await self._ui.message(
                 _("Loaded {citation_count} citations.").format(
                     citation_count=str(self._added_entity_counts[Citation])
                 ),
@@ -592,7 +597,7 @@ class GrampsLoader:
             )
 
             await self._load_places(database)
-            await self._project.upstream.ui.message(
+            await self._ui.message(
                 _("Loaded {place_count} places.").format(
                     place_count=str(self._added_entity_counts[Place])
                 ),
@@ -600,7 +605,7 @@ class GrampsLoader:
             )
 
             await self._load_events(database)
-            await self._project.upstream.ui.message(
+            await self._ui.message(
                 _("Loaded {event_count} events.").format(
                     event_count=str(self._added_entity_counts[Event])
                 ),
@@ -608,7 +613,7 @@ class GrampsLoader:
             )
 
             await self._load_people(database)
-            await self._project.upstream.ui.message(
+            await self._ui.message(
                 _("Loaded {person_count} people.").format(
                     person_count=str(self._added_entity_counts[Person])
                 ),
@@ -617,7 +622,7 @@ class GrampsLoader:
 
             await self._load_families(database)
 
-        resolve_associates(self._project, *self._project.ancestry)
+        resolve_associates(self._project, *self._ancestry)
 
     def _supports_xml_version(self, version: tuple[int, int, int]) -> bool:
         if version[0] != self._supported_gramps_xml_version[0]:
@@ -645,7 +650,7 @@ class GrampsLoader:
         )
 
     def _add_entity(self, entity: Entity, handle: str | None = None) -> None:
-        self._project.ancestry.add(entity)
+        self._ancestry.add(entity)
         if handle is not None:
             self._handles_to_entities[handle] = entity
         self._added_entity_counts[type(entity)] += 1
@@ -824,7 +829,7 @@ class GrampsLoader:
                     copyright_notice_id
                 )(self._project)
             except PluginNotFound:
-                await self._project.upstream.ui.message(
+                await self._ui.message(
                     _(
                         "Betty is unfamiliar with Gramps file {file}'s copyright notice of {copyright_notice} and ignored it.",
                     ).format(file=file_id, copyright_notice=Quote(copyright_notice_id)),
@@ -835,7 +840,7 @@ class GrampsLoader:
             try:
                 file.license = await LicenseManufacturer(license_id)(self._project)
             except PluginNotFound:
-                await self._project.upstream.ui.message(
+                await self._ui.message(
                     _(
                         "Betty is unfamiliar with Gramps file {file}'s license of {license} and ignored it.",
                     ).format(file=Quote(file_id), license=Quote(license_id)),
@@ -870,7 +875,7 @@ class GrampsLoader:
                     (await self._project.plugins[GenderDefinition][gender_id]).cls
                 )
             except PluginNotFound:
-                await self._project.upstream.ui.message(
+                await self._ui.message(
                     _(
                         "Betty is unfamiliar with Gramps person {person}'s gender of {gender} and ignored it.",
                     ).format(person=Quote(person_id), gender=Quote(gender_id)),
@@ -973,16 +978,14 @@ class GrampsLoader:
             role_manufacturer = self._role_mapping[gramps_role]
         except KeyError:
             role = UnknownRole()
-            await self._project.upstream.ui.message(
+            await self._ui.message(
                 _(
                     "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The role was imported, but set to {betty_role}.",
                 ).format(
                     person=Quote(person.id),
                     event_handle=Quote(event_handle),
                     gramps_role=Quote(gramps_role),
-                    betty_role=role.definition.label.localize(
-                        self._project.upstream.ui.localizer
-                    ),
+                    betty_role=role.definition.label.localize(self._ui.localizer),
                 ),
                 Severity.WARN,
             )
@@ -1031,14 +1034,14 @@ class GrampsLoader:
             place_type_manufacturer = self._place_type_mapping[gramps_type]
         except KeyError:
             place_type = UnknownPlaceType()
-            await self._project.upstream.ui.message(
+            await self._ui.message(
                 _(
                     "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was set to {betty_place_type}.",
                 ).format(
                     place=Quote(place_id),
                     gramps_place_type=Quote(gramps_type),
                     betty_place_type=place_type.definition.label.localize(
-                        self._project.upstream.ui.localizer
+                        self._ui.localizer
                     ),
                 ),
                 Severity.WARN,
@@ -1077,7 +1080,7 @@ class GrampsLoader:
             try:
                 return Point.from_string(coordinates)
             except ValueError:
-                await self._project.upstream.ui.message(
+                await self._ui.message(
                     _(
                         "Cannot load coordinates {coordinates}, because they are in an unknown format.",
                     ).format(
@@ -1103,14 +1106,14 @@ class GrampsLoader:
             event_type_manufacturer = self._event_type_mapping[gramps_type]
         except KeyError:
             event_type = UnknownEventType()
-            await self._project.upstream.ui.message(
+            await self._ui.message(
                 _(
                     "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was set to {betty_event_type}.",
                 ).format(
                     event=Quote(event_id),
                     gramps_event_type=Quote(gramps_type),
                     betty_event_type=event_type.definition.label.localize(
-                        self._project.upstream.ui.localizer
+                        self._ui.localizer
                     ),
                 ),
                 Severity.WARN,
@@ -1338,17 +1341,15 @@ class GrampsLoader:
         if privacy_value == "public":
             entity.public = True
             return
-        await self._project.upstream.ui.message(
+        await self._ui.message(
             _(
                 "The {attribute_name} Gramps attribute must have a value of {valid_public_value} or {valid_private_value}, but {attribute_value} was given for {entity_type} {entity_id} ({entity_label}), which was ignored.",
             ).format(
                 attribute_name=Quote("betty:privacy"),
                 attribute_value=Quote(privacy_value),
-                entity_type=entity.definition.label.localize(
-                    self._project.upstream.ui.localizer
-                ),
+                entity_type=entity.definition.label.localize(self._ui.localizer),
                 entity_id=entity.id,
-                entity_label=entity.label.localize(self._project.upstream.ui.localizer),
+                entity_label=entity.label.localize(self._ui.localizer),
                 valid_public_value=Quote("public"),
                 valid_private_value=Quote("private"),
             ),
@@ -1387,7 +1388,7 @@ class GrampsLoader:
         try:
             return from_language_tag(locale)
         except LocaleError as error:
-            await self._project.upstream.ui.message(error, Severity.WARN)
+            await self._ui.message(error, Severity.WARN)
             return None
 
     _link_attribute_pattern: Final[re.Pattern[str]] = re.compile(
@@ -1414,7 +1415,7 @@ class GrampsLoader:
             links_attributes[link_name][link_attribute_name] = attribute_value
         for link_name, link_attributes in links_attributes.items():
             if "url" not in link_attributes:
-                await self._project.upstream.ui.message(
+                await self._ui.message(
                     _(
                         "The Gramps {gramps_entity_reference} entity requires a {attribute_name} attribute. This link was ignored.",
                     ).format(
@@ -1448,7 +1449,7 @@ class GrampsLoader:
                 try:
                     media_type = MediaType(link_attributes["media_type"])
                 except InvalidMediaType:
-                    await self._project.upstream.ui.message(
+                    await self._ui.message(
                         _(
                             "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a valid IANA media type. This media type was ignored.",
                         ).format(
