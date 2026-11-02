@@ -33,7 +33,7 @@ class TestApp:
     async def test_new_from_environment__without_configuration_file(
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
-        mocker.patch("betty.app.AppData.FILE", tmp_path / "app.json")
+        mocker.patch("betty.app.AppData.file", tmp_path / "app.json")
         async with App.new_from_environment():
             pass
 
@@ -43,7 +43,7 @@ class TestApp:
         configuration_file = tmp_path / "app.json"
         with open(tmp_path / "app.json", encoding="utf-8", mode="w") as f:
             f.write(dumps({"locale": "nl-NL"}))
-        mocker.patch("betty.app.AppData.FILE", configuration_file)
+        mocker.patch("betty.app.AppData.file", configuration_file)
         async with App.new_from_environment() as sut:
             assert sut.ui.localizer.locale == Locale("nl", "NL")
 

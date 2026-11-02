@@ -15,7 +15,7 @@ class TestConfig:
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         configuration_file = tmp_path / "app.json"
-        mocker.patch("betty.app.AppData.FILE", new=configuration_file)
+        mocker.patch("betty.app.AppData.file", new=configuration_file)
 
         locale = "nl"
         await run(Config(isolated_app), "config", "--locale", locale)
