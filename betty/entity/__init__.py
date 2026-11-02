@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from inspect import signature
 from typing import TYPE_CHECKING, Any, Final, final, override
 
 from betty.association import HasAssociations
@@ -24,7 +23,6 @@ if TYPE_CHECKING:
     from betty.localizable import CountableLocalizable
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.project import Project
     from betty.requirement import Requires
 
 
@@ -121,22 +119,14 @@ class EntityDefinition[EntityT: Entity = Entity](
         """
 
 
-type EntityResolver[EntityT: Entity = Entity] = (
-    Callable[[], EntityT] | Callable[[Project], EntityT]
-)
+type EntityResolver[EntityT: Entity = Entity] = Callable[[], EntityT]
 type ResolvableEntity[EntityT: Entity = Entity] = EntityT | EntityResolver[EntityT]
 
 
-def resolve[EntityT: Entity = Entity](
-    project: Project, entity: ResolvableEntity[EntityT], /
-) -> EntityT:
+def resolve[EntityT: Entity = Entity](entity: ResolvableEntity[EntityT], /) -> EntityT:
     """
     Resolve an entity or entity resolver to its entity.
     """
     if isinstance(entity, Entity):
         return entity  # ty:ignore[invalid-return-type]
-    match len(signature(entity).parameters):
-        case 1:
-            return entity(project)  # ty:ignore[too-many-positional-arguments]
-        case _:
-            return entity()  # ty:ignore[missing-argument]
+    return entity()

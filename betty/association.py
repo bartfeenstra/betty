@@ -31,7 +31,6 @@ if TYPE_CHECKING:
 
     from betty.datas.aggregate.record import FieldDefinition
     from betty.entity import Entity, EntityResolver
-    from betty.project import Project
 
 
 class HasAssociations(HasProps):
@@ -165,7 +164,7 @@ class Association[
         """
 
     @abstractmethod
-    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
+    def resolve(self, owner: HasAssociations, /) -> None:
         """
         Resolve any associates the owner may have for this association.
         """
@@ -192,7 +191,6 @@ class Association[
 type AssociateResolver[AssociateT: Entity = Entity] = (
     EntityResolver[AssociateT]
     | Callable[[HasAssociations, Association[AssociateT]], AssociateT]
-    | Callable[[Project, HasAssociations, Association[AssociateT]], AssociateT]
 )
 type Associate[AssociateT: Entity = Entity] = AssociateT | AssociateResolver[AssociateT]
 
@@ -216,7 +214,6 @@ class UnresolvedAssociate(ValueError):
 
 
 def resolve_associate[AssociateT: Entity](
-    project: Project,
     owner: HasAssociations,
     association: Association[AssociateT],
     resolver: AssociateResolver[AssociateT],
@@ -227,25 +224,23 @@ def resolve_associate[AssociateT: Entity](
     """
     from betty.entity import resolve
 
-    match len(signature(resolver).parameters):
-        case 3:
-            return resolver(project, owner, association)  # ty:ignore[invalid-argument-type, too-many-positional-arguments]
-        case 2:
-            return resolver(owner, association)  # ty:ignore[invalid-argument-type, missing-argument, too-many-positional-arguments]
-        case _:
-            return resolve(  # ty:ignore[invalid-return-type]
-                project,
-                resolver,  # ty: ignore[invalid-argument-type]
-            )
+    if len(signature(resolver).parameters) == 2:
+        return resolver(
+            owner,  # ty: ignore[too-many-positional-arguments]
+            association,
+        )
+    return resolve(  # ty:ignore[invalid-return-type]
+        resolver,  # ty: ignore[invalid-argument-type]
+    )
 
 
-def resolve_associates(project: Project, *owners: HasAssociations) -> None:
+def resolve_associates(*owners: HasAssociations) -> None:
     """
     Resolve all owners' associates.
     """
     for owner in owners:
         for association in owner.associations():
-            association.resolve(project, owner)
+            association.resolve(owner)
     for owner in owners:
         for association in owner.associations():
             if associate_attr := association.associate_attr:
@@ -264,13 +259,11 @@ class BiResolver[AssociateT: Entity]:
     def __init__(self, resolver: AssociateResolver[AssociateT], /):
         self._resolver = resolver
 
-    def __call__(
-        self, project: Project, owner: Entity, association: Association[AssociateT], /
-    ):
+    def __call__(self, owner: Entity, association: Association[AssociateT], /):
         """
         Resolve the associate.
         """
-        associate = resolve_associate(project, owner, association, self._resolver)
+        associate = resolve_associate(owner, association, self._resolver)
         assert (associate_attr := association.associate_attr)
         associate_attr.associate(associate, owner)
         return associate

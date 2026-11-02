@@ -38,12 +38,9 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
     .. plugin:: content-builder:raspberry-mint-entity-card
     """
 
-    def __init__(
-        self, *, entity: ResolvableEntity, jinja: Environment, project: Project
-    ):
+    def __init__(self, *, entity: ResolvableEntity, jinja: Environment):
         super().__init__(jinja=jinja)
         self._entity = entity
-        self._project = project
 
     @override
     @classmethod
@@ -54,11 +51,14 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
     @Project.require
     @classmethod
     async def new(cls, project: Project, data: EntityReference, /) -> Self:
-        return cls(entity=data, jinja=await project.jinja, project=project)
+        return cls(
+            entity=lambda: project.ancestry[data.type][data.id],
+            jinja=await project.jinja,
+        )
 
     @override
     async def build_template(self, document: Document) -> TemplateBuild:
-        entity = resolve(self._project, self._entity)
+        entity = resolve(self._entity)
         return [
             "entity/card--" + entity.definition.id + ".html.j2",
             "entity/card.html.j2",

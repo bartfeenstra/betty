@@ -1,7 +1,6 @@
 from betty.associations.optional_to_one import OptionalToOne
 from betty.associations.to_one import ToOne
 from betty.entity import Entity
-from betty.project import Project
 from betty.test_utils.entity import DummyEntityOne
 
 
@@ -10,16 +9,16 @@ class _Owner(Entity):
 
 
 class TestOptionalToOne:
-    def test_resolve__without_none(self, isolated_project: Project) -> None:
+    def test_resolve__without_none(self) -> None:
         owner = _Owner()
         associate = DummyEntityOne()
         owner.associate = lambda: associate
-        _Owner.associate.resolve(isolated_project, owner)
+        _Owner.associate.resolve(owner)
         assert owner.associate is associate
 
-    def test_resolve__with_none(self, isolated_project: Project) -> None:
+    def test_resolve__with_none(self) -> None:
         owner = _Owner()
-        _Owner.associate.resolve(isolated_project, owner)
+        _Owner.associate.resolve(owner)
         assert owner.associate is None
 
     def test_associate__without_existing(self) -> None:

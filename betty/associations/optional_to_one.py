@@ -16,8 +16,6 @@ from betty.entity import Entity
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.project import Project
-
 
 @final
 class OptionalToOne[AssociateT: Entity](
@@ -50,10 +48,10 @@ class OptionalToOne[AssociateT: Entity](
         return super().is_resolver(value)
 
     @override
-    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
+    def resolve(self, owner: HasAssociations, /) -> None:
         if self._storage.get(owner) is None:
             return
-        super().resolve(project, owner)
+        super().resolve(owner)
 
     @override
     def disassociate(self, owner: HasAssociations, associate: AssociateT, /) -> None:

@@ -17,7 +17,6 @@ from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
-    from betty.project import Project
 
 type ToManyAssociates[AssociateT: Entity] = Iterable[Associate[AssociateT]]
 
@@ -89,5 +88,5 @@ class ToMany[AssociateT: Entity](
         yield from self.get(owner)
 
     @override
-    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
-        self.get(owner).resolve(project)
+    def resolve(self, owner: HasAssociations, /) -> None:
+        self.get(owner).resolve()

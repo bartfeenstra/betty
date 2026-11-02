@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import pytest
 
 from betty.associations.to_one import (
@@ -12,9 +10,6 @@ from betty.associations.to_one import (
 )
 from betty.entity import Entity, EntityDefinition
 from betty.test_utils.locale.localizable import dummy_countable_localizable
-
-if TYPE_CHECKING:
-    from betty.project import Project
 
 
 @EntityDefinition(
@@ -157,10 +152,10 @@ class TestToOne:
     ) -> None:
         assert _BiOwner.associate.is_resolver(value) is expected
 
-    def test_resolve(self, isolated_project: Project) -> None:
+    def test_resolve(self) -> None:
         associate = _BiAssociate()
         owner = _BiOwner()
         owner.associate = lambda: associate
 
-        type(owner).associate.resolve(isolated_project, owner)
+        type(owner).associate.resolve(owner)
         assert owner.associate is associate
