@@ -212,9 +212,9 @@ class RaspberryMint(
 
     """
 
-    DEFAULT_PRIMARY_COLOR: Final[str] = "#b3446c"
-    DEFAULT_SECONDARY_COLOR: Final[str] = "#3eb489"
-    DEFAULT_TERTIARY_COLOR: Final[str] = "#ffbd22"
+    default_primary_color: Final[str] = "#b3446c"
+    default_secondary_color: Final[str] = "#3eb489"
+    default_tertiary_color: Final[str] = "#ffbd22"
 
     def __init__(
         self,
@@ -227,7 +227,7 @@ class RaspberryMint(
     ):
         super().__init__(services=project)
         self.primary_color: Final[str] = (
-            self.DEFAULT_PRIMARY_COLOR if primary_color is None else primary_color
+            self.default_primary_color if primary_color is None else primary_color
         )
         """
         The primary color.
@@ -236,13 +236,13 @@ class RaspberryMint(
             regional_content or {}
         )
         self.secondary_color = (
-            self.DEFAULT_SECONDARY_COLOR if secondary_color is None else secondary_color
+            self.default_secondary_color if secondary_color is None else secondary_color
         )
         """
         The secondary color.
         """
         self.tertiary_color = (
-            self.DEFAULT_TERTIARY_COLOR if tertiary_color is None else tertiary_color
+            self.default_tertiary_color if tertiary_color is None else tertiary_color
         )
         """
         The tertiary color.
