@@ -3,16 +3,14 @@ from betty.associations.has_links import HasLinks
 from betty.entities.link import Link
 from betty.entity import EntityDefinition
 from betty.test_utils.conftest import AssertTemplateFile
-from betty.test_utils.locale.localizable import (
-    DUMMY_COUNTABLE_LOCALIZABLE,
-)
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 
 @EntityDefinition(
     "dummy-has-links",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class DummyEntityWithLinks(HasLinks):
     pass

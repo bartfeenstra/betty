@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from betty.entity import Entity, EntityDefinition, resolve
 from betty.test_utils.entity import DummyEntityOne
-from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -17,7 +17,7 @@ class TestEntityDefinition:
             public_facing=True,
             label="-",
             label_plural="-",
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            label_countable=dummy_countable_localizable,
         )
         assert sut.public_facing
 

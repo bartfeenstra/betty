@@ -7,7 +7,6 @@ import pytest
 from betty.console import CommandDefinition, CommandExit, ExitCode, call_command_func
 from betty.exception import HumanFacingException
 from betty.test_utils.console import NoOpCommand, new_raising_command, run
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.uis.no_op import NoOpUi
 from betty.user import Severity
 
@@ -39,7 +38,7 @@ async def test_run__with_unknown_command() -> None:
         (ExitCode.OK, NoOpCommand.definition),
         (
             ExitCode.ERROR_UNEXPECTED_RECOVERABLE,
-            new_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
+            new_raising_command(HumanFacingException("-")),
         ),
         (ExitCode.USER_QUIT, new_raising_command(CancelledError())),
         (ExitCode.USER_QUIT, new_raising_command(KeyboardInterrupt())),

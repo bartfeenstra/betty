@@ -9,10 +9,10 @@ from betty.entities.citation import Citation
 from betty.entities.source import Source
 from betty.job import Context
 from betty.locale import default_locale
+from betty.localizables.static import StaticTranslations
 from betty.localizer import Localizer
 from betty.media_type import MediaType
 from betty.test_utils.entity import DummyEntityOne
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -131,7 +131,7 @@ class TestDocument:
         "entity_contexts": EntityContexts(),
         "context": Context(),
         "localizer": Localizer(default_locale),
-        "title": "-",
+        "title": "My First Title",
         "vars": {
             "my_first_var": "MY_FIRST_VAR",
         },
@@ -174,8 +174,8 @@ class TestDocument:
         assert Document(localizer=localizer).localizer is localizer
 
     def test_title__from___init___(self) -> None:
-        title = DUMMY_LOCALIZABLE
-        assert Document(title=title).title is title
+        title = StaticTranslations("Hello, world!")
+        assert Document(title=title).title == title
 
     def test___getitem__(self) -> None:
         my_first_var = object()
@@ -231,7 +231,7 @@ class TestDocument:
             (
                 False,
                 {
-                    "title": DUMMY_LOCALIZABLE,
+                    "title": "My Second Title",
                 },
             ),
             (

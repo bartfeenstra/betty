@@ -2,10 +2,7 @@ from betty.datas.plugin.definition.human_facing import (
     CountableHumanFacingPluginDefinitionData,
     HumanFacingPluginDefinitionData,
 )
-from betty.test_utils.locale.localizable import (
-    DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
-)
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 from betty.tests.datas.plugin.test_definition import _DummyPluginDefinitionData
 
 
@@ -14,12 +11,12 @@ class TestHumanFacingPluginDefinitionData:
         pass
 
     def test_label(self) -> None:
-        label = DUMMY_LOCALIZABLE
+        label = "Hello, world!"
         sut = self._Sut(id="hello-world", label=label)
         assert sut.label == label
 
     def test_description(self) -> None:
-        description = DUMMY_LOCALIZABLE
+        description = "Hello, world!"
         sut = self._Sut(id="hello-world", label="-", description=description)
         assert sut.description == description
 
@@ -32,17 +29,17 @@ class TestCountableHumanFacingPluginDefinitionData:
         pass
 
     def test_label_plural(self) -> None:
-        label_plural = DUMMY_LOCALIZABLE
+        label_plural = "Hello, worlds!"
         sut = self._Sut(
             id="-dummy",
             label="-",
             label_plural=label_plural,
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            label_countable=dummy_countable_localizable,
         )
         assert sut.label_plural == label_plural
 
     def test_label_countable(self) -> None:
-        label_countable = DUMMY_COUNTABLE_LOCALIZABLE
+        label_countable = dummy_countable_localizable
         sut = self._Sut(
             id="-dummy", label="-", label_plural="-", label_countable=label_countable
         )

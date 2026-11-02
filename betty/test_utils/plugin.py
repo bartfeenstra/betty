@@ -15,7 +15,7 @@ from betty.plugin.factory import (
     PluginManufacturer,
     PluginManufacturerDefinition,
 )
-from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 
 class DummyPlugin(HasDefinition["DummyPluginDefinition"]):
@@ -29,7 +29,7 @@ class DummyPlugin(HasDefinition["DummyPluginDefinition"]):
     "dummy-plugin",
     label="dummy plugin",
     label_plural="dummy plugin",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class DummyPluginDefinition(ClsDefinition[DummyPlugin], PluginDefinition):
     """

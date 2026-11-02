@@ -9,9 +9,7 @@ from betty.entity import Entity, EntityDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.entity.collection import EntityCollectionTestBase
-from betty.test_utils.locale.localizable import (
-    DUMMY_COUNTABLE_LOCALIZABLE,
-)
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -25,7 +23,7 @@ if TYPE_CHECKING:
     "left",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _TestEntityPool_OneToOne_Left(Entity):
     one_right = ToOne["_TestEntityPool_OneToOne_Right"](
@@ -39,7 +37,7 @@ class _TestEntityPool_OneToOne_Left(Entity):
     "right",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _TestEntityPool_OneToOne_Right(Entity):
     one_left = ToOne[_TestEntityPool_OneToOne_Left](

@@ -1,5 +1,4 @@
 from betty.attrs.path import new_path_attr
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 def test_new_path_attr__minimal() -> None:
@@ -7,10 +6,12 @@ def test_new_path_attr__minimal() -> None:
 
 
 def test_new_path_attr__label() -> None:
-    attr = new_path_attr(label=DUMMY_LOCALIZABLE)
-    assert attr.field.label is DUMMY_LOCALIZABLE
+    label = "Hello, world!"
+    attr = new_path_attr(label=label)
+    assert attr.field.label is label
 
 
 def test_new_path_attr__description() -> None:
-    attr = new_path_attr(description=DUMMY_LOCALIZABLE)
-    assert attr.field.description is DUMMY_LOCALIZABLE
+    description = "Hello, world!"
+    attr = new_path_attr(description=description)
+    assert attr.field.description is description

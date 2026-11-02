@@ -16,7 +16,6 @@ from betty.test_utils.entity import EntityTestBase
 from betty.test_utils.entity.associations.has_file_references import (
     DummyHasFileReferences,
 )
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -87,7 +86,7 @@ class TestFile(EntityTestBase):
     def test_notes(self) -> None:
         sut = File(Path(__file__))
         assert list(sut.notes) == []
-        notes = [Note(DUMMY_LOCALIZABLE), Note(DUMMY_LOCALIZABLE)]
+        notes = [Note("-"), Note("-")]
         sut.notes = notes
         assert list(sut.notes) == notes
 

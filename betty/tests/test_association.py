@@ -18,7 +18,7 @@ from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.entity import Entity, EntityDefinition
 from betty.test_utils.entity import DummyEntityOne
-from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 from betty.typing import Unreachable
 
 if TYPE_CHECKING:
@@ -67,7 +67,7 @@ class _Association[AssociateT: Entity = Entity](
     "named",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _NamedEntity(Entity):
     association = _Association["_TypedEntity"](
@@ -79,7 +79,7 @@ class _NamedEntity(Entity):
     "typed",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _TypedEntity(Entity):
     association = _Association[_NamedEntity](_NamedEntity)
@@ -89,7 +89,7 @@ class _TypedEntity(Entity):
     "bi-named",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _BiNamedEntity(Entity):
     association = _Association["_BiTypedEntity"](
@@ -101,7 +101,7 @@ class _BiNamedEntity(Entity):
     "bi-typed",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _BiTypedEntity(Entity):
     association = _Association(_BiNamedEntity, _BiNamedEntity.association)
@@ -160,7 +160,7 @@ class TestAssociation:
             "named",
             label="-",
             label_plural="-",
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            label_countable=dummy_countable_localizable,
         )
         class _Entity(Entity):
             association = IsNoResolverAssociation(_TypedEntity)
@@ -176,7 +176,7 @@ class TestAssociation:
             "named",
             label="-",
             label_plural="-",
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            label_countable=dummy_countable_localizable,
         )
         class _Entity(Entity):
             association = IsResolverAssociation(_TypedEntity)
@@ -261,7 +261,7 @@ def test_resolve_associates(isolated_project: Project, mocker: MockerFixture) ->
         "-",
         label="-",
         label_plural="-",
-        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+        label_countable=dummy_countable_localizable,
     )
     class _Entity(Entity):
         association = mocker.MagicMock(spec=Association)

@@ -5,14 +5,14 @@ from betty.associations.to_many import ToMany
 from betty.collections.to_many import ToManyCollection
 from betty.entity import Entity, EntityDefinition
 from betty.project import Project
-from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 
 @EntityDefinition(
     "owner",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _Owner(Entity):
     associates = ToMany("betty.tests.collections.test_to_many:_Associate", label="-")
@@ -22,7 +22,7 @@ class _Owner(Entity):
     "associate",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _Associate(Entity):
     pass
@@ -32,7 +32,7 @@ class _Associate(Entity):
     "bi-owner",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _BiOwner(Entity):
     associates = ToMany(
@@ -44,7 +44,7 @@ class _BiOwner(Entity):
     "bi-associate",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _BiAssociate(Entity):
     owners = ToMany(
