@@ -332,8 +332,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/link.py": {
         "Link": MissingReason.ABSTRACT,
     },
-    "betty/links/betty_documentation.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/links/betty_github.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/links.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/load.py": {
         "load": MissingReason.SHOULD_BE_COVERED,
         "Loader": MissingReason.ABSTRACT,

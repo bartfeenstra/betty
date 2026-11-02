@@ -26,8 +26,7 @@ from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entities.source import Source
 from betty.license import LicenseManufacturer
-from betty.links.betty_documentation import BETTY_DOCUMENTATION
-from betty.links.betty_github import BETTY_GITHUB
+from betty.links import betty_documentation, betty_github
 from betty.loaders.demo import Demo
 from betty.locale import default_locale
 from betty.localizables.gettext import _
@@ -197,8 +196,8 @@ async def create_project(
         ],
         license=LicenseManufacturer("spdx-gpl-3-0-or-later"),
         links=[
-            BETTY_DOCUMENTATION,
-            BETTY_GITHUB,
+            betty_documentation,
+            betty_github,
         ],
         loaders=[
             Demo,
