@@ -28,7 +28,7 @@ class TestRaspberryMint:
     @pytest.mark.parametrize(
         ("expected", "primary_color"),
         [
-            (RaspberryMint.DEFAULT_PRIMARY_COLOR, None),
+            (RaspberryMint.default_primary_color, None),
             ("#aabbcc", "#aabbcc"),
         ],
     )
@@ -43,7 +43,7 @@ class TestRaspberryMint:
     @pytest.mark.parametrize(
         ("expected", "secondary_color"),
         [
-            (RaspberryMint.DEFAULT_SECONDARY_COLOR, None),
+            (RaspberryMint.default_secondary_color, None),
             ("#aabbcc", "#aabbcc"),
         ],
     )
@@ -60,7 +60,7 @@ class TestRaspberryMint:
     @pytest.mark.parametrize(
         ("expected", "tertiary_color"),
         [
-            (RaspberryMint.DEFAULT_TERTIARY_COLOR, None),
+            (RaspberryMint.default_tertiary_color, None),
             ("#aabbcc", "#aabbcc"),
         ],
     )
