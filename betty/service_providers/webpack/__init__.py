@@ -7,7 +7,7 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset_directories.webpack import webpack as WEBPACK_ASSET
+from betty.asset_directories import webpack as WEBPACK_ASSET
 from betty.css_resources.webpack import WEBPACK as WEBPACK_CSS_RESOURCE
 from betty.factory import Manufacturable
 from betty.jinja_filters.webpack_entry_point_js import WebpackEntryPointJs

@@ -1,4 +1,4 @@
-from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.asset_directories import raspberry_mint
 from betty.document import Document, EntityContexts
 from betty.entities.event import Event
 from betty.entities.person import Person

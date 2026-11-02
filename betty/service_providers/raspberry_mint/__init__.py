@@ -10,7 +10,7 @@ from enum import Enum
 from operator import not_
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.asset_directories import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.collection.mapping import ResolvedMapping
 from betty.collections.mapping.adapter import (

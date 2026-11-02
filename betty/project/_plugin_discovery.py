@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty.asset import AssetDirectoryDefinition
+from betty.asset_directories import builtin
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.event_type import EventTypeDefinition
 from betty.gender import GenderDefinition
@@ -15,8 +17,21 @@ if TYPE_CHECKING:
 
 
 @Project.require
+def _discover_asset_directories(
+    project: Project, /
+) -> Iterable[AssetDirectoryDefinition]:
+    yield AssetDirectoryDefinition(
+        "project",
+        assets=project.asset_directory,
+        after=lambda other: other != builtin.id,
+        before={builtin},
+        auto=True,
+    )
+
+
+@Project.require
 def _discover_copyright_notices(
-    project: Project,
+    project: Project, /
 ) -> Iterable[CopyrightNoticeDefinition]:
     return (
         plugin
@@ -26,7 +41,7 @@ def _discover_copyright_notices(
 
 
 @Project.require
-def _discover_event_types(project: Project) -> Iterable[EventTypeDefinition]:
+def _discover_event_types(project: Project, /) -> Iterable[EventTypeDefinition]:
     return (
         plugin
         for plugin in project._plugin_discoveries
@@ -35,7 +50,7 @@ def _discover_event_types(project: Project) -> Iterable[EventTypeDefinition]:
 
 
 @Project.require
-def _discover_genders(project: Project) -> Iterable[GenderDefinition]:
+def _discover_genders(project: Project, /) -> Iterable[GenderDefinition]:
     return (
         plugin
         for plugin in project._plugin_discoveries
@@ -44,7 +59,7 @@ def _discover_genders(project: Project) -> Iterable[GenderDefinition]:
 
 
 @Project.require
-def _discover_licenses(project: Project) -> Iterable[LicenseDefinition]:
+def _discover_licenses(project: Project, /) -> Iterable[LicenseDefinition]:
     return (
         plugin
         for plugin in project._plugin_discoveries
@@ -53,7 +68,7 @@ def _discover_licenses(project: Project) -> Iterable[LicenseDefinition]:
 
 
 @Project.require
-def _discover_place_types(project: Project) -> Iterable[PlaceTypeDefinition]:
+def _discover_place_types(project: Project, /) -> Iterable[PlaceTypeDefinition]:
     return (
         plugin
         for plugin in project._plugin_discoveries
@@ -62,7 +77,7 @@ def _discover_place_types(project: Project) -> Iterable[PlaceTypeDefinition]:
 
 
 @Project.require
-def _discover_roles(project: Project) -> Iterable[RoleDefinition]:
+def _discover_roles(project: Project, /) -> Iterable[RoleDefinition]:
     return (
         plugin
         for plugin in project._plugin_discoveries
