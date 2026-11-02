@@ -4,7 +4,7 @@ import pytest
 
 from betty.exception import HumanFacingException
 from betty.machine_name import InvalidMachineName, MachineName
-from betty.test_utils.machine_name import INVALID_MACHINE_NAMES, VALID_MACHINE_NAMES
+from betty.test_utils.machine_name import invalid_machine_names, valid_machine_names
 
 
 class TestMachineName:
@@ -13,31 +13,31 @@ class TestMachineName:
         assert len(sut) == 36
         assert not sut.persistent
 
-    @pytest.mark.parametrize("machine_name", VALID_MACHINE_NAMES)
+    @pytest.mark.parametrize("machine_name", valid_machine_names)
     def test___init____with_valid_value(self, machine_name: str) -> None:
         sut = MachineName(machine_name)
         assert sut == machine_name
         assert sut.persistent
 
-    @pytest.mark.parametrize("machine_name", INVALID_MACHINE_NAMES)
+    @pytest.mark.parametrize("machine_name", invalid_machine_names)
     def test___init____with_invalid_value(self, machine_name: str) -> None:
         with pytest.raises(InvalidMachineName):
             MachineName(machine_name)
 
-    @pytest.mark.parametrize("machine_name", VALID_MACHINE_NAMES)
+    @pytest.mark.parametrize("machine_name", valid_machine_names)
     def test_load(self, machine_name: str) -> None:
         sut = MachineName.definition.porter.load(machine_name)
         assert sut == machine_name
         assert sut.persistent
 
     @pytest.mark.parametrize(
-        "machine_name", [*INVALID_MACHINE_NAMES, {}, None, True, 123]
+        "machine_name", [*invalid_machine_names, {}, None, True, 123]
     )
     def test_load__with_invalid_value(self, machine_name: Any) -> None:
         with pytest.raises(HumanFacingException):
             MachineName.definition.porter.load(machine_name)
 
-    @pytest.mark.parametrize("machine_name", VALID_MACHINE_NAMES)
+    @pytest.mark.parametrize("machine_name", valid_machine_names)
     def test_dump(self, machine_name: str) -> None:
         sut = MachineName(machine_name)
         assert MachineName.definition.porter.dump(sut) == machine_name

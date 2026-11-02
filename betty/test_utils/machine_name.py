@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Final
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-VALID_MACHINE_NAMES: Final[Sequence[str]] = (
+valid_machine_names: Final[Sequence[str]] = (
     "a",
     "-a",
     "a-",
@@ -25,7 +25,7 @@ VALID_MACHINE_NAMES: Final[Sequence[str]] = (
     # Name is exactly 250 characters.
     "machinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachinemachi",
 )
-INVALID_MACHINE_NAMES: Final[Sequence[str]] = (
+invalid_machine_names: Final[Sequence[str]] = (
     # Consecutive dashes.
     "--a",
     "a--",
