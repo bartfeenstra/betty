@@ -5,8 +5,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from betty.media_type import MediaType
-from betty.media_types.pdf import PDF
-from betty.media_types.svg import SVG
+from betty.media_types import pdf, svg
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateString
@@ -16,8 +15,8 @@ class TestImageMediaTypeSupported:
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
-            ("true", PDF.media_type),
-            ("true", SVG.media_type),
+            ("true", pdf.media_type),
+            ("true", svg.media_type),
             ("true", MediaType("image/gif")),
             ("true", MediaType("image/jpeg")),
             ("true", MediaType("image/png")),

@@ -11,8 +11,7 @@ from betty.locale import (
     to_language_tag,
 )
 from betty.media_type import MediaType
-from betty.media_types.html import HTML
-from betty.media_types.json import JSON
+from betty.media_types import html, json
 from betty.url_generators.path import PathUrlGenerator
 from betty.url_generators.static_path_url import StaticPathUrlUrlGenerator
 
@@ -74,7 +73,7 @@ class TestStaticPathUrlUrlGenerator:
                     {"my_first_query": "my first value"},
                 )
                 for resource in _GENERATE_RESOURCES
-                for media_type in [HTML, JSON]
+                for media_type in [html, json]
                 for locale in [None, "nl-NL"]
                 for additional_project_locale in [None, Locale("nl", "NL")]
             ],
@@ -90,7 +89,7 @@ class TestStaticPathUrlUrlGenerator:
                     {"my_first_query": "my first value"},
                 )
                 for resource in _GENERATE_RESOURCES
-                for media_type in [HTML, JSON]
+                for media_type in [html, json]
                 for locale in [None, "nl-NL"]
                 for additional_project_locale in [None, Locale("nl", "NL")]
             ],

@@ -30,7 +30,7 @@ from betty.genders.man import Man
 from betty.genders.woman import Woman
 from betty.job import Job
 from betty.localizables.gettext import _, pgettext
-from betty.media_types.svg import SVG
+from betty.media_types import svg
 from betty.place_types.country import Country
 from betty.place_types.municipality import Municipality
 from betty.place_types.province import Province
@@ -532,7 +532,7 @@ class LoadDemoAncestry(Job):
             file = File(
                 streetmix_image_directory / file_name,
                 id=f"streetmix-{file_name.replace('.', '-')}",
-                media_type=SVG,
+                media_type=svg,
                 copyright_notice=self._streetmix_copyright_notice,
                 license=self._streetmix_license,
             )

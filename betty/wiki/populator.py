@@ -22,7 +22,7 @@ from betty.locale.error import LocaleError
 from betty.localizables.gettext import _
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
-from betty.media_types.html import HTML
+from betty.media_types import html
 from betty.user import Severity
 from betty.wiki import NotAPageError, parse_page_link
 from betty.wiki.client import ClientError
@@ -86,7 +86,7 @@ class Populator:
         except NotAPageError:
             return
         if link.media_type is None:
-            link.media_type = HTML
+            link.media_type = html
         if link.relationship is None:
             link.relationship = "external"
         if link.description is None:
@@ -226,7 +226,7 @@ class Populator:
                             description=_(
                                 "Find out more about this image on Wikimedia Commons."
                             ),
-                            media_type=HTML,
+                            media_type=html,
                         )
                     ],
                     copyright_notice=self._copyright_notice,

@@ -12,7 +12,7 @@ from betty.factory import Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.media_type import MediaType
-from betty.media_types.html import HTML
+from betty.media_types import html
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -51,7 +51,7 @@ class Url(JinjaFilter, Manufacturable):
     ) -> str:
         return self._url_generator.generate(
             resource,
-            media_type=MediaType(media_type) if media_type else HTML,
+            media_type=MediaType(media_type) if media_type else html,
             locale=locale or context_document(context).localizer.locale,
             **kwargs,
         )

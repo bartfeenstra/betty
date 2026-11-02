@@ -6,8 +6,7 @@ import pytest
 
 from betty.locale import ResolvableLocale
 from betty.media_type import ResolvableMediaType
-from betty.media_types.html import HTML
-from betty.media_types.json import JSON
+from betty.media_types import html, json
 from betty.typing import empty_frozen_dict
 from betty.url_generator import UnsupportedResource, UrlGenerator
 from betty.url_generators.dispatcher import UrlGeneratorDispatcher
@@ -93,7 +92,7 @@ class TestUrlGeneratorDispatcher:
         [
             (
                 "/",
-                HTML,
+                html,
                 False,
                 None,
                 None,
@@ -101,7 +100,7 @@ class TestUrlGeneratorDispatcher:
             ),
             (
                 "/",
-                JSON,
+                json,
                 False,
                 None,
                 None,
@@ -109,7 +108,7 @@ class TestUrlGeneratorDispatcher:
             ),
             (
                 "/",
-                HTML,
+                html,
                 True,
                 None,
                 None,
@@ -117,7 +116,7 @@ class TestUrlGeneratorDispatcher:
             ),
             (
                 "/",
-                HTML,
+                html,
                 False,
                 "nl-NL",
                 None,
@@ -125,7 +124,7 @@ class TestUrlGeneratorDispatcher:
             ),
             (
                 "/",
-                HTML,
+                html,
                 False,
                 None,
                 "my-first-fragment",
@@ -133,7 +132,7 @@ class TestUrlGeneratorDispatcher:
             ),
             (
                 "/",
-                HTML,
+                html,
                 False,
                 None,
                 None,

@@ -8,7 +8,7 @@ import pytest
 from aiohttp import ClientSession
 from geopy import Point
 
-from betty.media_types.svg import SVG
+from betty.media_types import svg
 from betty.test_utils.user.ui import StaticUi
 from betty.wiki.client import Client, ClientError, Summary
 
@@ -592,7 +592,7 @@ class TestClient:
             actual = await sut.get_image(page_language, page_name)
         if expected:
             assert actual is not None
-            assert actual.media_type == SVG
+            assert actual.media_type == svg
             assert actual.title == "An Example Image"
             assert actual.wikimedia_commons_url == "https://example.com/description"
             assert actual.path.suffix == ".svg"

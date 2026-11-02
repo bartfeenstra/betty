@@ -12,7 +12,7 @@ from betty.content_builder import ContentBuilder, ContentBuilderDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
-from betty.media_types.plain_text import PLAIN_TEXT
+from betty.media_types import plain_text
 from betty.project import Project
 from betty.sample import Sample, Samples, Size
 
@@ -38,13 +38,13 @@ class RenderData(Object):
     """
 
     content = new_localizable_attr(label=_("Content"))
-    media_type = new_media_type_attr().default(lambda: PLAIN_TEXT)
+    media_type = new_media_type_attr().default(lambda: plain_text)
 
     def __init__(
         self,
         /,
         content: ResolvableLocalizable,
-        media_type: ResolvableMediaType = PLAIN_TEXT,
+        media_type: ResolvableMediaType = plain_text,
     ):
         super().__init__()
         self.content = content
@@ -63,7 +63,7 @@ class Render(DataManufacturable[RenderData], ContentBuilder):
         *,
         content: ResolvableLocalizable,
         renderer: RenderDispatcher,
-        media_type: ResolvableMediaType = PLAIN_TEXT,
+        media_type: ResolvableMediaType = plain_text,
     ):
         self._content = content
         self._media_type = media_type

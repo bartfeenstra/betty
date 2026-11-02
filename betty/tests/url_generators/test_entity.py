@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from betty.locale import default_locale, default_locale_tag
-from betty.media_types.html import HTML
+from betty.media_types import html
 from betty.test_utils.entity import DummyEntityOne
 from betty.url_generators.entity import EntityUrlGenerator
 from betty.url_generators.path import PathUrlGenerator
@@ -44,6 +44,6 @@ class TestEntityUrlGenerator:
             )
         )
         assert (
-            sut.generate(DummyEntityOne(id="my-first-dummy"), media_type=HTML)
+            sut.generate(DummyEntityOne(id="my-first-dummy"), media_type=html)
             == "/dummy-one/my-first-dummy"
         )

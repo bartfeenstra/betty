@@ -15,7 +15,7 @@ from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entity import Entity, EntityDefinition
 from betty.file import write
-from betty.media_types.html import HTML
+from betty.media_types import html
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -217,7 +217,7 @@ class Index:
             "search/result.html.j2",
         ]).render_async(
             document=await self._project.new_document(
-                HTML,
+                html,
                 context=self._context,
                 localizer=self._localizer,
             ),

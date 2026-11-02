@@ -11,8 +11,7 @@ from betty.locale import (
     to_language_tag,
 )
 from betty.media_type import MediaType
-from betty.media_types.html import HTML
-from betty.media_types.json import JSON
+from betty.media_types import html, json
 from betty.url_generators.localized_path_url import LocalizedPathUrlUrlGenerator
 from betty.url_generators.path import PathUrlGenerator
 
@@ -70,7 +69,7 @@ class TestLocalizedPathUrlUrlGenerator:
                     None,
                 )
                 for resource in _GENERATE_RESOURCES
-                for media_type in [HTML, JSON]
+                for media_type in [html, json]
             ],
             *[
                 (
@@ -82,7 +81,7 @@ class TestLocalizedPathUrlUrlGenerator:
                     None,
                 )
                 for resource in _GENERATE_RESOURCES
-                for media_type in [HTML, JSON]
+                for media_type in [html, json]
             ],
             *[
                 (
@@ -94,7 +93,7 @@ class TestLocalizedPathUrlUrlGenerator:
                     Locale("nl", "NL"),
                 )
                 for resource in _GENERATE_RESOURCES
-                for media_type in [HTML, JSON]
+                for media_type in [html, json]
             ],
             *[
                 (
@@ -106,7 +105,7 @@ class TestLocalizedPathUrlUrlGenerator:
                     Locale("nl", "NL"),
                 )
                 for resource in _GENERATE_RESOURCES
-                for media_type in [HTML, JSON]
+                for media_type in [html, json]
             ],
         ],
     )

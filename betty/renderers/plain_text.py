@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, override
 
 from betty.html import plain_text_to_html
 from betty.localizables.gettext import _
-from betty.media_types.plain_text import PLAIN_TEXT
+from betty.media_types import plain_text
 from betty.render import Renderer, RendererDefinition
 
 if TYPE_CHECKING:
@@ -24,7 +24,7 @@ class PlainText(Renderer):
     @override
     @property
     def media_type(self) -> MediaType:
-        return PLAIN_TEXT.media_type
+        return plain_text.media_type
 
     @override
     async def render(self, content: str, /) -> str:

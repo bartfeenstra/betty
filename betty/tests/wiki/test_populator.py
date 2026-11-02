@@ -14,7 +14,7 @@ from betty.entities.source import Source
 from betty.entity.collection.pool import EntityPool
 from betty.localizer import LocalizerRepository
 from betty.media_type import MediaType
-from betty.media_types.html import HTML
+from betty.media_types import html
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.uis.no_op import NoOpUi
@@ -68,7 +68,7 @@ class TestPopulator:
         assert link.label.localize(localizer_en) == "Amsterdam (en)"
         assert link.label.localize(localizer_nl) == "Amsterdam (nl)"
         assert link.label.localize(localizer_uk) == "Амстердам (uk)"
-        assert link.media_type == HTML
+        assert link.media_type == html
         assert link.relationship == "external"
         assert link.description is not None
         m_client.get_translations.assert_awaited_once_with("en", "Amsterdam")
@@ -108,7 +108,7 @@ class TestPopulator:
         assert (
             link.url.localize(localizer_en) == "http://en.wikipedia.org/wiki/Amsterdam"
         )
-        assert link.media_type == HTML
+        assert link.media_type == html
         assert link.relationship == "external"
         assert link.description is not None
         m_client.get_translations.assert_awaited_once_with("en", "Amsterdam")

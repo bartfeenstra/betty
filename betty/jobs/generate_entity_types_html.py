@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.entity import EntityDefinition
 from betty.job import Job
 from betty.jobs import _create_html_resource
-from betty.media_types.html import HTML
+from betty.media_types import html
 
 if TYPE_CHECKING:
     from babel import Locale
@@ -105,7 +105,7 @@ class _GenerateEntityTypeHtml(Job):
                 self._entity_type,
                 context=context,
                 localizer=await self._project.localizers.get(self._locale),
-                media_type=HTML,
+                media_type=html,
             ),
             page=self._page,
             per_page=self._per_page,

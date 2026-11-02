@@ -33,7 +33,7 @@ from betty.media_type import (
     match_extension,
     resolve_media_type,
 )
-from betty.media_types.jinja import JINJA
+from betty.media_types import jinja
 from betty.pathlib import resolve_path
 from betty.store import StoreItem
 from betty.string import kebab_case_to_snake_case
@@ -183,7 +183,7 @@ def make_copy_function(
         destination = resolve_path(destination)
         await to_thread(makedirs, destination.parent, exist_ok=True)
         try:
-            _jinja_media_type, extension = match_extension(source, [JINJA.media_type])
+            _jinja_media_type, extension = match_extension(source, [jinja.media_type])
         except UnsupportedMediaType:
             copy2(source, destination)
             return

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.entities.person import Person
 from betty.file import write
 from betty.job import Job
-from betty.media_types.html import HTML
+from betty.media_types import html
 
 if TYPE_CHECKING:
     from babel import Locale
@@ -43,7 +43,7 @@ class _GenerateTreesPeopleJson(Job):
                 "label": person.label.localize(localizer)
                 if person.public
                 else private_label,
-                "url": url_generator.generate(person, media_type=HTML),
+                "url": url_generator.generate(person, media_type=html),
                 "parentIds": [parent.id for parent in person.parents],
                 "childIds": [child.id for child in person.children],
                 "private": person.private,

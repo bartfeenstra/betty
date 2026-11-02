@@ -15,8 +15,7 @@ from betty.media_type import (
     match_media_type,
     resolve_media_type,
 )
-from betty.media_types.html import HTML
-from betty.media_types.plain_text import PLAIN_TEXT
+from betty.media_types import html, plain_text
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -129,7 +128,7 @@ class TestMediaType:
         [True, False, None, "abc", 123, [], {}],
     )
     def test___eq___with_not_implemented(self, other: Any) -> None:
-        assert other != PLAIN_TEXT
+        assert other != plain_text
 
     @pytest.mark.parametrize(
         ("expected", "left", "right"),
@@ -277,8 +276,8 @@ class TestMediaType:
 @pytest.mark.parametrize(
     ("expected", "source", "media_types"),
     [
-        (PLAIN_TEXT, PLAIN_TEXT, [PLAIN_TEXT]),
-        (PLAIN_TEXT, PLAIN_TEXT, [HTML, PLAIN_TEXT]),
+        (plain_text, plain_text, [plain_text]),
+        (plain_text, plain_text, [html, plain_text]),
     ],
 )
 def test_match_media_type(
@@ -290,8 +289,8 @@ def test_match_media_type(
 @pytest.mark.parametrize(
     ("source", "media_types"),
     [
-        (PLAIN_TEXT, []),
-        (PLAIN_TEXT, [HTML]),
+        (plain_text, []),
+        (plain_text, [html]),
     ],
 )
 def test_match_media_type__with_unsupported_media_type(
@@ -304,12 +303,12 @@ def test_match_media_type__with_unsupported_media_type(
 @pytest.mark.parametrize(
     ("expected", "source", "media_types"),
     [
-        ((PLAIN_TEXT, ".txt"), "my.first.source.txt", [PLAIN_TEXT.media_type]),
-        ((PLAIN_TEXT, ".txt"), Path("my.first.source.txt"), [PLAIN_TEXT.media_type]),
+        ((plain_text, ".txt"), "my.first.source.txt", [plain_text.media_type]),
+        ((plain_text, ".txt"), Path("my.first.source.txt"), [plain_text.media_type]),
         (
-            (PLAIN_TEXT, ".txt"),
+            (plain_text, ".txt"),
             "my.first.source.txt",
-            [HTML.media_type, PLAIN_TEXT.media_type],
+            [html.media_type, plain_text.media_type],
         ),
     ],
 )
@@ -325,8 +324,8 @@ def test_match_extension(
     ("source", "media_types"),
     [
         ("my.first.source.txt", []),
-        ("", [PLAIN_TEXT.media_type]),
-        ("my.first.source.txt", [HTML.media_type]),
+        ("", [plain_text.media_type]),
+        ("my.first.source.txt", [html.media_type]),
     ],
 )
 def test_match_extension__with_unsupported_media_type(
@@ -338,8 +337,8 @@ def test_match_extension__with_unsupported_media_type(
 
 class TestUnsupportedMediaType:
     def test_new(self) -> None:
-        sut = UnsupportedMediaType(PLAIN_TEXT.media_type)
-        assert str(PLAIN_TEXT.media_type) in str(sut)
+        sut = UnsupportedMediaType(plain_text.media_type)
+        assert str(plain_text.media_type) in str(sut)
 
 
 class TestMissingMediaType:

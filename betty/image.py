@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from PIL import UnidentifiedImageError
 from PIL.Image import EXTENSION, Image, init, preinit
 
-from betty.media_types.pdf import PDF
+from betty.media_types import pdf
 from betty.pathlib import StrPath, resolve_path
 
 if TYPE_CHECKING:
@@ -30,7 +30,7 @@ def is_supported_media_type(media_type: MediaType) -> bool:
     """
     if media_type.type == "image":
         return True
-    return media_type == PDF
+    return media_type == pdf
 
 
 def image_file_path_format(image_file: StrPath, /) -> str:
