@@ -1,15 +1,18 @@
 """
-HTTP client rate limiting.
+The HTTP client API.
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final, Self, final
 
+from aiohttp import ClientError, ClientHandlerType, ClientRequest, ClientResponse
+
 from betty.concurrent import RateLimiter, ThreadSafeLock
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.ordered import OrderedPluginDefinition
+from betty.plugin.ordered import Order, OrderedPluginDefinition
+from betty.user import Severity
 
 if TYPE_CHECKING:
     import re
@@ -19,8 +22,29 @@ if TYPE_CHECKING:
     from aiohttp.client_reqrep import ClientRequest, ClientResponse
 
     from betty.machine_name import ResolvableMachineName
-    from betty.plugin.ordered import Order
     from betty.requirement import Requires
+    from betty.user.ui import Ui
+
+
+class ClientErrorToUserMessageMiddleware:
+    """
+    Log client errors to a user.
+    """
+
+    def __init__(self, ui: Ui):
+        self._ui = ui
+
+    async def __call__(
+        self, request: ClientRequest, handler: ClientHandlerType
+    ) -> ClientResponse:
+        """
+        Call the middleware.
+        """
+        try:
+            return await handler(request)
+        except ClientError as error:
+            await self._ui.message(str(error), Severity.DEBUG)
+            raise
 
 
 @final

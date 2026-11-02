@@ -278,7 +278,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             if attr_name.startswith("html_")
         },
     },
-    "betty/http_client/rate_limit.py": {
+    "betty/http_client.py": {
         "RateLimitDefinition": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/jinja/__init__.py": {
