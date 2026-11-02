@@ -11,7 +11,7 @@ from betty.media_type import (
     match_media_type,
     resolve_media_type,
 )
-from betty.media_types.html import HTML
+from betty.media_types import html
 from betty.typing import empty_frozen_dict
 from betty.url_generator import UrlGenerator
 
@@ -44,8 +44,8 @@ class _EntityUrlGenerator[ResourceT](UrlGenerator[ResourceT]):
         if media_type is None:
             raise MissingMediaType()
         media_type = resolve_media_type(media_type)
-        media_type = match_media_type(media_type, (HTML.media_type,))
-        if media_type == HTML:
+        media_type = match_media_type(media_type, (html.media_type,))
+        if media_type == html:
             if not locale:
                 locale = self._path_url_generator.default_locale
         else:

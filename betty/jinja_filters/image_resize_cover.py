@@ -24,7 +24,7 @@ from betty.image import image_file_path_format, resize_cover
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 from betty.jinja_filters.file import File as FileFilter
-from betty.media_types.svg import SVG
+from betty.media_types import svg
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -103,7 +103,7 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
             focus = file_reference.focus
 
         # Treat SVGs as regular files.
-        if file.media_type and file.media_type == SVG:
+        if file.media_type and file.media_type == svg:
             return await self._file_filter(context, file)
 
         job_context = context_document(context).context

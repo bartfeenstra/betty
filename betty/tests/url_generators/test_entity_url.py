@@ -4,7 +4,7 @@ import pytest
 
 from betty.entity.collection.pool import EntityPool
 from betty.locale import default_locale, default_locale_tag
-from betty.media_types.html import HTML
+from betty.media_types import html
 from betty.test_utils.entity import DummyEntityOne
 from betty.url_generators.entity import EntityUrlGenerator
 from betty.url_generators.entity_url import EntityUrlUrlGenerator
@@ -68,7 +68,7 @@ class TestEntityUrlUrlGenerator:
                 absolute=True,
                 fragment=fragment,
                 locale=locale,
-                media_type=HTML,
+                media_type=html,
                 query=query,
             )
             == f"https://example.com/dummy-one/{entity.id}?my_first_query=my+first+value#my-first-fragment"

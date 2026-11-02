@@ -10,7 +10,7 @@ from betty.factory import Manufacturable
 from betty.html.url import generate_urls
 from betty.localizables.gettext import _
 from betty.localizables.markup import JoinAnd
-from betty.media_types.html import HTML
+from betty.media_types import html
 from betty.project import Project
 from betty.render import Renderer, RendererDefinition
 
@@ -47,7 +47,7 @@ class Html(Manufacturable, Renderer):
     @override
     @property
     def media_type(self) -> MediaType:
-        return HTML.media_type
+        return html.media_type
 
     @override
     async def render(self, content: str, /) -> str:

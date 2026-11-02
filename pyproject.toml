@@ -164,13 +164,13 @@ betty = 'betty.consoles.app:main'
 'gramps' = 'betty.loaders.gramps:Gramps'
 
 [project.entry-points.'betty.media_type']
-'html' = 'betty.media_types.html:HTML'
-'jinja' = 'betty.media_types.jinja:JINJA'
-'json' = 'betty.media_types.json:JSON'
-'pdf' = 'betty.media_types.pdf:PDF'
-'plain-text' = 'betty.media_types.plain_text:PLAIN_TEXT'
-'svg' = 'betty.media_types.svg:SVG'
-'yaml' = 'betty.media_types.yaml:YAML'
+'html' = 'betty.media_types:html'
+'jinja' = 'betty.media_types:jinja'
+'json' = 'betty.media_types:json'
+'pdf' = 'betty.media_types:pdf'
+'plain-text' = 'betty.media_types:plain_text'
+'svg' = 'betty.media_types:svg'
+'yaml' = 'betty.media_types:yaml'
 
 [project.entry-points.'betty.enricher']
 'deriver' = 'betty.enrichers.deriver:Deriver'

@@ -379,13 +379,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/media_type.py": {
         "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/media_types/html.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/media_types/jinja.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/media_types/json.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/media_types/pdf.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/media_types/plain_text.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/media_types/svg.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/media_types/yaml.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/media_types.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/collection/__init__.py": {
         "MutableCollection": MissingReason.ABSTRACT,
     },

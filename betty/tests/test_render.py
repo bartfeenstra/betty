@@ -1,7 +1,7 @@
 from typing import ClassVar, override
 
 from betty.media_type import MediaType
-from betty.media_types.html import HTML
+from betty.media_types import html
 from betty.render import RenderDispatcher, Renderer
 
 
@@ -36,7 +36,7 @@ class _StaticRendererTwo(_StaticRenderer):
 class TestRenderDispatcher:
     async def test_render__without_renderers(self) -> None:
         sut = RenderDispatcher()
-        assert await sut.render("<html>", HTML) == "<p>&lt;html&gt;</p>"
+        assert await sut.render("<html>", html) == "<p>&lt;html&gt;</p>"
 
     async def test_render__with_renderers(self) -> None:
         media_type = MediaType("text/x.betty.test")

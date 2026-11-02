@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.entities.place import Place
 from betty.file import write
 from betty.job import Job
-from betty.media_types.html import HTML
+from betty.media_types import html
 
 if TYPE_CHECKING:
     from babel import Locale
@@ -59,7 +59,7 @@ class _GenerateMapsPlacePreview(Job):
             "component/maps/selected-place-preview.html.j2",
         ).render_async(
             document=await self._project.new_document(
-                HTML,
+                html,
                 context=context,
                 localizer=await self._project.localizers.get(self._locale),
             ),

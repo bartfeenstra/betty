@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Final, final, override
 
 from betty.file import write
 from betty.job import Job
-from betty.media_types.html import HTML
+from betty.media_types import html
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
@@ -86,7 +86,7 @@ class GenerateSitemap(Job):
                         entity,
                         absolute=True,
                         locale=locale,
-                        media_type=HTML,
+                        media_type=html,
                     )
                 )
                 sitemap_batch_urls_length += 1

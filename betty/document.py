@@ -31,7 +31,7 @@ from betty.definition.id import resolve_id
 from betty.localizables.gettext import _, ngettext
 from betty.localizer import Localizer, default_localizer
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
-from betty.media_types.html import HTML
+from betty.media_types import html
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
@@ -245,7 +245,7 @@ class Breadcrumb:
         if self.resource_url is not None:
             url_generator = await project.url_generator
             portable["item"] = url_generator.generate(
-                self.resource_url, absolute=True, media_type=HTML
+                self.resource_url, absolute=True, media_type=html
             )
         return portable
 

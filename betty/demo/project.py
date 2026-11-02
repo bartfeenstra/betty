@@ -31,7 +31,7 @@ from betty.loaders.demo import Demo
 from betty.locale import default_locale
 from betty.localizables.gettext import _
 from betty.localizables.markup import Chain
-from betty.media_types.html import HTML
+from betty.media_types import html
 from betty.project import Project
 from betty.service_provider import ServiceProviderManufacturer
 from betty.service_providers.maps import Maps
@@ -97,7 +97,7 @@ async def create_project(
                                                             _("View the code"),
                                                             "</a>",
                                                         ),
-                                                        HTML,
+                                                        html,
                                                     ),
                                                 ),
                                             ],
@@ -114,7 +114,7 @@ async def create_project(
                                                             ),
                                                             "</p>",
                                                         ),
-                                                        HTML,
+                                                        html,
                                                     ),
                                                 ),
                                             ],

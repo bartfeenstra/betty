@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, final, override
 from betty.entity import EntityDefinition
 from betty.job import Job
 from betty.jobs import _create_html_resource
-from betty.media_types.html import HTML
+from betty.media_types import html
 
 if TYPE_CHECKING:
     from babel import Locale
@@ -92,7 +92,7 @@ class _GenerateEntityHtml(Job):
                 entity,
                 context=context,
                 localizer=await self._project.localizers.get(self._locale),
-                media_type=HTML,
+                media_type=html,
             )
         )
         await _create_html_resource(entity_path, rendered_html)

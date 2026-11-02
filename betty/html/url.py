@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from lxml.html import fragment_fromstring, tostring
 
-from betty.media_types.html import HTML
+from betty import media_types
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -33,7 +33,8 @@ def generate_urls(
                 attr_value = element.get(attr_name)
                 if url_generator.supports(attr_value):
                     element.set(
-                        attr_name, url_generator.generate(attr_value, media_type=HTML)
+                        attr_name,
+                        url_generator.generate(attr_value, media_type=media_types.html),
                     )
                     generated = True
 

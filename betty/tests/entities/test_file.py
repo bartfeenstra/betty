@@ -11,7 +11,7 @@ from betty.entities.file_reference import FileReference
 from betty.entities.note import Note
 from betty.entity import Entity
 from betty.localizer import default_localizer
-from betty.media_types.plain_text import PLAIN_TEXT
+from betty.media_types import plain_text
 from betty.privacy import Privacy
 from betty.test_utils.entity import EntityTestBase
 from betty.test_utils.entity.associations.has_file_references import (
@@ -57,7 +57,7 @@ class TestFile(EntityTestBase):
     def test_media_type(self) -> None:
         sut = File(Path(__file__))
         assert sut.media_type is None
-        media_type = PLAIN_TEXT
+        media_type = plain_text
         sut.media_type = media_type
         assert sut.media_type == media_type
 
