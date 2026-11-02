@@ -1,5 +1,5 @@
 from collections.abc import Iterable, Sequence
-from typing import ClassVar, override
+from typing import Final, override
 
 from betty.app import App
 from betty.definition import ResolvableDefinition
@@ -178,7 +178,7 @@ class TestHasPluginServices:
 
 
 class PluginServiceManagerTestBase:
-    _SERVICES: ClassVar[ServiceLevel] = ServiceLevel(
+    _services: Final[ServiceLevel] = ServiceLevel(
         plugins={
             DummyPluginDefinition: [
                 DummyPluginOne,

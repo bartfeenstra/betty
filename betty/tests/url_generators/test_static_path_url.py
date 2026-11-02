@@ -1,5 +1,5 @@
 from collections.abc import Mapping, Sequence
-from typing import Any, ClassVar
+from typing import Any, Final
 
 import pytest
 from babel import Locale
@@ -17,7 +17,7 @@ from betty.url_generators.static_path_url import StaticPathUrlUrlGenerator
 
 
 class TestStaticPathUrlUrlGenerator:
-    _GENERATE_RESOURCES: ClassVar[Sequence[str]] = [
+    _generate_resources: Final[Sequence[str]] = [
         "betty-static://some/path/index.html",
         "betty-static:///some/path/index.html",
     ]
@@ -72,7 +72,7 @@ class TestStaticPathUrlUrlGenerator:
                     "my-first-fragment",
                     {"my_first_query": "my first value"},
                 )
-                for resource in _GENERATE_RESOURCES
+                for resource in _generate_resources
                 for media_type in [html, json]
                 for locale in [None, "nl-NL"]
                 for additional_project_locale in [None, Locale("nl", "NL")]
@@ -88,7 +88,7 @@ class TestStaticPathUrlUrlGenerator:
                     "my-first-fragment",
                     {"my_first_query": "my first value"},
                 )
-                for resource in _GENERATE_RESOURCES
+                for resource in _generate_resources
                 for media_type in [html, json]
                 for locale in [None, "nl-NL"]
                 for additional_project_locale in [None, Locale("nl", "NL")]

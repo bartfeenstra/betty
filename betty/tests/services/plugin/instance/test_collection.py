@@ -55,7 +55,7 @@ class TestCollectionPluginInstanceServiceManager(PluginServiceManagerTestBase):
     async def test_new_service_item(
         self, init_plugin: ManufacturableDummyPlugin
     ) -> None:
-        owner = self._Owner(services=self._SERVICES)
+        owner = self._Owner(services=self._services)
         async with owner:
             assert isinstance(
                 await self._Owner.my_first_service.new_service_item(owner, init_plugin),

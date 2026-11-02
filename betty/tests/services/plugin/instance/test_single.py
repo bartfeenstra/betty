@@ -19,7 +19,7 @@ class TestPluginInstanceService(PluginServiceManagerTestBase):
         my_first_service = PluginInstanceService(DummyPluginDefinition)
 
         def __init__(self, init_plugin: ManufacturableDummyPlugin):
-            super().__init__(services=TestPluginInstanceService._SERVICES)
+            super().__init__(services=TestPluginInstanceService._services)
             type(self).my_first_service.add_init_plugins(self, init_plugin)
 
     @pytest.mark.parametrize(

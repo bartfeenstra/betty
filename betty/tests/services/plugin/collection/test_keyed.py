@@ -62,7 +62,7 @@ class _KeyedCollectionPluginServiceManagerTestOwner(HasPluginServices, HasServic
     my_first_service = _KeyedCollectionPluginServiceManagerTestSut()
 
     def __init__(self):
-        super().__init__(services=TestKeyedCollectionPluginServiceManager._SERVICES)
+        super().__init__(services=TestKeyedCollectionPluginServiceManager._services)
         type(self).my_first_service.add_init_plugins(
             self, DummyPluginThree, DummyPluginTwo, DummyPluginOne
         )

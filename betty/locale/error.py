@@ -44,7 +44,7 @@ class UnknownLocale(LocaleError):
     Raised when a locale is not known by the system.
     """
 
-    _AVAILABLE_LOCALES: Final[Sequence[str]] = sorted(
+    _available_locales: Final[Sequence[str]] = sorted(
         to_language_tag(Locale.parse(identifier)) for identifier in locale_identifiers()
     )
 
@@ -52,7 +52,7 @@ class UnknownLocale(LocaleError):
         locale_chars = {char for char in locale[: locale.find("-")] if char.isalpha()}
         available_locales = [
             locale
-            for locale in self._AVAILABLE_LOCALES
+            for locale in self._available_locales
             if set(locale[: locale.find("_")]) & locale_chars
         ]
         super().__init__(

@@ -10,11 +10,14 @@ from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Final
 
 
-_DUMMY_DATE_DUMPS: tuple[
-    Sequence[PortableMapping],
-    Sequence[PortableMapping],
+_dummy_date_dumps: Final[
+    tuple[
+        Sequence[PortableMapping],
+        Sequence[PortableMapping],
+    ]
 ] = (
     [
         {
@@ -73,34 +76,38 @@ _DUMMY_DATE_DUMPS: tuple[
     ],
 )
 
-_DUMMY_DATE_RANGE_DUMPS: tuple[
-    Sequence[PortableMapping],
-    Sequence[PortableMapping],
+_dummy_date_range_dumps: Final[
+    tuple[
+        Sequence[PortableMapping],
+        Sequence[PortableMapping],
+    ]
 ] = (
     [
         *[
             cast(PortableMapping, {"start": start, "end": None})
-            for start in _DUMMY_DATE_DUMPS[0]
+            for start in _dummy_date_dumps[0]
         ],
         *[
             cast(PortableMapping, {"start": None, "end": end})
-            for end in _DUMMY_DATE_DUMPS[0]
+            for end in _dummy_date_dumps[0]
         ],
         *[
             cast(PortableMapping, {"start": start, "end": end})
-            for start in _DUMMY_DATE_DUMPS[0]
-            for end in _DUMMY_DATE_DUMPS[0]
+            for start in _dummy_date_dumps[0]
+            for end in _dummy_date_dumps[0]
         ],
     ],
     [],
 )
 
-_DUMMY_RESOLVABLE_DATE_DUMPS: tuple[
-    Sequence[PortableMapping],
-    Sequence[PortableMapping],
+_dummy_resolvable_date_dumps: Final[
+    tuple[
+        Sequence[PortableMapping],
+        Sequence[PortableMapping],
+    ]
 ] = (
-    [*_DUMMY_DATE_DUMPS[0], *_DUMMY_DATE_RANGE_DUMPS[0]],
-    [*_DUMMY_DATE_DUMPS[1], *_DUMMY_DATE_RANGE_DUMPS[1]],
+    [*_dummy_date_dumps[0], *_dummy_date_range_dumps[0]],
+    [*_dummy_date_dumps[1], *_dummy_date_range_dumps[1]],
 )
 
 
@@ -338,7 +345,7 @@ class TestDateRange:
     def test_comparable(self, expected: bool, sut: DateRange) -> None:
         assert sut.comparable == expected
 
-    _TEST_CONTAINS_PARAMETERS: Sequence[tuple[bool, AnyDate, AnyDate]] = [
+    _test_contains_parameters: Final[Sequence[tuple[bool, AnyDate, AnyDate]]] = [
         (False, Date(1970, 2, 2), DateRange()),
         (False, Date(1970, 2), DateRange()),
         (False, Date(1970), DateRange()),
@@ -413,8 +420,8 @@ class TestDateRange:
     # Mirror the arguments because we want the containment check to work in either direction.
     @pytest.mark.parametrize(
         ("expected", "other", "sut"),
-        _TEST_CONTAINS_PARAMETERS
-        + [(x[0], x[2], x[1]) for x in _TEST_CONTAINS_PARAMETERS],
+        _test_contains_parameters
+        + [(x[0], x[2], x[1]) for x in _test_contains_parameters],
     )
     def test___contains__(self, expected: bool, other: AnyDate, sut: AnyDate) -> None:
         assert (other in sut) == expected

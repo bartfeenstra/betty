@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from asyncio import gather
 from collections.abc import Iterable, Mapping, Sequence
-from typing import TYPE_CHECKING, ClassVar, Self, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.assertions.enum import assert_enum
 from betty.assertions.if_else import assert_if_else
@@ -40,6 +40,8 @@ from betty.sample import Sample, Samples, Size
 from betty.service_providers.raspberry_mint import Breakpoint, JustifyContent
 
 if TYPE_CHECKING:
+    from typing import Final
+
     from betty.document import Document
     from betty.jinja import Environment
 
@@ -121,7 +123,7 @@ class ColumnsData(Object):
     .. data:: betty.content_builders.raspberry_mint_columns:ColumnsData
     """
 
-    _DEFAULT_WIDTH: ClassVar[ColumnsWidth] = {Breakpoint.XS: [12]}
+    _default_width: Final[ColumnsWidth] = {Breakpoint.XS: [12]}
     _width: ColumnsWidth
 
     content = OwnerAttr(
@@ -169,7 +171,7 @@ class ColumnsData(Object):
                 },
             ),
         )
-    ).default(lambda: ColumnsData._DEFAULT_WIDTH)
+    ).default(lambda: ColumnsData._default_width)
     """
     The column widths.
     """

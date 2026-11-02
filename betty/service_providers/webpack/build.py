@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from betty.pathlib import StrPath
     from betty.user.ui import Ui
 
-_NPM_PROJECT_DIRECTORY: Final[Path] = webpack_entry_point_directory / "webpack"
+_npm_project_directory: Final[Path] = webpack_entry_point_directory / "webpack"
 
 
 class EntryPointProvider[ServiceLevelT: ServiceLevel = ServiceLevel](
@@ -62,7 +62,7 @@ async def _npm_project_id(
     entry_point_providers: Sequence[EntryPointProvider],
 ) -> str:
     return hashid_sequence(
-        await hashid_file_content(_NPM_PROJECT_DIRECTORY / "package.json"),
+        await hashid_file_content(_npm_project_directory / "package.json"),
         *[
             await hashid_file_content(
                 resolve_path(entry_point_provider.webpack_entry_point_directory())
@@ -71,12 +71,6 @@ async def _npm_project_id(
             for entry_point_provider in entry_point_providers
         ],
     )
-
-
-async def _npm_project_directory(
-    working_directory: Path, entry_point_providers: Sequence[EntryPointProvider]
-) -> Path:
-    return working_directory / await _npm_project_id(entry_point_providers)
 
 
 def webpack_build_id(
@@ -148,8 +142,8 @@ class Builder:
         await gather(*[
             to_thread(copy2, source_file, npm_project_directory)
             for source_file in (
-                _NPM_PROJECT_DIRECTORY / "package.json",
-                _NPM_PROJECT_DIRECTORY / "webpack.config.js",
+                _npm_project_directory / "package.json",
+                _npm_project_directory / "webpack.config.js",
                 root_directory / ".browserslistrc",
                 root_directory / "tsconfig.json",
             )
@@ -362,8 +356,8 @@ class Builder:
         :return: The path to the directory from which the assets can be copied to their
             final destination.
         """
-        npm_project_directory = await _npm_project_directory(
-            working_directory, self._entry_point_providers
+        npm_project_directory = working_directory / await _npm_project_id(
+            self._entry_point_providers
         )
         webpack_build_directory = _webpack_build_directory(
             npm_project_directory, self._entry_point_providers, self._debug

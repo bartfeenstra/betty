@@ -18,7 +18,7 @@ class TestPluginInstancesService(PluginServiceManagerTestBase):
         my_first_service = PluginInstancesService(DummyPluginDefinition)
 
         def __init__(self, *init_plugins: ManufacturableDummyPlugin):
-            super().__init__(services=TestPluginInstancesService._SERVICES)
+            super().__init__(services=TestPluginInstancesService._services)
             type(self).my_first_service.add_init_plugins(self, *init_plugins)
 
     async def test_new_service__without_plugins(self) -> None:

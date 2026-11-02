@@ -3,7 +3,7 @@ import threading
 import time
 from asyncio import create_task, gather, run, sleep, wait_for
 from collections.abc import Sequence
-from typing import ClassVar, override
+from typing import Final, override
 from unittest.mock import call
 
 import pytest
@@ -70,7 +70,7 @@ class TestThreadSafeLock:
 
 
 class TestRateLimiter:
-    _TEST_WAIT_PARAMETERS: ClassVar[Sequence[tuple[int, int, int]]] = [
+    _test_wait_parameters: Final[Sequence[tuple[int, int, int]]] = [
         (0, 100, 100),
         # This is one higher than the rate limiter's maximum, to ensure we spend at least one full period.
         (1, 101, 100),
@@ -78,7 +78,7 @@ class TestRateLimiter:
 
     @pytest.mark.parametrize(
         ("expected", "consumers", "maximum"),
-        _TEST_WAIT_PARAMETERS,
+        _test_wait_parameters,
     )
     async def test_wait(self, expected: int, consumers: int, maximum: int) -> None:
         sut = RateLimiter(maximum)
