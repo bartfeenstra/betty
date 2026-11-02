@@ -74,13 +74,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "AssetError": MissingReason.ABSTRACT,
         "AssetRepository": MissingReason.ABSTRACT,
     },
-    "betty/asset_directories/builtin.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/asset_directories/maps.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/asset_directories/raspberry_mint.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/asset_directories/trees.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/asset_directories/project.py": MissingReason.COVERED_ELSEWHERE,
-    "betty/asset_directories/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/asset_directories/wiki.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/asset_directories.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/association.py": {
         "Association": {
             "associate": MissingReason.ABSTRACT,

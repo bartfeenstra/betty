@@ -13,7 +13,7 @@ from betty.assertions.if_else import assert_if_else
 from betty.assertions.int import assert_int
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.sequence import assert_sequence
-from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.asset_directories import raspberry_mint
 from betty.attrs.owner import OwnerAttr
 from betty.content_builder import (
     ContentBuilder,

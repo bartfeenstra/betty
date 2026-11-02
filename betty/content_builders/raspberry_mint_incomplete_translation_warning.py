@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from polib import pofile
 
-from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.asset_directories import raspberry_mint
 from betty.concurrent import Ledger, ThreadSafeLock
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild

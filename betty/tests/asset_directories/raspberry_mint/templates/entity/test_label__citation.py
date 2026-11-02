@@ -9,7 +9,7 @@ from betty.privacy import Privacy
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertTemplateFile
-from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.asset_directories import raspberry_mint
 
 
 async def test_minimal(assert_template_file: AssertTemplateFile) -> None:

@@ -82,7 +82,7 @@ async def update_builtin_translations(
     """
     Update the translations for Betty itself.
     """
-    from betty.asset_directories.builtin import builtin
+    from betty.asset_directories import builtin
 
     source_directory = dirs.root_directory / "betty"
     test_directory = source_directory / "tests"

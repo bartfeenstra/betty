@@ -1,4 +1,4 @@
-from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.asset_directories import raspberry_mint
 from betty.entities.event import Event
 from betty.test_utils.conftest import AssertTemplateFile
 

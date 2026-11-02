@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset_directories.maps import maps
+from betty.asset_directories import maps
 from betty.dirs import webpack_entry_point_directory
 from betty.factory import Manufacturable
 from betty.jobs._generate_maps_place_previews import _GenerateMapsPlacePreviews

@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from betty.asset_directories.raspberry_mint import raspberry_mint
+from betty.asset_directories import raspberry_mint
 from betty.associations.has_file_references import HasFileReferences
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference

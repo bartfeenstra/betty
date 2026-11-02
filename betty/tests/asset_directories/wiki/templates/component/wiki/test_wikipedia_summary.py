@@ -1,4 +1,4 @@
-from betty.asset_directories.wiki import wiki
+from betty.asset_directories import wiki
 from betty.copyright_notices.wikipedia_contributors import WikipediaContributors
 from betty.localizer import default_localizer
 from betty.test_utils.conftest import AssertTemplateFile
