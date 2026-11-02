@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Any, ClassVar
+from typing import Any, Final
 
 import pytest
 from babel import Locale
@@ -44,7 +44,7 @@ class TestLocalizedPathUrlUrlGenerator:
         )
         assert sut.supports(resource) == expected
 
-    _GENERATE_RESOURCES: ClassVar[Sequence[str]] = [
+    _generate_resources: Final[Sequence[str]] = [
         "betty://some/path/index.html",
         "betty:///some/path/index.html",
     ]
@@ -68,7 +68,7 @@ class TestLocalizedPathUrlUrlGenerator:
                     None,
                     None,
                 )
-                for resource in _GENERATE_RESOURCES
+                for resource in _generate_resources
                 for media_type in [html, json]
             ],
             *[
@@ -80,7 +80,7 @@ class TestLocalizedPathUrlUrlGenerator:
                     None,
                     None,
                 )
-                for resource in _GENERATE_RESOURCES
+                for resource in _generate_resources
                 for media_type in [html, json]
             ],
             *[
@@ -92,7 +92,7 @@ class TestLocalizedPathUrlUrlGenerator:
                     None,
                     Locale("nl", "NL"),
                 )
-                for resource in _GENERATE_RESOURCES
+                for resource in _generate_resources
                 for media_type in [html, json]
             ],
             *[
@@ -104,7 +104,7 @@ class TestLocalizedPathUrlUrlGenerator:
                     "nl-NL",
                     Locale("nl", "NL"),
                 )
-                for resource in _GENERATE_RESOURCES
+                for resource in _generate_resources
                 for media_type in [html, json]
             ],
         ],

@@ -58,7 +58,7 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
     async def test_new_plugin_instance_service_item(
         self, item: ManufacturablePlugin
     ) -> None:
-        owner = _PluginInstanceServiceManagerTestOwner(services=self._SERVICES)
+        owner = _PluginInstanceServiceManagerTestOwner(services=self._services)
         async with owner:
             service_item = _PluginInstanceServiceManagerTestOwner.my_first_service.new_plugin_instance_service_item(
                 owner, item
@@ -78,7 +78,7 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
     async def test_new_plugin_instance_service_item__with_life_cycle(
         self, item: ManufacturablePlugin
     ) -> None:
-        owner = _PluginInstanceServiceManagerTestOwner(services=self._SERVICES)
+        owner = _PluginInstanceServiceManagerTestOwner(services=self._services)
         async with owner:
             service_item = _PluginInstanceServiceManagerTestOwner.my_first_service.new_plugin_instance_service_item(
                 owner, item

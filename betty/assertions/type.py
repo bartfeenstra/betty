@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from functools import cache
 from types import NoneType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Final
 
 from betty.assertions import _HumanFacingValueError
 from betty.localizables.gettext import _
@@ -21,7 +21,9 @@ type AssertTypeType = (
 )
 
 
-_ASSERT_TYPES: Mapping[type[AssertTypeType], tuple[type[Any] | None, Localizable]] = {
+_assert_types: Final[
+    Mapping[type[AssertTypeType], tuple[type[Any] | None, Localizable]]
+] = {
     bool: (None, _("This must be a boolean.")),
     int: (bool, _("This must be a whole number.")),
     float: (None, _("This must be a decimal number.")),
@@ -41,7 +43,7 @@ def assert_type[AssertTypeTypeT: AssertTypeType](
     """
 
     def _assert_type(value: Any, /) -> AssertTypeTypeT:
-        value_is_not_type, error_message = _ASSERT_TYPES[value_type]
+        value_is_not_type, error_message = _assert_types[value_type]
         if isinstance(value, value_type) and (
             value_is_not_type is None or not isinstance(value, value_is_not_type)
         ):

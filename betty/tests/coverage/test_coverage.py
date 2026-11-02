@@ -57,7 +57,7 @@ type _ModuleIgnore = _ModuleExistsIgnore | MissingReason
 
 # Keys are paths to module files with ignore rules. These paths area relative to the project root directory.
 # This baseline MUST NOT be extended. It SHOULD decrease in size as more coverage is added to Betty over time.
-_BASELINE: Mapping[str, _ModuleIgnore] = {
+_baseline: Final[Mapping[str, _ModuleIgnore]] = {
     "betty/__init__.py": MissingReason.SHOULD_BE_COVERED,
     "betty/app/__init__.py": {
         "App": {
@@ -744,7 +744,7 @@ class CoverageTester:
     def __init__(self):
         self._ignore_src_module_paths = {
             Path(module_file).resolve(): members
-            for module_file, members in _BASELINE.items()
+            for module_file, members in _baseline.items()
         }
 
     async def test(self) -> Mapping[Path, Iterable[str]]:

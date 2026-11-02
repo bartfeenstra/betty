@@ -12,7 +12,7 @@ class TestPluginDefinitionService(PluginServiceManagerTestBase):
         my_first_service = PluginDefinitionService(DummyPluginDefinition)
 
         def __init__(self):
-            super().__init__(services=TestPluginDefinitionService._SERVICES)
+            super().__init__(services=TestPluginDefinitionService._services)
             type(self).my_first_service.add_init_plugins(self, DummyPluginOne)
 
     async def test_new_service(self) -> None:

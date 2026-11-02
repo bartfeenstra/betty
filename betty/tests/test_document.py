@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, Final
 
 import pytest
 
@@ -147,7 +147,7 @@ class TestEntityContexts:
 
 
 class TestDocument:
-    VARS: ClassVar[Mapping[str, Any]] = {
+    vars: Final[Mapping[str, Any]] = {
         "resource": object(),
         "resource_url": object(),
         "entity_contexts": EntityContexts(),
@@ -278,7 +278,7 @@ class TestDocument:
     )
     def test___eq__(self, expected: bool, sut_vars: Mapping[str, object]) -> None:
         assert (
-            Document(**{**self.VARS, **sut_vars}) == Document(**self.VARS)  # ty:ignore[invalid-argument-type]
+            Document(**{**self.vars, **sut_vars}) == Document(**self.vars)  # ty:ignore[invalid-argument-type]
         ) is expected
 
     def test_copy__minimal(self) -> None:
