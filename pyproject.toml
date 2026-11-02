@@ -144,7 +144,7 @@ betty = 'betty.consoles.app:main'
 'wikipedia-contributors' = 'betty.copyright_notices.wikipedia_contributors:WikipediaContributors'
 
 [project.entry-points.'betty.css_resource']
-'webpack' = 'betty.css_resources.webpack:WEBPACK'
+'webpack' = 'betty.css_resources:webpack'
 
 [project.entry-points.'betty.document_provider']
 'webpack' = 'betty.document_providers.webpack:Webpack'
@@ -259,7 +259,7 @@ betty = 'betty.consoles.app:main'
 
 
 [project.entry-points.'betty.js_resource']
-'webpack-entry-point-loader' = 'betty.js_resources.webpack_entry_point_loader:WEBPACK_ENTRY_POINT_LOADER'
+'webpack-entry-point-loader' = 'betty.js_resources:webpack_entry_point_loader'
 
 [project.entry-points.'betty.place_type']
 'borough' = 'betty.place_types.borough:Borough'
