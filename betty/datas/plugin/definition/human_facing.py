@@ -6,8 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from betty.attrs.countable_localizable import new_countable_localizable_attr
-from betty.attrs.localizable import new_localizable_attr
+from betty.attrs.localizable import new_countable_localizable_attr, new_localizable_attr
 from betty.attrs.optional import OptionalAttr
 from betty.datas.plugin.definition import PluginDefinitionData
 from betty.definition.human_facing import (
