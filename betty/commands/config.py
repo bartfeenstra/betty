@@ -54,9 +54,9 @@ class Config(Manufacturable, Command):
     async def _command_function(self, *, locale: Locale) -> CommandResult:
         serializers = await gather(*self._app.serializers)
 
-        if AppData.FILE.exists():
+        if AppData.file.exists():
             updated_configuration = AppData.definition.porter.load(
-                assert_load_file(serializers=serializers)(AppData.FILE)
+                assert_load_file(serializers=serializers)(AppData.file)
             )
         else:
             updated_configuration = AppData()
@@ -70,6 +70,6 @@ class Config(Manufacturable, Command):
 
         await dump_file(
             AppData.definition.porter.dump(updated_configuration),
-            AppData.FILE,
+            AppData.file,
             serializers=serializers,
         )

@@ -156,9 +156,9 @@ class App(RequirableServiceLevel, HasPluginServices):
         """
         Create a new application from the environment.
         """
-        if AppData.FILE.exists():
+        if AppData.file.exists():
             data = AppData.definition.porter.load(
-                assert_load_file(serializers=[Json()])(AppData.FILE),
+                assert_load_file(serializers=[Json()])(AppData.file),
             )
             locale = data.locale
         else:
@@ -285,7 +285,7 @@ class AppData(Object):
     .. data:: betty.app:AppData
     """
 
-    FILE: Final[Path] = app_config_directory / "app.json"
+    file: Final[Path] = app_config_directory / "app.json"
 
     locale = new_locale_attr().optional
     """
