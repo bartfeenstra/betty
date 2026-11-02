@@ -171,7 +171,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__exit__": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/css_resources/webpack.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/css_resources.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/service.py": {
         "Service": MissingReason.DATACLASS,
     },
@@ -315,7 +315,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/jobs/sleep.py": {
         "Sleep": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/js_resources/webpack_entry_point_loader.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/js_resources.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/life_cycle/__init__.py": {
         "AlreadyBootstrapped": MissingReason.STATIC_CONTENT_ONLY,
         "AlreadyShutDown": MissingReason.STATIC_CONTENT_ONLY,

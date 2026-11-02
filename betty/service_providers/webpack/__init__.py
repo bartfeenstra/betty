@@ -7,12 +7,11 @@ from __future__ import annotations
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.asset_directories import webpack as WEBPACK_ASSET
-from betty.css_resources.webpack import WEBPACK as WEBPACK_CSS_RESOURCE
+from betty import asset_directories, css_resources
 from betty.factory import Manufacturable
 from betty.jinja_filters.webpack_entry_point_js import WebpackEntryPointJs
 from betty.jobs._generate_webpack_assets import _GenerateWebpackAssets
-from betty.js_resources.webpack_entry_point_loader import WEBPACK_ENTRY_POINT_LOADER
+from betty.js_resources import webpack_entry_point_loader
 from betty.project import Project
 from betty.project.generate import Generator
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
@@ -29,10 +28,10 @@ if TYPE_CHECKING:
     "webpack",
     label="Webpack",
     requires={
-        Project.asset_directories.require(WEBPACK_ASSET),
-        Project.css_resources.require(WEBPACK_CSS_RESOURCE),
+        Project.asset_directories.require(asset_directories.webpack),
+        Project.css_resources.require(css_resources.webpack),
         Project.jinja_filters.require(WebpackEntryPointJs),
-        Project.js_resources.require(WEBPACK_ENTRY_POINT_LOADER),
+        Project.js_resources.require(webpack_entry_point_loader),
     },
 )
 class Webpack(Generator, ServiceProvider[Project], Manufacturable):
