@@ -88,7 +88,7 @@ betty = 'betty.consoles.app:main'
 'entity' = 'betty.entity:EntityDefinition'
 'event-type' = 'betty.event_type:EventTypeDefinition'
 'gender' = 'betty.gender:GenderDefinition'
-'http-rate-limit' = 'betty.http_client.rate_limit:RateLimitDefinition'
+'http-rate-limit' = 'betty.http_client:RateLimitDefinition'
 'jinja-filter' = 'betty.jinja.filter:JinjaFilterDefinition'
 'jinja-test' = 'betty.jinja.test:JinjaTestDefinition'
 'js-resource' = 'betty.html.js:JsResourceDefinition'
@@ -299,8 +299,8 @@ betty = 'betty.consoles.app:main'
 'witness' = 'betty.roles.witness:Witness'
 
 [project.entry-points.'betty.http_rate_limit']
-'wikipedia-action-api' = 'betty.http_client.rate_limits.wikipedia_action_api:WIKIPEDIA_ACTION_API'
-'wikipedia-rest-api' = 'betty.http_client.rate_limits.wikipedia_rest_api:WIKIPEDIA_REST_API'
+'wikipedia-action-api' = 'betty.http_rate_limits:wikipedia_action_api'
+'wikipedia-rest-api' = 'betty.http_rate_limits:wikipedia_rest_api'
 
 [project.entry-points.'betty.serializer']
 'json' = 'betty.serializers.json:Json'

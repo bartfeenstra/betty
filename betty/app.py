@@ -19,8 +19,11 @@ from betty.attrs.locale import new_locale_attr
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
 from betty.gettext import TranslationsRepository
-from betty.http_client import ClientErrorToUserMessageMiddleware
-from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
+from betty.http_client import (
+    ClientErrorToUserMessageMiddleware,
+    RateLimitDefinition,
+    RateLimitMiddleware,
+)
 from betty.life_cycle import Bootstrappable, Shutdownable
 from betty.locale import ResolvableLocale, default_locale
 from betty.localizables.gettext import _
