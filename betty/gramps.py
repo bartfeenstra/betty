@@ -622,7 +622,7 @@ class GrampsLoader:
 
             await self._load_families(database)
 
-        resolve_associates(self._project, *self._ancestry)
+        resolve_associates(*self._ancestry)
 
     def _supports_xml_version(self, version: tuple[int, int, int]) -> bool:
         if version[0] != self._supported_gramps_xml_version[0]:

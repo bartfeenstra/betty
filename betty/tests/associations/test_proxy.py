@@ -8,7 +8,6 @@ from betty.associations.proxy import ProxyAssociation
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.entity import Entity
-from betty.project import Project
 from betty.test_utils.entity import DummyEntityOne
 from betty.typing import Unreachable
 
@@ -20,7 +19,7 @@ class _Association(Association):
     def is_resolver(self, value: Any, /) -> TypeGuard[AssociateResolver]:
         raise Unreachable
 
-    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
+    def resolve(self, owner: HasAssociations, /) -> None:
         raise Unreachable
 
     def associate(self, owner: HasAssociations, associate: Entity, /) -> None:
@@ -73,10 +72,10 @@ class TestProxyAssociation:
         assert sut.is_resolver(DummyEntityOne)
         m_proxied_is_resolver.assert_called_once_with(DummyEntityOne)
 
-    def test_resolve(self, isolated_project: Project, mocker: MockerFixture) -> None:
+    def test_resolve(self, mocker: MockerFixture) -> None:
         proxied = _Association()
         m_proxied_resolve = mocker.patch.object(proxied, "resolve")
         sut = ProxyAssociation(proxied=proxied)
         owner = DummyEntityOne()
-        sut.resolve(isolated_project, owner)
-        m_proxied_resolve.assert_called_once_with(isolated_project, owner)
+        sut.resolve(owner)
+        m_proxied_resolve.assert_called_once_with(owner)

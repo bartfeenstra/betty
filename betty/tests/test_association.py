@@ -26,8 +26,6 @@ if TYPE_CHECKING:
 
     from pytest_mock import MockerFixture
 
-    from betty.project import Project
-
 
 class _Association[AssociateT: Entity = Entity](
     Association[AssociateT, AssociateT, AssociateT]
@@ -47,7 +45,7 @@ class _Association[AssociateT: Entity = Entity](
     def is_resolver(self, value: Any, /) -> TypeGuard[AssociateResolver[AssociateT]]:
         raise Unreachable
 
-    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
+    def resolve(self, owner: HasAssociations, /) -> None:
         raise Unreachable
 
     def associate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
@@ -188,34 +186,26 @@ class TestAssociation:
         assert _Association(_TypedEntity).is_settable(_TypedEntity())
 
 
-def test_resolve_associate__without_arguments(isolated_project: Project) -> None:
+def test_resolve_associate__without_arguments() -> None:
     associate = Entity()
     assert (
-        resolve_associate(
-            isolated_project, Entity(), MagicMock(spec=Association), lambda: associate
-        )
+        resolve_associate(Entity(), MagicMock(spec=Association), lambda: associate)
         is associate
     )
 
 
-def test_resolve_associate__with_project(isolated_project: Project) -> None:
+def test_resolve_associate__with_project() -> None:
     associate = Entity()
 
-    def resolver(resolver_project: Project) -> Entity:
-        assert resolver_project is isolated_project
+    def resolver() -> Entity:
         return associate
 
     assert (
-        resolve_associate(
-            isolated_project, Entity(), MagicMock(spec=Association), resolver
-        )
-        is associate
+        resolve_associate(Entity(), MagicMock(spec=Association), resolver) is associate
     )
 
 
-def test_resolve_associate__with_owner_and_association(
-    isolated_project: Project,
-) -> None:
+def test_resolve_associate__with_owner_and_association() -> None:
     owner = HasAssociations()
     association = MagicMock(spec=Association)
     associate = Entity()
@@ -227,34 +217,25 @@ def test_resolve_associate__with_owner_and_association(
         assert resolver_association is association
         return associate
 
-    assert (
-        resolve_associate(isolated_project, owner, association, resolver) is associate
-    )
+    assert resolve_associate(owner, association, resolver) is associate
 
 
-def test_resolve_associate__with_project_and_owner_and_association(
-    isolated_project: Project,
-) -> None:
+def test_resolve_associate__with_project_and_owner_and_association() -> None:
     owner = HasAssociations()
     association = MagicMock(spec=Association)
     associate = Entity()
 
     def resolver(
-        resolver_project: Project,
-        resolver_owner: HasAssociations,
-        resolver_association: Association,
+        resolver_owner: HasAssociations, resolver_association: Association
     ) -> Entity:
-        assert resolver_project is isolated_project
         assert resolver_owner is owner
         assert resolver_association is association
         return associate
 
-    assert (
-        resolve_associate(isolated_project, owner, association, resolver) is associate
-    )
+    assert resolve_associate(owner, association, resolver) is associate
 
 
-def test_resolve_associates(isolated_project: Project, mocker: MockerFixture) -> None:
+def test_resolve_associates(mocker: MockerFixture) -> None:
     associate = DummyEntityOne()
 
     @EntityDefinition(
@@ -269,26 +250,24 @@ def test_resolve_associates(isolated_project: Project, mocker: MockerFixture) ->
         association.resolve.return_value = associate
 
     entity = _Entity()
-    resolve_associates(isolated_project, entity)
-    _Entity.association.resolve.assert_called_once_with(isolated_project, entity)
+    resolve_associates(entity)
+    _Entity.association.resolve.assert_called_once_with(entity)
 
 
 class TestUnresolvedAssociate:
     def test(self) -> None:
         assert str(
-            UnresolvedAssociate(
-                _NamedEntity(), _NamedEntity.association, lambda _: _TypedEntity()
-            )
+            UnresolvedAssociate(_NamedEntity(), _NamedEntity.association, _TypedEntity)
         )
 
 
 class TestBiResolver:
-    def test___call__(self, isolated_project: Project, mocker: MockerFixture) -> None:
+    def test___call__(self, mocker: MockerFixture) -> None:
         owner = _BiNamedEntity()
         associate = _BiTypedEntity()
         sut = BiResolver[_BiTypedEntity](lambda: associate)
         m_associate = mocker.patch.object(_BiTypedEntity.association, "associate")
-        assert sut(isolated_project, owner, _BiNamedEntity.association) is associate
+        assert sut(owner, _BiNamedEntity.association) is associate
         m_associate.assert_called_once_with(associate, owner)
 
 

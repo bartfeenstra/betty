@@ -7,9 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.attrs.machine_name import new_machine_name_attr
-from betty.attrs.owner import OwnerAttr
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
-from betty.datas.str import StrDefinition
 from betty.definition.id import resolve_id
 from betty.entity import Entity, EntityDefinition
 from betty.freezer import Frozen
@@ -18,7 +16,6 @@ from betty.sample import Sample, Samples
 
 if TYPE_CHECKING:
     from betty.definition.id import ResolvableId
-    from betty.project import Project
 
 
 @final
@@ -40,7 +37,7 @@ class EntityReference[EntityT: Entity = Entity](Object, Frozen):
     The type of the referenced entity. 
     """
 
-    id = OwnerAttr(StrDefinition(label=_("Entity ID")))
+    id = new_machine_name_attr(label=_("Entity ID"))
     """
     The ID of the referenced entity.
     """
@@ -54,9 +51,3 @@ class EntityReference[EntityT: Entity = Entity](Object, Frozen):
         super().__init__()
         self.type = resolve_id(type)
         self.id = id
-
-    def __call__(self, project: Project, /) -> EntityT:
-        """
-        Resolve the reference to its entity.
-        """
-        return project.ancestry[self.type][self.id]

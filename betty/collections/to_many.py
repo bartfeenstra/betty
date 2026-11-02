@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 
     from betty.associations.to_many import ToMany
     from betty.collection.keyed import MutableKeyedCollection
-    from betty.project import Project
 
 
 @final
@@ -159,13 +158,13 @@ class ToManyCollection[AssociateT: Entity](
         self.assert_resolved()
         return self._associates.__getitem__(index)
 
-    def resolve(self, project: Project, /) -> None:
+    def resolve(self) -> None:
         """
         Resolve all associates in this collection.
         """
         for i, associate in enumerate(self._associates):
             if not isinstance(associate, Entity):
                 self._associates[i] = resolve_associate(
-                    project, self._owner, self._association, associate
+                    self._owner, self._association, associate
                 )
         self._unresolved = None

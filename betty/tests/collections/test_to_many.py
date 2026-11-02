@@ -4,7 +4,6 @@ from betty.association import UnresolvedAssociate
 from betty.associations.to_many import ToMany
 from betty.collections.to_many import ToManyCollection
 from betty.entity import Entity, EntityDefinition
-from betty.project import Project
 from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 
@@ -184,18 +183,16 @@ class TestToManyCollection:
         sut.replace(associate)
         assert list(sut) == [associate]
 
-    def test_resolve__without_associates(self, isolated_project: Project) -> None:
-        ToManyCollection(_Owner(), _Owner.associates).resolve(isolated_project)
+    def test_resolve__without_associates(self) -> None:
+        ToManyCollection(_Owner(), _Owner.associates).resolve()
 
-    def test_resolve__without_resolvers(self, isolated_project: Project) -> None:
-        ToManyCollection(_Owner(), _Owner.associates, _Associate()).resolve(
-            isolated_project
-        )
+    def test_resolve__without_resolvers(self) -> None:
+        ToManyCollection(_Owner(), _Owner.associates, _Associate()).resolve()
 
-    def test_resolve__with_resolver(self, isolated_project: Project) -> None:
+    def test_resolve__with_resolver(self) -> None:
         associate = _Associate()
         sut = ToManyCollection(_Owner(), _Owner.associates, lambda: associate)
-        sut.resolve(isolated_project)
+        sut.resolve()
         assert list(sut) == [associate]
 
     def test_assert_resolved__without_associations(self) -> None:

@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 
     from betty.data import DataDefinition
     from betty.localizer import AnyLocalizable
-    from betty.project import Project
 
 
 @final
@@ -145,7 +144,7 @@ class ToOne[AssociateT: Entity](
         )
 
     @override
-    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
+    def resolve(self, owner: HasAssociations, /) -> None:
         try:
             value = self._storage.get(owner)
         except AttributeError:
@@ -154,7 +153,7 @@ class ToOne[AssociateT: Entity](
             self._assert_not_missing(owner, value)
             self._storage.set(
                 owner,
-                resolve_associate(project, owner, self, value),
+                resolve_associate(owner, self, value),
             )
 
     @override

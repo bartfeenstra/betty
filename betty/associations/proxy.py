@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.datas.aggregate.record import FieldDefinition
-    from betty.project import Project
 
 
 class ProxyAssociation[
@@ -57,8 +56,8 @@ class ProxyAssociation[
         return self._proxied_association.is_resolver(value)
 
     @override
-    def resolve(self, project: Project, owner: HasAssociations, /) -> None:
-        self._proxied_association.resolve(project, owner)
+    def resolve(self, owner: HasAssociations, /) -> None:
+        self._proxied_association.resolve(owner)
 
     @override
     def associate(self, owner: HasAssociations, associate: AssociateT, /) -> None:

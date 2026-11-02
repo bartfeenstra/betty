@@ -10,7 +10,6 @@ from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 if TYPE_CHECKING:
     from betty.association import Associate
-    from betty.project import Project
 
 
 @EntityDefinition(
@@ -99,12 +98,12 @@ class TestToMany:
     def test_is_resolver(self, expected: bool, value: Associate[_Associate]) -> None:
         assert _Owner.associates.is_resolver(value) is expected
 
-    def test_resolve(self, isolated_project: Project) -> None:
+    def test_resolve(self) -> None:
         owner = _Owner()
         associate = _Associate()
 
         owner.associates = [lambda: associate]
-        type(owner).associates.resolve(isolated_project, owner)
+        type(owner).associates.resolve(owner)
         assert associate in owner.associates
 
     def test_is_deletable(self) -> None:
