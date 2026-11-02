@@ -8,14 +8,13 @@ from betty.localizer import AnyLocalizable, Localizer
 from betty.render import RenderDispatcher
 from betty.renderers.plain_text import PlainText
 from betty.test_utils.data import DataTestBase
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestRenderData(DataTestBase[RenderData]):
     sut_cls = RenderData
 
     def test_content(self) -> None:
-        content = DUMMY_LOCALIZABLE
+        content = "Hello, world!"
         sut = RenderData(content)
         assert sut.content is content
 

@@ -12,14 +12,13 @@ from betty.document import Document
 from betty.service_providers.raspberry_mint import Breakpoint, JustifyContent
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.data import DataTestBase
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestColumnsData(DataTestBase[ColumnsData]):
     sut_cls = ColumnsData
 
     def test_content(self) -> None:
-        content = ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))
+        content = ContentBuilderManufacturer(Render, RenderData("-"))
         sut = ColumnsData([content])
         assert list(map(list, sut.content)) == [[content]]
 
@@ -35,7 +34,7 @@ class TestColumnsData(DataTestBase[ColumnsData]):
     def test_width(self, expected: ColumnsWidth, width: ResolvableColumnsWidth) -> None:
         assert (
             ColumnsData(
-                [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
+                [ContentBuilderManufacturer(Render, RenderData("-"))],
                 width=width,
             ).width
             == expected
@@ -44,7 +43,7 @@ class TestColumnsData(DataTestBase[ColumnsData]):
     def test_justify_content(self) -> None:
         justify_content = JustifyContent.CENTER
         sut = ColumnsData(
-            [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
+            [ContentBuilderManufacturer(Render, RenderData("-"))],
             justify_content=justify_content,
         )
         assert sut.justify_content == justify_content
@@ -60,9 +59,7 @@ class TestColumns:
         ):
             sut = await Columns.new(
                 project,
-                ColumnsData([
-                    ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))
-                ]),
+                ColumnsData([ContentBuilderManufacturer(Render, RenderData("-"))]),
             )
             actual = await sut.build(document=Document())
         assert actual is not None
@@ -78,7 +75,7 @@ class TestColumns:
             sut = await Columns.new(
                 project,
                 ColumnsData(
-                    [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
+                    [ContentBuilderManufacturer(Render, RenderData("-"))],
                     width={Breakpoint.XS: 12, Breakpoint.LG: 6},
                 ),
             )
@@ -96,8 +93,8 @@ class TestColumns:
             sut = await Columns.new(
                 project,
                 ColumnsData(
-                    [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
-                    [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
+                    [ContentBuilderManufacturer(Render, RenderData("-"))],
+                    [ContentBuilderManufacturer(Render, RenderData("-"))],
                     width=[8, 4],
                 ),
             )
@@ -116,8 +113,8 @@ class TestColumns:
             sut = await Columns.new(
                 project,
                 ColumnsData(
-                    [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
-                    [ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))],
+                    [ContentBuilderManufacturer(Render, RenderData("-"))],
+                    [ContentBuilderManufacturer(Render, RenderData("-"))],
                     width={Breakpoint.XS: [8, 4], Breakpoint.LG: [7, 5]},
                 ),
             )

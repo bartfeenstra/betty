@@ -6,16 +6,14 @@ from __future__ import annotations
 
 from betty.associations.has_file_references import HasFileReferences
 from betty.entity import EntityDefinition
-from betty.test_utils.locale.localizable import (
-    DUMMY_COUNTABLE_LOCALIZABLE,
-)
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 
 @EntityDefinition(
     "dummy-has-file-references",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class DummyHasFileReferences(HasFileReferences):
     """

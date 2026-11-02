@@ -12,7 +12,7 @@ from betty.services.plugin import (
     ResolvableServiceLevelHasPluginServices,
 )
 from betty.services.plugin.collection import CollectionPluginServiceManager
-from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 from betty.tests.services.test_plugin import (
     PluginServiceManagerTestBase,
 )
@@ -23,7 +23,7 @@ from betty.typing import Unreachable
     "dummy-plugin",
     label="dummy plugin",
     label_plural="dummy plugin",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _DummyOrderedPluginDefinition(OrderedPluginDefinition):
     pass

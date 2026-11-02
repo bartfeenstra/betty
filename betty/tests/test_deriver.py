@@ -15,7 +15,7 @@ from betty.event_type import EventType, EventTypeDefinition, ShouldExistEventTyp
 from betty.project import Project
 from betty.roles.subject import Subject
 from betty.test_utils.entity import record_added
-from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -34,7 +34,7 @@ type NewProject = Callable[
     "isolated",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class Isolated(EventType):
     pass
@@ -45,7 +45,7 @@ class Isolated(EventType):
     "comes-before-reference",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class ComesBeforeReference(EventType):
     pass
@@ -56,7 +56,7 @@ class ComesBeforeReference(EventType):
     "comes-after-reference",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class ComesAfterReference(EventType):
     pass
@@ -67,7 +67,7 @@ class ComesAfterReference(EventType):
     "comes-before",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
     before={ComesBeforeReference},
 )
 class ComesBefore(EventType):
@@ -79,7 +79,7 @@ class ComesBefore(EventType):
     "comes-before-should-exist",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
     before={ComesBeforeReference},
 )
 class ComesBeforeShouldExist(ShouldExistEventType):
@@ -94,7 +94,7 @@ class ComesBeforeShouldExist(ShouldExistEventType):
     "comes-before-should-not-exist",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
     before={ComesBeforeReference},
 )
 class ComesBeforeShouldNotExist(ShouldExistEventType):
@@ -109,7 +109,7 @@ class ComesBeforeShouldNotExist(ShouldExistEventType):
     "comes-before-and-after",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
     before={ComesBeforeReference},
     after={ComesAfterReference},
 )
@@ -122,7 +122,7 @@ class ComesBeforeAndAfter(EventType):
     "comes-before-and-after-should-exist",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
     before={ComesBeforeReference},
     after={ComesAfterReference},
 )
@@ -138,7 +138,7 @@ class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
     "comes-before-and-after-should-not-exist",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
     before={ComesBeforeReference},
     after={ComesAfterReference},
 )
@@ -154,7 +154,7 @@ class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
     "comes-after",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
     after={ComesAfterReference},
 )
 class ComesAfter(EventType):
@@ -166,7 +166,7 @@ class ComesAfter(EventType):
     "comes-after-should-exist",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
     after={ComesAfterReference},
 )
 class ComesAfterShouldExist(ShouldExistEventType):
@@ -181,7 +181,7 @@ class ComesAfterShouldExist(ShouldExistEventType):
     "comes-after-should-not-exist",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
     after={ComesAfterReference},
 )
 class ComesAfterShouldNotExist(ShouldExistEventType):

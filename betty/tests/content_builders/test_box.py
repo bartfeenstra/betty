@@ -4,7 +4,6 @@ from betty.content_builders.render import Render, RenderData
 from betty.document import Document
 from betty.project import Project
 from betty.test_utils.data import DataTestBase
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestBoxData(DataTestBase[BoxData]):
@@ -19,7 +18,7 @@ class TestBox:
     async def test_build_template__minimal(self, isolated_project: Project) -> None:
         sut = await Box.new(
             isolated_project,
-            BoxData(ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE))),
+            BoxData(ContentBuilderManufacturer(Render, RenderData("-"))),
         )
         actual = await sut.build(document=Document())
         assert actual is not None
@@ -29,7 +28,7 @@ class TestBox:
         sut = await Box.new(
             isolated_project,
             BoxData(
-                ContentBuilderManufacturer(Render, RenderData(DUMMY_LOCALIZABLE)),
+                ContentBuilderManufacturer(Render, RenderData("-")),
                 min_height="MIN_HEIGHT",
                 max_height="MAX_HEIGHT",
                 height="HEIGHT",

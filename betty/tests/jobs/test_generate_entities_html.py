@@ -17,7 +17,6 @@ from betty.project import Project
 from betty.roles.unknown import UnknownRole
 from betty.test_utils.jinja import assert_betty_html
 from betty.test_utils.job import do
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestGenerateEntitiesHtml:
@@ -27,7 +26,7 @@ class TestGenerateEntitiesHtml:
             Citation(source=Source(), id="my-first-citation"),
             Event(id="my-first-event"),
             File(__file__, id="my-first-file"),
-            Note(DUMMY_LOCALIZABLE, id="my-first-note"),
+            Note("-", id="my-first-note"),
             Person(id="my-first-person"),
             Place(id="my-first-place"),
             Source(id="my-first-source"),
@@ -51,8 +50,8 @@ class TestGenerateEntitiesHtml:
             Event(id="my-first-event", privacy=Privacy.PRIVATE),
             File(__file__),
             File(__file__, id="my-first-file", privacy=Privacy.PRIVATE),
-            Note(DUMMY_LOCALIZABLE),
-            Note(DUMMY_LOCALIZABLE, id="my-first-note", privacy=Privacy.PRIVATE),
+            Note("-"),
+            Note("-", id="my-first-note", privacy=Privacy.PRIVATE),
             Person(),
             Person(id="my-first-person", privacy=Privacy.PRIVATE),
             PersonName(individual="Jane", person=Person()),

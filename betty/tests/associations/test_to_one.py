@@ -11,7 +11,7 @@ from betty.associations.to_one import (
     ToOneAssociate,
 )
 from betty.entity import Entity, EntityDefinition
-from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     "owner",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _Owner(Entity):
     associate = ToOne["_Associate"](
@@ -33,7 +33,7 @@ class _Owner(Entity):
     "associate",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _Associate(Entity):
     owner = ToOne[_Owner](_Owner, label="-")
@@ -43,7 +43,7 @@ class _Associate(Entity):
     "bi-owner",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _BiOwner(Entity):
     associate = ToOne["_BiAssociate"](
@@ -57,7 +57,7 @@ class _BiOwner(Entity):
     "bi-associate",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _BiAssociate(Entity):
     owner = ToOne[_BiOwner](_BiOwner, "associate", label="-")

@@ -7,7 +7,6 @@ import pytest
 from betty.entities.note import Note
 from betty.test_utils.entity import EntityTestBase
 from betty.test_utils.entity.associations.has_notes import DummyHasNotes
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
     from betty.entity import Entity
@@ -35,6 +34,6 @@ class TestNote(EntityTestBase):
 
     def test_entity(self) -> None:
         entity = DummyHasNotes()
-        sut = Note(DUMMY_LOCALIZABLE)
+        sut = Note("-")
         sut.entity = entity
         assert sut.entity is entity

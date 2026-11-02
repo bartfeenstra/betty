@@ -8,7 +8,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.localizer import default_localizer
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.portable import KeyedPorter
-from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 from betty.typing import Unreachable
 
 
@@ -16,7 +16,7 @@ from betty.typing import Unreachable
     "dummy-plugin",
     label="dummy plugin",
     label_plural="dummy plugin",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _DummyPluginDefinition(PluginDefinition, HumanFacingDefinition):
     pass

@@ -6,7 +6,7 @@ import pytest
 
 from betty.associations.to_many import ToMany
 from betty.entity import Entity, EntityDefinition
-from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 if TYPE_CHECKING:
     from betty.association import Associate
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     "owner",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _Owner(Entity):
     associates = ToMany["_Associate"](
@@ -31,7 +31,7 @@ class _Owner(Entity):
     "associate",
     label="-",
     label_plural="-",
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+    label_countable=dummy_countable_localizable,
 )
 class _Associate(Entity):
     owners = ToMany(_Owner, "associates", label="-")

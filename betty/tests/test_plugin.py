@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
+from betty.test_utils.locale.localizable import dummy_countable_localizable
 from betty.typing import Unreachable
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ class TestPluginTypeDefinition:
             plugin_type_id,
             label="-",
             label_plural="-",
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            label_countable=dummy_countable_localizable,
         )
         assert sut.id == plugin_type_id
 

@@ -20,7 +20,7 @@ from betty.localizables.static import (
 from betty.localized import LocalizedStr
 from betty.localizer import default_localizer
 from betty.portable.error import NotDumpable
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+from betty.typing import Unreachable
 
 
 class TestLocalizableDefinition:
@@ -87,7 +87,7 @@ class TestLocalizableDefinition:
 class _NotDumpableCountableLocalizable(CountableLocalizable):
     @override
     def count(self, count: LocalizableCount, /) -> Localizable:
-        return DUMMY_LOCALIZABLE
+        raise Unreachable
 
 
 class TestCountableLocalizableDefinition:
