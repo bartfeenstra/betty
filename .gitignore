@@ -4,7 +4,6 @@
 
 # JavaScript development dependencies.
 node_modules
-/package-lock.json
 
 # Python build artifacts.
 __pycache__
