@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
     from betty.attrs.common import CommonAttr
     from betty.collection.sequence import MutableResolvedSequence
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
     from betty.prop import HasProps
 
@@ -31,8 +31,8 @@ def new_plugin_manufacturer_sequence_attr[
 ](
     manufacturer: type[PluginManufacturerT],
     *,
-    label: ResolvableLocalizable | None = None,
-    description: ResolvableLocalizable | None = None,
+    label: AnyLocalizable | None = None,
+    description: AnyLocalizable | None = None,
 ) -> CommonAttr[
     HasProps,
     MutableResolvedSequence[

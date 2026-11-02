@@ -4,17 +4,15 @@ The project author copyright notice.
 
 from __future__ import annotations
 
-from typing import Self, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.factory import Manufacturable
-from betty.localizable import (
-    Localizable,
-    ResolvableLocalizable,
-    resolve_localizable,
-)
 from betty.localizables.gettext import _
 from betty.project import Project
+
+if TYPE_CHECKING:
+    from betty.localizer import AnyLocalizable
 
 
 @final
@@ -24,9 +22,9 @@ class ProjectAuthor(Manufacturable, CopyrightNotice):
     .. plugin:: copyright-notice:project-author.
     """
 
-    def __init__(self, author: ResolvableLocalizable | None):
+    def __init__(self, author: AnyLocalizable | None, /):
         super().__init__()
-        self._author = None if author is None else resolve_localizable(author)
+        self._author = author
 
     @override
     @Project.require
@@ -36,7 +34,7 @@ class ProjectAuthor(Manufacturable, CopyrightNotice):
 
     @property
     @override
-    def summary(self) -> Localizable:
+    def summary(self) -> AnyLocalizable:
         if self._author:
             return _("© Copyright {author}, unless otherwise credited").format(
                 author=self._author
@@ -45,5 +43,5 @@ class ProjectAuthor(Manufacturable, CopyrightNotice):
 
     @property
     @override
-    def text(self) -> Localizable:
+    def text(self) -> AnyLocalizable:
         return self.summary

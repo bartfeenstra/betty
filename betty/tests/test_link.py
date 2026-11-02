@@ -1,8 +1,6 @@
 from typing import Final
 
 from betty.link import Link, LinkDefinition, StaticLink
-from betty.localizables.plain import Plain
-from betty.localizer import default_localizer
 
 _dummy_link: Final[Link] = StaticLink("https://example.com", "My First Link")
 
@@ -25,9 +23,9 @@ class TestStaticLink:
     def test_url(self) -> None:
         url = "https://example.com"
         sut = StaticLink(url, "Hello, world!")
-        assert sut.url.localize(default_localizer) == url
+        assert sut.url == url
 
     def test_label(self) -> None:
-        label = Plain("Hello, world!")
+        label = "Hello, world!"
         sut = StaticLink("https://example.com", label)
-        assert sut.label is label
+        assert sut.label == label

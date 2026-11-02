@@ -13,13 +13,12 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import JoinOr, Quote
-from betty.localizables.plain import Plain
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.media_type import MediaType
     from betty.portable import PortableData
@@ -77,9 +76,9 @@ class SerializerDefinition(
         self,
         serializer_id: ResolvableMachineName,
         *,
-        label: ResolvableLocalizable,
+        label: AnyLocalizable,
         auto: bool = True,
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(
@@ -104,7 +103,7 @@ def serializer_for(
         _("Unsupported file {unsupported}. Supported types are: {supported}.").format(
             unsupported=Quote(extension),
             supported=JoinOr(*[
-                Plain("{extension} ({available_type})").format(
+                _("{extension} ({available_type})").format(
                     extension=extension,
                     available_type=available_serializer.definition.label,
                 )

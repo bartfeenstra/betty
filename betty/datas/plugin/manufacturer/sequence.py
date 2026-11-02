@@ -16,7 +16,7 @@ from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacture
 if TYPE_CHECKING:
     from ty_extensions import Intersection
 
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 @final
@@ -40,8 +40,8 @@ class PluginManufacturerSequenceDefinition[
         self,
         manufacturer: type[PluginManufacturerT],
         *,
-        label: ResolvableLocalizable | None = None,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable | None = None,
+        description: AnyLocalizable | None = None,
     ):
         super().__init__(
             manufacturer=lambda values: ResolvedList[

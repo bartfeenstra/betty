@@ -16,15 +16,7 @@ from betty.locale import (
     to_language_tag,
 )
 from betty.locale.error import LocaleError
-from betty.localizable import (
-    CountableLocalizable,
-    CountableStaticTranslationsMapping,
-    Localizable,
-    LocalizableCount,
-    ResolvableCountableStaticTranslations,
-    ResolvableStaticTranslations,
-    StaticTranslationsMapping,
-)
+from betty.localizable import CountableLocalizable, Localizable, LocalizableCount
 from betty.localizables.gettext import _
 from betty.localizables.markup import JoinAnd, Paragraphs, UnorderedList, do_you_mean
 from betty.localized import LocalizedStr
@@ -35,7 +27,50 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.localizer import Localizer
+    from betty.localizer import AnyLocalizable, Localizer
+
+type StaticTranslationsMapping = Mapping[Locale | None, str]
+"""
+Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
+
+Values are a string, or a mapping of locales to translations.
+
+See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
+"""
+
+
+type ResolvableStaticTranslations = (
+    Mapping[ResolvableLocale | None, str] | str | StaticTranslationsMapping
+)
+"""
+Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
+
+Values are a string, or a mapping of locales or language tags to translations.
+
+See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
+"""
+
+
+type CountableStaticTranslationsMapping = Mapping[Locale, Mapping[str, str]]
+"""
+Countable static translations for :py:class:`betty.locale.localizable.CountableStaticTranslations`.
+
+Values are mappings of locales to mappings of CLDR plural tags to translations.
+
+See :py:func:`betty.locale.localizable.assertion.assert_countable_static_translations`.
+"""
+
+
+type ResolvableCountableStaticTranslations = Mapping[
+    ResolvableLocale, Mapping[str, str]
+]
+"""
+Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
+
+Values are mappings of locales or language tags to mappings of CLDR plural tags to translations.
+
+See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
+"""
 
 
 @final
@@ -113,12 +148,12 @@ class CountableStaticTranslations(CountableLocalizable):
     def _format_plural_tags(self, plural_tags: Iterable[str]) -> Iterable[str]:
         return [f'"{plural_tag}"' for plural_tag in sorted(plural_tags)]
 
-    def _format_plural_rules_link(self, locale: Locale) -> Localizable:
+    def _format_plural_rules_link(self, locale: Locale) -> AnyLocalizable:
         return _("Read more at {url}").format(
             url=f"https://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html#{locale}"
         )
 
-    def _format_translations(self, translations: Mapping[str, str]) -> Localizable:
+    def _format_translations(self, translations: Mapping[str, str]) -> AnyLocalizable:
         return UnorderedList(*[
             f"{plural_tag}: {translation}"
             for plural_tag, translation in translations.items()
@@ -238,14 +273,17 @@ class StaticTranslations(Localizable):
         return LocalizedStr(translation, locale=locale)
 
     @classmethod
-    def resolve(cls, other: Localizable, localizers: Iterable[Localizer], /) -> Self:
+    def resolve(
+        cls, localizable: AnyLocalizable, localizers: Iterable[Localizer], /
+    ) -> Self:
         """
-        Create a new instance from another :py:class`betty.localizable.Localizable`.
+        Create a new instance from a :py:class:`betty.localizer.AnyLocalizable`.
         """
-        if type(other) is cls:
-            return other  # ty:ignore[invalid-return-type]
+        if type(localizable) is cls:
+            return localizable  # ty:ignore[invalid-return-type]
         return cls({
-            localizer.locale: other.localize(localizer) for localizer in localizers
+            localizer.locale: localizer.localize(localizable)
+            for localizer in localizers
         })
 
 

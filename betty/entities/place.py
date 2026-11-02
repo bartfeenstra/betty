@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from betty.entities.link import Link
     from betty.entities.note import Note
     from betty.entities.place_name import PlaceName
-    from betty.localizable import Localizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.place_type import PlaceType
 
@@ -112,7 +112,7 @@ class Place(HasLinks, HasFileReferences, HasNotes):
 
     @override
     @property
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         with suppress(IndexError):
             return self.names[0].name
         return super().label

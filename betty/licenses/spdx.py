@@ -21,14 +21,13 @@ from betty.factory import Manufacturable
 from betty.file import read
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
-from betty.localizables.plain import Plain
 from betty.machine_name import MachineName
 from betty.user import Severity
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from betty.localizable import Localizable
+    from betty.localizer import AnyLocalizable
     from betty.plugin.discovery import ResolvableDiscovery
     from betty.portable import PortableData, PortableSequence
     from betty.service_level import ServiceLevel
@@ -183,18 +182,18 @@ class SpdxLicenseDiscoverer(Manufacturable):
             class _SpdxLicense(License):
                 @override
                 @property
-                def summary(self) -> Localizable:
+                def summary(self) -> AnyLocalizable:
                     return self.definition.label
 
                 @override
                 @property
-                def text(self) -> Localizable:
-                    return Plain(license_text)
+                def text(self) -> AnyLocalizable:
+                    return license_text
 
                 @override
                 @property
-                def url(self) -> Localizable | None:
-                    return Plain(url)
+                def url(self) -> AnyLocalizable | None:
+                    return url
 
             return _SpdxLicense.definition
 
@@ -228,5 +227,5 @@ class SpdxLicenseDiscoverer(Manufacturable):
             yield
         except (AssertionError, LookupError) as error:
             raise HumanFacingException(
-                Plain(f"Invalid JSON response received from {self.url}")
+                f"Invalid JSON response received from {self.url}"
             ) from error

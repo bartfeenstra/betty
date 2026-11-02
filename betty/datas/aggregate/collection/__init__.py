@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Final, final
 from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
 
 if TYPE_CHECKING:
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.portable import Porter
 
 
@@ -29,8 +29,8 @@ class CollectionDefinition[CollectionT: Collection, ItemT, NewT: Iterable](
         self,
         *,
         item: ResolvableDataDefinition[DataDefinition[ItemT]],
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
         porter: Porter[CollectionT] | None = None,
         manufacturer: CollectionManufacturer[CollectionT, NewT] | None = None,
     ):

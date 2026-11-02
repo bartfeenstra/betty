@@ -17,7 +17,8 @@ from betty.definition.id import IdentifiableDefinition
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.localizable import CountableLocalizable, ResolvableLocalizable
+    from betty.localizable import CountableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requirement, Requires
 
@@ -59,10 +60,10 @@ class PluginTypeDefinition[DefinitionT: PluginDefinition](
         self,
         plugin_type_id: ResolvableMachineName,
         *,
-        label: ResolvableLocalizable,
-        label_plural: ResolvableLocalizable,
+        label: AnyLocalizable,
+        label_plural: AnyLocalizable,
         label_countable: CountableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
     ):
         super().__init__(
             id=plugin_type_id,

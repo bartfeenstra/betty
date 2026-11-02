@@ -6,7 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast, overload, override
 
-from betty.localizable import CountableLocalizable, Localizable, LocalizableCount
+from betty.localizable import (
+    CountableLocalizable,
+    Localizable,
+    LocalizableCount,
+)
 from betty.localized import LocalizedStr
 
 if TYPE_CHECKING:

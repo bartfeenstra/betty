@@ -5,7 +5,6 @@ from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.datas.str import StrDefinition
-from betty.localizables.plain import Plain
 from betty.operator import Attr
 
 
@@ -78,14 +77,14 @@ class TestFieldDefinition:
         assert sut.data is data
 
     def test_label(self) -> None:
-        label = Plain("-")
+        label = "My First Label"
         sut = FieldDefinition(BoolDefinition(label="-"), label=label)
-        assert sut.label is label
+        assert sut.label == label
 
     def test_description(self) -> None:
-        description = Plain("-")
+        description = "My First Description"
         sut = FieldDefinition(BoolDefinition(label="-"), description=description)
-        assert sut.description is description
+        assert sut.description == description
 
     def test_optional(self) -> None:
         sut = FieldDefinition(BoolDefinition(label="-"), optional=True)

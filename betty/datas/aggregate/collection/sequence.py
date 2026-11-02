@@ -17,7 +17,7 @@ from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
     from betty.data import DataDefinition, ResolvableDataDefinition
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.portable import PortableData
 
 
@@ -32,8 +32,8 @@ class SequenceDefinition[SequenceT: Sequence[Any], ValueT](
         self,
         *,
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
         manufacturer: CollectionManufacturer[SequenceT, Iterable[ValueT]] | None = None,
     ):
         super().__init__(

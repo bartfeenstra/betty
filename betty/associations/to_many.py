@@ -16,7 +16,7 @@ from betty.entity import Entity
 from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.project import Project
 
 type ToManyAssociates[AssociateT: Entity] = Iterable[Associate[AssociateT]]
@@ -36,8 +36,8 @@ class ToMany[AssociateT: Entity](
         associate_attr: str | None = None,
         /,
         *,
-        description: ResolvableLocalizable | None = None,
-        label: ResolvableLocalizable,
+        description: AnyLocalizable | None = None,
+        label: AnyLocalizable,
     ):
         self._data = SequenceDefinition(
             value=EntityAsReferenceDefinition(label=_("Associates")),

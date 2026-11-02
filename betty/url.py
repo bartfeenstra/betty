@@ -8,7 +8,7 @@ from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from betty.localizable import Localizable
+    from betty.localizer import AnyLocalizable
 
 
 class HasUrl(metaclass=ABCMeta):
@@ -18,7 +18,7 @@ class HasUrl(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def url(self) -> Localizable:
+    def url(self) -> AnyLocalizable:
         """
         The object's URL.
         """

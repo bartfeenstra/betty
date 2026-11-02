@@ -27,13 +27,13 @@ class LicenseTestBase[LicenseT: License]:
         """
         Tests :py:meth:`betty.license.License.summary` implementations.
         """
-        assert sut.summary.localize(default_localizer)
+        assert default_localizer.localize(sut.summary)
 
     def test_text(self, sut: LicenseT) -> None:
         """
         Tests :py:meth:`betty.license.License.text` implementations.
         """
-        assert sut.text.localize(default_localizer)
+        assert default_localizer.localize(sut.text)
 
     def test_url(self, sut: LicenseT) -> None:
         """
@@ -41,4 +41,4 @@ class LicenseTestBase[LicenseT: License]:
         """
         url = sut.url
         if url is not None:
-            assert url.localize(default_localizer)
+            assert default_localizer.localize(url)

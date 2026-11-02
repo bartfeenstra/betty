@@ -87,7 +87,7 @@ class TestPopulateLink:
                 )
             )
 
-        assert link.label.localize(default_localizer) == link_page_title
+        assert default_localizer.localize(link.label) == link_page_title
 
     @pytest.mark.parametrize(
         ("link_page_content_type"),
@@ -150,5 +150,5 @@ class TestPopulateLink:
 
         assert link.description is not None
         assert (
-            link.description.localize(default_localizer) == link_page_meta_description
+            default_localizer.localize(link.description) == link_page_meta_description
         )

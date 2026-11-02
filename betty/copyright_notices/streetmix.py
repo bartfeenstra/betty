@@ -7,14 +7,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.localizables.plain import Plain
 
 if TYPE_CHECKING:
-    from betty.localizable import Localizable
+    from betty.localizer import AnyLocalizable
 
 
 @final
-@CopyrightNoticeDefinition("streetmix", label=Plain("Streetmix LLC"))
+@CopyrightNoticeDefinition("streetmix", label="Streetmix LLC")
 class Streetmix(CopyrightNotice):
     """
     .. plugin:: copyright-notice:streetmix.
@@ -22,15 +21,15 @@ class Streetmix(CopyrightNotice):
 
     @override
     @property
-    def summary(self) -> Localizable:
+    def summary(self) -> AnyLocalizable:
         return self.definition.label
 
     @override
     @property
-    def text(self) -> Localizable:
+    def text(self) -> AnyLocalizable:
         return self.definition.label
 
     @override
     @property
-    def url(self) -> Localizable:
-        return Plain("https://github.com/streetmix/streetmix")
+    def url(self) -> AnyLocalizable:
+        return "https://github.com/streetmix/streetmix"

@@ -9,6 +9,7 @@ from betty.entities.person_name import PersonName
 from betty.entities.place import Place
 from betty.entities.place_name import PlaceName
 from betty.job import Context
+from betty.localizables.static import StaticTranslations
 from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.project import Project, ProjectLocale
@@ -162,10 +163,12 @@ class TestIndex:
         place = Place(
             id="my-first-place",
             names=[
-                PlaceName({
-                    "en": "Netherlands",
-                    "nl": "Nederland",
-                }),
+                PlaceName(
+                    StaticTranslations({
+                        "en": "Netherlands",
+                        "nl": "Nederland",
+                    })
+                ),
             ],
         )
         dummy_project.ancestry.add(place)
@@ -179,7 +182,7 @@ class TestIndex:
         place = Place(
             id="my-first-place",
             names=[
-                PlaceName({"en": "Netherlands"}),
+                PlaceName("Netherlands"),
             ],
             privacy=Privacy.PRIVATE,
         )

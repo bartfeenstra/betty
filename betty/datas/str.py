@@ -11,7 +11,7 @@ from betty.data import DataDefinition
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 @final
@@ -23,8 +23,8 @@ class StrDefinition(DataDefinition[str]):
     def __init__(
         self,
         *,
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
     ):
         super().__init__(
             label=label,

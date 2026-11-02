@@ -22,7 +22,7 @@ from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
     from betty.association import Associate
-    from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.media_type import ResolvableMediaType
 
@@ -55,12 +55,12 @@ class Link(LinkType, HasMediaType, HasDescription, Entity):
 
     def __init__(
         self,
-        url: ResolvableLocalizable,
+        url: AnyLocalizable,
         *,
         id: ResolvableMachineName | None = None,  # noqa: A002
         relationship: str | None = None,
-        label: ResolvableLocalizable | None = None,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         media_type: ResolvableMediaType | None = None,
         owner: Associate[HasLinks] | None = None,
         privacy: Privacy = Privacy.UNDETERMINED,
@@ -76,11 +76,11 @@ class Link(LinkType, HasMediaType, HasDescription, Entity):
 
     @override
     @property
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         return self.url if self._label is None else self._label
 
     @label.setter
-    def label(self, label: ResolvableLocalizable | None) -> None:
+    def label(self, label: AnyLocalizable | None) -> None:
         self._label = label
 
     @label.deleter

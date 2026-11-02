@@ -10,7 +10,7 @@ from betty.datas.aggregate.collection.sequence import MutableSequenceDefinition
 
 if TYPE_CHECKING:
     from betty.data import DataDefinition, ResolvableDataDefinition
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 @final
@@ -23,8 +23,8 @@ class ListDefinition[ValueT](MutableSequenceDefinition[list[ValueT], ValueT]):
         self,
         *,
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
     ):
         super().__init__(
             value=value,

@@ -17,6 +17,5 @@ async def test(assert_template_file: AssertTemplateFile) -> None:
         template="component/wiki/wikipedia-summary.html.j2",
     ) as (actual, _project):
         assert summary.content in actual
-        assert copyright_notice.summary.localize(default_localizer) in actual
-        assert copyright_notice.url is not None
-        assert copyright_notice.url.localize(default_localizer) in actual
+        assert default_localizer.localize(copyright_notice.summary) in actual
+        assert default_localizer.localize(copyright_notice.url) in actual

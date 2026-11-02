@@ -2,18 +2,16 @@ import pytest
 from babel import Locale
 
 from betty.locale import default_locale, default_locale_tag, resolve_locale
-from betty.localizable import (
-    LocalizableCount,
-    ResolvableCountableStaticTranslations,
-    ResolvableStaticTranslations,
-    StaticTranslationsMapping,
-)
+from betty.localizable import LocalizableCount
 from betty.localizables.static import (
     CountableStaticTranslations,
     InvalidPluralTag,
     MissingPluralPlaceholder,
     MissingPluralTag,
+    ResolvableCountableStaticTranslations,
+    ResolvableStaticTranslations,
     StaticTranslations,
+    StaticTranslationsMapping,
 )
 from betty.localizer import Localizer
 

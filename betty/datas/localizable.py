@@ -4,25 +4,24 @@ Localizable data.
 
 from __future__ import annotations
 
-from contextlib import suppress
-from typing import TYPE_CHECKING, cast, final, override
+from typing import TYPE_CHECKING, final, override
 
 from betty.assertions.if_else import assert_if_else
-from betty.assertions.locale import assert_optional_locale
+from betty.assertions.locale import assert_locale
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.str import assert_str
 from betty.classtools import Singleton
 from betty.data import DataDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale import to_language_tag
-from betty.localizable import (
-    CountableLocalizable,
-    Localizable,
-    StaticTranslationsMapping,
-)
+from betty.localizable import CountableLocalizable
 from betty.localizables.gettext import _
-from betty.localizables.plain import Plain
-from betty.localizables.static import CountableStaticTranslations, StaticTranslations
+from betty.localizables.static import (
+    CountableStaticTranslations,
+    StaticTranslations,
+)
+from betty.localized import LocalizedStr
+from betty.localizer import AnyLocalizable
 from betty.portable import Porter
 from betty.portable.error import NotDumpable
 
@@ -31,43 +30,50 @@ if TYPE_CHECKING:
 
 
 @final
-class LocalizableDefinition(DataDefinition[Localizable], Singleton):
+class LocalizableDefinition(DataDefinition[AnyLocalizable], Singleton):
     """
-    The data definition for :py:class:`betty.localizable.Localizable`.
+    The data definition for :py:class:`betty.localizer.AnyLocalizable`.
     """
 
     def __init__(self):
         super().__init__(label=_("A localizable string"), porter=_LocalizablePorter())
 
 
-class _LocalizablePorter(Porter[Localizable]):
-    load = override(
-        assert_if_else(
-            assert_str().pipe(
-                lambda translation: cast(StaticTranslationsMapping, {None: translation})
-            ),
-            assert_mapping(assert_str(), assert_optional_locale),
-        )
-        | StaticTranslations
+class _LocalizablePorter(Porter[AnyLocalizable]):
+    _load = assert_if_else(
+        assert_str(minimum_length=1),
+        assert_mapping(
+            assert_str(minimum_length=1),
+            lambda key: None if key == "" else assert_locale(key),
+        ),
     )
 
     @override
-    def dump(self, data: Localizable) -> PortableData:
-        if isinstance(data, Plain):
-            data = StaticTranslations({data.locale: data.text})
+    def load(self, data: PortableData, /) -> AnyLocalizable:
+        translations = self._load(data)
+        if isinstance(translations, str):
+            return LocalizedStr(translations)
+        if len(translations) == 1:
+            locale, translation = next(iter(translations.items()))
+            return LocalizedStr(translation, locale=locale)
+        return StaticTranslations(translations)
+
+    @override
+    def dump(self, data: AnyLocalizable) -> PortableData:
+        if isinstance(data, str):
+            return {
+                to_language_tag(data.locale)
+                if isinstance(data, LocalizedStr)
+                else "": data,
+            }
         if not isinstance(data, StaticTranslations):
             raise NotDumpable(
-                Plain(
-                    "Only static translations and plain text can be dumped to portable data, not `{localizable}` objects."
-                ).format(localizable=fully_qualified_name(type(data)))
+                f"Only {fully_qualified_name(StaticTranslations)} and {fully_qualified_name(str)} can be dumped to portable data, not `{fully_qualified_name(type(data))}` objects."
             )
-        if len(data.translations) == 1:
-            with suppress(KeyError):
-                # Explicitly cast to a string because pyyaml cannot dump ``str`` subclasses.
-                return str(data.translations[None])
+        if len(data.translations) == 1 and None in data.translations:
+            return data.translations[None]
         return {
-            # Explicitly cast to a string because pyyaml cannot dump ``str`` subclasses.
-            to_language_tag(locale): str(translation)
+            to_language_tag(locale): translation
             for locale, translation in data.translations.items()
         }
 
@@ -87,19 +93,15 @@ class CountableLocalizableDefinition(DataDefinition[CountableLocalizable], Singl
 
 class _CountableLocalizablePorter(Porter[CountableLocalizable]):
     load = override(
-        assert_mapping(
-            assert_mapping(assert_str(), assert_str()), assert_optional_locale
-        )
-        | CountableStaticTranslations
+        assert_mapping(assert_mapping(assert_str(), assert_str()), assert_locale)
+        | CountableStaticTranslations  # ty: ignore[unsupported-operator]
     )
 
     @override
     def dump(self, data: CountableLocalizable) -> PortableData:
         if not isinstance(data, CountableStaticTranslations):
             raise NotDumpable(
-                Plain(
-                    "Only static translations and plain text can be dumped to portable data, not `{localizable}` objects."
-                ).format(localizable=fully_qualified_name(type(data)))
+                f"Only {fully_qualified_name(CountableStaticTranslations)} and {fully_qualified_name(str)} can be dumped to portable data, not `{fully_qualified_name(type(data))}` objects."
             )
         return {
             to_language_tag(locale): translations

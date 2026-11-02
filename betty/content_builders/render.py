@@ -18,7 +18,7 @@ from betty.sample import Sample, Samples, Size
 
 if TYPE_CHECKING:
     from betty.document import Document
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.media_type import ResolvableMediaType
     from betty.render import RenderDispatcher
 
@@ -43,7 +43,7 @@ class RenderData(Object):
     def __init__(
         self,
         /,
-        content: ResolvableLocalizable,
+        content: AnyLocalizable,
         media_type: ResolvableMediaType = plain_text,
     ):
         super().__init__()
@@ -61,7 +61,7 @@ class Render(DataManufacturable[RenderData], ContentBuilder):
     def __init__(
         self,
         *,
-        content: ResolvableLocalizable,
+        content: AnyLocalizable,
         renderer: RenderDispatcher,
         media_type: ResolvableMediaType = plain_text,
     ):

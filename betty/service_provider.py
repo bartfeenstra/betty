@@ -23,7 +23,7 @@ from betty.prop import HasProps
 from betty.service_level import HasServiceLevel, ServiceLevel
 
 if TYPE_CHECKING:
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
 
@@ -58,9 +58,9 @@ class ServiceProviderDefinition(
         self,
         service_provider_id: ResolvableMachineName,
         *,
-        label: ResolvableLocalizable,
+        label: AnyLocalizable,
         auto: bool = False,
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(

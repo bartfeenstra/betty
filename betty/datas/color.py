@@ -17,7 +17,7 @@ from betty.porters.callback import CallbackPorter
 from betty.sample import Sample, Samples
 
 if TYPE_CHECKING:
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 _hex_pattern: Final[re.Pattern[str]] = re.compile(r"^#[a-zA-Z0-9]{6}$")
 
@@ -38,7 +38,7 @@ class ColorDefinition(DataDefinition[str]):
     Define a color.
     """
 
-    def __init__(self, *, label: ResolvableLocalizable | None = None):
+    def __init__(self, *, label: AnyLocalizable | None = None):
         super().__init__(
             label=label or _("Color"),
             description=_("A hexadecimal color, such as {example_color}").format(

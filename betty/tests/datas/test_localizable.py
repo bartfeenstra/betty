@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, override
+from typing import override
 
 import pytest
 
@@ -7,28 +7,20 @@ from betty.datas.localizable import (
     LocalizableDefinition,
 )
 from betty.exception import HumanFacingException
-from betty.locale import default_locale_tag
-from betty.localizable import (
-    CountableLocalizable,
-    Localizable,
-    LocalizableCount,
-)
+from betty.locale import default_locale, default_locale_tag
+from betty.localizable import CountableLocalizable, Localizable, LocalizableCount
 from betty.localizables.markup import Paragraph
-from betty.localizables.plain import Plain
 from betty.localizables.static import (
     CountableStaticTranslations,
     InvalidPluralTag,
     MissingPluralTag,
+    ResolvableStaticTranslations,
     StaticTranslations,
 )
+from betty.localized import LocalizedStr
 from betty.localizer import default_localizer
 from betty.portable.error import NotDumpable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-
-if TYPE_CHECKING:
-    from betty.localizable import (
-        ResolvableStaticTranslations,
-    )
 
 
 class TestLocalizableDefinition:
@@ -36,16 +28,38 @@ class TestLocalizableDefinition:
         with pytest.raises(HumanFacingException):
             LocalizableDefinition().porter.load({})
 
-    def test_load__with_single_undetermined_translation(self) -> None:
-        localizable = "Hello, world!"
+    def test_load__with_string(self) -> None:
         assert (
-            LocalizableDefinition().porter.load(localizable).localize(default_localizer)
-            == localizable
+            default_localizer.localize(
+                LocalizableDefinition().porter.load("Hello, world!")
+            )
+            == "Hello, world!"
         )
 
-    def test_dump__with_plain_text(self) -> None:
-        localizable = "Hello, world!"
-        assert LocalizableDefinition().porter.dump(Plain(localizable)) == localizable
+    def test_load__with_mapping_minimal_without_locale(self) -> None:
+        loaded = LocalizableDefinition().porter.load({
+            "": "Hello, world, but in an unknown language!",
+        })
+        assert isinstance(loaded, LocalizedStr)
+        assert loaded == "Hello, world, but in an unknown language!"
+
+    def test_load__with_mapping_minimal_with_locale(self) -> None:
+        loaded = LocalizableDefinition().porter.load({
+            default_locale_tag: "Hello, world!",
+        })
+        assert isinstance(loaded, LocalizedStr)
+        assert loaded == "Hello, world!"
+
+    def test_load__with_mapping_full(self) -> None:
+        loaded = LocalizableDefinition().porter.load({
+            default_locale_tag: "Hello, world!",
+            "": "Hello, world, but in an unknown language!",
+        })
+        assert isinstance(loaded, StaticTranslations)
+        assert loaded.translations == {
+            default_locale: "Hello, world!",
+            None: "Hello, world, but in an unknown language!",
+        }
 
     def test_dump__with_static_translations_single_undetermined(self) -> None:
         localizable = "Hello, world!"

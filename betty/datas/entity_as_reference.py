@@ -12,7 +12,7 @@ from betty.entity import Entity
 from betty.porters.entity_as_reference import EntityAsReferencePorter
 
 if TYPE_CHECKING:
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 @final
@@ -26,8 +26,8 @@ class EntityAsReferenceDefinition[AssociateT: Entity](
     def __init__(
         self,
         *,
-        description: ResolvableLocalizable | None = None,
-        label: ResolvableLocalizable,
+        description: AnyLocalizable | None = None,
+        label: AnyLocalizable,
     ):
         super().__init__(
             description=description,

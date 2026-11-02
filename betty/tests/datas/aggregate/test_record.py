@@ -15,7 +15,6 @@ from betty.datas.aggregate.record import (
 from betty.datas.bool import BoolDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.datas.str import StrDefinition
-from betty.localizables.plain import Plain
 from betty.operator import Attr
 from betty.portable import Porter
 from betty.portable.error import NotPortable
@@ -47,18 +46,18 @@ class TestFieldDefinition:
         assert sut.data is data
 
     def test_label__with_label(self) -> None:
-        label = Plain("-")
+        label = "My First Label"
         sut = FieldDefinition(DataDefinition(label="-"), label=label)
-        assert sut.label is label
+        assert sut.label == label
 
     def test_description__without_description(self) -> None:
         sut = FieldDefinition(DataDefinition(label="-"))
         assert sut.description is None
 
     def test_description__with_description(self) -> None:
-        description = Plain("-")
+        description = "My First Description"
         sut = FieldDefinition(DataDefinition(label="-"), description=description)
-        assert sut.description is description
+        assert sut.description == description
 
     def test_porter__without_porter_without_data_porter(self) -> None:
         sut = FieldDefinition(DataDefinition(label="-"))

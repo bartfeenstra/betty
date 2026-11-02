@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.data import DataDefinition
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.project import Project
 
 
@@ -94,8 +94,8 @@ class ToOne[AssociateT: Entity](
         associate_attr: str | None = None,
         /,
         *,
-        description: ResolvableLocalizable | None = None,
-        label: ResolvableLocalizable,
+        description: AnyLocalizable | None = None,
+        label: AnyLocalizable,
     ):
         super().__init__(
             FieldDefinition(

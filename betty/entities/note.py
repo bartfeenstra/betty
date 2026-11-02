@@ -17,7 +17,7 @@ from betty.privacy import Privacy
 
 if TYPE_CHECKING:
     from betty.association import Associate
-    from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
 
 
@@ -50,7 +50,7 @@ class Note(HasLinks, HasMediaType):
 
     def __init__(
         self,
-        text: ResolvableLocalizable,
+        text: AnyLocalizable,
         *,
         entity: Associate[HasNotes] | None = None,
         id: ResolvableMachineName | None = None,  # noqa: A002
@@ -63,5 +63,5 @@ class Note(HasLinks, HasMediaType):
 
     @override
     @property
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         return self.text

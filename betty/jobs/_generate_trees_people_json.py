@@ -40,7 +40,7 @@ class _GenerateTreesPeopleJson(Job):
         people = {
             person.id: {
                 "id": person.id,
-                "label": person.label.localize(localizer)
+                "label": localizer.localize(person.label)
                 if person.public
                 else private_label,
                 "url": url_generator.generate(person, media_type=html),

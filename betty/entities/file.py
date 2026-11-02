@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from betty.entities.link import Link
     from betty.entities.note import Note
     from betty.license import License
-    from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
@@ -74,7 +74,7 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
         id: ResolvableMachineName | None = None,  # noqa: A002
         name: str | None = None,
         media_type: ResolvableMediaType | None = None,
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         notes: ToManyAssociates[Note] = (),
         citations: ToManyAssociates[Citation] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
@@ -105,5 +105,5 @@ class File(HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations):
 
     @override
     @property
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         return self.description or super().label

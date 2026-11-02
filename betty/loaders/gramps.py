@@ -49,7 +49,7 @@ if TYPE_CHECKING:
 
     from betty.attrs.common import CommonAttr
     from betty.job.scheduler import Scheduler
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.pathlib import StrPath
 
 
@@ -59,7 +59,7 @@ def _new_plugin_mapping_attr[
     PluginT,
 ](
     manufacturer: type[PluginManufacturerT],
-    gramps_label: ResolvableLocalizable,
+    gramps_label: AnyLocalizable,
     default: Mapping[
         str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]
     ],

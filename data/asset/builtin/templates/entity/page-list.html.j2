@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% set page_title = document.resource.label_plural | localize %}
+{% set page_title = document.resource.label_plural %}
 {% do document.breadcrumbs.append(
     page_title,
     document.resource

@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from betty.date import AnyDate
     from betty.entities.file_reference import FileReference
     from betty.entities.link import Link
-    from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
 
 
@@ -72,7 +72,7 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
         source: ToOneAssociate[Source],
         facts: ToManyAssociates[HasCitations] = (),
         id: ResolvableMachineName | None = None,  # noqa: A002
-        location: ResolvableLocalizable | None = None,
+        location: AnyLocalizable | None = None,
         date: AnyDate | None = None,
         files: ToManyAssociates[FileReference] = (),
         links: ToManyAssociates[Link] = (),
@@ -95,5 +95,5 @@ class Citation(HasAnyDate, HasFileReferences, HasLinks):
 
     @override
     @property
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         return self.location or super().label

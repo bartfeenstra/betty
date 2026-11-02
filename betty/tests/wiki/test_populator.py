@@ -57,17 +57,17 @@ class TestPopulator:
         localizer_nl = await localizers.get("nl")
         localizer_uk = await localizers.get("uk")
         assert (
-            link.url.localize(localizer_en) == "https://en.wikipedia.org/wiki/Amsterdam"
+            localizer_en.localize(link.url) == "https://en.wikipedia.org/wiki/Amsterdam"
         )
         assert (
-            link.url.localize(localizer_nl) == "https://nl.wikipedia.org/wiki/Amsterdam"
+            localizer_nl.localize(link.url) == "https://nl.wikipedia.org/wiki/Amsterdam"
         )
         assert (
-            link.url.localize(localizer_uk) == "https://uk.wikipedia.org/wiki/Амстердам"
+            localizer_uk.localize(link.url) == "https://uk.wikipedia.org/wiki/Амстердам"
         )
-        assert link.label.localize(localizer_en) == "Amsterdam (en)"
-        assert link.label.localize(localizer_nl) == "Amsterdam (nl)"
-        assert link.label.localize(localizer_uk) == "Амстердам (uk)"
+        assert localizer_en.localize(link.label) == "Amsterdam (en)"
+        assert localizer_nl.localize(link.label) == "Amsterdam (nl)"
+        assert localizer_uk.localize(link.label) == "Амстердам (uk)"
         assert link.media_type == html
         assert link.relationship == "external"
         assert link.description is not None
@@ -106,7 +106,7 @@ class TestPopulator:
         await sut.populate(link)
         localizer_en = await localizers.get("en")
         assert (
-            link.url.localize(localizer_en) == "http://en.wikipedia.org/wiki/Amsterdam"
+            localizer_en.localize(link.url) == "http://en.wikipedia.org/wiki/Amsterdam"
         )
         assert link.media_type == html
         assert link.relationship == "external"

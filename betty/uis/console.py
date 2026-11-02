@@ -24,8 +24,7 @@ from betty.user.ui import NoDefault, Ui
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator, Callable, Mapping
 
-    from betty.localizable import ResolvableLocalizable
-    from betty.localizer import Localizer
+    from betty.localizer import AnyLocalizable, Localizer
     from betty.progress import Progress
 
 
@@ -58,7 +57,7 @@ class Console(Ui):
         self._localizer = localizer
         self.severity = severity
 
-    def _print(self, message: ResolvableLocalizable, style: str, /) -> None:
+    def _print(self, message: AnyLocalizable, style: str, /) -> None:
         self.console.print(
             self.localizer.localize(message), emoji=False, markup=False, style=style
         )
@@ -73,9 +72,7 @@ class Console(Ui):
         self.console.print_exception(show_locals=self.shows(Severity.DEBUG))
 
     @override
-    async def message(
-        self, message: ResolvableLocalizable, severity: Severity, /
-    ) -> None:
+    async def message(self, message: AnyLocalizable, severity: Severity, /) -> None:
         if self.shows(severity):
             self._print(
                 self.localizer.localize(message), self._severity_to_style[severity]
@@ -91,9 +88,7 @@ class Console(Ui):
 
     @override
     @asynccontextmanager
-    async def progress(
-        self, message: ResolvableLocalizable, /
-    ) -> AsyncGenerator[Progress]:
+    async def progress(self, message: AnyLocalizable, /) -> AsyncGenerator[Progress]:
         if self.shows(Severity.CONFIRM):
             with _RichProgress(
                 TextColumn("[progress.description]{task.description}"),
@@ -112,7 +107,7 @@ class Console(Ui):
     @override
     async def ask_confirmation(
         self,
-        statement: ResolvableLocalizable,
+        statement: AnyLocalizable,
         /,
         *,
         default: bool = False,
@@ -128,7 +123,7 @@ class Console(Ui):
     @overload
     async def ask_input(
         self,
-        question: ResolvableLocalizable,
+        question: AnyLocalizable,
         /,
         *,
         assertion: None = None,
@@ -140,7 +135,7 @@ class Console(Ui):
     @overload
     async def ask_input[T](
         self,
-        question: ResolvableLocalizable,
+        question: AnyLocalizable,
         /,
         *,
         assertion: Callable[[str], T],

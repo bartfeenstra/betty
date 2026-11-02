@@ -53,4 +53,4 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
             body=dumps(response_json),
         )
         sut = await WikipediaContributors.new(isolated_app)
-        assert sut.url.localize(default_localizer)
+        assert default_localizer.localize(sut.url)

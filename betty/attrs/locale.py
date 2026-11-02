@@ -17,13 +17,13 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.attrs.common import OptionableCommonAttr
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 def new_locale_attr(
     *,
-    label: ResolvableLocalizable | None = None,
-    description: ResolvableLocalizable | None = None,
+    label: AnyLocalizable | None = None,
+    description: AnyLocalizable | None = None,
     frozen: bool = False,
 ) -> OptionableCommonAttr[HasProps, Locale, ResolvableLocale]:
     """

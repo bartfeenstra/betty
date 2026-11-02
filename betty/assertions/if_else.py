@@ -7,12 +7,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.assertions import _HumanFacingValueError
-from betty.localizable import Localizable, ResolvableLocalizable
+from betty.localizable import Localizable
 from betty.localizables.markup import Paragraphs
 from betty.pipeline import Inlet, Pipeline
 
 if TYPE_CHECKING:
     from collections.abc import Callable, MutableSequence
+
+    from betty.localizer import AnyLocalizable
 
 
 def assert_if_else[ValueT, ReturnT, AssertionReturnU](
@@ -26,7 +28,7 @@ def assert_if_else[ValueT, ReturnT, AssertionReturnU](
 
     def _assert_or(value: Any, /) -> ReturnT | AssertionReturnU:
         assertions = (if_assertion, else_assertion)
-        errors: MutableSequence[ResolvableLocalizable] = []
+        errors: MutableSequence[AnyLocalizable] = []
         for assertion in assertions:
             try:
                 return assertion(value)

@@ -24,7 +24,7 @@ class _GenerateRaspberryMintWebmanifest(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         raspberry_mint = await self._project.service_providers[RaspberryMint]
         webmanifest = json.dumps({
-            "name": self._project.title.localize(default_localizer),
+            "name": default_localizer.localize(self._project.title),
             "icons": [
                 {"src": "/logo" + self._project.logo.suffix},
             ],

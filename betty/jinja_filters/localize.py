@@ -14,7 +14,7 @@ from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
 if TYPE_CHECKING:
     from jinja2.runtime import Context
 
-    from betty.localizable import Localizable
+    from betty.localizer import AnyLocalizable
 
 
 @final
@@ -28,6 +28,6 @@ class Localize(JinjaFilter):
 
     @pass_context
     def __call__(  # noqa: D102
-        self, context: Context, localizable: Localizable, /
+        self, context: Context, localizable: AnyLocalizable, /
     ) -> str:
-        return localizable.localize(context_document(context).localizer)
+        return context_document(context).localizer.localize(localizable)

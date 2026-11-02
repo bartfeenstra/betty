@@ -48,10 +48,10 @@ class TestNew:
         async with isolated_app_factory(ui=user) as app, app:
             await run(New(app), "new")
             configuration = _assert_new(configuration_file)
-        assert configuration.title.localize(default_localizer) == title
+        assert default_localizer.localize(configuration.title) == title
         assert configuration.name == "my-first-project"
         assert configuration.author is not None
-        assert configuration.author.localize(default_localizer) == author
+        assert default_localizer.localize(configuration.author) == author
         assert configuration.url == url
 
     async def test_configure__with_project_directory(

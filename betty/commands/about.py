@@ -108,11 +108,9 @@ class About(Manufacturable, Command):
                 )
                 third_column_lines: MutableSequence[str] = []
                 if isinstance(plugin, HumanFacingDefinition):
-                    third_column_lines.append(plugin.label.localize(ui.localizer))
+                    third_column_lines.append(ui.localizer.localize(plugin.label))
                 about_plugins.add_row(
-                    first_column,
-                    plugin.id,
-                    "\n".join(third_column_lines),
+                    first_column, plugin.id, "\n".join(third_column_lines)
                 )
         ui.console.print(about_plugins, emoji=False, markup=False)
         if project is None:

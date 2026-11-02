@@ -35,8 +35,7 @@ from betty.user.ui import Ui
 if TYPE_CHECKING:
     from collections.abc import Callable, Coroutine, Iterable, MutableSequence, Sequence
 
-    from betty.localizable import ResolvableLocalizable
-    from betty.localizer import Localizer
+    from betty.localizer import AnyLocalizable, Localizer
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
 
@@ -102,9 +101,9 @@ class CommandDefinition(
         command_id: ResolvableMachineName,
         /,
         *,
-        label: ResolvableLocalizable,
+        label: AnyLocalizable,
         aliases: Iterable[str] = (),
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(

@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.localizables.plain import Plain
 from betty.sample import Sample, SampleNotFound, Samples, Size
 
 if TYPE_CHECKING:
@@ -23,14 +22,14 @@ class TestSample:
         assert sut.subject is data
 
     def test_label(self) -> None:
-        label = Plain("-")
+        label = "My First Label"
         sut = Sample(object(), label=label)
-        assert sut.label is label
+        assert sut.label == label
 
     def test_description(self) -> None:
-        description = Plain("-")
+        description = "My First Description"
         sut = Sample(object(), label="-", description=description)
-        assert sut.description is description
+        assert sut.description == description
 
     def test_size(self) -> None:
         sut = Sample(object(), label="-", size=Size.MINIMAL)

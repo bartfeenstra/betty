@@ -62,7 +62,7 @@ class DefaultRegionalContent(Bootstrappable):
         await super().bootstrap()
         self._localizers = await self._project.public_localizers
 
-    def _make_dumpable(self, localizable: Localizable) -> StaticTranslations:
+    def _make_dumpable(self, localizable: Localizable, /) -> StaticTranslations:
         return StaticTranslations.resolve(localizable, self._localizers)
 
     async def get(self) -> ManufacturableRegionalContent:

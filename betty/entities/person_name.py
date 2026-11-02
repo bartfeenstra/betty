@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from betty.entities.citation import Citation
     from betty.entities.person import Person
     from betty.locale import ResolvableLocale
-    from betty.localizable import Localizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
 
 
@@ -117,7 +117,7 @@ class PersonName(HasLocale, HasCitations):
 
     @override
     @property
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         return _("{individual_name} {affiliation_name}").format(
             individual_name="…" if not self.individual else self.individual,
             affiliation_name="…" if not self.affiliation else self.affiliation,

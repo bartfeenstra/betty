@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, override
 import pytest
 
 from betty.entities.note import Note
-from betty.localizer import default_localizer
 from betty.test_utils.entity import EntityTestBase
 from betty.test_utils.entity.associations.has_notes import DummyHasNotes
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -32,7 +31,7 @@ class TestNote(EntityTestBase):
     def test_text(self) -> None:
         text = "Betty wrote this."
         sut = Note(text)
-        assert sut.text.localize(default_localizer) == text
+        assert sut.text == text
 
     def test_entity(self) -> None:
         entity = DummyHasNotes()

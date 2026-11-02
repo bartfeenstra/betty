@@ -89,7 +89,10 @@ class New(Manufacturable, Command):
                 )
             )
         locales = tuple(configuration.locales.keys())
-        default_locale = locales[0]
+        default_project_locale = locales[0]
+        default_project_localizer = await self._app.localizers.get(
+            default_project_locale
+        )
 
         configuration.title = await _user_input_static_translations(
             self._app.ui, locales, _("What is your project called in {locale}?")
@@ -98,9 +101,7 @@ class New(Manufacturable, Command):
         configuration.name = await self._app.ui.ask_input(
             _("What is your project's machine name?"),
             default=MachineName.machinify(
-                configuration.title.localize(
-                    await self._app.localizers.get(default_locale)
-                )
+                default_project_localizer.localize(configuration.title)
             )
             or NoDefault,
         )

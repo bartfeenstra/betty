@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from betty.entities.file_reference import FileReference
     from betty.entities.link import Link
     from betty.entities.note import Note
-    from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
 
 
@@ -88,11 +88,11 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
 
     def __init__(
         self,
-        name: ResolvableLocalizable | None = None,
+        name: AnyLocalizable | None = None,
         *,
         id: ResolvableMachineName | None = None,  # noqa: A002
-        author: ResolvableLocalizable | None = None,
-        publisher: ResolvableLocalizable | None = None,
+        author: AnyLocalizable | None = None,
+        publisher: AnyLocalizable | None = None,
         contained_by: Associate[Source] | None = None,
         contains: ToManyAssociates[Source] = (),
         notes: ToManyAssociates[Note] = (),
@@ -124,5 +124,5 @@ class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
 
     @override
     @property
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         return self.name if self.name else super().label

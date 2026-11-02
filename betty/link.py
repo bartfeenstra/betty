@@ -7,17 +7,13 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Final, Self, final, override
 
-from betty.localizable import (
-    Localizable,
-    ResolvableLocalizable,
-    resolve_localizable,
-)
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.ordered import Order, OrderedPluginDefinition
 from betty.url import HasUrl
 
 if TYPE_CHECKING:
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
 
 
@@ -28,7 +24,7 @@ class Link(HasUrl):
 
     @property
     @abstractmethod
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         """
         The human-readable short link label.
         """
@@ -73,18 +69,16 @@ class StaticLink(Link):
     A static link.
     """
 
-    def __init__(
-        self, url: ResolvableLocalizable, label: ResolvableLocalizable | None = None, /
-    ):
-        self._url = resolve_localizable(url)
-        self._label = self._url if label is None else resolve_localizable(label)
+    def __init__(self, url: AnyLocalizable, label: AnyLocalizable | None = None, /):
+        self._url = url
+        self._label = self._url if label is None else label
 
     @override
     @property
-    def url(self) -> Localizable:
+    def url(self) -> AnyLocalizable:
         return self._url
 
     @override
     @property
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         return self._label

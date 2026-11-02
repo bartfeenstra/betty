@@ -32,7 +32,7 @@ from betty.sample import Sample, Samples, Size
 if TYPE_CHECKING:
     from betty.document import Document
     from betty.jinja import Environment
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import MachineName, ResolvableMachineName
 
 
@@ -43,7 +43,7 @@ if TYPE_CHECKING:
         lambda: Sample(
             SectionData(
                 ContentBuilderManufacturer("my-first-content"),
-                heading="-",
+                heading="My First Heading",
             ),
             label="Minimal",
             size=Size.MINIMAL,
@@ -87,7 +87,7 @@ class SectionData(Object):
     def __init__(
         self,
         *content: ResolvableContentBuilderManufacturer,
-        heading: ResolvableLocalizable,
+        heading: AnyLocalizable,
         name: ResolvableMachineName | None = None,
         visually_hide_heading: bool = False,
     ):
@@ -113,7 +113,7 @@ class Section(Template, DataManufacturable[SectionData]):
         self,
         /,
         *content: ContentBuilder,
-        heading: ResolvableLocalizable,
+        heading: AnyLocalizable,
         name: MachineName | None = None,
         visually_hide_heading: bool = False,
         jinja: Environment,

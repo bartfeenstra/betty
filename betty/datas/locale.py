@@ -17,7 +17,7 @@ from betty.localizables.markup import Paragraph
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 @final
@@ -28,8 +28,8 @@ class LocaleDefinition(DataDefinition[Locale]):
 
     def __init__(
         self,
-        label: ResolvableLocalizable | None = None,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable | None = None,
+        description: AnyLocalizable | None = None,
     ):
         _description = _(
             "An IETF BCP 47 language tag, such as {example_language_tag}."

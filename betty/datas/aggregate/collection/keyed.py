@@ -22,7 +22,7 @@ from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
     from betty.data import DataDefinition, ResolvableDataDefinition
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.portable import (
         PortableData,
         PortableMapping,
@@ -42,8 +42,8 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
         *,
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
         order_dump: bool = False,
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
         manufacturer: CollectionManufacturer[KeyedCollectionT, Iterable[ValueT]]
         | None = None,
     ):

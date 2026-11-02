@@ -13,7 +13,6 @@ from betty.data import Data
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.importlib import fully_qualified_name
-from betty.localizables.plain import Plain
 from betty.localizer import default_localizer
 
 
@@ -53,18 +52,18 @@ class DataTestBase[DataT: Data]:
         samples = list(self.sut_cls.definition.samples)
         porter = self.sut_cls.definition.porter
         for sample in samples:
-            with subtests.test(str(sample.label.localize(default_localizer))):
+            with subtests.test(str(default_localizer.localize(sample.label))):
                 portable = self.sut_cls.definition.porter.dump(sample.subject)
                 loaded = porter.load(portable)
                 dumped = porter.dump(loaded)
                 assert porter.dump(loaded) == dumped, (
-                    f'Failed asserting that repeatedly loading and dumping sample "{sample.label.localize(default_localizer)}" keeps producing the same portable data'
+                    f'Failed asserting that repeatedly loading and dumping sample "{default_localizer.localize(sample.label)}" keeps producing the same portable data'
                 )
                 for other_sample in samples:
                     if other_sample is sample:
                         continue
                     assert porter.dump(other_sample.subject) != dumped, (
-                        f'Failed asserting that sample "{sample.label.localize(default_localizer)}" instance is not equal to sample "{other_sample.label.localize(default_localizer)}"'
+                        f'Failed asserting that sample "{default_localizer.localize(sample.label)}" instance is not equal to sample "{default_localizer.localize(other_sample.label)}"'
                     )
 
     @pytest.mark.parametrize(
@@ -89,7 +88,7 @@ class DataTestBase[DataT: Data]:
         """
         samples = list(self.sut_cls.definition.samples)
         for sample in samples:
-            with subtests.test(str(sample.label.localize(default_localizer))):
+            with subtests.test(str(default_localizer.localize(sample.label))):
                 assert sample.subject != other
 
     def test___eq____with_samples(self, subtests: pytest.Subtests) -> None:
@@ -98,19 +97,19 @@ class DataTestBase[DataT: Data]:
         """
         samples = list(self.sut_cls.definition.samples)
         for sample in samples:
-            with subtests.test(str(sample.label.localize(default_localizer))):
+            with subtests.test(str(default_localizer.localize(sample.label))):
                 assert sample.subject == sample.subject, (
-                    f'Failed asserting that sample "{sample.label.localize(default_localizer)}" instance is equal to itself'
+                    f'Failed asserting that sample "{default_localizer.localize(sample.label)}" instance is equal to itself'
                 )
                 for other_sample in samples:
                     if other_sample is sample:
                         continue
                     assert sample.subject != other_sample.subject, (
-                        f'Failed asserting that sample "{sample.label.localize(default_localizer)}" instance is not equal to sample "{other_sample.label.localize(default_localizer)}"'
+                        f'Failed asserting that sample "{default_localizer.localize(sample.label)}" instance is not equal to sample "{default_localizer.localize(other_sample.label)}"'
                     )
 
 
-@ObjectDefinition(label=Plain("Dummy data"))
+@ObjectDefinition(label="Dummy data")
 class DummyData(Object):
     """
     A dummy :py:class:`betty.data.Data` implementation.

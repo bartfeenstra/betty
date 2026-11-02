@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from betty.attrs.description import HasDescription
-from betty.localizer import default_localizer
 
 
 class TestHasDescription:
@@ -9,7 +8,7 @@ class TestHasDescription:
         description = "Hello, world!"
         sut = HasDescription(description=description)
         assert sut.description is not None
-        assert sut.description.localize(default_localizer) == description
+        assert sut.description == description
 
     def test_description(self) -> None:
         sut = HasDescription()

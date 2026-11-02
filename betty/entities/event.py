@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from betty.entities.file_reference import FileReference
     from betty.entities.note import Note
     from betty.event_type import EventType
-    from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
 
 
@@ -83,9 +83,9 @@ class Event(
         notes: ToManyAssociates[Note] = (),
         privacy: Privacy = Privacy.UNDETERMINED,
         place: Associate[Place] | None = None,
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         presences: ToManyAssociates[Presence] = (),
-        name: ResolvableLocalizable | None = None,
+        name: AnyLocalizable | None = None,
     ):
         super().__init__(
             id=id,
@@ -106,11 +106,11 @@ class Event(
 
     @override
     @property
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         if self.name:
             return self.name
 
-        format_kwargs: Mapping[str, ResolvableLocalizable] = {
+        format_kwargs: Mapping[str, AnyLocalizable] = {
             "event_type": self.event_type.definition.label,
         }
         subjects = [

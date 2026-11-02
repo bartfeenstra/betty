@@ -7,7 +7,6 @@ import pytest
 from betty.entities.citation import Citation
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.test_utils.entity import EntityTestBase
 from betty.test_utils.entity.associations.has_citations import DummyHasCitations
@@ -38,7 +37,7 @@ class TestCitation(EntityTestBase):
         location = "Somewhere"
         sut = Citation(source=Source(), location=location)
         assert sut.location is not None
-        assert sut.location.localize(default_localizer) == location
+        assert sut.location == location
 
     def test_id(self) -> None:
         sut = Citation(
@@ -65,7 +64,7 @@ class TestCitation(EntityTestBase):
         location = "Somewhere"
         sut.location = location
         assert sut.location is not None
-        assert sut.location.localize(default_localizer) == location
+        assert sut.location == location
 
     def test_date(self) -> None:
         sut = Citation(source=Source())

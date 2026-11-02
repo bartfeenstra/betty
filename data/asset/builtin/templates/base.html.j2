@@ -6,7 +6,7 @@
 <body>
 <div id="content">
     {% if page_title is defined %}
-        <h1>{{ page_title }}</h1>
+        <h1>{{ page_title | localize }}</h1>
     {% endif %}
     {% block page_content %}{% endblock %}
 </div>

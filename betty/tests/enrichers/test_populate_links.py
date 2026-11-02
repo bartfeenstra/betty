@@ -37,4 +37,4 @@ class TestPopulateLinks:
             link = Link("https://example.com")
             project.ancestry.add(link)
             await load(project)
-            assert link.label.localize(default_localizer) == link_page_title
+            assert default_localizer.localize(link.label) == link_page_title

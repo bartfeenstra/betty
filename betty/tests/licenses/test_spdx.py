@@ -14,7 +14,6 @@ from betty.licenses.spdx import (
     SpdxLicenseDiscoverer,
     spdx_license_id_to_license_id,
 )
-from betty.localizer import default_localizer
 from betty.plugin.discovery import ResolvableDiscovery, discover
 from betty.service_level import ServiceLevel
 from betty.stores.file import TransientBinaryFileStore
@@ -162,18 +161,15 @@ class TestSpdxLicenseDiscoverer:
         discovered_licenses = list(await discover(services, *licenses))
         assert discovered_licenses
         zero_bsd_type = discovered_licenses[0]
-        assert (
-            zero_bsd_type.label.localize(default_localizer) == "BSD Zero Clause License"
-        )
+        assert zero_bsd_type.label == "BSD Zero Clause License"
         zero_bsd = await services.factory.new(zero_bsd_type.cls)
-        assert zero_bsd.summary.localize(default_localizer) == "BSD Zero Clause License"
+        assert zero_bsd.summary == "BSD Zero Clause License"
         assert (
-            zero_bsd.text.localize(default_localizer)
+            zero_bsd.text
             == 'Copyright (C) YEAR by AUTHOR EMAIL\n\nPermission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.\n\nTHE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.\n'
         )
         url = zero_bsd.url
-        assert url is not None
-        assert url.localize(default_localizer) == "https://spdx.org/licenses/0BSD.html"
+        assert url == "https://spdx.org/licenses/0BSD.html"
 
     async def assert_without_licenses(
         self, licenses: Iterable[ResolvableDiscovery[LicenseDefinition]]

@@ -17,7 +17,7 @@ from betty.sample import Samples
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 type ResolvableDataPorter[DefinitionT: DataDefinition, DataT] = (
@@ -39,8 +39,8 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         self,
         *args: Any,
         cls: type[DataT] | None = None,
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
         porter: ResolvableDataPorter[Self, DataT] | None = None,
         samples: ResolvableDataSamples[Self, DataT] | None = None,
         **kwargs: Any,
