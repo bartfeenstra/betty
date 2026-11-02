@@ -38,8 +38,8 @@ class TestPluginDefinitionData:
 
 class TestPluginDefinitionDefinition:
     def test_label(self) -> None:
-        assert PluginDefinitionDefinition(_DummyPluginDefinition).label.localize(
-            default_localizer
+        assert default_localizer.localize(
+            PluginDefinitionDefinition(_DummyPluginDefinition).label
         )
 
     def test_porter__dump(self) -> None:

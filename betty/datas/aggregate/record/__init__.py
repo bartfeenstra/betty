@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.portable import OptionalPortableData, PortableData
 
 type FieldOperator = Attr | Key
@@ -67,8 +67,8 @@ class FieldDefinition[OwnerT, DataT, DefinitionT: DataDefinition = DataDefinitio
             Intersection[DefinitionT, DataDefinition[DataT]]
         ],
         *,
-        label: ResolvableLocalizable | None = None,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         optional: bool = False,
         porter: ResolvableFieldPorter[OwnerT, DataT] | None = None,
     ):
@@ -149,11 +149,11 @@ class RecordDefinition[DataT, OperatorT: FieldOperator](DataDefinition[DataT]):
     def __init__(
         self,
         *args: Any,
-        label: ResolvableLocalizable,
+        label: AnyLocalizable,
         fields: Mapping[
             OperatorT, ResolvableFieldDefinition[DataT, Any]
         ] = empty_frozen_dict,
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         manufacturer: RecordManufacturer[DataT] | None = None,
         porter: ResolvableDataPorter[Self, DataT] | None = None,
         samples: ResolvableDataSamples[Self, DataT] | None = None,

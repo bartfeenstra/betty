@@ -6,8 +6,6 @@ import pytest
 
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.localizables.plain import Plain
-from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.test_utils.entity import EntityTestBase
 
@@ -32,19 +30,19 @@ class TestSource(EntityTestBase):
         name = "The Source"
         sut = Source(name=name)
         assert sut.name is not None
-        assert sut.name.localize(default_localizer) == name
+        assert sut.name == name
 
     def test___init____with_author(self) -> None:
         author = "Me"
         sut = Source(author=author)
         assert sut.author is not None
-        assert sut.author.localize(default_localizer) == author
+        assert sut.author == author
 
     def test___init____with_publisher(self) -> None:
         publisher = "Me"
         sut = Source(publisher=publisher)
         assert sut.publisher is not None
-        assert sut.publisher.localize(default_localizer) == publisher
+        assert sut.publisher == publisher
 
     def test___init____with_contained_by(self) -> None:
         contained_by_source = Source()
@@ -64,9 +62,9 @@ class TestSource(EntityTestBase):
     def test_name(self) -> None:
         sut = Source()
         assert sut.name is None
-        name = Plain("The Source")
+        name = "The Source"
         sut.name = name
-        assert sut.name is name
+        assert sut.name == name
 
     def test_contained_by(self) -> None:
         contained_by_source = Source()
@@ -89,16 +87,16 @@ class TestSource(EntityTestBase):
     def test_author(self) -> None:
         sut = Source()
         assert not sut.author
-        author = Plain("Me")
+        author = "Me"
         sut.author = author
-        assert sut.author is author
+        assert sut.author == author
 
     def test_publisher(self) -> None:
         sut = Source()
         assert not sut.publisher
-        publisher = Plain("Me")
+        publisher = "Me"
         sut.publisher = publisher
-        assert sut.publisher is publisher
+        assert sut.publisher == publisher
 
     def test_date(self) -> None:
         sut = Source()

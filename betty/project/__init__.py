@@ -92,7 +92,6 @@ from betty.locale import (
     resolve_locale,
     to_language_tag,
 )
-from betty.localizable import resolve_localizable
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.localizer import Localizer, LocalizerRepository
@@ -137,7 +136,7 @@ if TYPE_CHECKING:
     from betty.collection.keyed import KeyedCollection
     from betty.definition import ResolvableDefinition
     from betty.jinja import Environment
-    from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
@@ -190,11 +189,11 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         directory: StrPath,
         *,
         app: App,
-        title: ResolvableLocalizable,
+        title: AnyLocalizable,
         url: str,
         ancestry: EntityPool | None = None,
         assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
-        author: ResolvableLocalizable | None = None,
+        author: AnyLocalizable | None = None,
         cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None = None,
         clean_urls: bool = False,
@@ -248,9 +247,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         """
         The project's ancestry.
         """
-        self.author: Final[Localizable | None] = (
-            None if author is None else resolve_localizable(author)
-        )
+        self.author: Final[AnyLocalizable | None] = author
         """
         The project's author.
         """
@@ -351,9 +348,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         If no project name was configured, this defaults to the hash of the project directory path.
         """
         self._plugin_discoveries = _plugin_discoveries
-        self.title: Final[Localizable] = (
-            None if title is None else resolve_localizable(title)
-        )
+        self.title: Final[AnyLocalizable] = title
         """
         The human-readable project title.
         """
@@ -420,7 +415,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         ancestry: EntityPool | None = None,
         app: App | None = None,
         assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
-        author: ResolvableLocalizable | None = None,
+        author: AnyLocalizable | None = None,
         cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None
         | Literal[False] = False,
@@ -441,7 +436,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         plugins: Plugins = empty_frozen_dict,
         servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
-        title: ResolvableLocalizable | None = None,
+        title: AnyLocalizable | None = None,
         url: str | None = None,
     ) -> AsyncGenerator[Self]:
         """
@@ -969,9 +964,9 @@ class ProjectData(Object):
     def __init__(
         self,
         *,
-        title: ResolvableLocalizable,
+        title: AnyLocalizable,
         url: str,
-        author: ResolvableLocalizable | None = None,
+        author: AnyLocalizable | None = None,
         clean_urls: bool = False,
         copyright_notice: ResolvableCopyrightNoticeManufacturer | None = None,
         copyright_notices: Iterable[CopyrightNoticeDefinitionData] = (),

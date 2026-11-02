@@ -11,7 +11,7 @@ from betty.requirement import UnmetRequirement
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.service import ServiceManager
     from betty.user.location import Locator
 
@@ -24,7 +24,7 @@ class UnmetServiceRequirement(UnmetRequirement):
     def __init__(
         self,
         service: ServiceManager,
-        message: ResolvableLocalizable,
+        message: AnyLocalizable,
         *,
         locators: Sequence[Locator] = (),
     ):

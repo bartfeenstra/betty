@@ -27,13 +27,13 @@ class CopyrightNoticeTestBase[CopyrightNoticeT: CopyrightNotice]:
         """
         Tests :py:meth:`betty.copyright_notice.CopyrightNotice.summary` implementations.
         """
-        assert sut.summary.localize(default_localizer)
+        assert default_localizer.localize(sut.summary)
 
     def test_text(self, sut: CopyrightNoticeT) -> None:
         """
         Tests :py:meth:`betty.copyright_notice.CopyrightNotice.text` implementations.
         """
-        assert sut.text.localize(default_localizer)
+        assert default_localizer.localize(sut.text)
 
     def test_url(self, sut: CopyrightNoticeT) -> None:
         """
@@ -41,4 +41,4 @@ class CopyrightNoticeTestBase[CopyrightNoticeT: CopyrightNotice]:
         """
         url = sut.url
         if url is not None:
-            assert url.localize(default_localizer)
+            assert default_localizer.localize(url)

@@ -6,22 +6,21 @@ from __future__ import annotations
 
 import decimal
 from abc import ABCMeta, abstractmethod
-from collections.abc import Mapping
-from typing import override
+from typing import TYPE_CHECKING, override
 from warnings import warn
 
-from babel import Locale
-
-from betty.locale import ResolvableLocale
 from betty.localized import LocalizedStr
-from betty.localizer import Localizer, default_localizer
+from betty.localizer import AnyLocalizable, Localizer, default_localizer
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 class _Localizable[T](metaclass=ABCMeta):
     __slots__ = ()
 
     @abstractmethod
-    def format(self, **format_kwargs: ResolvableLocalizable) -> T:
+    def format(self, **format_kwargs: AnyLocalizable) -> T:
         """
         Apply string formatting to the eventual localized string.
 
@@ -48,7 +47,7 @@ class Localizable(_Localizable["Localizable"]):
         """
 
     @override
-    def format(self, **format_kwargs: ResolvableLocalizable) -> Localizable:
+    def format(self, **format_kwargs: AnyLocalizable) -> Localizable:
         return _FormattedLocalizable(self, format_kwargs)
 
     @override
@@ -85,7 +84,7 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
         """
 
     @override
-    def format(self, **format_kwargs: ResolvableLocalizable) -> CountableLocalizable:
+    def format(self, **format_kwargs: AnyLocalizable) -> CountableLocalizable:
         return _FormattedCountableLocalizable(self, format_kwargs)
 
 
@@ -93,21 +92,21 @@ class _FormattedLocalizable(Localizable):
     def __init__(
         self,
         localizable: Localizable,
-        format_kwargs: Mapping[str, ResolvableLocalizable],
+        format_kwargs: Mapping[str, AnyLocalizable],
         /,
     ):
         self._localizable = localizable
         self._format_kwargs = dict(format_kwargs)
 
     @override
-    def format(self, **format_kwargs: ResolvableLocalizable) -> Localizable:
+    def format(self, **format_kwargs: AnyLocalizable) -> Localizable:
         self._format_kwargs.update(format_kwargs)
         return self
 
     @override
     def localize(self, localizer: Localizer, /) -> LocalizedStr:
         return LocalizedStr(
-            self._localizable.localize(localizer).format(
+            localizer.localize(self._localizable).format(
                 **{
                     format_kwarg_key: format_kwarg.localize(localizer)
                     if isinstance(format_kwarg, Localizable)
@@ -122,7 +121,7 @@ class _FormattedCountableLocalizable(CountableLocalizable):
     def __init__(
         self,
         localizable: CountableLocalizable,
-        format_kwargs: Mapping[str, ResolvableLocalizable],
+        format_kwargs: Mapping[str, AnyLocalizable],
         /,
     ):
         self._localizable = localizable
@@ -134,89 +133,3 @@ class _FormattedCountableLocalizable(CountableLocalizable):
             self._localizable.count(count),
             {**self._format_kwargs, "count": str(count)},
         )
-
-
-type StaticTranslationsMapping = Mapping[Locale | None, str]
-"""
-Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
-
-Values are a string, or a mapping of locales to translations.
-
-See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
-"""
-
-
-type ResolvableStaticTranslations = (
-    Mapping[ResolvableLocale | None, str] | str | StaticTranslationsMapping
-)
-"""
-Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
-
-Values are a string, or a mapping of locales or language tags to translations.
-
-See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
-"""
-
-
-type CountableStaticTranslationsMapping = Mapping[Locale, Mapping[str, str]]
-"""
-Countable static translations for :py:class:`betty.locale.localizable.CountableStaticTranslations`.
-
-Values are mappings of locales to mappings of CLDR plural tags to translations.
-
-See :py:func:`betty.locale.localizable.assertion.assert_countable_static_translations`.
-"""
-
-
-type ResolvableCountableStaticTranslations = Mapping[
-    ResolvableLocale, Mapping[str, str]
-]
-"""
-Static translations for :py:class:`betty.localizables.static.StaticTranslations`.
-
-Values are mappings of locales or language tags to mappings of CLDR plural tags to translations.
-
-See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
-"""
-
-
-type ResolvableLocalizable = Localizable | ResolvableStaticTranslations
-"""
-A localizable, or a type that can be converted into a localizable with :py:func:`betty.locale.localizable.ensure_localizable`.
-"""
-
-
-type ResolvableCountableLocalizable = (
-    CountableLocalizable | ResolvableCountableStaticTranslations
-)
-"""
-A countable localizable, or a type that can be converted into a countable localizable with :py:func:`betty.locale.localizable.ensure_countable_localizable`.
-"""
-
-
-def resolve_localizable(localizable: ResolvableLocalizable) -> Localizable:
-    """
-    Ensure that a localizable-like value is or is made to be an actual localizable.
-    """
-    if isinstance(localizable, Localizable):
-        return localizable
-    if isinstance(localizable, str):
-        from betty.localizables.plain import Plain
-
-        return Plain(localizable)
-    from betty.localizables.static import StaticTranslations
-
-    return StaticTranslations(localizable)
-
-
-def resolve_countable_localizable(
-    localizable: ResolvableCountableLocalizable,
-) -> CountableLocalizable:
-    """
-    Ensure that a countable-localizable-like value is or is made to be an actual countable localizable.
-    """
-    if isinstance(localizable, CountableLocalizable):
-        return localizable
-    from betty.localizables.static import CountableStaticTranslations
-
-    return CountableStaticTranslations(localizable)

@@ -23,7 +23,7 @@ class TestLink(EntityTestBase):
         url = "https://example.com"
         label = "Hello, world!"
         sut = Link(url, label=label)
-        assert sut.label.localize(default_localizer) == label
+        assert sut.label == label
 
     def test_owner__without_owner(self) -> None:
         sut = Link("https://example.com")
@@ -37,7 +37,7 @@ class TestLink(EntityTestBase):
     def test_url(self) -> None:
         url = "https://example.com"
         sut = Link(url)
-        assert sut.url.localize(default_localizer) == url
+        assert sut.url == url
 
     def test_media_type(self) -> None:
         url = "https://example.com"
@@ -57,12 +57,12 @@ class TestLink(EntityTestBase):
     def test_label__without_label(self) -> None:
         url = "https://example.com"
         sut = Link(url)
-        assert url in sut.label.localize(default_localizer)
+        assert url in default_localizer.localize(sut.label)
 
     def test_label__with_label(self) -> None:
         label = "Hello, world!"
         sut = Link("https://example.com", label=label)
-        assert label in sut.label.localize(default_localizer)
+        assert label in default_localizer.localize(sut.label)
 
     def test_has_label__without_label(self) -> None:
         sut = Link("https://example.com")

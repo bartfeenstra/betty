@@ -613,6 +613,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "UnmetRequirement": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/document.py": {
+        "Breadcrumb": MissingReason.DATACLASS,
         "DocumentProvider": MissingReason.STATIC_CONTENT_ONLY,
         "DocumentProviderDefinition": MissingReason.STATIC_CONTENT_ONLY,
         "DocumentProviderManufacturer": MissingReason.STATIC_CONTENT_ONLY,

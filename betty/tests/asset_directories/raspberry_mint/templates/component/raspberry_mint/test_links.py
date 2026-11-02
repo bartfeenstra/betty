@@ -2,7 +2,6 @@ from betty.asset_directories import raspberry_mint
 from betty.associations.has_links import HasLinks
 from betty.entities.link import Link
 from betty.entity import EntityDefinition
-from betty.locale import default_locale
 from betty.test_utils.conftest import AssertTemplateFile
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -50,7 +49,7 @@ async def test_with_link_without_locale(
 async def test_with_link(assert_template_file: AssertTemplateFile) -> None:
     link_url = "https://example.com"
     link_label = "An example site"
-    link = Link({default_locale: link_url}, label=link_label)
+    link = Link(link_url, label=link_label)
     async with assert_template_file(
         data={
             "links": [link],

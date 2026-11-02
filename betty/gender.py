@@ -18,7 +18,8 @@ from betty.plugin.factory import (
 )
 
 if TYPE_CHECKING:
-    from betty.localizable import CountableLocalizable, ResolvableLocalizable
+    from betty.localizable import CountableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
 
@@ -55,10 +56,10 @@ class GenderDefinition(
         self,
         gender_id: ResolvableMachineName,
         *,
-        label: ResolvableLocalizable,
-        label_plural: ResolvableLocalizable,
+        label: AnyLocalizable,
+        label_plural: AnyLocalizable,
         label_countable: CountableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(

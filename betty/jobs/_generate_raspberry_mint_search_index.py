@@ -5,24 +5,23 @@ from typing import TYPE_CHECKING, Final, final, override
 from betty.job import Job
 from betty.localizables.gettext import _
 from betty.localizables.markup import Chain
-from betty.localizables.plain import Plain
 from betty.service_providers._theme.search import generate_search_index
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
-    from betty.localizable import Localizable
+    from betty.localizer import AnyLocalizable
     from betty.project import Project
 
 
 @final
 class _GenerateRaspberryMintSearchIndex(Job):
-    _result_container_template: Final[Localizable] = Plain("""
+    _result_container_template: Final[AnyLocalizable] = """
     <li class="d-flex gap-2 search-result">
         {{{ betty-search-result }}}
     </li>
-    """)
+    """
 
-    _results_container_template: Final[Localizable] = Chain(
+    _results_container_template: Final[AnyLocalizable] = Chain(
         '<ul class="entity-list"><h3 class="h2">',
         _("Results ({{{ betty-search-results-count }}})"),
         "</h3>{{{ betty-search-results }}}</ul>",

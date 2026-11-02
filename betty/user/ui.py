@@ -19,8 +19,7 @@ if TYPE_CHECKING:
     import logging
     from contextlib import AbstractAsyncContextManager
 
-    from betty.localizable import ResolvableLocalizable
-    from betty.localizer import Localizer
+    from betty.localizer import AnyLocalizable, Localizer
     from betty.pipeline import Pipe
     from betty.progress import Progress
 
@@ -84,9 +83,7 @@ class Ui(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    async def message(
-        self, message: ResolvableLocalizable, severity: Severity, /
-    ) -> None:
+    async def message(self, message: AnyLocalizable, severity: Severity, /) -> None:
         """
         Send a message to the user.
         """
@@ -99,7 +96,7 @@ class Ui(metaclass=ABCMeta):
 
     @abstractmethod
     def progress(
-        self, message: ResolvableLocalizable, /
+        self, message: AnyLocalizable, /
     ) -> AbstractAsyncContextManager[Progress]:
         """
         Send information about a progressing activity to the user.
@@ -107,7 +104,7 @@ class Ui(metaclass=ABCMeta):
 
     @abstractmethod
     async def ask_confirmation(
-        self, statement: ResolvableLocalizable, /, *, default: bool = False
+        self, statement: AnyLocalizable, /, *, default: bool = False
     ) -> bool:
         """
         Ask the user to confirm a statement.
@@ -118,7 +115,7 @@ class Ui(metaclass=ABCMeta):
     @overload
     async def ask_input(
         self,
-        question: ResolvableLocalizable,
+        question: AnyLocalizable,
         /,
         *,
         assertion: None = None,
@@ -129,7 +126,7 @@ class Ui(metaclass=ABCMeta):
     @overload
     async def ask_input[T](
         self,
-        question: ResolvableLocalizable,
+        question: AnyLocalizable,
         /,
         *,
         assertion: Pipe[str, T],

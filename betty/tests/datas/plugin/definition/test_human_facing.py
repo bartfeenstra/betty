@@ -16,12 +16,12 @@ class TestHumanFacingPluginDefinitionData:
     def test_label(self) -> None:
         label = DUMMY_LOCALIZABLE
         sut = self._Sut(id="hello-world", label=label)
-        assert sut.label is label
+        assert sut.label == label
 
     def test_description(self) -> None:
         description = DUMMY_LOCALIZABLE
         sut = self._Sut(id="hello-world", label="-", description=description)
-        assert sut.description is description
+        assert sut.description == description
 
 
 class TestCountableHumanFacingPluginDefinitionData:
@@ -39,11 +39,11 @@ class TestCountableHumanFacingPluginDefinitionData:
             label_plural=label_plural,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
-        assert sut.label_plural is label_plural
+        assert sut.label_plural == label_plural
 
     def test_label_countable(self) -> None:
         label_countable = DUMMY_COUNTABLE_LOCALIZABLE
         sut = self._Sut(
             id="-dummy", label="-", label_plural="-", label_countable=label_countable
         )
-        assert sut.label_countable is label_countable
+        assert sut.label_countable == label_countable

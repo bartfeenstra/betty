@@ -11,12 +11,10 @@ from betty.localizables.markup import (
     Paragraph,
     Paragraphs,
     Quote,
-    ResolvableLocalizable,
     UnorderedList,
     do_you_mean,
 )
-from betty.localizables.plain import Plain
-from betty.localizer import Localizer, default_localizer
+from betty.localizer import AnyLocalizable, Localizer, default_localizer
 
 
 @pytest.mark.parametrize(
@@ -28,7 +26,7 @@ from betty.localizer import Localizer, default_localizer
     ],
 )
 async def test_do_you_mean(expected: str, available_options: Sequence[str]) -> None:
-    assert do_you_mean(*available_options).localize(default_localizer) == expected
+    assert default_localizer.localize(do_you_mean(*available_options)) == expected
 
 
 class TestLines:
@@ -43,7 +41,7 @@ class TestLines:
         ],
     )
     def test_localize(
-        self, expected: str, localizables: Sequence[ResolvableLocalizable]
+        self, expected: str, localizables: Sequence[AnyLocalizable]
     ) -> None:
         sut = Lines(*localizables)
         assert sut.localize(default_localizer) == expected
@@ -61,7 +59,7 @@ class TestParagraph:
         ],
     )
     def test_localize(
-        self, expected: str, localizables: Sequence[ResolvableLocalizable]
+        self, expected: str, localizables: Sequence[AnyLocalizable]
     ) -> None:
         sut = Paragraph(*localizables)
         assert sut.localize(default_localizer) == expected
@@ -79,7 +77,7 @@ class TestParagraphs:
         ],
     )
     def test_localize(
-        self, expected: str, localizables: Sequence[ResolvableLocalizable]
+        self, expected: str, localizables: Sequence[AnyLocalizable]
     ) -> None:
         sut = Paragraphs(*localizables)
         assert sut.localize(default_localizer) == expected
@@ -107,22 +105,22 @@ class TestOrderedList:
             (
                 "1. Foo\n   Foo2\n2. Bar\n   Bar2",
                 default_localizer,
-                [Plain("Foo\nFoo2"), Plain("Bar\nBar2")],
+                ["Foo\nFoo2", "Bar\nBar2"],
             ),
             (
                 "1.  1\n2.  2\n3.  3\n4.  4\n5.  5\n6.  6\n7.  7\n8.  8\n9.  9\n10. 10",
                 default_localizer,
                 [
-                    Plain("1"),
-                    Plain("2"),
-                    Plain("3"),
-                    Plain("4"),
-                    Plain("5"),
-                    Plain("6"),
-                    Plain("7"),
-                    Plain("8"),
-                    Plain("9"),
-                    Plain("10"),
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                    "10",
                 ],
             ),
         ],
@@ -131,7 +129,7 @@ class TestOrderedList:
         self,
         expected: str,
         localizer: Localizer,
-        localizables: Sequence[ResolvableLocalizable],
+        localizables: Sequence[AnyLocalizable],
     ) -> None:
         sut = OrderedList(*localizables)
         assert sut.localize(localizer) == expected
@@ -150,24 +148,24 @@ class TestUnorderedList:
                 "- Foo\n- Bar",
                 default_localizer,
                 [
-                    Plain("Foo"),
-                    Plain("Bar"),
+                    "Foo",
+                    "Bar",
                 ],
             ),
             (
                 "Foo -\nBar -",
                 Localizer("ar"),
                 [
-                    Plain("Foo"),
-                    Plain("Bar"),
+                    "Foo",
+                    "Bar",
                 ],
             ),
             (
                 "- Foo\n  Foo2\n- Bar\n  Bar2",
                 default_localizer,
                 [
-                    Plain("Foo\nFoo2"),
-                    Plain("Bar\nBar2"),
+                    "Foo\nFoo2",
+                    "Bar\nBar2",
                 ],
             ),
         ],
@@ -176,7 +174,7 @@ class TestUnorderedList:
         self,
         expected: str,
         localizer: Localizer,
-        localizables: Sequence[ResolvableLocalizable],
+        localizables: Sequence[AnyLocalizable],
     ) -> None:
         sut = UnorderedList(*localizables)
         assert sut.localize(localizer) == expected
@@ -193,9 +191,7 @@ class TestChain:
             ),
         ],
     )
-    def test(
-        self, expected: str, localizables: Sequence[ResolvableLocalizable]
-    ) -> None:
+    def test(self, expected: str, localizables: Sequence[AnyLocalizable]) -> None:
         sut = Chain(*localizables)
         assert sut.localize(default_localizer) == expected
 
@@ -223,9 +219,7 @@ class TestJoinOr:
             ),
         ],
     )
-    def test(
-        self, expected: str, localizables: Sequence[ResolvableLocalizable]
-    ) -> None:
+    def test(self, expected: str, localizables: Sequence[AnyLocalizable]) -> None:
         sut = JoinOr(*localizables)
         assert sut.localize(default_localizer) == expected
 
@@ -253,9 +247,7 @@ class TestJoinAnd:
             ),
         ],
     )
-    def test(
-        self, expected: str, localizables: Sequence[ResolvableLocalizable]
-    ) -> None:
+    def test(self, expected: str, localizables: Sequence[AnyLocalizable]) -> None:
         sut = JoinAnd(*localizables)
         assert sut.localize(default_localizer) == expected
 

@@ -17,14 +17,14 @@ from betty.machine_name import (
 
 if TYPE_CHECKING:
     from betty.attrs.common import OptionableCommonAttr
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.prop import HasProps
 
 
 def new_machine_name_attr(
     *,
-    label: ResolvableLocalizable | None = None,
-    description: ResolvableLocalizable | None = None,
+    label: AnyLocalizable | None = None,
+    description: AnyLocalizable | None = None,
     frozen: bool = False,
 ) -> OptionableCommonAttr[HasProps, MachineName, ResolvableMachineName]:
     """

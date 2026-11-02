@@ -24,7 +24,8 @@ from betty.plugin.ordered import (
 
 if TYPE_CHECKING:
     from betty.entities.person import Person
-    from betty.localizable import CountableLocalizable, ResolvableLocalizable
+    from betty.localizable import CountableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.project import Project
     from betty.requirement import Requires
@@ -71,10 +72,10 @@ class EventTypeDefinition(
         self,
         event_type_id: ResolvableMachineName,
         *,
-        label: ResolvableLocalizable,
-        label_plural: ResolvableLocalizable,
+        label: AnyLocalizable,
+        label_plural: AnyLocalizable,
         label_countable: CountableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         after: Order[Self] = (),
         before: Order[Self] = (),
         requires: Requires = (),

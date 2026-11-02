@@ -17,5 +17,5 @@ async def test_new(isolated_app: App, tmp_path: Path) -> None:
     configuration = ProjectData.definition.porter.load(
         assert_load_file(serializers=[Json()])(configuration_file)
     )
-    assert configuration.title.localize(default_localizer) == title
+    assert default_localizer.localize(configuration.title) == title
     assert configuration.url == url

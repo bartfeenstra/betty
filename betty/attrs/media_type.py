@@ -14,13 +14,13 @@ from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.attrs.common import OptionableCommonAttr
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 def new_media_type_attr(
     *,
-    label: ResolvableLocalizable | None = None,
-    description: ResolvableLocalizable | None = None,
+    label: AnyLocalizable | None = None,
+    description: AnyLocalizable | None = None,
 ) -> OptionableCommonAttr[HasProps, MediaType, ResolvableMediaType]:
     """
     Create an attribute containing a media type.

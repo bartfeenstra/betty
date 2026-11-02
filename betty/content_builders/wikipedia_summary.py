@@ -92,11 +92,10 @@ class WikipediaSummary(Template, Manufacturable):
     async def _get_summary(
         self, locale: Locale, links: Iterable[Link]
     ) -> Summary | None:
+        localizer = await self._localizers.get(locale)
         for link in links:
             try:
-                page_language, page_name = parse_page_url(
-                    link.url.localize(await self._localizers.get(locale))
-                )
+                page_language, page_name = parse_page_url(localizer.localize(link.url))
             except NotAPageError:
                 continue
             if (

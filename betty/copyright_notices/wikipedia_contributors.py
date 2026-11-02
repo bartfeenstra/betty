@@ -5,7 +5,7 @@ The Wikipedia contributors copyright notice.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import Self, final, override
+from typing import TYPE_CHECKING, Self, final, override
 
 import aiohttp
 
@@ -14,14 +14,11 @@ from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.factory import Manufacturable
 from betty.locale import default_locale, resolve_locale
 from betty.locale.error import LocaleError
-from betty.localizable import (
-    Localizable,
-    ResolvableLocalizable,
-    StaticTranslationsMapping,
-    resolve_localizable,
-)
 from betty.localizables.gettext import _
-from betty.localizables.static import StaticTranslations
+from betty.localizables.static import StaticTranslations, StaticTranslationsMapping
+
+if TYPE_CHECKING:
+    from betty.localizer import AnyLocalizable
 
 
 def _copyright_url(language: str, page: str) -> str:
@@ -35,9 +32,9 @@ class WikipediaContributors(Manufacturable, CopyrightNotice):
     .. plugin:: copyright-notice:wikipedia-contributors.
     """
 
-    def __init__(self, url: ResolvableLocalizable):
+    def __init__(self, url: AnyLocalizable, /):
         super().__init__()
-        self._url = resolve_localizable(url)
+        self._url = url
 
     @override
     @App.require
@@ -67,17 +64,17 @@ class WikipediaContributors(Manufacturable, CopyrightNotice):
 
     @override
     @property
-    def summary(self) -> Localizable:
+    def summary(self) -> AnyLocalizable:
         return _("Copyright Wikipedia contributors")
 
     @override
     @property
-    def text(self) -> Localizable:
+    def text(self) -> AnyLocalizable:
         return _(
             "Copyright of these works lies with the original authors who contributed them to Wikipedia."
         )
 
     @override
     @property
-    def url(self) -> Localizable:
+    def url(self) -> AnyLocalizable:
         return self._url

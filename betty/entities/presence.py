@@ -15,7 +15,7 @@ from betty.privacy.resolve import merge_secondary_privacies
 if TYPE_CHECKING:
     from betty.entities.event import Event
     from betty.entities.person import Person
-    from betty.localizable import Localizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.role import Role
 
@@ -73,7 +73,7 @@ class Presence(Entity):
 
     @override
     @property
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         return _("Presence of {person} at {event}").format(
             person=self.person.label,
             event=self.event.label,

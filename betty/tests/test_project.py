@@ -11,8 +11,6 @@ from betty.entity import EntityDefinition
 from betty.entity.collection.pool import EntityPool
 from betty.exception import HumanFacingException
 from betty.locale import default_locale, default_locale_tag
-from betty.localizables.plain import Plain
-from betty.localizer import default_localizer
 from betty.project import Project, ProjectData, ProjectLocale
 from betty.service_level import ServiceLevel
 from betty.service_provider import ServiceProvider, ServiceProviderDefinition
@@ -205,7 +203,7 @@ class TestProject:
         author = "Bart"
         async with isolated_project_factory(author=author) as project, project:
             assert project.author is not None
-            assert project.author.localize(default_localizer) == author
+            assert project.author == author
 
     async def test_base_url(
         self, isolated_project_factory: IsolatedProjectFactory
@@ -286,7 +284,7 @@ class TestProject:
     ) -> None:
         title = "My First Betty Site"
         async with isolated_project_factory(title=title) as sut:
-            assert sut.title.localize(default_localizer) == title
+            assert sut.title == title
 
     async def test_url(self, isolated_project_factory: IsolatedProjectFactory) -> None:
         url = "https://betty.example.com"
@@ -414,9 +412,9 @@ class TestProjectData(DataTestBase[ProjectData]):
 
     def test_title(self) -> None:
         sut = ProjectData(title="Betty", url="https://example.com")
-        title = Plain("My First Betty Site")
+        title = "My First Betty Site"
         sut.title = title
-        assert sut.title is title
+        assert sut.title == title
 
     def test_name(self) -> None:
         sut = ProjectData(title="Betty", url="https://example.com")
@@ -452,9 +450,9 @@ class TestProjectData(DataTestBase[ProjectData]):
 
     def test_author__with_author(self) -> None:
         sut = ProjectData(title="Betty", url="https://example.com")
-        author = Plain("Bart")
+        author = "Bart"
         sut.author = author
-        assert sut.author is author
+        assert sut.author == author
 
     def test___init____with_logo(self) -> None:
         logo = Path("logo.png")

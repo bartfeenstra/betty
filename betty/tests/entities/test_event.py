@@ -13,7 +13,6 @@ from betty.entities.place_name import PlaceName
 from betty.entities.presence import Presence
 from betty.entity import Entity
 from betty.event_types.unknown import UnknownEventType
-from betty.localizer import default_localizer
 from betty.privacy import Privacy
 from betty.roles.subject import Subject
 from betty.test_utils.entity import EntityTestBase
@@ -54,7 +53,7 @@ class TestEvent(EntityTestBase):
         name = "The Event"
         sut = Event(name=name)
         assert sut.name is not None
-        assert sut.name.localize(default_localizer) == name
+        assert sut.name == name
 
     def test_id(self) -> None:
         sut = Event(
@@ -121,4 +120,4 @@ class TestEvent(EntityTestBase):
         sut = Event()
         sut.name = name
         assert sut.name is not None
-        assert sut.name.localize(default_localizer) == name
+        assert sut.name == name

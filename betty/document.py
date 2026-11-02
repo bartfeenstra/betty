@@ -8,13 +8,12 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import (
-    Iterable,
     Iterator,
     Mapping,
     MutableMapping,
     MutableSequence,
-    Sized,
 )
+from dataclasses import dataclass
 from threading import Lock
 from typing import (
     TYPE_CHECKING,
@@ -29,13 +28,15 @@ from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.id import resolve_id
 from betty.localizables.gettext import _, ngettext
-from betty.localizer import Localizer, default_localizer
+from betty.localizer import AnyLocalizable, Localizer, default_localizer
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_types import html
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
 if TYPE_CHECKING:
+    from babel import Locale
+
     from betty.definition.id import ResolvableId
     from betty.entities.citation import Citation
     from betty.entity import Entity
@@ -219,39 +220,24 @@ class DocumentProviderManufacturer(
 
 
 @final
+@dataclass(frozen=True, slots=True)
 class Breadcrumb:
     """
     A breadcrumb.
     """
 
-    def __init__(self, label: str, resource: object | None, /):
-        self.label: Final[str] = label
-        """
-        The localized, human-readable label.
-        """
-        self.resource_url: Final[object | None] = resource
-        """
-        The resource URL.
-        """
-
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        """
-        Dump this instance to `JSON-LD <https://json-ld.org/>`_.
-        """
-        portable: PortableMapping = {
-            "@type": "ListItem",
-            "name": self.label,
-        }
-        if self.resource_url is not None:
-            url_generator = await project.url_generator
-            portable["item"] = url_generator.generate(
-                self.resource_url, absolute=True, media_type=html
-            )
-        return portable
+    label: AnyLocalizable
+    """
+    The localized, human-readable label.
+    """
+    resource_url: object | None
+    """
+    The resource URL.
+    """
 
 
 @final
-class Breadcrumbs(Iterable[Breadcrumb], Sized):
+class Breadcrumbs:
     """
     A trail of navigational breadcrumbs.
     """
@@ -259,36 +245,47 @@ class Breadcrumbs(Iterable[Breadcrumb], Sized):
     def __init__(self):
         self._breadcrumbs: MutableSequence[Breadcrumb] = []
 
-    @override
     def __iter__(self) -> Iterator[Breadcrumb]:
         return iter(self._breadcrumbs)
 
-    @override
     def __len__(self) -> int:
         return len(self._breadcrumbs)
 
-    def append(self, label: str, resource_url: object | None = None, /) -> None:
+    def append(
+        self, label: AnyLocalizable, resource_url: object | None = None, /
+    ) -> None:
         """
         Append a breadcrumb to the trail.
         """
         self._breadcrumbs.append(Breadcrumb(label, resource_url))
 
-    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+    async def dump_linked_data(
+        self, project: Project, /, *, locale: Locale
+    ) -> PortableMapping:
         """
         Dump this instance to `JSON-LD <https://json-ld.org/>`_.
         """
         if not self._breadcrumbs:
             return {}
+        localizer = await project.localizers.get(locale)
+        url_generator = await project.url_generator
+        breadcrumb_dumps = []
+        for position, breadcrumb in enumerate(self._breadcrumbs, 1):
+            breadcrumb_dump = {
+                "@type": "ListItem",
+                "name": localizer.localize(breadcrumb.label),
+                "position": position,
+            }
+            if breadcrumb.resource_url is not None:
+                breadcrumb_dump["item"] = url_generator.generate(
+                    breadcrumb.resource_url, absolute=True, media_type=html
+                )
+                breadcrumb_dumps.append(breadcrumb_dump)
+
         return {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
-            "itemListElement": [
-                {
-                    "position": position,
-                    **await breadcrumb.dump_linked_data(project),
-                }
-                for position, breadcrumb in enumerate(self._breadcrumbs, 1)
-            ],
+            "itemListElement": breadcrumb_dumps,
         }
 
 

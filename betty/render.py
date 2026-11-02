@@ -16,7 +16,7 @@ from betty.media_type import resolve_media_type
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.media_type import MediaType, ResolvableMediaType
     from betty.requirement import Requires
@@ -59,9 +59,9 @@ class RendererDefinition(
         self,
         renderer_id: ResolvableMachineName,
         *,
-        label: ResolvableLocalizable,
+        label: AnyLocalizable,
         auto: bool = True,
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(

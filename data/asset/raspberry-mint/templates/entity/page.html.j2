@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% set page_title = document.resource.label | localize %}
+{% set page_title = document.resource.label %}
 {% set document = document.copy(entity_contexts=document.entity_contexts(document.resource)) %}
 {% do document.breadcrumbs.append(
     document.resource.definition.label_plural | localize,

@@ -13,7 +13,7 @@ from betty.localizables.gettext import _, ngettext
 
 if TYPE_CHECKING:
     from betty.date import AnyDate
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
 
 
@@ -34,7 +34,7 @@ class PlaceName(HasAnyDate, Entity):
 
     def __init__(
         self,
-        name: ResolvableLocalizable,
+        name: AnyLocalizable,
         *,
         date: AnyDate | None = None,
         id: ResolvableMachineName | None = None,  # noqa: A002

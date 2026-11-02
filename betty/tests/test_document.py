@@ -4,18 +4,11 @@ from typing import TYPE_CHECKING, Any, ClassVar
 
 import pytest
 
-from betty.document import (
-    Breadcrumb,
-    Breadcrumbs,
-    Citer,
-    Document,
-    EntityContexts,
-)
+from betty.document import Breadcrumbs, Citer, Document, EntityContexts
 from betty.entities.citation import Citation
 from betty.entities.source import Source
 from betty.job import Context
 from betty.locale import default_locale
-from betty.localizables.plain import Plain
 from betty.localizer import Localizer
 from betty.media_type import MediaType
 from betty.test_utils.entity import DummyEntityOne
@@ -51,14 +44,21 @@ class TestBreadcrumbs:
         self, isolated_project: Project
     ) -> None:
         sut = Breadcrumbs()
-        assert await sut.dump_linked_data(isolated_project) == {}
+        assert (
+            await sut.dump_linked_data(
+                isolated_project, locale=isolated_project.default_locale.locale
+            )
+            == {}
+        )
 
     async def test_dump_linked_data__with_items(
         self, isolated_project: Project
     ) -> None:
         sut = Breadcrumbs()
         sut.append("My First Page", "betty:///my-first-page")
-        assert await sut.dump_linked_data(isolated_project) == {
+        assert await sut.dump_linked_data(
+            isolated_project, locale=isolated_project.default_locale.locale
+        ) == {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             "itemListElement": [
@@ -69,28 +69,6 @@ class TestBreadcrumbs:
                     "position": 1,
                 }
             ],
-        }
-
-
-class TestBreadcrumb:
-    def test_label(self) -> None:
-        label = "My First Page"
-        sut = Breadcrumb(label, "betty:///my-first-page")
-        assert sut.label == label
-
-    def test_resource_url(self) -> None:
-        resource_url = "betty:///my-first-page"
-        sut = Breadcrumb("My First Page", resource_url)
-        assert sut.resource_url == resource_url
-
-    async def test_dump_linked_data__with_items(
-        self, isolated_project: Project
-    ) -> None:
-        sut = Breadcrumb("My First Page", "betty:///my-first-page")
-        assert await sut.dump_linked_data(isolated_project) == {
-            "@type": "ListItem",
-            "item": "https://example.com/my-first-page",
-            "name": "My First Page",
         }
 
 
@@ -153,7 +131,7 @@ class TestDocument:
         "entity_contexts": EntityContexts(),
         "context": Context(),
         "localizer": Localizer(default_locale),
-        "title": Plain("-"),
+        "title": "-",
         "vars": {
             "my_first_var": "MY_FIRST_VAR",
         },

@@ -23,7 +23,7 @@ if TYPE_CHECKING:
         MutableSequence,
     )
 
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.pipeline import Pipe
     from betty.progress import Progress
     from betty.user import Severity
@@ -47,7 +47,7 @@ class StaticUi(Ui):
         self._confirmations = iter(confirmations)
         self._inputs = iter(inputs)
         self._exceptions: MutableSequence[BaseException] = []
-        self._messages: Mapping[Severity, MutableSequence[ResolvableLocalizable]] = (
+        self._messages: Mapping[Severity, MutableSequence[AnyLocalizable]] = (
             defaultdict(list)
         )
         self._logs: MutableSequence[logging.LogRecord] = []
@@ -158,9 +158,7 @@ class StaticUi(Ui):
         self._exceptions.append(exception)
 
     @override
-    async def message(
-        self, message: ResolvableLocalizable, severity: Severity, /
-    ) -> None:
+    async def message(self, message: AnyLocalizable, severity: Severity, /) -> None:
         self._messages[severity].append(message)
 
     @override
@@ -169,14 +167,12 @@ class StaticUi(Ui):
 
     @override
     @asynccontextmanager
-    async def progress(
-        self, message: ResolvableLocalizable, /
-    ) -> AsyncGenerator[Progress]:
+    async def progress(self, message: AnyLocalizable, /) -> AsyncGenerator[Progress]:
         yield NoOpProgress()
 
     @override
     async def ask_confirmation(
-        self, statement: ResolvableLocalizable, /, *, default: bool = False
+        self, statement: AnyLocalizable, /, *, default: bool = False
     ) -> bool:
         confirmation = next(self._confirmations)
         if confirmation is None:
@@ -186,7 +182,7 @@ class StaticUi(Ui):
     @overload
     async def ask_input(
         self,
-        question: ResolvableLocalizable,
+        question: AnyLocalizable,
         /,
         *,
         assertion: None = None,
@@ -197,7 +193,7 @@ class StaticUi(Ui):
     @overload
     async def ask_input[T](
         self,
-        question: ResolvableLocalizable,
+        question: AnyLocalizable,
         /,
         *,
         assertion: Pipe[str, T],

@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.attrs.common import CommonAttr
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.prop import HasProps
 
 
@@ -35,8 +35,8 @@ def new_plugin_definition_datas_attr[
     plugin_type: type[DefinitionT],
     item: type[PluginDefinitionData[DefinitionT]],
     *,
-    label: ResolvableLocalizable | None = None,
-    description: ResolvableLocalizable | None = None,
+    label: AnyLocalizable | None = None,
+    description: AnyLocalizable | None = None,
 ) -> CommonAttr[
     HasProps,
     MutableKeyedCollection[

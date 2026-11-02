@@ -42,4 +42,4 @@ class TestMediaGallery:
             sut = await MediaGallery.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert file.label.localize(default_localizer) in actual
+        assert default_localizer.localize(file.label) in actual

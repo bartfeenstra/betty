@@ -3,9 +3,8 @@ import pytest
 from betty.content_builders.render import Render, RenderData
 from betty.document import Document
 from betty.locale import default_locale, default_locale_tag
-from betty.localizable import ResolvableLocalizable
 from betty.localizables.static import StaticTranslations
-from betty.localizer import Localizer
+from betty.localizer import AnyLocalizable, Localizer
 from betty.render import RenderDispatcher
 from betty.renderers.plain_text import PlainText
 from betty.test_utils.data import DataTestBase
@@ -41,7 +40,7 @@ class TestRender:
         ],
     )
     async def test_build(
-        self, expected: str, content: ResolvableLocalizable, locale: str
+        self, expected: str, content: AnyLocalizable, locale: str
     ) -> None:
         sut = Render(content=content, renderer=RenderDispatcher(PlainText()))
         assert (

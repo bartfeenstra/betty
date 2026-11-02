@@ -465,7 +465,7 @@ class TestGrampsLoader:
         names = place.names
         assert len(names) == 1
         name = names[0]
-        assert name.name.localize(default_localizer) == "Amsterdam"
+        assert default_localizer.localize(name.name) == "Amsterdam"
 
     async def test_place_should_include_name_with_locale(
         self, load_partial: LoadPartial
@@ -482,7 +482,7 @@ class TestGrampsLoader:
         place = ancestry[Place][machinify("P0000")]
         names = place.names
         name = names[0]
-        assert name.name.localize(default_localizer).locale == Locale("nl")
+        assert default_localizer.localize(name.name).locale == Locale("nl")
 
     async def test_place_should_include_note(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1082,8 +1082,8 @@ class TestGrampsLoader:
         )
         event = ancestry[Event][machinify("E0000")]
         assert event.name is not None
-        assert event.name.localize(default_localizer) == name_default
-        assert event.name.localize(Localizer("nl")) == name_nl
+        assert default_localizer.localize(event.name) == name_default
+        assert Localizer("nl").localize(event.name) == name_nl
 
     async def test_event_should_include_description(
         self, load_partial: LoadPartial
@@ -1099,8 +1099,7 @@ class TestGrampsLoader:
 """
         )
         event = ancestry[Event][machinify("E0000")]
-        assert event.description is not None
-        assert event.description.localize(default_localizer) == "Something happened!"
+        assert event.description == "Something happened!"
 
     async def test_event_should_include_note(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -1417,8 +1416,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source][machinify("R0000")]
-        assert source.name is not None
-        assert source.name.localize(default_localizer) == "Library of Alexandria"
+        assert source.name == "Library of Alexandria"
 
     async def test_source_from_repository_should_include_link(
         self, load_partial: LoadPartial
@@ -1436,11 +1434,8 @@ class TestGrampsLoader:
         links = ancestry[Source][machinify("R0000")].links
         assert len(links) == 1
         link = next(iter(links))
-        assert link.url.localize(default_localizer) == "https://alexandria.example.com"
-        assert link.label is not None
-        assert (
-            link.label.localize(default_localizer) == "Library of Alexandria Catalogue"
-        )
+        assert link.url == "https://alexandria.example.com"
+        assert link.label == "Library of Alexandria Catalogue"
 
     async def test_source_from_source_should_include_title(
         self, load_partial: LoadPartial
@@ -1455,8 +1450,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source][machinify("S0000")]
-        assert source.name is not None
-        assert source.name.localize(default_localizer) == "A Whisper"
+        assert source.name == "A Whisper"
 
     async def test_source_from_source_should_include_author(
         self, load_partial: LoadPartial
@@ -1471,8 +1465,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source][machinify("S0000")]
-        assert source.author is not None
-        assert source.author.localize(default_localizer) == "A Little Birdie"
+        assert source.author == "A Little Birdie"
 
     async def test_source_from_source_should_include_publisher(
         self, load_partial: LoadPartial
@@ -1487,10 +1480,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source][machinify("S0000")]
-        assert source.publisher is not None
-        assert (
-            source.publisher.localize(default_localizer) == "Somewhere over the rainbow"
-        )
+        assert source.publisher == "Somewhere over the rainbow"
 
     async def test_source_from_source_should_include_repository(
         self, load_partial: LoadPartial
@@ -1576,7 +1566,7 @@ class TestGrampsLoader:
         source = ancestry[Source][machinify("S0000")]
         assert source.links
         link = next(iter(source.links))
-        assert link.url.localize(default_localizer) == url
+        assert default_localizer.localize(link.url) == url
         assert not link.description
         assert not link.has_label
         assert link.media_type is None
@@ -1613,14 +1603,13 @@ class TestGrampsLoader:
         assert source.links
         link = next(iter(source.links))
         localizer_nl = Localizer("nl")
-        assert link.url.localize(localizer_nl) == url_nl
-        assert link.url.localize(default_localizer) == url_undetermined
-        assert link.label is not None
-        assert link.label.localize(localizer_nl) == label_nl
-        assert link.label.localize(default_localizer) == label_undetermined
+        assert localizer_nl.localize(link.url) == url_nl
+        assert default_localizer.localize(link.url) == url_undetermined
+        assert localizer_nl.localize(link.label) == label_nl
+        assert default_localizer.localize(link.label) == label_undetermined
         assert link.description is not None
-        assert link.description.localize(localizer_nl) == description_nl
-        assert link.description.localize(default_localizer) == description_undetermined
+        assert localizer_nl.localize(link.description) == description_nl
+        assert default_localizer.localize(link.description) == description_undetermined
         assert link.media_type == MediaType(media_type)
         assert link.relationship == relationship
 
@@ -1831,8 +1820,7 @@ class TestGrampsLoader:
 """
         )
         file = ancestry[File][machinify("O0000")]
-        assert file.description is not None
-        assert file.description.localize(default_localizer) == "My First Description"
+        assert file.description == "My First Description"
 
     async def test_file_not_exists_should_error(
         self, load_partial: LoadPartial, tmp_path: Path
@@ -2100,7 +2088,7 @@ class TestGrampsLoader:
 """
         )
         note = ancestry[Note][machinify("N0000")]
-        assert note.text.localize(default_localizer) == "I left this for you."
+        assert note.text == "I left this for you."
 
     async def test_note_should_include_privacy_from_element(
         self, load_partial: LoadPartial
@@ -2137,8 +2125,7 @@ class TestGrampsLoader:
 """
         )
         citation = ancestry[Citation][machinify("C0000")]
-        assert citation.location is not None
-        assert citation.location.localize(default_localizer) == "My First Page"
+        assert citation.location == "My First Page"
 
     async def test_citation_should_include_source(
         self, load_partial: LoadPartial
@@ -2225,7 +2212,7 @@ class TestGrampsLoader:
         links = ancestry[Person][machinify("I0000")].links
         assert len(links) == 1
         link = next(iter(links))
-        assert link.url.localize(default_localizer) == "https://alexandria.example.com"
+        assert link.url == "https://alexandria.example.com"
 
     async def test_url_should_include_description_as_label(
         self, load_partial: LoadPartial
@@ -2243,10 +2230,7 @@ class TestGrampsLoader:
         links = ancestry[Person][machinify("I0000")].links
         assert len(links) == 1
         link = next(iter(links))
-        assert link.label is not None
-        assert (
-            link.label.localize(default_localizer) == "Library of Alexandria Catalogue"
-        )
+        assert link.label == "Library of Alexandria Catalogue"
 
     async def test_url_should_include_relationship(
         self, load_partial: LoadPartial

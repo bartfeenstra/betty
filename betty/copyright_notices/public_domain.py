@@ -10,7 +10,7 @@ from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
-    from betty.localizable import Localizable
+    from betty.localizer import AnyLocalizable
 
 
 @final
@@ -22,12 +22,12 @@ class PublicDomain(CopyrightNotice):
 
     @property
     @override
-    def summary(self) -> Localizable:
+    def summary(self) -> AnyLocalizable:
         return _("Public domain")
 
     @property
     @override
-    def text(self) -> Localizable:
+    def text(self) -> AnyLocalizable:
         return _(
             "Works in the public domain can be used or referenced without permission, because nobody holds any exclusive rights over these works (anymore)."
         )

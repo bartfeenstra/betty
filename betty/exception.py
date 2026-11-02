@@ -7,9 +7,9 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Never, override
 
-from betty.localizable import Localizable, ResolvableLocalizable
+from betty.localizable import Localizable
 from betty.localizables.markup import Lines, UnorderedList
-from betty.localizer import default_localizer
+from betty.localizer import AnyLocalizable, default_localizer
 from betty.user.location import format_, reduce
 
 if TYPE_CHECKING:
@@ -51,7 +51,7 @@ class HumanFacingException(Exception, Localizable):
 
     def __init__(
         self,
-        message: ResolvableLocalizable,
+        message: AnyLocalizable,
         *,
         locators: Sequence[Locator] = (),
     ):

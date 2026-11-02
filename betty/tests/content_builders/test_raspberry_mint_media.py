@@ -32,4 +32,4 @@ class TestMedia:
             sut = await Media.new(project)
             actual = await sut.build(document=Document(resource))
         assert actual is not None
-        assert resource.label.localize(default_localizer) in actual
+        assert default_localizer.localize(resource.label) in actual

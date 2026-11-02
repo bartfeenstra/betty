@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.document import Document
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
 
@@ -59,9 +59,9 @@ class ContentBuilderDefinition(
         self,
         content_builder_id: ResolvableMachineName,
         *,
-        label: ResolvableLocalizable,
+        label: AnyLocalizable,
         auto: bool = False,
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(

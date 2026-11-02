@@ -25,7 +25,7 @@ class TestDocumentation:
             if command.id.startswith("dev-"):
                 continue
             assert command.id in actual
-            assert command.label.localize(default_localizer) in actual
+            assert default_localizer.localize(command.label) in actual
 
 
 class TestPluginDocumentation(PluginDocumentationTestBase):

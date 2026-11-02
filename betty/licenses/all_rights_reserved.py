@@ -10,7 +10,7 @@ from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
-    from betty.localizable import Localizable
+    from betty.localizer import AnyLocalizable
 
 
 @final
@@ -22,12 +22,12 @@ class AllRightsReserved(License):
 
     @property
     @override
-    def summary(self) -> Localizable:
+    def summary(self) -> AnyLocalizable:
         return self.definition.label
 
     @property
     @override
-    def text(self) -> Localizable:
+    def text(self) -> AnyLocalizable:
         return _(
             "No part may be reproduced or distributed in any form or by any means, without express written permission from the copyright holder, or unless permitted by copyright law."
         )

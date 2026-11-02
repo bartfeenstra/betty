@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from betty.entities.link import Link
     from betty.entities.note import Note
     from betty.gender import Gender
-    from betty.localizable import Localizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
 
 
@@ -140,7 +140,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks):
 
     @override
     @property
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         for name in self.names:
             if name.public:
                 return name.label

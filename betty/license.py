@@ -19,7 +19,7 @@ from betty.plugin.factory import (
 )
 
 if TYPE_CHECKING:
-    from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
 
@@ -33,20 +33,20 @@ class License(Object["LicenseDefinition"]):
 
     @property
     @abstractmethod
-    def summary(self) -> Localizable:
+    def summary(self) -> AnyLocalizable:
         """
         The license summary.
         """
 
     @property
     @abstractmethod
-    def text(self) -> Localizable:
+    def text(self) -> AnyLocalizable:
         """
         The full license text.
         """
 
     @property
-    def url(self) -> Localizable | None:
+    def url(self) -> AnyLocalizable | None:
         """
         The URL to an external human-readable resource with more information about this license.
         """
@@ -71,8 +71,8 @@ class LicenseDefinition(
         self,
         license_id: ResolvableMachineName,
         *,
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(

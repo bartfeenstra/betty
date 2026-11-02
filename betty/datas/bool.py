@@ -12,7 +12,7 @@ from betty.pipeline import pipe
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 @final
@@ -24,8 +24,8 @@ class BoolDefinition(DataDefinition[bool]):
     def __init__(
         self,
         *,
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
     ):
         super().__init__(
             label=label,

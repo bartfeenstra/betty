@@ -7,12 +7,10 @@ from __future__ import annotations
 from enum import IntEnum, auto
 from typing import TYPE_CHECKING, Final, final
 
-from betty.localizable import resolve_localizable
-
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
-    from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 @final
@@ -38,21 +36,19 @@ class Sample[T]:
         self,
         subject: T,
         *,
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
         size: Size = Size.INTERMEDIATE,
     ):
         self.subject: Final[T] = subject
         """
         The sample subject.
         """
-        self.label: Final[Localizable] = resolve_localizable(label)
+        self.label: Final[AnyLocalizable] = label
         """
         The sample's human-readable short label.
         """
-        self.description: Final[Localizable | None] = (
-            resolve_localizable(description) if description else None
-        )
+        self.description: Final[AnyLocalizable | None] = description
         """
         The sample's human-readable long description.
         """

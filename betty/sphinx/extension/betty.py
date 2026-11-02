@@ -128,14 +128,14 @@ class _PluginDirective(SphinxDirective):
 
     def _build_summary(self, plugin: PluginDefinition) -> nodes.Node:
         summary_nodes, _ = self.parse_inline(
-            f"The ``{plugin.id}`` :py:class:`{plugin.definition.label.localize(default_localizer).lower()} <{type(plugin).__module__}.{type(plugin).__qualname__}>` plugin."
+            f"The ``{plugin.id}`` :py:class:`{default_localizer.localize(plugin.definition.label).lower()} <{type(plugin).__module__}.{type(plugin).__qualname__}>` plugin."
         )
         if isinstance(plugin, HumanFacingDefinition):
             description = plugin.description
             if description:
                 summary_nodes.append(nodes.Text(" "))
                 summary_nodes.append(
-                    nodes.Text(description.localize(default_localizer))
+                    nodes.Text(default_localizer.localize(description))
                 )
         return nodes.paragraph("", "", *summary_nodes)
 
@@ -223,13 +223,13 @@ class _PluginTypeDirective(SphinxDirective):
             "",
             "",
             nodes.Text(
-                f"The {plugin_type.definition.label.localize(default_localizer).lower()} plugin type."
+                f"The {default_localizer.localize(plugin_type.definition.label).lower()} plugin type."
             ),
         )
         description = plugin_type.definition.description
         if description:
             summary_node.append(nodes.Text(" "))
-            summary_node.append(nodes.Text(description.localize(default_localizer)))
+            summary_node.append(nodes.Text(default_localizer.localize(description)))
         return summary_node
 
     def _build_metadata(self, plugin_type: type[PluginDefinition]) -> list[nodes.Node]:
@@ -256,7 +256,7 @@ class _PluginTypeDirective(SphinxDirective):
                 "",
                 "",
                 nodes.Text(
-                    f"Built-in {plugin_type.definition.label_plural.localize(default_localizer).lower()}:"
+                    f"Built-in {default_localizer.localize(plugin_type.definition.label_plural).lower()}:"
                 ),
             ),
             _build_definition_list([
@@ -277,10 +277,10 @@ class _PluginTypeDirective(SphinxDirective):
         )
         definition_nodes: MutableSequence[nodes.Node] | None = None
         if isinstance(plugin, HumanFacingDefinition):
-            definition_nodes = [nodes.Text(plugin.label.localize(default_localizer))]
+            definition_nodes = [nodes.Text(default_localizer.localize(plugin.label))]
             if plugin.description:
                 definition_nodes.append(
-                    nodes.Text(f": {plugin.description.localize(default_localizer)}")
+                    nodes.Text(f": {default_localizer.localize(plugin.description)}")
                 )
         return term_nodes, definition_nodes
 
@@ -304,11 +304,11 @@ class _PluginTypesDirective(SphinxDirective):
         self, plugin_type: type[PluginDefinition]
     ) -> tuple[NodesLike, NodesLike]:
         term_nodes, _ = self.parse_inline(
-            f":py:class:`{plugin_type.definition.label.localize(default_localizer)} <{plugin_type.__module__}.{plugin_type.__qualname__}>` (``{plugin_type.definition.id}``)"
+            f":py:class:`{default_localizer.localize(plugin_type.definition.label)} <{plugin_type.__module__}.{plugin_type.__qualname__}>` (``{plugin_type.definition.id}``)"
         )
         description = plugin_type.definition.description
         if description:
-            return term_nodes, nodes.Text(description.localize(default_localizer))
+            return term_nodes, nodes.Text(default_localizer.localize(description))
         return term_nodes, None
 
 
@@ -341,7 +341,7 @@ Data
                 
 ``{field_selector.operator}`` :sup:`{"optional" if isinstance(field.data, OptionalDefinition) else "required"}`
 
-    **{primary_label.localize(default_localizer)}**
+    **{default_localizer.localize(primary_label)}**
 """
                 primary_description = (
                     field.data.description
@@ -350,7 +350,7 @@ Data
                 )
                 if primary_description is not None:
                     content += f"""
-    {primary_description.localize(default_localizer)}
+    {default_localizer.localize(primary_description)}
 """
                 if field.data.cls:
                     value = f":py:class:`{field.data.cls.__name__} <{field.data.cls.__module__}.{field.data.cls.__qualname__}>`"
@@ -362,11 +362,11 @@ Data
 """
                 if field.label is not None:
                     content += f"""
-    *{field.data.label.localize(default_localizer)}*
+    *{default_localizer.localize(field.data.label)}*
 """
                 if field.description is not None and field.data.description is not None:
                     content += f"""
-    *{field.data.description.localize(default_localizer)}*
+    *{default_localizer.localize(field.data.description)}*
 """
 
         samples = list(data.samples)
@@ -381,7 +381,7 @@ Data
             for sample in samples:
                 example_content = ""
                 if len(samples) > 1:
-                    example_label = sample.label.localize(default_localizer)
+                    example_label = default_localizer.localize(sample.label)
                     example_content += f"""
 {example_label}
 {"".join(["-" * len(example_label)])}
@@ -394,7 +394,7 @@ Data
                 for serializer in serializers:
                     serialized = serializer.dump(portable)
                     example_content += f"""
-   .. tab-item:: {serializer.definition.label.localize(default_localizer)}
+   .. tab-item:: {default_localizer.localize(serializer.definition.label)}
 
       .. code-block:: {serializer.definition.id}
 

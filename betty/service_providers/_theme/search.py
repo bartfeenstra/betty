@@ -23,16 +23,15 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.job import Context
-    from betty.localizable import Localizable
-    from betty.localizer import Localizer
+    from betty.localizer import AnyLocalizable, Localizer
     from betty.machine_name import MachineName
     from betty.project import Project
 
 
 async def generate_search_index(
     project: Project,
-    result_container_template: Localizable,
-    results_container_template: Localizable,
+    result_container_template: AnyLocalizable,
+    results_container_template: AnyLocalizable,
     *,
     context: Context,
 ) -> None:
@@ -52,16 +51,16 @@ async def generate_search_index(
 
 async def _generate_search_index_for_locale(
     project: Project,
-    result_container_template: Localizable,
-    results_container_template: Localizable,
+    result_container_template: AnyLocalizable,
+    results_container_template: AnyLocalizable,
     locale: Locale,
     *,
     context: Context,
 ) -> None:
     localizer = await project.localizers.get(locale)
     search_index = {
-        "resultContainerTemplate": result_container_template.localize(localizer),
-        "resultsContainerTemplate": results_container_template.localize(localizer),
+        "resultContainerTemplate": localizer.localize(result_container_template),
+        "resultsContainerTemplate": localizer.localize(results_container_template),
         "index": [
             {
                 "entityTypeId": entry.entity_type_id,
@@ -94,7 +93,7 @@ class EntityTypeIndexer[EntityTypeIndexerEntityT: Entity = Entity]:
         # Each note is owned by a single other entity, so index it as part of that entity.
         if isinstance(entity, HasNotes):
             for note in entity.notes:
-                text.update(note.text.localize(localizer).lower().split())
+                text.update(localizer.localize(note.text).lower().split())
 
         return text
 
@@ -103,7 +102,7 @@ class _FallbackIndexer(EntityTypeIndexer[Entity]):
     @override
     async def text(self, localizer: Localizer, entity: Entity) -> set[str]:
         text = await super().text(localizer, entity)
-        text.update(entity.label.localize(localizer))
+        text.update(localizer.localize(entity.label))
         return text
 
 
@@ -124,7 +123,7 @@ class _PlaceIndexer(EntityTypeIndexer[Place]):
     async def text(self, localizer: Localizer, entity: Place) -> set[str]:
         text = await super().text(localizer, entity)
         for name in entity.names:
-            text.update(name.name.localize(localizer).lower().split())
+            text.update(localizer.localize(name.name).lower().split())
         return text
 
 
@@ -134,7 +133,7 @@ class _FileIndexer(EntityTypeIndexer[File]):
         text = await super().text(localizer, entity)
         text.update(entity.path.name.strip().lower().split())
         if entity.description:
-            text.update(entity.description.localize(localizer).strip().lower().split())
+            text.update(localizer.localize(entity.description).strip().lower().split())
         return text
 
 

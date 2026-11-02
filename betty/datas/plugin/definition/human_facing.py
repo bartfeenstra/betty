@@ -20,7 +20,8 @@ from betty.plugin import PluginDefinition
 if TYPE_CHECKING:
     from ty_extensions import Intersection
 
-    from betty.localizable import ResolvableCountableLocalizable, ResolvableLocalizable
+    from betty.localizable import CountableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 class HumanFacingPluginDefinitionData[
@@ -38,8 +39,8 @@ class HumanFacingPluginDefinitionData[
     def __init__(
         self,
         *,
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
@@ -62,8 +63,8 @@ class CountableHumanFacingPluginDefinitionData[
     def __init__(
         self,
         *,
-        label_plural: ResolvableLocalizable,
-        label_countable: ResolvableCountableLocalizable,
+        label_plural: AnyLocalizable,
+        label_countable: CountableLocalizable,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)

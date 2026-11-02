@@ -8,18 +8,14 @@ from abc import ABCMeta, abstractmethod
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 
-from betty.localizable import (
-    Localizable,
-    ResolvableLocalizable,
-    resolve_localizable,
-)
+from betty.localizable import Localizable
 from betty.localizables.gettext import _, pgettext
 from betty.localized import LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.localizer import Localizer
+    from betty.localizer import AnyLocalizable, Localizer
 
 join_separator: Final[Localizable] = pgettext("localizable-join-separator", ", ")
 join_and: Final[Localizable] = pgettext("localizable-join-and", "{first} and {second}")
@@ -41,7 +37,7 @@ class LocalizableSequence(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def localizables(self) -> Sequence[Localizable]:
+    def localizables(self) -> Sequence[AnyLocalizable]:
         """
         The localizables.
         """
@@ -50,12 +46,12 @@ class LocalizableSequence(metaclass=ABCMeta):
 class _LocalizableSequence(LocalizableSequence):
     __slots__ = ("_localizables",)
 
-    def __init__(self, *localizables: ResolvableLocalizable):
-        self._localizables = tuple(map(resolve_localizable, localizables))
+    def __init__(self, *localizables: AnyLocalizable):
+        self._localizables = localizables
 
     @override
     @property
-    def localizables(self) -> Sequence[Localizable]:
+    def localizables(self) -> Sequence[AnyLocalizable]:
         return self._localizables
 
 
@@ -68,7 +64,7 @@ class _Join(_LocalizableSequence, Localizable):
             self._separator.join(
                 localized
                 for part in self.localizables
-                if (localized := part.localize(localizer))
+                if (localized := localizer.localize(part))
             ),
             locale=localizer.locale,
         )
@@ -126,7 +122,7 @@ class _List(_LocalizableSequence, Localizable):
         else:
             template = self._template_left_to_right
         for index, localizable in enumerate(self._localizables):
-            localizeds.append(localizable.localize(localizer))
+            localizeds.append(localizer.localize(localizable))
             prefix = self._get_prefix(localizer, index)
             prefixes.append(prefix)
             prefix_lengths.append(len(prefix))
@@ -188,14 +184,14 @@ class _NaturalJoin(_LocalizableSequence, Localizable):
             case 0:
                 return LocalizedStr("")
             case 1:
-                return self.localizables[0].localize(localizer)
+                return localizer.localize(self.localizables[0])
             case 2:
                 return self._join.format(
                     first=self._localizables[0], second=self._localizables[1]
                 ).localize(localizer)
         return self._join_many.format(
             most=join_separator.localize(localizer).join(
-                part.localize(localizer) for part in self.localizables[0:-1]
+                localizer.localize(part) for part in self.localizables[0:-1]
             ),
             last=self.localizables[-1],
         ).localize(localizer)
@@ -226,7 +222,7 @@ class _Template(Localizable):
     _template: ClassVar[Localizable]
 
     @final
-    def __init__(self, text: ResolvableLocalizable, /):
+    def __init__(self, text: AnyLocalizable, /):
         self._text = text
 
     @final
@@ -244,7 +240,7 @@ class Quote(_Template):
     _template: ClassVar[Localizable] = pgettext("localizable-quote", '"{text}"')
 
 
-def do_you_mean(*available_options: Any) -> Localizable:
+def do_you_mean(*available_options: Any) -> AnyLocalizable:
     """
     Produce a message listing available options.
     """

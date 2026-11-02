@@ -39,5 +39,5 @@ def _format(locator: Locator, localizer: Localizer, /) -> str:
     if isinstance(locator, Operator):
         return locator.format()
     if isinstance(locator, HasUrl):
-        return locator.url.localize(localizer)
+        return localizer.localize(locator.url)
     return str(locator)

@@ -38,7 +38,7 @@ class EntityTestBase[EntityT: Entity]:
         """
         Tests :py:meth:`betty.entity.Entity.label` implementations.
         """
-        assert sut.label.localize(default_localizer)
+        assert default_localizer.localize(sut.label)
 
 
 @final

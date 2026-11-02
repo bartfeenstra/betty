@@ -10,7 +10,6 @@ from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.entities.note import Note
 from betty.entity import Entity
-from betty.localizer import default_localizer
 from betty.media_types import plain_text
 from betty.privacy import Privacy
 from betty.test_utils.entity import EntityTestBase
@@ -83,8 +82,7 @@ class TestFile(EntityTestBase):
         assert not sut.description
         description = "Hi, my name is Betty!"
         sut.description = description
-        assert sut.description is not None
-        assert sut.description.localize(default_localizer) == description
+        assert sut.description == description
 
     def test_notes(self) -> None:
         sut = File(Path(__file__))

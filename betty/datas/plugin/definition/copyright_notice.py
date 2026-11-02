@@ -14,7 +14,7 @@ from betty.localizables.gettext import _
 from betty.sample import Sample, Samples
 
 if TYPE_CHECKING:
-    from betty.localizable import Localizable, ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 @final
@@ -47,8 +47,8 @@ class CopyrightNoticeDefinitionData(
     def __init__(
         self,
         *,
-        summary: ResolvableLocalizable,
-        text: ResolvableLocalizable,
+        summary: AnyLocalizable,
+        text: AnyLocalizable,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
@@ -67,12 +67,12 @@ class CopyrightNoticeDefinitionData(
         class _CopyrightNoticeDefinitionDataCopyrightNotice(CopyrightNotice):
             @override
             @property
-            def summary(self) -> Localizable:
+            def summary(self) -> AnyLocalizable:
                 return configuration.summary
 
             @override
             @property
-            def text(self) -> Localizable:
+            def text(self) -> AnyLocalizable:
                 return configuration.text
 
         return _CopyrightNoticeDefinitionDataCopyrightNotice.definition

@@ -17,7 +17,13 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizable import Localizable
+
+
+type AnyLocalizable = LocalizedStr | Localizable | str
+"""
+A value that is or can be localized.
+"""
 
 
 @final
@@ -44,20 +50,14 @@ class Localizer:
         The string translator.
         """
 
-    def localize(self, localizable: ResolvableLocalizable, /) -> LocalizedStr:
+    def localize(self, localizable: AnyLocalizable, /) -> LocalizedStr:
         """
         Ensure that a localizable-like value is or is made to be localized.
         """
-        from betty.localizable import Localizable
-
         if isinstance(localizable, LocalizedStr):
             return localizable
         if isinstance(localizable, str):
             return LocalizedStr(localizable)
-        if not isinstance(localizable, Localizable):
-            from betty.localizables.static import StaticTranslations
-
-            localizable = StaticTranslations(localizable)
         return localizable.localize(self)
 
 

@@ -29,7 +29,7 @@ from betty.user import Severity
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
     from betty.user.ui import Ui
@@ -147,11 +147,11 @@ class ServerDefinition(
         self,
         server_id: ResolvableMachineName,
         *,
-        label: ResolvableLocalizable,
+        label: AnyLocalizable,
         after: Order[Self] = (),
         auto: bool = False,
         before: Order[Self] = (),
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(

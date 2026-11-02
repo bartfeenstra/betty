@@ -1347,9 +1347,9 @@ class GrampsLoader:
             ).format(
                 attribute_name=Quote("betty:privacy"),
                 attribute_value=Quote(privacy_value),
-                entity_type=entity.definition.label.localize(self._ui.localizer),
+                entity_type=self._ui.localizer.localize(entity.definition.label),
                 entity_id=entity.id,
-                entity_label=entity.label.localize(self._ui.localizer),
+                entity_label=self._ui.localizer.localize(entity.label),
                 valid_public_value=Quote("public"),
                 valid_private_value=Quote("private"),
             ),

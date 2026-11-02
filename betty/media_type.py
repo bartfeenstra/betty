@@ -19,7 +19,7 @@ from betty.porters.callback import CallbackPorter
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.portable import PortableData
 
@@ -188,8 +188,8 @@ class MediaTypeDefinition(HumanFacingDefinition, OrderedPluginDefinition):
         self,
         media_type_id: ResolvableMachineName,
         *,
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
         media_type: MediaType,
         after: Order[Self] = (),
         auto: bool = True,

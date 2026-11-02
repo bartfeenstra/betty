@@ -3,7 +3,6 @@ from typing import Any, override
 
 import pytest
 
-from betty.localizables.plain import Plain
 from betty.localizer import default_localizer
 from betty.operator import Attr, Chain, Index, Key, Operator, OperatorError, _Operator
 from betty.typing import Unreachable
@@ -138,10 +137,10 @@ class TestChain:
             (
                 "DUMMY\ndata.my_first_attr.my_second_attr\nDUMMY\ndata.my_third_attr.my_fourth_attr",
                 [
-                    Plain("DUMMY"),
+                    "DUMMY",
                     Attr("my_first_attr"),
                     Attr("my_second_attr"),
-                    Plain("DUMMY"),
+                    "DUMMY",
                     Attr("my_third_attr"),
                     Attr("my_fourth_attr"),
                 ],

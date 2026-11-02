@@ -1,4 +1,4 @@
-from betty.localizables.plain import Plain
+from betty.localizables.static import StaticTranslations
 from betty.test_utils.conftest import AssertTemplateString
 
 
@@ -7,6 +7,6 @@ class TestLocalize:
         template = "{{ data | localize }}"
         async with assert_template_string(
             template=template,
-            data={"data": Plain("Hello, world!")},
+            data={"data": StaticTranslations("Hello, world!")},
         ) as (actual, _):
             assert actual == "Hello, world!"

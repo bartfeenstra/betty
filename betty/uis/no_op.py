@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     import logging
     from collections.abc import AsyncGenerator
 
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.pipeline import Pipe
     from betty.progress import Progress
     from betty.user import Severity
@@ -34,9 +34,7 @@ class NoOpUi(Ui):
         pass
 
     @override
-    async def message(
-        self, message: ResolvableLocalizable, severity: Severity, /
-    ) -> None:
+    async def message(self, message: AnyLocalizable, severity: Severity, /) -> None:
         pass
 
     @override
@@ -45,21 +43,19 @@ class NoOpUi(Ui):
 
     @override
     @asynccontextmanager
-    async def progress(
-        self, message: ResolvableLocalizable, /
-    ) -> AsyncGenerator[Progress]:
+    async def progress(self, message: AnyLocalizable, /) -> AsyncGenerator[Progress]:
         yield NoOpProgress()
 
     @override
     async def ask_confirmation(
-        self, statement: ResolvableLocalizable, /, *, default: bool = False
+        self, statement: AnyLocalizable, /, *, default: bool = False
     ) -> bool:
         raise UiTimeoutError
 
     @overload
     async def ask_input(
         self,
-        question: ResolvableLocalizable,
+        question: AnyLocalizable,
         /,
         *,
         assertion: None = None,
@@ -70,7 +66,7 @@ class NoOpUi(Ui):
     @overload
     async def ask_input[T](
         self,
-        question: ResolvableLocalizable,
+        question: AnyLocalizable,
         /,
         *,
         assertion: Pipe[str, T],

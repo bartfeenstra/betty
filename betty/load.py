@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Collection
 
     from betty.job.scheduler import Scheduler
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.project import Project
     from betty.requirement import Requires
@@ -64,8 +64,8 @@ class LoaderDefinition(HumanFacingDefinition, ClsDefinition[Loader], PluginDefin
         loader_id: ResolvableMachineName,
         *,
         auto: bool = False,
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(
@@ -126,8 +126,8 @@ class EnricherDefinition(
         enricher_id: ResolvableMachineName,
         *,
         auto: bool = False,
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(

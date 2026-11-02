@@ -17,7 +17,7 @@ from betty.datas.aggregate.collection import (
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.portable import PortableData, Porter
 
 
@@ -36,8 +36,8 @@ class MappingDefinition[MappingT: Mapping[Any, Any], KeyT, ValueT](
         *,
         key: ResolvableDataDefinition[DataDefinition[KeyT]],
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
-        label: ResolvableLocalizable,
-        description: ResolvableLocalizable | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
         manufacturer: CollectionManufacturer[MappingT, NewMapping[KeyT, ValueT]]
         | None = None,
         porter: Porter[MappingT] | None = None,

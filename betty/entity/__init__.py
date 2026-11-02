@@ -21,11 +21,8 @@ from betty.privacy import Privacy
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from betty.localizable import (
-        CountableLocalizable,
-        Localizable,
-        ResolvableLocalizable,
-    )
+    from betty.localizable import CountableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.project import Project
     from betty.requirement import Requires
@@ -68,7 +65,7 @@ class Entity(
         return self.id == other.id
 
     @property
-    def label(self) -> Localizable:
+    def label(self) -> AnyLocalizable:
         """
         The entity's human-readable label.
         """
@@ -101,11 +98,11 @@ class EntityDefinition[EntityT: Entity = Entity](
         self,
         entity_type_id: ResolvableMachineName,
         *,
-        label: ResolvableLocalizable,
-        label_plural: ResolvableLocalizable,
+        label: AnyLocalizable,
+        label_plural: AnyLocalizable,
         label_countable: CountableLocalizable,
         auto: bool = True,
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         public_facing: bool = True,
         requires: Requires = (),
     ):

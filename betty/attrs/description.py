@@ -12,7 +12,7 @@ from betty.localizables.gettext import _
 from betty.prop import HasProps
 
 if TYPE_CHECKING:
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
 
 
 class HasDescription(HasProps, metaclass=TypeABCMeta):
@@ -28,7 +28,7 @@ class HasDescription(HasProps, metaclass=TypeABCMeta):
     def __init__(
         self,
         *args: Any,
-        description: ResolvableLocalizable | None = None,
+        description: AnyLocalizable | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)

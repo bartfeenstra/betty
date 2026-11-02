@@ -61,7 +61,7 @@ if TYPE_CHECKING:
     from betty.link import LinkDefinition
     from betty.load import ManufacturableEnricher, ManufacturableLoader
     from betty.locale import ResolvableLocale
-    from betty.localizable import ResolvableLocalizable
+    from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.pathlib import StrPath
     from betty.portable import PortableMapping
@@ -160,7 +160,7 @@ class IsolatedProjectFactory(Protocol):
         ancestry: EntityPool | None = None,
         app: App | None = None,
         assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
-        author: ResolvableLocalizable | None = None,
+        author: AnyLocalizable | None = None,
         cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None
         | Literal[False] = False,
@@ -179,7 +179,7 @@ class IsolatedProjectFactory(Protocol):
         plugins: Plugins = empty_frozen_dict,
         servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
-        title: ResolvableLocalizable | None = None,
+        title: AnyLocalizable | None = None,
         url: str | None = None,
     ) -> AbstractAsyncContextManager[Project]:
         raise Unreachable
@@ -199,7 +199,7 @@ def isolated_project_factory(
         ancestry: EntityPool | None = None,
         app: App | None = None,
         assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
-        author: ResolvableLocalizable | None = None,
+        author: AnyLocalizable | None = None,
         cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None
         | Literal[False] = False,
@@ -218,7 +218,7 @@ def isolated_project_factory(
         plugins: Plugins = empty_frozen_dict,
         servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
-        title: ResolvableLocalizable | None = None,
+        title: AnyLocalizable | None = None,
         url: str | None = None,
     ) -> AsyncGenerator[Project]:
         async with AsyncExitStack() as exit_stack:
