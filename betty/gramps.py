@@ -203,14 +203,14 @@ class GrampsEntityReference:
         return f"{self.entity_type.value} ({self.entity_id})"
 
 
-DEFAULT_GENDER_MAPPING: Mapping[str, ResolvableGenderManufacturer] = {
+default_gender_mapping: Final[Mapping[str, ResolvableGenderManufacturer]] = {
     "F": Woman,
     "M": Man,
     "U": UnknownGender,
     "X": NonBinary,
 }
 
-DEFAULT_EVENT_TYPE_MAPPING: Mapping[str, ResolvableEventTypeManufacturer] = {
+default_event_type_mapping: Final[Mapping[str, ResolvableEventTypeManufacturer]] = {
     "Adopted": Adoption,
     "Adult Christening": Baptism,
     "Baptism": Baptism,
@@ -236,7 +236,7 @@ DEFAULT_EVENT_TYPE_MAPPING: Mapping[str, ResolvableEventTypeManufacturer] = {
 }
 
 
-DEFAULT_PLACE_TYPE_MAPPING: Mapping[str, ResolvablePlaceTypeManufacturer] = {
+default_place_type_mapping: Final[Mapping[str, ResolvablePlaceTypeManufacturer]] = {
     "Borough": Borough,
     "Building": Building,
     "City": City,
@@ -261,7 +261,7 @@ DEFAULT_PLACE_TYPE_MAPPING: Mapping[str, ResolvablePlaceTypeManufacturer] = {
 }
 
 
-DEFAULT_ROLE_MAPPING: Mapping[str, ResolvableRoleManufacturer] = {
+default_role_mapping: Final[Mapping[str, ResolvableRoleManufacturer]] = {
     "Aide": Attendee,
     "Bride": Subject,
     "Celebrant": Celebrant,
@@ -374,7 +374,7 @@ class GrampsLoader:
             EventTypeManufacturer, event_type_mapping
         )
         self._gender_mapping = _resolve_plugin_manufacturer_mapping(
-            GenderManufacturer, DEFAULT_GENDER_MAPPING
+            GenderManufacturer, default_gender_mapping
         )
         self._place_type_mapping = _resolve_plugin_manufacturer_mapping(
             PlaceTypeManufacturer, place_type_mapping

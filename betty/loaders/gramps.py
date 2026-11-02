@@ -21,10 +21,10 @@ from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufactu
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, Manufacturable
 from betty.gramps import (
-    DEFAULT_EVENT_TYPE_MAPPING,
-    DEFAULT_PLACE_TYPE_MAPPING,
-    DEFAULT_ROLE_MAPPING,
     GrampsLoader,
+    default_event_type_mapping,
+    default_place_type_mapping,
+    default_role_mapping,
 )
 from betty.jobs.load_gramps_ancestry import LoadGrampsAncestry
 from betty.load import Loader, LoaderDefinition
@@ -113,7 +113,7 @@ class FamilyTree(Object):
     """
 
     event_types = _new_plugin_mapping_attr(
-        EventTypeManufacturer, _("Gramps event type"), DEFAULT_EVENT_TYPE_MAPPING
+        EventTypeManufacturer, _("Gramps event type"), default_event_type_mapping
     )
     """
     How to map event types.
@@ -130,14 +130,14 @@ class FamilyTree(Object):
     """
 
     place_types = _new_plugin_mapping_attr(
-        PlaceTypeManufacturer, _("Gramps place type"), DEFAULT_PLACE_TYPE_MAPPING
+        PlaceTypeManufacturer, _("Gramps place type"), default_place_type_mapping
     )
     """
     How to map place types.
     """
 
     roles = _new_plugin_mapping_attr(
-        RoleManufacturer, _("Gramps role"), DEFAULT_ROLE_MAPPING
+        RoleManufacturer, _("Gramps role"), default_role_mapping
     )
     """
     How to map presence roles.
