@@ -156,8 +156,8 @@ betty = 'betty.consoles.app:main'
 'spdx' = 'betty.licenses.spdx:SpdxLicenseDiscoverer.discover_for'
 
 [project.entry-points.'betty.link']
-'betty-documentation' = 'betty.links.betty_documentation:BETTY_DOCUMENTATION'
-'betty-github' = 'betty.links.betty_github:BETTY_GITHUB'
+'betty-documentation' = 'betty.links:betty_documentation'
+'betty-github' = 'betty.links:betty_github'
 
 [project.entry-points.'betty.loader']
 'demo' = 'betty.loaders.demo:Demo'

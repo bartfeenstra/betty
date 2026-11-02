@@ -1,5 +1,5 @@
 """
-The link to Betty's documentation.
+Link plugins.
 """
 
 from __future__ import annotations
@@ -10,7 +10,11 @@ from betty import about
 from betty.link import LinkDefinition, StaticLink
 from betty.localizables.gettext import _
 
-BETTY_DOCUMENTATION: Final[LinkDefinition] = LinkDefinition(
+betty_documentation: Final[LinkDefinition] = LinkDefinition(
     "betty-documentation",
     link=StaticLink(about.url_documentation, _("Read the Betty documentation")),
+)
+
+betty_github: Final[LinkDefinition] = LinkDefinition(
+    "betty-github", link=StaticLink(about.url_code, _("Find Betty on GitHub"))
 )
