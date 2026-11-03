@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.assertions.record import Field, assert_record
+from betty.operator import Attr
 from betty.portable import NoPortableData, PortableData, PortableMapping, Porter
 
 if TYPE_CHECKING:
@@ -36,7 +37,11 @@ class FieldsPorter[DataT](Porter[DataT, PortableMapping]):
         portable = {}
         for operator, field in self._record.fields.items():
             if field_porter := field.try_porter:
-                field_data = operator.get(data)
+                field_data = (
+                    getattr(data, operator.operator)
+                    if isinstance(operator, Attr)
+                    else data[operator.operator]  # ty: ignore[not-subscriptable]
+                )
                 if (
                     field_dump := field_porter.dump(data, field_data)
                 ) is not NoPortableData:

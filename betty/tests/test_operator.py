@@ -1,10 +1,10 @@
 from collections.abc import Sequence
-from typing import Any, override
+from typing import override
 
 import pytest
 
 from betty.localizer import default_localizer
-from betty.operator import Attr, Chain, Index, Key, Operator, OperatorError, _Operator
+from betty.operator import Attr, Chain, Index, Key, Operator, _Operator
 from betty.typing import Unreachable
 from betty.user.location import format_
 
@@ -13,8 +13,8 @@ class TestAttr:
     def test_operator(self) -> None:
         assert Attr("my_first_attr").operator == "my_first_attr"
 
-    def test_format(self) -> None:
-        assert Attr("attr").format() == ".attr"
+    def test___str__(self) -> None:
+        assert str(Attr("attr")) == ".attr"
 
     def test_get(self) -> None:
         class _Data:
@@ -44,44 +44,13 @@ class TestAttr:
 
 
 class TestIndex:
-    def test_format(self) -> None:
-        assert Index(0).format() == "[0]"
-
-    def test_get(self) -> None:
-        assert Index(0).get(["my-first-value"]) == "my-first-value"
-
-    def test_set(self) -> None:
-        data = ["my-first-value"]
-        Index(0).set(data, "my-second-value")
-        assert data[0] == "my-second-value"
-
-    def test_delete(self) -> None:
-        data = ["my-first-value"]
-        Index(0).delete(data)
-        assert data == []
+    def test___str__(self) -> None:
+        assert str(Index(0)) == "[0]"
 
 
 class TestKey:
-    def test_format(self) -> None:
-        assert Key("key").format() == '["key"]'
-
-    def test_get(self) -> None:
-        assert (
-            Key("my_first_key").get({"my_first_key": "my-first-value"})
-            == "my-first-value"
-        )
-
-    def test_set(self) -> None:
-        data = {"my_first_key": "my-first-value"}
-        Key("my_first_key").set(data, "my-second-value")
-        assert data["my_first_key"] == "my-second-value"
-
-    def test_delete(self) -> None:
-        data = {"my_first_key": "my-first-value"}
-        Key("my_first_key").delete(
-            data,
-        )
-        assert data == {}
+    def test___str__(self) -> None:
+        assert str(Key("key")) == '["key"]'
 
 
 class TestChain:
@@ -109,23 +78,8 @@ class TestChain:
             ),
         ],
     )
-    def test_format(self, expected: str, operators: Sequence[Operator]) -> None:
-        assert Chain(*operators).format() == expected
-
-    def test_get(self) -> None:
-        assert (
-            Chain(Index(1), Index(0)).get([[], ["my-first-value"]]) == "my-first-value"
-        )
-
-    def test_set(self) -> None:
-        data = [[], ["my-first-value"]]
-        Chain(Index(1), Index(0)).set(data, "my-second-value")
-        assert data[1][0] == "my-second-value"
-
-    def test_delete(self) -> None:
-        data = [[], ["my-first-value"]]
-        Chain(Index(1), Index(0)).delete(data)
-        assert data[1] == []
+    def test___str__(self, expected: str, operators: Sequence[Operator]) -> None:
+        assert str(Chain(*operators)) == expected
 
     @pytest.mark.parametrize(
         ("expected", "locators"),
@@ -158,19 +112,7 @@ class TestChain:
 
 class OperatorTest_Operator(_Operator):
     @override
-    def _get(self, data: Any, /) -> Any:
-        raise Unreachable
-
-    @override
-    def _set(self, data: Any, value: Any, /) -> None:
-        raise Unreachable
-
-    @override
-    def _delete(self, data: Any, /) -> None:
-        raise Unreachable
-
-    @override
-    def format(self) -> str:
+    def __str__(self) -> str:
         raise Unreachable
 
 
@@ -205,8 +147,3 @@ class Test_Operator:
         assert one == one
         assert other == other
         assert (one == other) is expected
-
-
-class TestOperatorError:
-    def test(self) -> None:
-        assert "[0]" in str(OperatorError(Index(0)))

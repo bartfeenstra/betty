@@ -5,25 +5,14 @@ Data operators.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Final, final, override
 
 from typing_extensions import disjoint_base
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator, MutableSequence, Sequence
+    from collections.abc import MutableSequence, Sequence
 
     from betty.user.location import Locator
-
-
-@final
-class OperatorError(ValueError):
-    """
-    Raise when an operator cannot access its element on the given data.
-    """
-
-    def __init__(self, selector: Operator, /):
-        super().__init__(f"Cannot access {selector.format()}")
 
 
 @disjoint_base
@@ -35,10 +24,8 @@ class Operator(metaclass=ABCMeta):
     __slots__ = ()
 
     @abstractmethod
-    def format(self) -> str:
-        """
-        Format the operator to a string.
-        """
+    def __str__(self) -> str:
+        pass
 
     @abstractmethod
     def __hash__(self) -> int:
@@ -46,56 +33,6 @@ class Operator(metaclass=ABCMeta):
 
     @abstractmethod
     def __eq__(self, other: object) -> bool:
-        pass
-
-    @contextmanager
-    def _catch(self) -> Generator[None]:
-        try:
-            yield
-        except Exception as error:
-            raise OperatorError(self) from error
-
-    @final
-    def get[T](self, data: Any, assertion: Callable[[Any], T] | None = None, /) -> T:
-        """
-        Get the value for this operator.
-
-        :raises SelectorError: raised if the element cannot be accessed.
-        """
-        with self._catch():
-            data = self._get(data)
-        return assertion(data) if assertion else data
-
-    @abstractmethod
-    def _get(self, data: Any, /) -> Any:
-        pass
-
-    @final
-    def set(self, data: Any, value: Any, /) -> None:
-        """
-        Set the value for this operator.
-
-        :raises SelectorError: raised if the element cannot be accessed.
-        """
-        with self._catch():
-            self._set(data, value)
-
-    @abstractmethod
-    def _set(self, data: Any, value: Any, /) -> None:
-        pass
-
-    @final
-    def delete(self, data: Any, /) -> None:
-        """
-        Delete the value for this operator.
-
-        :raises SelectorError: raised if the element cannot be accessed.
-        """
-        with self._catch():
-            self._delete(data)
-
-    @abstractmethod
-    def _delete(self, data: Any, /) -> None:
         pass
 
 
@@ -121,26 +58,8 @@ class Chain(Operator):
         return self._operators == other._operators
 
     @override
-    def format(self) -> str:
-        return "".join(["data", *[operator.format() for operator in self._operators]])
-
-    @override
-    def _get(self, data: Any, /) -> Any:
-        for operator in self._operators:
-            data = operator.get(data)
-        return data
-
-    @override
-    def _set(self, data: Any, value: Any, /) -> None:
-        for operator in self._operators[:-1]:
-            data = operator.get(data)
-        self._operators[-1].set(data, value)
-
-    @override
-    def _delete(self, data: Any, /) -> None:
-        for operator in self._operators[:-1]:
-            data = operator.get(data)
-        self._operators[-1].delete(data)
+    def __str__(self) -> str:
+        return "data" + "".join(map(str, self._operators))
 
     @classmethod
     def reduce(cls, *locators: Locator) -> Sequence[Locator]:
@@ -166,16 +85,19 @@ class Chain(Operator):
         return tuple(reduced_locators)
 
 
-class _Operator[OperatorT](Operator):
+class _Operator[LookupT](Operator):
     __slots__ = ("operator",)
 
-    def __init__(self, operator: OperatorT, /):
-        self.operator: Final[OperatorT] = operator
+    @final
+    def __init__(self, operator: LookupT, /):
+        self.operator: Final[LookupT] = operator
 
+    @final
     @override
     def __hash__(self) -> int:
         return hash((type(self), self.operator))
 
+    @final
     @override
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
@@ -184,69 +106,51 @@ class _Operator[OperatorT](Operator):
 
 
 @final
-class Attr(_Operator[str]):
+class Attr[OwnerT, ValueT = Any](_Operator[str]):
     """
-    An attribute selector.
+    An attribute operator.
     """
 
     @override
-    def format(self) -> str:
+    def __str__(self) -> str:
         return f".{self.operator}"
 
-    @override
-    def _get(self, data: Any, /) -> Any:
-        return getattr(data, self.operator)
+    def get(self, owner: OwnerT, /) -> ValueT:
+        """
+        Get the value for the attribute.
+        """
+        return getattr(owner, self.operator)
 
-    @override
-    def _set(self, data: Any, value: Any, /) -> None:
-        setattr(data, self.operator, value)
+    def set(self, owner: OwnerT, value: ValueT, /) -> None:
+        """
+        Set a value for the attribute.
+        """
+        setattr(owner, self.operator, value)
 
-    @override
-    def _delete(self, data: Any, /) -> None:
-        delattr(data, self.operator)
+    def delete(self, owner: OwnerT, /) -> None:
+        """
+        Delete the attribute.
+        """
+        delattr(owner, self.operator)
 
 
 @final
 class Index(_Operator[int]):
     """
-    A sequence item selector.
+    A sequence item operator.
     """
 
     @override
-    def format(self) -> str:
+    def __str__(self) -> str:
         return f"[{self.operator}]"
-
-    @override
-    def _get(self, data: Any, /) -> Any:
-        return data[self.operator]
-
-    @override
-    def _set(self, data: Any, value: Any, /) -> None:
-        data[self.operator] = value
-
-    @override
-    def _delete(self, data: Any, /) -> None:
-        del data[self.operator]
 
 
 @final
-class Key(_Operator[str]):
+class Key[KeyT](_Operator[KeyT]):
     """
-    A mapping key selector.
+    A mapping key operator.
     """
 
     @override
-    def format(self) -> str:
+    def __str__(self) -> str:
         return f'["{self.operator}"]'
-
-    @override
-    def _get(self, data: Any, /) -> Any:
-        return data[self.operator]
-
-    @override
-    def _set(self, data: Any, value: Any, /) -> None:
-        data[self.operator] = value
-
-    @override
-    def _delete(self, data: Any, /) -> None:
-        del data[self.operator]
