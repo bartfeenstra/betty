@@ -14,27 +14,17 @@ from urllib.parse import quote, urlsplit
 
 from geopy import Point
 
-from betty.assertions.float import assert_float
-from betty.assertions.mapping import assert_mapping
-from betty.assertions.str import assert_str
-from betty.exception import HumanFacingException, reraise_with_locator
+from betty.exception import HumanFacingException
 from betty.file import write
 from betty.hashid import hashid
-from betty.link import StaticLink
 from betty.localizables.gettext import _
-from betty.media_type import MediaType
-from betty.operator import Chain, Index, Key, OperatorError
 
 if TYPE_CHECKING:
-    from collections.abc import (
-        AsyncGenerator,
-        Generator,
-        Mapping,
-        MutableMapping,
-    )
+    from collections.abc import AsyncGenerator, Generator, Mapping, MutableMapping
 
     from aiohttp import ClientResponse, ClientSession
 
+    from betty.media_type import MediaType
     from betty.user.ui import Ui
 
 
@@ -95,8 +85,6 @@ class Client:
             yield
         except HumanFacingException as error:
             raise ClientError(error) from error
-        except OperatorError as error:
-            raise ClientError(str(error)) from error
 
     @asynccontextmanager
     async def _get(self, url: str) -> AsyncGenerator[ClientResponse]:
@@ -118,13 +106,7 @@ class Client:
 
     async def _get_query_api_data(self, url: str) -> Mapping[str, Any]:
         data = await self._get_json(url)
-        with (
-            self._human_facing_exception_to_client_error(),
-            reraise_with_locator(StaticLink(url)),
-        ):
-            return Chain(Key("query"), Key("pages"), Index(0)).get(
-                data, assert_mapping(None, assert_str())
-            )
+        return data["query"]["pages"][0]
 
     async def _get_page_query_api_data(
         self, page_language: str, page_name: str
@@ -154,23 +136,14 @@ class Client:
         Get a summary for a page.
         """
         url = f"https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}"
-
-        with (
-            self._human_facing_exception_to_client_error(),
-            reraise_with_locator(StaticLink(url)),
-        ):
-            api_data = await self._get_json(url)
-
-            title = Chain(Key("titles"), Key("normalized")).get(api_data, assert_str())
-            extract = Chain(
-                Key("extract_html") if "extract_html" in api_data else Key("extract")
-            ).get(api_data, assert_str())
-        return Summary(
-            page_language,
-            page_name,
-            title,
-            extract,
+        api_data = await self._get_json(url)
+        title = api_data["title"]["normalized"]
+        extract = (
+            api_data["extract_html"]
+            if "extract_html" in api_data
+            else api_data["extract"]
         )
+        return Summary(page_language, page_name, title, extract)
 
     async def get_image(self, page_language: str, page_name: str) -> Image | None:
         """
@@ -188,22 +161,11 @@ class Client:
 
         url = f"https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
         image_info_api_data = await self._get_query_api_data(url)
-
-        image_info_selectors = (Key("imageinfo"), Index(0))
-        with (
-            self._human_facing_exception_to_client_error(),
-            reraise_with_locator(StaticLink(url)),
-        ):
-            image_info = Chain(*image_info_selectors).get(
-                image_info_api_data, assert_mapping()
-            )
-            with reraise_with_locator(*image_info_selectors):
-                image_url = Key("url").get(image_info, assert_str())
-                image_media_type = Key("mime").get(image_info, MediaType)
-                image_title = Key("canonicaltitle").get(image_info, assert_str())
-                image_wikimedia_commons_url = Key("descriptionurl").get(
-                    image_info, assert_str()
-                )
+        image_info = image_info_api_data["imageinfo"][0]
+        image_url = image_info["url"]
+        image_media_type = image_info["mime"]
+        image_title = image_info["canonicaltitle"]
+        image_wikimedia_commons_url = image_info["descriptionurl"]
         async with self._get(image_url) as image_response:
             image_data = await image_response.read()
         image_path = (
@@ -234,14 +196,9 @@ class Client:
         except LookupError:
             # There may not be any coordinates.
             return None
-
-        with (
-            self._human_facing_exception_to_client_error(),
-            reraise_with_locator(StaticLink(url)),
-        ):
-            globe = Key("globe").get(coordinates, assert_str())
-            if globe != "earth":
-                return None
-            latitude = Key("lat").get(coordinates, assert_float())
-            longitude = Key("lon").get(coordinates, assert_float())
+        globe = coordinates["globe"]
+        if globe != "earth":
+            return None
+        latitude = coordinates["latitude"]
+        longitude = coordinates["longitude"]
         return Point(latitude, longitude)
