@@ -9,7 +9,15 @@ import threading
 from asyncio import sleep
 from itertools import chain
 from time import time
-from typing import TYPE_CHECKING, Protocol, Self, final, overload, runtime_checkable
+from typing import (
+    TYPE_CHECKING,
+    Never,
+    Protocol,
+    Self,
+    final,
+    overload,
+    runtime_checkable,
+)
 
 from typing_extensions import sentinel
 
@@ -303,3 +311,12 @@ class LazyReCallable[ValueT]:
                 if not hasattr(self, "_value"):
                     self._value = self._factory()
         return self._value
+
+
+def raise_(exception: Exception, /) -> Never:
+    """
+    Raise the given exception.
+
+    This is helpful in situations where statements are not allowed, such as in lambdas.
+    """
+    raise exception

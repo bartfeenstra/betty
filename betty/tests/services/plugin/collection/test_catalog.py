@@ -8,22 +8,18 @@ from betty.services.plugin import (
     HasPluginServices,
     ResolvableServiceLevelHasPluginServices,
 )
-from betty.services.plugin.collection.keyed import (
-    KeyedCollectionPluginServiceManager,
-)
+from betty.services.plugin.collection.catalog import CatalogPluginServiceManager
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginOne,
     DummyPluginThree,
     DummyPluginTwo,
 )
-from betty.tests.services.test_plugin import (
-    PluginServiceManagerTestBase,
-)
+from betty.tests.services.test_plugin import PluginServiceManagerTestBase
 
 
-class _KeyedCollectionPluginServiceManagerTestSut(
-    KeyedCollectionPluginServiceManager[
+class _CatalogPluginServiceManagerTestSut(
+    CatalogPluginServiceManager[
         ResolvableServiceLevelHasPluginServices,
         DummyPluginDefinition,
         DummyPluginDefinition,
@@ -44,25 +40,23 @@ class _KeyedCollectionPluginServiceManagerTestSut(
 
     @override
     def resolve_init_plugin_id(
-        self,
-        plugin: ResolvableDefinition[DummyPluginDefinition],
-        /,
+        self, plugin: ResolvableDefinition[DummyPluginDefinition], /
     ) -> MachineName:
         return resolve_id(plugin)
 
 
-class TestKeyedCollectionPluginServiceManager(PluginServiceManagerTestBase):
+class TestCatalogPluginServiceManager(PluginServiceManagerTestBase):
     async def test_new_service(self) -> None:
-        owner = _KeyedCollectionPluginServiceManagerTestOwner()
+        owner = _CatalogPluginServiceManagerTestOwner()
         async with owner:
             assert owner.my_first_service[DummyPluginOne] is DummyPluginOne.definition
 
 
-class _KeyedCollectionPluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):
-    my_first_service = _KeyedCollectionPluginServiceManagerTestSut()
+class _CatalogPluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):
+    my_first_service = _CatalogPluginServiceManagerTestSut()
 
     def __init__(self):
-        super().__init__(services=TestKeyedCollectionPluginServiceManager._services)
+        super().__init__(services=TestCatalogPluginServiceManager._services)
         type(self).my_first_service.add_init_plugins(
             self, DummyPluginThree, DummyPluginTwo, DummyPluginOne
         )
