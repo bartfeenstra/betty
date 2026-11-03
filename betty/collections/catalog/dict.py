@@ -40,7 +40,7 @@ class _DictCatalog[KeyT, ResolvableKeyT, ValueT](Catalog[KeyT, ResolvableKeyT, V
             # @todo
             # @todo
             # @todo
-            self.__missing__ = missing
+            raise NotImplementedError
 
     def __hash__(self) -> int:
         return hash(tuple(self._values.items()))

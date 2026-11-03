@@ -51,12 +51,13 @@ class CatalogPluginServiceManager[
         return FrozenDictCatalog[
             MachineName, ResolvableId[DefinitionT], GetServiceItemT
         ](
-            {
-                self.resolve_init_plugin_id(plugin): self.new_service_item(
-                    owner, plugin
-                )
-                for plugin in self.get_plugins(owner)
-            },
+            # @todo IIRC the issue here is we need a keyer but we don't know the type of the values here (plugin
+            # @todo definitions or instances)
+            # @todo
+            # @todo
+            # @todo
+            self.resolve_init_plugin_id,
+            map(self.new_service_item, self.get_plugins(owner)),
             key=resolve_id,
             missing=lambda key: raise_(
                 _PluginNotFound(
