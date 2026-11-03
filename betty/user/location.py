@@ -36,8 +36,6 @@ def format_(*locators: Locator, localizer: Localizer) -> Sequence[str]:
 
 
 def _format(locator: Locator, localizer: Localizer, /) -> str:
-    if isinstance(locator, Operator):
-        return locator.format()
     if isinstance(locator, HasUrl):
         return localizer.localize(locator.url)
     return str(locator)

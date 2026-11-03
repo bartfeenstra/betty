@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload
 
 from betty.classtools import Object, ObjectClassVar, OwnedClassVar
 from betty.importlib import fully_qualified_name
-from betty.objecttools import AttrOperators
+from betty.operator import Attr
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -40,11 +40,11 @@ class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
     A property.
     """
 
-    _storage: AttrOperators[OwnerT, Any]
+    _storage: Attr[OwnerT, Any]
 
     def __set_name__(self, owner: type[OwnerT], name: str) -> None:
         super().__set_name__(owner, name)
-        self._storage = AttrOperators(f"_betty_prop__{name}")
+        self._storage = Attr(f"_betty_prop__{name}")
 
     def delete_owner(self, owner: OwnerT, /) -> None:
         """

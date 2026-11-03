@@ -190,9 +190,7 @@ class TestClient:
                     "De hoofdstad van Nederland.",
                 ),
                 {
-                    "titles": {
-                        "normalized": "Amstelredam",
-                    },
+                    "title": "Amstelredam",
                     "extract": "De hoofdstad van Nederland.",
                 },
             ),
@@ -204,9 +202,7 @@ class TestClient:
                     "De hoofdstad van Nederland.",
                 ),
                 {
-                    "titles": {
-                        "normalized": "Amstelredam",
-                    },
+                    "title": "Amstelredam",
                     "extract_html": "De hoofdstad van Nederland.",
                 },
             ),
@@ -587,6 +583,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
+                media_types=[svg],
                 ui=StaticUi(),
             )
             actual = await sut.get_image(page_language, page_name)
