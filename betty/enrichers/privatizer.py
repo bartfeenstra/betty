@@ -84,7 +84,7 @@ class Privatizer(Enricher, Manufacturable):
     async def enrich(self, scheduler: Scheduler, /) -> None:
         await scheduler.add(
             PrivatizeAncestry(
-                dependencies={DeriveAncestry.id_for()}
+                dependencies={DeriveAncestry.id_for}
                 if Deriver in self._project.service_providers
                 else set(),
                 project=self._project,

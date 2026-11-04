@@ -155,6 +155,11 @@ This is based on `Jeanne Louise Calment <https://www.guinnessworldrecords.com/wo
 the oldest verified person to ever have lived.
 """
 
+default_per_page: Final[int] = 50
+"""
+The default number of items on list pages.
+"""
+
 
 @final
 class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServices):
@@ -213,6 +218,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
+        per_page: int = default_per_page,
         plugins: Plugins = empty_frozen_dict,
         servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
@@ -349,6 +355,10 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
 
         If no project name was configured, this defaults to the hash of the project directory path.
         """
+        self.per_page: Final[int] = per_page
+        """
+        The number of items on list pages.
+        """
         self._plugin_discoveries = _plugin_discoveries
         self.title: Final[AnyLocalizable] = title
         """
@@ -435,6 +445,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         | None = None,
         logo: StrPath | None = None,
         name: ResolvableMachineName | None = None,
+        per_page: int = default_per_page,
         plugins: Plugins = empty_frozen_dict,
         servers: Iterable[ManufacturableServer] = (),
         supported_plugins: SupportedPlugins = (),
@@ -475,6 +486,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
                 localizers=localizers or LocalizerRepository(),
                 logo=logo,
                 name=name,
+                per_page=per_page,
                 plugins=plugins,
                 servers=servers,
                 supported_plugins=supported_plugins,

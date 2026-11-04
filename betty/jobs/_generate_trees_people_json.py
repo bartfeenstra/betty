@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import json
-from asyncio import gather, to_thread
+from asyncio import gather
 from typing import TYPE_CHECKING, final, override
 
 from betty.entities.person import Person
 from betty.file import write
 from betty.job import Job
+from betty.jobs.generate_www_directory import GenerateWwwDirectory
 from betty.media_types import html
 
 if TYPE_CHECKING:
@@ -19,21 +20,21 @@ if TYPE_CHECKING:
 @final
 class _GenerateTreesPeopleJson(Job):
     def __init__(self, *, project: Project):
-        super().__init__("trees:generate-people-json")
+        super().__init__(
+            "trees:generate-people-json", dependencies=[GenerateWwwDirectory.id_for]
+        )
         self._project = project
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
         await gather(
             *(
-                self._generate_people_json_for_locale(scheduler, locale)
-                for locale in self._project.locales.keys()  # noqa: SIM118
+                self._generate_people_json_for_locale(locale.locale)
+                for locale in self._project.locales
             )
         )
 
-    async def _generate_people_json_for_locale(
-        self, scheduler: Scheduler, locale: Locale
-    ) -> None:
+    async def _generate_people_json_for_locale(self, locale: Locale, /) -> None:
         url_generator = await self._project.url_generator
         localizer = await self._project.localizers.get(locale)
         private_label = localizer.translate._("private")
@@ -50,12 +51,7 @@ class _GenerateTreesPeopleJson(Job):
             }
             for person in self._project.ancestry[Person]
         }
-        people_json = json.dumps(people)
-        await to_thread(
-            self._project.localize_www_directory(locale).mkdir,
-            exist_ok=True,
-            parents=True,
-        )
         await write(
-            self._project.localize_www_directory(locale) / "people.json", people_json
+            self._project.localize_www_directory(locale) / "people.json",
+            json.dumps(people),
         )

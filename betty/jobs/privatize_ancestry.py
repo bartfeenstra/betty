@@ -5,7 +5,7 @@ Jobs to privatize ancestries.
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Final, final, override
 
 from betty.attrs.privacy import HasPrivacy
 from betty.entities.person import Person
@@ -31,16 +31,14 @@ class PrivatizeAncestry(Job):
     Privatize an ancestry.
     """
 
-    def __init__(self, /, *, dependencies: Iterable[str] = (), project: Project):
-        super().__init__(self.id_for(), dependencies=dependencies)
-        self._project = project
+    id_for: Final[str] = "privatizer:privatize"
+    """
+    The job ID.
+    """
 
-    @classmethod
-    def id_for(cls) -> str:
-        """
-        Get the job ID.
-        """
-        return "privatizer:privatize"
+    def __init__(self, /, *, dependencies: Iterable[str] = (), project: Project):
+        super().__init__(self.id_for, dependencies=dependencies)
+        self._project = project
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:

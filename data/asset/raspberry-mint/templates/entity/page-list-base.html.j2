@@ -4,10 +4,10 @@
     page_title,
     document.resource
 ) %}
-{% if page > 0 %}
+{% if document.page > 0 %}
     {% do document.breadcrumbs.append(
-        _('Page %(page)s', page=page),
-        ('betty://' ~ document.resource.id ~ '/page-' ~ (page + 1))
+        _('Page %(page)s', page=document.page),
+        ('betty://' ~ document.resource.id ~ '/page-' ~ (document.page + 1))
     ) %}
 {% endif %}
 {% block page_summary %}

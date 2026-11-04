@@ -1,17 +1,17 @@
-{% if page_count > 1 %}
+{% if document.page_count > 1 %}
     <nav aria-label="{% trans %}Page navigation{% endtrans %}">
         <ol class="pager d-flex justify-content-center">
             {% set links = [
                 ('pager-link-first', _('First page'), 0),
-                ('pager-link-previous', _('Previous page'), page - 1),
-                ('pager-link-current', None, page),
-                ('pager-link-next', _('Next page'), page + 1),
-                ('pager-link-last', _('Last page'), page_count - 1),
+                ('pager-link-previous', _('Previous page'), document.page - 1),
+                ('pager-link-current', None, document.page),
+                ('pager-link-next', _('Next page'), document.page + 1),
+                ('pager-link-last', _('Last page'), document.page_count - 1),
             ] %}
             {% for link_class, link_label, link_number in links %}
                 <li>
-                    {% if link_number >= 0 and link_number < page_count %}
-                        {% if link_number == page %}
+                    {% if link_number >= 0 and link_number < document.page_count %}
+                        {% if link_number == document.page %}
                             <span class="pager-link {{ link_class }}" data-pager-link="{{ link_number + 1 }}"></span>
                         {% else %}
                             {% set link_url -%}

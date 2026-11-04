@@ -4,7 +4,7 @@ Ancestry derivation jobs.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Final, final, override
 
 from betty.deriver import Deriver as DeriverApi
 from betty.job import Job
@@ -20,16 +20,14 @@ class DeriveAncestry(Job):
     Derive information for an ancestry.
     """
 
-    def __init__(self, *, project: Project):
-        super().__init__(self.id_for())
-        self._project = project
+    id_for: Final[str] = "deriver:derive"
+    """
+    The job ID.
+    """
 
-    @classmethod
-    def id_for(cls) -> str:
-        """
-        Get the job ID.
-        """
-        return "deriver:derive"
+    def __init__(self, *, project: Project):
+        super().__init__(self.id_for)
+        self._project = project
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:

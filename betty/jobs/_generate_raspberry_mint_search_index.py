@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Final, final, override
 
 from betty.job import Job
+from betty.jobs.generate_www_directory import GenerateWwwDirectory
 from betty.localizables.gettext import _
 from betty.localizables.markup import Chain
 from betty.service_providers._theme.search import generate_search_index
@@ -28,7 +29,10 @@ class _GenerateRaspberryMintSearchIndex(Job):
     )
 
     def __init__(self, *, project: Project):
-        super().__init__("raspberry-mint:generate-search-index")
+        super().__init__(
+            "raspberry-mint:generate-search-index",
+            dependencies=[GenerateWwwDirectory.id_for],
+        )
         self._project = project
 
     @override

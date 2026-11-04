@@ -4,11 +4,11 @@ Jobs to generate sitemaps.
 
 from __future__ import annotations
 
-from asyncio import to_thread
 from typing import TYPE_CHECKING, Final, final, override
 
 from betty.file import write
 from betty.job import Job
+from betty.jobs.generate_www_directory import GenerateWwwDirectory
 from betty.media_types import html
 
 if TYPE_CHECKING:
@@ -47,34 +47,25 @@ class GenerateSitemap(Job):
     </sitemapindex>
     """
 
-    def __init__(self, *, project: Project):
-        super().__init__(self.id_for())
-        self._project = project
+    id_for: Final[str] = "generate-sitemap"
+    """
+    The job ID.
+    """
 
-    @classmethod
-    def id_for(cls) -> str:
-        """
-        Get the job ID.
-        """
-        return "generate-sitemap"
+    def __init__(self, *, project: Project):
+        super().__init__(self.id_for, dependencies=[GenerateWwwDirectory.id_for])
+        self._project = project
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
         context = scheduler.context
-
         url_generator = await self._project.url_generator
-
-        await to_thread(
-            self._project.www_directory.mkdir,
-            exist_ok=True,
-            parents=True,
-        )
 
         sitemap_batches = []
         sitemap_batch_urls: MutableSequence[str] = []
         sitemap_batch_urls_length = 0
         sitemap_batches.append(sitemap_batch_urls)
-        for locale in self._project.locales.keys():  # noqa: SIM118
+        for locale in self._project.locales:
             for entity in self._project.ancestry:
                 if not entity.id.persistent:
                     continue
@@ -83,10 +74,7 @@ class GenerateSitemap(Job):
 
                 sitemap_batch_urls.append(
                     url_generator.generate(
-                        entity,
-                        absolute=True,
-                        locale=locale,
-                        media_type=html,
+                        entity, absolute=True, locale=locale.locale, media_type=html
                     )
                 )
                 sitemap_batch_urls_length += 1

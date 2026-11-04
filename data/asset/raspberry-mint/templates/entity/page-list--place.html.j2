@@ -32,7 +32,7 @@
         <div class="container mt-4">
             <div class="row justify-content-center">
                 <div class="col col-12 col-lg-8">
-                    {% if page_entities | length > 0 %}
+                    {% if document.resource_items | length > 0 %}
                         {% set pager | trim %}
                             {% include 'component/pager.html.j2' %}
                         {% endset %}
@@ -41,7 +41,7 @@
                                 {{ pager }}
                             </div>
                         {% endif %}
-                        {% with entities = page_entities %}
+                        {% with entities = document.resource_items %}
                             {% include ['entity/list--' + document.resource.id + '.html.j2', 'entity/list.html.j2'] %}
                         {% endwith %}
                         {% if pager %}
