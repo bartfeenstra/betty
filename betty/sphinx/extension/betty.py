@@ -4,13 +4,14 @@ The Betty Sphinx extension.
 
 from __future__ import annotations
 
-from asyncio import gather, run
+from asyncio import gather
 from collections.abc import Callable, Iterable, Mapping, MutableSequence, Sequence
 from functools import cmp_to_key
 from textwrap import indent
 from threading import Thread
 from typing import TYPE_CHECKING, override
 
+import winuvloop
 from docutils import nodes
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.parsing import nested_parse_to_nodes
@@ -116,7 +117,7 @@ class _PluginDirective(SphinxDirective):
             raise ValueError(
                 f"The plugin directive requires a single argument that is a plugin type ID and a plugin ID, joined with a colon (:), but `{argument}` was given."
             ) from None
-        plugins = _to_thread(lambda: run(_get_plugins()))
+        plugins = _to_thread(lambda: winuvloop.run(_get_plugins()))
         plugin = plugins[MachineName(plugin_type_id)][MachineName(plugin_id)]
         return [
             self._build_summary(plugin),
@@ -211,7 +212,7 @@ class _PluginTypeDirective(SphinxDirective):
         # Right-strip periods to avoid D400 and D415 violations.
         plugin_type_id = self.arguments[0].rstrip(".")
         plugin_type = ServiceLevel().plugins[plugin_type_id].type
-        plugins = _to_thread(lambda: run(_get_plugins()))
+        plugins = _to_thread(lambda: winuvloop.run(_get_plugins()))
         return [
             self._build_summary(plugin_type),
             *self._build_metadata(plugin_type),
@@ -377,7 +378,7 @@ Data
 {"".join(["=" * len(examples_label)])}
 
 """
-            serializers = _to_thread(lambda: run(_get_serializers()))
+            serializers = _to_thread(lambda: winuvloop.run(_get_serializers()))
             for sample in samples:
                 example_content = ""
                 if len(samples) > 1:

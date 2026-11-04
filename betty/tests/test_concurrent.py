@@ -1,12 +1,13 @@
 import asyncio
 import threading
 import time
-from asyncio import create_task, gather, run, sleep, wait_for
+from asyncio import create_task, gather, sleep, wait_for
 from collections.abc import Sequence
 from typing import Final, override
 from unittest.mock import call
 
 import pytest
+import winuvloop
 from pytest_mock import MockerFixture
 
 from betty.concurrent import Ledger, Lock, RateLimiter, ThreadSafeLock, backoff
@@ -95,7 +96,7 @@ class TestRateLimiter:
 
     @classmethod
     def _consume(cls, sut: RateLimiter) -> None:
-        run(cls.__consume(sut))
+        winuvloop.run(cls.__consume(sut))
 
     @classmethod
     async def __consume(cls, sut: RateLimiter) -> None:
