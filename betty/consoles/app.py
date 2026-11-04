@@ -4,9 +4,11 @@ Betty's primary application console.
 
 from __future__ import annotations
 
-import asyncio
 import sys
+from asyncio import gather
 from pathlib import Path
+
+import winuvloop
 
 from betty import console
 from betty.app import App
@@ -16,7 +18,7 @@ async def run(app: App, *args: str, name: str | None = None) -> None:
     """
     Launch the console.
     """
-    commands = await asyncio.gather(*[
+    commands = await gather(*[
         app.factory.new(command.cls)
         async for command in app.plugins[console.CommandDefinition]
     ])
@@ -27,7 +29,7 @@ def main() -> None:
     """
     Launch the console.
     """
-    asyncio.run(_main())
+    winuvloop.run(_main())
 
 
 async def _main() -> None:

@@ -38,6 +38,7 @@ dependencies = [
     'sphinx ~= 8.2',
     'sphinx-design ~= 0.7.0',
     'typing_extensions ~= 4.16',
+    'winuvloop ~= 0.2.5',
 ]
 classifiers = [
     'Environment :: Console',
