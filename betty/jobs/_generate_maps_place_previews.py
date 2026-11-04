@@ -4,12 +4,12 @@ Maps place previews jobs.
 
 from __future__ import annotations
 
-from asyncio import to_thread
 from typing import TYPE_CHECKING, final, override
 
 from betty.entities.place import Place
 from betty.file import write
 from betty.job import Job
+from betty.jobs.generate_entity import GenerateEntity
 from betty.media_types import html
 
 if TYPE_CHECKING:
@@ -29,8 +29,8 @@ class _GenerateMapsPlacePreviews(Job):
     async def do(self, scheduler: Scheduler, /) -> None:
         await scheduler.add(
             *(
-                _GenerateMapsPlacePreview(place.id, locale, project=self._project)
-                for locale in self._project.locales.keys()  # noqa: SIM118
+                _GenerateMapsPlacePreview(place, locale.locale, project=self._project)
+                for locale in self._project.locales
                 for place in self._project.ancestry[Place]
                 if place.coordinates
             )
@@ -39,21 +39,23 @@ class _GenerateMapsPlacePreviews(Job):
 
 @final
 class _GenerateMapsPlacePreview(Job):
-    def __init__(self, place_id: str, locale: Locale, /, *, project: Project):
-        super().__init__(f"maps:generate-place-preview:{place_id}:{locale}")
-        self._place_id = place_id
+    def __init__(self, place: Place, locale: Locale, /, *, project: Project):
+        super().__init__(
+            f"maps:generate-place-preview:{place.id}:{locale}",
+            dependencies=[GenerateEntity.id_for(place)],
+        )
+        self._place = place
         self._locale = locale
         self._project = project
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
         context = scheduler.context
-        place = self._project.ancestry[Place][self._place_id]
         jinja = await self._project.jinja
         place_path = (
             self._project.localize_www_directory(self._locale)
-            / place.definition.id
-            / place.id
+            / self._place.definition.id
+            / self._place.id
         )
         rendered_html = await jinja.get_template(
             "component/maps/selected-place-preview.html.j2",
@@ -63,7 +65,6 @@ class _GenerateMapsPlacePreview(Job):
                 context=context,
                 localizer=await self._project.localizers.get(self._locale),
             ),
-            place=place,
+            place=self._place,
         )
-        await to_thread(place_path.mkdir, exist_ok=True, parents=True)
         await write(place_path / "-maps-place-preview.html", rendered_html)

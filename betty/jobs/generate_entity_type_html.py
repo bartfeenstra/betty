@@ -9,8 +9,8 @@ from math import ceil
 from typing import TYPE_CHECKING, final, override
 
 from betty.entity import EntityDefinition
+from betty.file import write
 from betty.job import Job
-from betty.jobs import _create_html_resource
 from betty.media_types import html
 
 if TYPE_CHECKING:
@@ -93,7 +93,6 @@ class _GenerateEntityTypeHtml(Job):
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
         context = scheduler.context
-
         jinja = await self._project.jinja
         template = jinja.select_template([
             f"entity/page-list--{self._entity_type.id}.html.j2",
@@ -124,4 +123,4 @@ class _GenerateEntityTypeHtml(Job):
         )
         if self._page > 0:
             page_path /= f"page--{self._page + 1}"
-        await _create_html_resource(page_path, rendered_html)
+        await write(page_path / "index.html", rendered_html)

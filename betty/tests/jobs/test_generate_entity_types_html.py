@@ -5,7 +5,7 @@ from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.jobs.generate_entity_types_html import GenerateEntityTypesHtml
+from betty.jobs.generate_entity_type_html import GenerateEntityTypesHtml
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.jinja import assert_betty_html
 from betty.test_utils.job import do

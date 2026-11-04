@@ -4,7 +4,6 @@ Jobs to generate favicons.
 
 from __future__ import annotations
 
-from asyncio import to_thread
 from io import BytesIO
 from typing import TYPE_CHECKING, final, override
 
@@ -37,7 +36,6 @@ class GenerateFavicon(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        await to_thread(self._project.www_directory.mkdir, exist_ok=True, parents=True)
         logo = BytesIO(await read(self._project.logo, mode="rb"))
         image = Image.open(logo)
         favicon = BytesIO()

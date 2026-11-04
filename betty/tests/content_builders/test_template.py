@@ -1,10 +1,9 @@
 from asyncio import to_thread
-from collections.abc import Iterable, Mapping
 from pathlib import Path
-from typing import Any, override
+from typing import override
 
 from betty.content_builder import ContentBuilderDefinition
-from betty.content_builders.template import Template
+from betty.content_builders.template import Template, TemplateBuild
 from betty.document import Document
 from betty.file import write
 from betty.job import Context
@@ -31,14 +30,7 @@ class TestTemplate:
         @ContentBuilderDefinition("my-first-template", label="-")
         class _Template(Template):
             @override
-            async def build_template(
-                self, document: Document
-            ) -> (
-                str
-                | Iterable[str]
-                | tuple[str | Iterable[str], Mapping[str, Any]]
-                | None
-            ):
+            async def build_template(self, document: Document) -> TemplateBuild:
                 return template_name
 
         sut = _Template(jinja=await isolated_project.jinja)

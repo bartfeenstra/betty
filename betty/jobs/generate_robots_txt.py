@@ -4,7 +4,6 @@ Jobs to generate robots.txt.
 
 from __future__ import annotations
 
-from asyncio import to_thread
 from typing import TYPE_CHECKING, Final, final, override
 
 from betty.file import write
@@ -41,5 +40,4 @@ class GenerateRobotsTxt(Job):
             "{{{ sitemap }}}",
             url_generator.generate("betty-static:///sitemap.xml", absolute=True),
         )
-        await to_thread(self._project.www_directory.mkdir, exist_ok=True, parents=True)
         await write(self._project.www_directory / "robots.txt", rendered_robots_txt)

@@ -6,11 +6,10 @@ from __future__ import annotations
 
 import datetime
 from asyncio import to_thread
-from collections.abc import Awaitable, Callable, Iterable
-from os import makedirs
+from collections.abc import Awaitable, Callable, Iterable, Mapping
 from pathlib import Path
 from shutil import copy2
-from typing import TYPE_CHECKING, cast, override
+from typing import TYPE_CHECKING, Any, cast, override
 
 from jinja2 import Environment, FileSystemLoader, pass_context, select_autoescape
 from jinja2.async_utils import auto_await
@@ -46,8 +45,23 @@ if TYPE_CHECKING:
     from betty.pathlib import StrPath
     from betty.project import Project
 
-
+type TemplateNames = tuple[str, ...]
+type ResolvableTemplateNames = str | Iterable[str] | TemplateNames
+type TemplateData = Mapping[str, Any]
+# @todo Move this back to the content builder
+type RenderTemplate = (
+    ResolvableTemplateNames | tuple[ResolvableTemplateNames, TemplateData] | None
+)
 type CopyFunction = Callable[[Path, Path], Awaitable[None]]
+
+
+def resolve_template_names(names: ResolvableTemplateNames, /) -> TemplateNames:
+    """
+    Resolve template names.
+    """
+    if isinstance(names, str):
+        return tuple({names})
+    return tuple(names)
 
 
 def context_document(context: JinjaContext) -> Document:
@@ -183,7 +197,7 @@ def make_copy_function(
     async def _copy_function(source: StrPath, destination: StrPath, /) -> None:
         destination = resolve_path(destination)
         if destination.parent not in parents:
-            await to_thread(makedirs, destination.parent, exist_ok=True)
+            await to_thread(destination.parent.mkdir, exist_ok=True, parents=True)
             parents.add(destination.parent)
         try:
             _jinja_media_type, extension = match_extension(source, [jinja.media_type])
