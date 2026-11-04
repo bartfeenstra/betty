@@ -17,7 +17,7 @@ authors = [
 requires-python = '~= 3.11'
 dependencies = [
     'aiofiles ~= 24.1',
-    'aiohttp ~= 3.10',
+    'aiohttp[speedups] ~= 3.14',
     'asyncclick ~= 8.2',
     'babel ~= 2.16',
     'furo == 2025.7.19',
