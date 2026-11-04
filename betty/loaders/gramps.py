@@ -578,18 +578,18 @@ class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
 
     @override
     async def load(self, scheduler: Scheduler, /) -> None:
-        for family_tree in self._family_trees:
-            await scheduler.add(
-                LoadGrampsAncestry(
-                    loader=GrampsLoader(
-                        self._project,
-                        self._project.ancestry,
-                        attribute_prefix_key=self._attribute_prefix_key,
-                        event_type_mapping=family_tree.event_types,
-                        place_type_mapping=family_tree.place_types,
-                        role_mapping=family_tree.roles,
-                        executable=self._executable,
-                    ),
-                    source=family_tree.source,
-                )
+        await scheduler.add(*[
+            LoadGrampsAncestry(
+                loader=GrampsLoader(
+                    self._project,
+                    self._project.ancestry,
+                    attribute_prefix_key=self._attribute_prefix_key,
+                    event_type_mapping=family_tree.event_types,
+                    place_type_mapping=family_tree.place_types,
+                    role_mapping=family_tree.roles,
+                    executable=self._executable,
+                ),
+                source=family_tree.source,
             )
+            for family_tree in self._family_trees
+        ])

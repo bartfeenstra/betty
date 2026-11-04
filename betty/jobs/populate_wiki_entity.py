@@ -34,7 +34,7 @@ class PopulateWikiEntity(Job):
         self._entity = entity
 
     @classmethod
-    def id_for(cls, entity: Entity) -> str:
+    def id_for(cls, entity: Entity, /) -> str:
         """
         Get the job ID.
         """

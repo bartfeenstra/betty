@@ -5,7 +5,7 @@ Provide search functionality.
 from __future__ import annotations
 
 import json
-from asyncio import gather, to_thread
+from asyncio import gather
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeVar, final, override
 
@@ -72,7 +72,6 @@ async def _generate_search_index_for_locale(
     }
     search_index_json = json.dumps(search_index)
     www_directory = project.localize_www_directory(locale)
-    await to_thread(www_directory.mkdir, exist_ok=True, parents=True)
     await write(www_directory / "search-index.json", search_index_json)
 
 

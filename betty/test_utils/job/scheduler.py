@@ -81,6 +81,7 @@ class _Job(Job):
         self,
         job_id: str,
         carrier: MutableSequence[_Job] | None = None,
+        /,
         *,
         additional_jobs: Sequence[Callable[[MutableSequence[_Job]], _Job]]
         | None = None,
@@ -327,7 +328,7 @@ class SchedulerTestBase:
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
         """
         reason = RuntimeError()
-        await sut.add(RaiseException("", reason=reason))
+        await sut.add(RaiseException("", reason))
         with pytest.raises(Cancelled) as exc_info:  # noqa: PT012
             async with sut:
                 batch = await sut.get()

@@ -147,25 +147,25 @@ A media type, or a file path or name that indicates a media type through its fil
 
 
 def match_media_type(
-    match: MediaType, supported_media_types: Iterable[MediaType], /
+    match: MediaType, supported_media_types: Iterable[ResolvableMediaType], /
 ) -> MediaType:
     """
     Match a media type against available media types.
     """
-    for supported_media_type in supported_media_types:
+    for supported_media_type in map(resolve_media_type, supported_media_types):
         if supported_media_type == match:
             return supported_media_type
     raise UnsupportedMediaType(match)
 
 
 def match_extension(
-    match: StrPath, supported_media_types: Iterable[MediaType], /
+    match: StrPath, supported_media_types: Iterable[ResolvableMediaType], /
 ) -> tuple[MediaType, str]:
     """
     Match a file extension indicator against available media types.
     """
     match = str(match)
-    for supported_media_type in supported_media_types:
+    for supported_media_type in map(resolve_media_type, supported_media_types):
         for extension in supported_media_type.extensions:
             if match.endswith(extension):
                 return supported_media_type, extension

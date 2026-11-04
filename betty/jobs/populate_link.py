@@ -51,7 +51,7 @@ class PopulateLink(Job):
         self._localizers = localizers
 
     @classmethod
-    def id_for(cls, link: Link) -> str:
+    def id_for(cls, link: Link, /) -> str:
         """
         Get the job ID.
         """
@@ -89,7 +89,7 @@ class PopulateLink(Job):
             if descriptions:
                 self._link.description = StaticTranslations(descriptions)
 
-    async def _get_population(self, url: str) -> _Population | None:
+    async def _get_population(self, url: str, /) -> _Population | None:
         try:
             response = await self._http_client.get(url)
         except ClientError:
@@ -111,7 +111,7 @@ class PopulateLink(Job):
             self._extract_html_meta_description(document),
         )
 
-    def _extract_html_title(self, document: HtmlElement) -> str | None:
+    def _extract_html_title(self, document: HtmlElement, /) -> str | None:
         if self._link.has_label:
             return None
         head = document.find("head")
@@ -122,7 +122,7 @@ class PopulateLink(Job):
             return None
         return title.text
 
-    def _extract_html_meta_description(self, document: HtmlElement) -> str | None:
+    def _extract_html_meta_description(self, document: HtmlElement, /) -> str | None:
         if self._link.description:
             return None
         head = document.find("head")

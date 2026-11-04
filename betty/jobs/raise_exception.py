@@ -23,9 +23,9 @@ class RaiseException(Job):
     def __init__(
         self,
         job_id: str,
+        reason: BaseException,
         /,
         *,
-        reason: BaseException,
         dependencies: Iterable[str] = (),
         dependents: Iterable[str] = (),
         priority: bool = False,

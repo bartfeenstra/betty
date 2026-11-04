@@ -4,11 +4,11 @@ Jobs to generate robots.txt.
 
 from __future__ import annotations
 
-from asyncio import to_thread
 from typing import TYPE_CHECKING, Final, final, override
 
 from betty.file import write
 from betty.job import Job
+from betty.jobs.generate_www_directory import GenerateWwwDirectory
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -23,16 +23,14 @@ class GenerateRobotsTxt(Job):
 
     _robots_txt_template: Final[str] = """Sitemap: {{{ sitemap }}}"""
 
-    def __init__(self, *, project: Project):
-        super().__init__(self.id_for())
-        self._project = project
+    id_for: Final[str] = "generate-robots-txt"
+    """
+    The job ID.
+    """
 
-    @classmethod
-    def id_for(cls) -> str:
-        """
-        Get the job ID.
-        """
-        return "generate-robots-txt"
+    def __init__(self, *, project: Project):
+        super().__init__(self.id_for, dependencies=[GenerateWwwDirectory.id_for])
+        self._project = project
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
@@ -41,5 +39,4 @@ class GenerateRobotsTxt(Job):
             "{{{ sitemap }}}",
             url_generator.generate("betty-static:///sitemap.xml", absolute=True),
         )
-        await to_thread(self._project.www_directory.mkdir, exist_ok=True, parents=True)
         await write(self._project.www_directory / "robots.txt", rendered_robots_txt)

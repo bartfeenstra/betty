@@ -9,6 +9,7 @@ from shutil import copyfile
 from typing import TYPE_CHECKING, final, override
 
 from betty.job import Job
+from betty.jobs.generate_www_directory import GenerateWwwDirectory
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -22,7 +23,7 @@ class GenerateLogo(Job):
     """
 
     def __init__(self, *, project: Project):
-        super().__init__("raspberry-mint:generate-logo")
+        super().__init__("generate-logo", dependencies=[GenerateWwwDirectory.id_for])
         self._project = project
 
     @override

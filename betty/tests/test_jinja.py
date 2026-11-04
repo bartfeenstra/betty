@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.document import Document
-from betty.jinja import make_copy_function, new_environment
+from betty.jinja import make_copy_function, new_environment, resolve_template_names
 from betty.job import Context
 from betty.locale import default_locale_tag
 from betty.test_utils import Counter
@@ -13,6 +13,19 @@ if TYPE_CHECKING:
 
     from betty.project import Project
     from betty.test_utils.conftest import IsolatedProjectFactory
+
+
+def test_resolve_template_names() -> None:
+    assert resolve_template_names(()) == ()
+    assert resolve_template_names("my-first-template.html.j2") == (
+        "my-first-template.html.j2",
+    )
+    assert resolve_template_names(("my-first-template.html.j2",)) == (
+        "my-first-template.html.j2",
+    )
+    assert resolve_template_names(["my-first-template.html.j2"]) == (
+        "my-first-template.html.j2",
+    )
 
 
 async def test_new_environment__with_debug(

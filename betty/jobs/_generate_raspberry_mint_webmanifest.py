@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.file import write
 from betty.job import Job
+from betty.jobs.generate_www_directory import GenerateWwwDirectory
 from betty.locale import to_language_tag
 from betty.localizer import default_localizer
 from betty.service_providers.raspberry_mint import RaspberryMint
@@ -17,7 +18,10 @@ if TYPE_CHECKING:
 @final
 class _GenerateRaspberryMintWebmanifest(Job):
     def __init__(self, *, project: Project):
-        super().__init__("raspberry-mint:generate-webmanifest")
+        super().__init__(
+            "raspberry-mint:generate-webmanifest",
+            dependencies=[GenerateWwwDirectory.id_for],
+        )
         self._project = project
 
     @override

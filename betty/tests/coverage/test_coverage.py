@@ -304,18 +304,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
         "Released": MissingReason.STATIC_CONTENT_ONLY,
         "Scheduler": MissingReason.ABSTRACT,
     },
-    "betty/jobs/generate_logo.py": {
-        "GenerateLogo": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/jobs/no_op.py": {
-        "NoOpJob": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/jobs/raise_exception.py": {
-        "RaiseException": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/jobs/sleep.py": {
-        "Sleep": MissingReason.SHOULD_BE_COVERED,
-    },
     "betty/js_resources.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/life_cycle/__init__.py": {
         "AlreadyBootstrapped": MissingReason.STATIC_CONTENT_ONLY,
