@@ -18,7 +18,7 @@ requires-python = '~= 3.13'
 dependencies = [
     # aiohttp-client-cache's file backend requires aiofiles.
     'aiofiles ~= 25.1',
-    'aiohttp ~= 3.12',
+    'aiohttp[speedups] ~= 3.14',
     'aiohttp-client-cache ~= 0.14',
     'aiosqlite ~= 0.22.0',
     'babel ~= 2.16',
