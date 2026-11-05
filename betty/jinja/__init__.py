@@ -178,10 +178,13 @@ def make_copy_function(
     Make a copy function for this renderer that renders supported files.
     """
     media_types = tuple(map(resolve_media_type, media_types))
+    parents = set()
 
     async def _copy_function(source: StrPath, destination: StrPath, /) -> None:
         destination = resolve_path(destination)
-        await to_thread(makedirs, destination.parent, exist_ok=True)
+        if destination.parent not in parents:
+            await to_thread(makedirs, destination.parent, exist_ok=True)
+            parents.add(destination.parent)
         try:
             _jinja_media_type, extension = match_extension(source, [jinja.media_type])
         except UnsupportedMediaType:
