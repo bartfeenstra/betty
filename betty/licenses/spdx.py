@@ -22,6 +22,8 @@ from betty.file import read
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
+from betty.project import Project
+from betty.service_providers.spdx import Spdx
 from betty.user import Severity
 
 if TYPE_CHECKING:
@@ -85,11 +87,16 @@ class SpdxLicenseDiscoverer(Manufacturable):
 
     @classmethod
     async def discover_for(
-        cls, services: ServiceLevel
+        cls, services: ServiceLevel, /
     ) -> Iterable[ResolvableDiscovery[LicenseDefinition]]:
         """
         Discover SPDX licenses.
         """
+        if isinstance(services, Project) and Spdx.definition.id not in map(
+            Project.service_providers.resolve_init_plugin_id,
+            Project.service_providers.get_init_plugins(services),
+        ):
+            return ()
         return await (await cls.new(services)).discover()
 
     async def discover(self) -> Iterable[ResolvableDiscovery[LicenseDefinition]]:
