@@ -90,7 +90,7 @@ def _new_plugin_mapping_attr[
                 label=manufacturer.definition.plugin_type.definition.label_plural,
             ),
             optional=True,
-        )  # ty: ignore[invalid-argument-type]
+        )
     ).default(
         lambda: {key: manufacturer.resolve(value) for key, value in default.items()}
     )
