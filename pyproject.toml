@@ -369,7 +369,6 @@ dev = [
     'virtualenv ~= 21.1',
     'yappi ~= 1.7',
     'yarl ~= 1.22',
-    'betty[package]',
 ]
 
 [tool.setuptools.packages.find]
