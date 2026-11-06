@@ -1,5 +1,7 @@
-from betty.jobs.generate_localized_public_assets import GenerateLocalizedPublicAssets
-from betty.jobs.generate_static_public_assets import GenerateStaticPublicAssets
+from betty.jobs.generate_public_assets import (
+    GenerateLocalizedPublicAssets,
+    GenerateStaticPublicAssets,
+)
 from betty.project import ProjectLocale
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.jinja import assert_betty_html

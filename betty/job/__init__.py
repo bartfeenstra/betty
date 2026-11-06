@@ -9,6 +9,8 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Final, final
 from uuid import uuid4
 
+from typing_extensions import disjoint_base
+
 from betty.progresses.no_op import NoOpProgress
 from betty.stores.memory import MemoryStore
 
@@ -47,10 +49,13 @@ class Context:
         """
 
 
+@disjoint_base
 class Job(metaclass=ABCMeta):
     """
     A job.
     """
+
+    __slots__ = ("dependencies", "dependents", "id", "priority")
 
     def __init__(
         self,

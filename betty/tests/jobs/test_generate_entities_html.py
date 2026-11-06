@@ -11,7 +11,7 @@ from betty.entities.place import Place
 from betty.entities.presence import Presence
 from betty.entities.source import Source
 from betty.entity import Entity
-from betty.jobs.generate_entities_html import GenerateEntitiesHtml
+from betty.jobs.generate_entity_html import GenerateEntityHtml
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.roles.unknown import UnknownRole
@@ -19,7 +19,7 @@ from betty.test_utils.jinja import assert_betty_html
 from betty.test_utils.job import do
 
 
-class TestGenerateEntitiesHtml:
+class TestGenerateEntityHtml:
     @pytest.mark.parametrize(
         "entity",
         [
@@ -33,9 +33,7 @@ class TestGenerateEntitiesHtml:
         ],
     )
     async def test_do(self, entity: Entity, isolated_project: Project) -> None:
-        isolated_project.ancestry.add(entity)
-        await do(GenerateEntitiesHtml(project=isolated_project))
-
+        await do(GenerateEntityHtml(entity, project=isolated_project))
         await assert_betty_html(
             isolated_project, f"/{entity.definition.id}/{entity.id}/index.html"
         )
@@ -65,9 +63,7 @@ class TestGenerateEntitiesHtml:
     async def test_do__with_non_publishable_entity(
         self, entity: Entity, isolated_project: Project
     ) -> None:
-        isolated_project.ancestry.add(entity)
-        await do(GenerateEntitiesHtml(project=isolated_project))
-
+        await do(GenerateEntityHtml(entity, project=isolated_project))
         assert not (
             isolated_project.www_directory
             / entity.definition.id

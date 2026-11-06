@@ -4,7 +4,6 @@ Jobs to generate sitemaps.
 
 from __future__ import annotations
 
-from asyncio import to_thread
 from typing import TYPE_CHECKING, Final, final, override
 
 from betty.file import write
@@ -61,14 +60,7 @@ class GenerateSitemap(Job):
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
         context = scheduler.context
-
         url_generator = await self._project.url_generator
-
-        await to_thread(
-            self._project.www_directory.mkdir,
-            exist_ok=True,
-            parents=True,
-        )
 
         sitemap_batches = []
         sitemap_batch_urls: MutableSequence[str] = []
