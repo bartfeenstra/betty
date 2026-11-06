@@ -17,16 +17,16 @@ if TYPE_CHECKING:
 
 
 @final
-class UrlGeneratorDispatcher[ResourceT](UrlGenerator[ResourceT]):
+class UrlGeneratorDispatcher(UrlGenerator[Any]):
     """
     Dispatch URL generator to the first supported upstream.
     """
 
-    def __init__(self, *upstreams: UrlGenerator[ResourceT]):
+    def __init__(self, *upstreams: UrlGenerator):
         self._upstreams = upstreams
 
     @override
-    def supports(self, resource: Any, /) -> TypeGuard[ResourceT]:
+    def supports(self, resource: Any, /) -> TypeGuard[Any]:
         return any(upstream.supports(resource) for upstream in self._upstreams)
 
     @override
