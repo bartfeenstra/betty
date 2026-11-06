@@ -92,6 +92,7 @@ class App(RequirableServiceLevel, HasPluginServices):
             App, TransientBinaryFileStore
         ],
         assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
+        auto_plugins: bool = True,
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         media_types: Iterable[ResolvableDefinition[MediaTypeDefinition]] = (),
         plugins: Plugins = empty_frozen_dict,
@@ -120,7 +121,11 @@ class App(RequirableServiceLevel, HasPluginServices):
             cls.cache.override(
                 self, Service(cache) if isinstance(cache, TransientStore) else cache
             )
-        super().__init__(plugins=plugins, supported_plugins=supported_plugins)
+        super().__init__(
+            auto_plugins=auto_plugins,
+            plugins=plugins,
+            supported_plugins=supported_plugins,
+        )
         cls.asset_directories.add_init_plugins(self, *assets)
         cls.media_types.add_init_plugins(self, *media_types)
         cls.rate_limits.add_init_plugins(self, *rate_limits)
@@ -180,6 +185,7 @@ class App(RequirableServiceLevel, HasPluginServices):
     async def new_isolated(
         cls,
         *,
+        auto_plugins: bool = False,
         binary_file_cache_directory: StrPath | None = None,
         cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         plugins: Plugins = empty_frozen_dict,
@@ -202,6 +208,7 @@ class App(RequirableServiceLevel, HasPluginServices):
                     to_thread, rmtree, binary_file_cache_directory
                 )
             yield cls(
+                auto_plugins=auto_plugins,
                 binary_file_cache=TransientBinaryFileStore(binary_file_cache_directory),
                 cache=NoOpStore() if cache is None else cache,
                 plugins=plugins,

@@ -196,6 +196,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         ancestry: EntityPool | None = None,
         assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         author: AnyLocalizable | None = None,
+        auto_plugins: bool = True,
         cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None = None,
         clean_urls: bool = False,
@@ -233,7 +234,10 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
                 else localizers,
             )
         super().__init__(
-            plugins=plugins, supported_plugins=supported_plugins, upstream=app
+            auto_plugins=auto_plugins,
+            plugins=plugins,
+            supported_plugins=supported_plugins,
+            upstream=app,
         )
         cls.asset_directories.add_init_plugins(self, *assets)
         cls.copyright_notice.add_init_plugins(self, copyright_notice or ProjectAuthor)
@@ -418,6 +422,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
         app: App | None = None,
         assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
         author: AnyLocalizable | None = None,
+        auto_plugins: bool = False,
         cache: TypedSynchronousServiceOrFactory[Project, TransientStore[Any]]
         | None
         | Literal[False] = False,
@@ -462,6 +467,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
                 app=app,
                 assets=assets,
                 author=author,
+                auto_plugins=auto_plugins,
                 cache=NoOpStore() if cache is False else cache,
                 clean_urls=clean_urls,
                 debug=debug,

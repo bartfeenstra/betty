@@ -203,11 +203,13 @@ class HasPluginServices(HasProps, ManagedLifeCycle):
     def __init__(
         self: Intersection[Self, ResolvableServiceLevel],
         *args: Any,
+        auto_plugins: bool = True,
         supported_plugins: SupportedPlugins = (),
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
         self._services = resolve_service_level(self)
+        self._auto_plugins = auto_plugins
         self._supported_plugins: Sequence[PluginDefinition] = tuple(
             map(resolve_definition, supported_plugins)
         )
@@ -263,6 +265,8 @@ class HasPluginServices(HasProps, ManagedLifeCycle):
     async def __collect_auto_plugins(
         self,
     ) -> Iterable[tuple[PluginServiceManager, PluginDefinition]]:
+        if not self._auto_plugins:
+            return ()
         return chain(*[
             (
                 (service, plugin),
