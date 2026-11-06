@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @pytest.mark.usefixtures("demo_project_aioresponses")
 class TestDemoServer:
-    @pytest.mark.duration(Duration.SECONDS)
+    @pytest.mark.duration(Duration.MINUTES)
     async def test(
         self, mocker: MockerFixture, isolated_app_factory: IsolatedAppFactory
     ) -> None:

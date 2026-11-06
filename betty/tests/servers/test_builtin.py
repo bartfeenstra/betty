@@ -19,7 +19,7 @@ class TestBuiltinServer:
             "/some/root/path",
         ],
     )
-    @pytest.mark.duration(Duration.SECONDS)
+    @pytest.mark.duration(Duration.MINUTES)
     async def test_start(
         self, root_path: str, mocker: MockerFixture, tmp_path: Path
     ) -> None:

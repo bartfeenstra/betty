@@ -10,7 +10,7 @@ from betty.tests.conftest import Duration
 
 
 class TestProjectBuiltinServer:
-    @pytest.mark.duration(Duration.SECONDS)
+    @pytest.mark.duration(Duration.MINUTES)
     async def test__start_stop_and_public_url(
         self, isolated_project: Project, mocker: MockerFixture
     ) -> None:
