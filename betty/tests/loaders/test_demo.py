@@ -11,6 +11,7 @@ from betty.entities.place import Place
 from betty.entities.source import Source
 from betty.load import load
 from betty.loaders.demo import Demo
+from betty.service_providers.spdx import Spdx
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -24,7 +25,12 @@ class TestDemo:
         self, mocker: MockerFixture, isolated_project_factory: IsolatedProjectFactory
     ) -> None:
         mocker.patch("betty.wiki.populator.Populator.populate")
-        async with isolated_project_factory(loaders=[Demo]) as project, project:
+        async with (
+            isolated_project_factory(
+                loaders=[Demo], service_providers=[Spdx]
+            ) as project,
+            project,
+        ):
             await load(project)
             assert len(project.ancestry[Person]) != 0
             assert len(project.ancestry[Place]) != 0
