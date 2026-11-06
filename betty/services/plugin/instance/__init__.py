@@ -56,9 +56,7 @@ class PluginInstanceServiceManager[
         """
         Create a new plugin instance service item from its init value.
         """
-        services = resolve_service_level(
-            owner,  # ty:ignore[invalid-argument-type]
-        )
+        services = resolve_service_level(owner)
 
         async def _get_plugin() -> PluginT:
             plugin = await services.factory.new(
