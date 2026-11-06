@@ -4,10 +4,9 @@ Provide the Locale API.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from contextlib import suppress
 from functools import lru_cache
-from typing import TYPE_CHECKING, Final, cast
+from typing import TYPE_CHECKING, Final
 
 from babel import Locale
 from babel.core import UnknownLocaleError
@@ -15,6 +14,7 @@ from babel.core import UnknownLocaleError
 import betty.dirs
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
     from pathlib import Path
 
     from betty.localized import Localized
@@ -96,21 +96,24 @@ def _from_language_tag(locale: str, /) -> Locale | Exception:
 
 
 def negotiate_locale(
-    preferred_locales: Locale | Sequence[Locale],
-    available_locales: Sequence[Locale],
-    /,
+    preferred_locales: Locale | Iterable[Locale], available_locales: Iterable[Locale], /
 ) -> Locale | None:
     """
-    Negotiate the preferred locale from a sequence.
+    Negotiate the preferred locale from an iterable.
     """
-    preferred_locale_babel_identifiers = list(
-        map(
-            str,
-            cast(Sequence[Locale], [preferred_locales])
-            if isinstance(preferred_locales, Locale)
-            else preferred_locales,
-        )
+    return _negotiate_locale(
+        (preferred_locales,)
+        if isinstance(preferred_locales, Locale)
+        else tuple(preferred_locales),
+        tuple(available_locales),
     )
+
+
+@lru_cache
+def _negotiate_locale(
+    preferred_locales: tuple[Locale, ...], available_locales: tuple[Locale, ...], /
+) -> Locale | None:
+    preferred_locale_babel_identifiers = list(map(str, preferred_locales))
     available_locale_babel_identifiers = list(map(str, available_locales))
     negotiated_locale = Locale.negotiate(
         preferred_locale_babel_identifiers, available_locale_babel_identifiers
