@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.classtools import Singleton
 from betty.gender import Gender, GenderDefinition
 from betty.localizables.gettext import _, ngettext
 
@@ -20,7 +19,7 @@ from betty.localizables.gettext import _, ngettext
         "{count} person of unknown gender", "{count} people of unknown gender"
     ),
 )
-class UnknownGender(Gender, Singleton):
+class UnknownGender(Gender):
     """
     .. plugin:: gender:unknown.
     """

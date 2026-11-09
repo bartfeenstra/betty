@@ -9,14 +9,8 @@ from betty.classtools import (
     ObjectClassVar,
     ObjectNotYetInitialized,
     OwnedClassVar,
-    Singleton,
 )
 from betty.importlib import fully_qualified_name
-
-
-class TestSingleton:
-    def test___new__(self) -> None:
-        assert Singleton() is Singleton()
 
 
 class _Object(Object):

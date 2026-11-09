@@ -10,7 +10,8 @@ from contextlib import asynccontextmanager
 from graphlib import CycleError, TopologicalSorter
 from typing import TYPE_CHECKING, cast, final, override
 
-from betty.classtools import Singleton
+from typing_extensions import sentinel
+
 from betty.concurrent import ThreadSafeLock, backoff
 from betty.job import Context, Job
 from betty.job.scheduler import (
@@ -62,9 +63,7 @@ class _ScheduledJobBatch:
         await self._done([job.id for job in self._jobs])
 
 
-@final
-class _UnknownJob(Singleton):
-    pass
+_UnknownJob = sentinel("_UnknownJob")
 
 
 @final
@@ -81,7 +80,9 @@ class DefaultScheduler(Scheduler):
         self._cancelled = False
         self._cancelled_reason: BaseException | None = None
         self._completed = False
-        self._jobs: MutableMapping[str, Job | _UnknownJob] = defaultdict(_UnknownJob)
+        self._jobs: MutableMapping[str, Job | _UnknownJob] = defaultdict(
+            lambda: _UnknownJob
+        )
         self._job_dependencies: MutableMapping[str, set[str]] = defaultdict(set)
         self._scheduled_jobs: set[str] = set()
         self._releasable_jobs_queue: MutableSequence[str] = []
@@ -112,7 +113,7 @@ class DefaultScheduler(Scheduler):
             self._assert_open()
             self._releasable_jobs_sorter = None
             for job in jobs:
-                if not isinstance(self._jobs[job.id], _UnknownJob):
+                if self._jobs[job.id] is not _UnknownJob:
                     raise DuplicateJobError(job.id)
                 if job.dependents:
                     if self._released:
@@ -154,7 +155,7 @@ class DefaultScheduler(Scheduler):
                     possibly_newly_releasable_job = self._jobs[
                         possibly_newly_releasable_job_id
                     ]
-                    if isinstance(possibly_newly_releasable_job, _UnknownJob):
+                    if possibly_newly_releasable_job is _UnknownJob:
                         unknown_job_id = possibly_newly_releasable_job_id
                         continue
                     self._scheduled_jobs.discard(possibly_newly_releasable_job_id)
@@ -170,7 +171,7 @@ class DefaultScheduler(Scheduler):
                                 *self._releasable_jobs_queue,
                                 *newly_releasable_job_ids,
                             }
-                            if not isinstance(self._jobs[job_id], _UnknownJob)
+                            if self._jobs[job_id] is not _UnknownJob
                         ),
                     ),
                     key=lambda job: job.priority,

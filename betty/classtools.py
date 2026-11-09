@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABCMeta
 from functools import cache
 from inspect import getmembers
-from typing import TYPE_CHECKING, Any, Final, Self, final, override
+from typing import TYPE_CHECKING, Any, Final, Self, final
 
 from typing_extensions import disjoint_base
 
@@ -15,21 +15,6 @@ from betty.importlib import fully_qualified_name
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-
-
-class Singleton:
-    """
-    A base class for singletons.
-    """
-
-    _instance: Self | None = None
-
-    @final
-    @override
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
 
 
 @final
