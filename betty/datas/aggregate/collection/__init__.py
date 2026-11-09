@@ -39,7 +39,11 @@ class CollectionDefinition[CollectionT: Collection, ItemT, NewT: Iterable](
         porter: ResolvableDataPorter[Self, CollectionT],
         manufacturer: CollectionManufacturer[CollectionT, NewT] | None = None,
     ):
-        super().__init__(label=label, description=description, porter=porter)
+        super().__init__(
+            label=label,
+            description=description,
+            porter=porter,  # ty: ignore[invalid-argument-type]
+        )
         self.item: Final[DataDefinition[ItemT]] = resolve_data_definition(item)
         """
         The definition of the items contained by this collection.

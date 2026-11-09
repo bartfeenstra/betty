@@ -136,11 +136,12 @@ class DefaultDataDefinition[DataT](DataDefinition[DataT], metaclass=ABCMeta):
 # @todo assert issubclass(_DefaultDataDefinitionProxy, DefaultDataDefinition) is True
 @final
 class _DefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
-    DefaultDataDefinition[DataT], BaseObjectProxy[DefinitionT]
+    BaseObjectProxy[DefinitionT], DefaultDataDefinition[DataT]
 ):
     def __init__(self, wrapped: DefinitionT, default: DataT, /):
-        super().__init__(
-            wrapped,
+        BaseObjectProxy.__init__(self, wrapped)
+        DefaultDataDefinition.__init__(
+            self,
             # @todo Remove the dummy label
             label="",
         )
@@ -154,13 +155,14 @@ class _DefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
 # @todo assert issubclass(_NewDefaultDataDefinitionProxy, DefaultDataDefinition) is True
 @final
 class _NewDefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
-    DefaultDataDefinition[DataT], BaseObjectProxy[DefinitionT]
+    BaseObjectProxy[DefinitionT], DefaultDataDefinition[DataT]
 ):
     def __init__(
         self, wrapped: DefinitionT, default: Callable[[DefinitionT], DataT], /
     ):
-        super().__init__(
-            wrapped,
+        BaseObjectProxy.__init__(self, wrapped)
+        DefaultDataDefinition.__init__(
+            self,
             # @todo Remove the dummy label
             label="",
         )
@@ -174,18 +176,23 @@ class _NewDefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
 # @todo assert issubclass(_OptionalDataDefinitionProxy, OptionalDataDefinition) is True
 @final
 class _OptionalDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
-    DataDefinition[DataT | None], BaseObjectProxy[DefinitionT]
+    BaseObjectProxy[DefinitionT], DataDefinition[DataT | None]
 ):
     def __init__(self, wrapped: DefinitionT, /):
         if isinstance(wrapped, PortableDataDefinition):
             wrapped = wrapped.portable(OptionalPorter(wrapped.porter))
-        super().__init__(
+        BaseObjectProxy.__init__(
+            self,
+            # @todo Do not set a default if there is one already
             wrapped.default(None).samplable(
                 Samples(
                     lambda: Sample(None, label="Minimal", size=Size.MINIMAL),
                     wrapped.samples,
                 )
             ),
+        )
+        DataDefinition.__init__(
+            self,
             # @todo Remove the dummy label
             label="",
         )
@@ -216,7 +223,11 @@ class PortableDataDefinitionBase[DataT, PorterT: Porter = Porter](
     def __init__(
         self,
         *args: Any,
-        porter: ResolvableDataPorter[Self, DataT, Intersection[PorterT, Porter[DataT]]],
+        porter: ResolvableDataPorter[
+            PortableDataDefinition[DataT, PorterT],
+            DataT,
+            Intersection[PorterT, Porter[DataT]],
+        ],
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
@@ -234,7 +245,7 @@ class PortableDataDefinitionBase[DataT, PorterT: Porter = Porter](
 # @todo assert issubclass(_PortableDataDefinitionProxy, PortableDataDefinition) is True
 @final
 class _PortableDataDefinitionProxy[DefinitionT: DataDefinition, DataT, PorterT: Porter](
-    PortableDataDefinitionBase[DataT, PorterT], BaseObjectProxy[DefinitionT]
+    BaseObjectProxy[DefinitionT], PortableDataDefinitionBase[DataT, PorterT]
 ):
     def __init__(
         self,
@@ -242,9 +253,10 @@ class _PortableDataDefinitionProxy[DefinitionT: DataDefinition, DataT, PorterT: 
         porter: ResolvableDataPorter[DefinitionT, DataT, PorterT],
         /,
     ):
-        super().__init__(
-            wrapped,
-            porter=porter,
+        BaseObjectProxy.__init__(self, wrapped)
+        PortableDataDefinitionBase.__init__(
+            self,
+            porter=porter,  # ty: ignore[invalid-argument-type]
             # @todo Remove the dummy label
             label="",
         )

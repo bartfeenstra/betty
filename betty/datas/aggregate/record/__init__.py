@@ -178,7 +178,7 @@ class RecordDefinition[DataT, OperatorT: FieldOperator, PorterT: Porter = Porter
             label=label,
             description=description,
             samples=samples,
-            porter=porter or FieldsPorter,
+            porter=porter or FieldsPorter,  # ty: ignore[invalid-argument-type]
             **kwargs,
         )
 
