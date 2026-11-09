@@ -120,7 +120,9 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
 
     @final
     def samplable(self, samples: ResolvableDataSamples[Self, DataT], /) -> Self:
-        """Create a new definition like this one, but with the added samples."""
+        """
+        Create a new definition like this one, but with the added samples.
+        """
         return _SamplableDataDefinition(  # ty:ignore[invalid-return-type]
             self,
             samples,
