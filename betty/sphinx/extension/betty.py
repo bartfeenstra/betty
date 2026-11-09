@@ -19,7 +19,6 @@ from sphinx.util.parsing import nested_parse_to_nodes
 from betty.app import App
 from betty.data import Data
 from betty.datas.aggregate.record import RecordDefinition
-from betty.datas.optional import OptionalDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.definition.ordered import OrderedDefinition
@@ -332,15 +331,12 @@ Data
 """
             for field_selector, field in sorted(
                 data.fields.items(),
-                key=lambda field: (
-                    isinstance(field[1].data, OptionalDefinition),
-                    field[0].element,
-                ),
+                key=lambda field: (field[1].optional, field[0].element),
             ):
                 primary_label = field.data.label if field.label is None else field.label
                 content += f"""
                 
-``{field_selector.operator}`` :sup:`{"optional" if isinstance(field.data, OptionalDefinition) else "required"}`
+``{field_selector.operator}`` :sup:`{"optional" if field.optional else "required"}`
 
     **{default_localizer.localize(primary_label)}**
 """

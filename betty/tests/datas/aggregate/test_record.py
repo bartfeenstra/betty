@@ -13,7 +13,6 @@ from betty.datas.aggregate.record import (
     resolve_field_definition,
 )
 from betty.datas.bool import BoolDefinition
-from betty.datas.optional import OptionalDefinition
 from betty.datas.str import StrDefinition
 from betty.operator import Attr
 from betty.portable import Porter
@@ -35,9 +34,7 @@ class TestFieldDefinition:
         assert sut.optional
 
     def test_optional__with_optional_definition(self) -> None:
-        sut = FieldDefinition(
-            OptionalDefinition(BoolDefinition(label="-")), optional=True
-        )
+        sut = FieldDefinition(BoolDefinition(label="-"), optional=True)
         assert sut.optional
 
     def test_data(self) -> None:
