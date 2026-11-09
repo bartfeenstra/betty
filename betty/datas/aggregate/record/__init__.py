@@ -89,6 +89,7 @@ class FieldDefinition[OwnerT, DataT, DefinitionT: DataDefinition = DataDefinitio
         )
 
         self.optional: Final[bool] = (
+            # @todo Add test coverage.
             isinstance(self.data, DefaultDataDefinition)
             if optional is None
             else optional
