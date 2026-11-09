@@ -8,9 +8,11 @@ from typing import ClassVar, final
 
 from typing_extensions import disjoint_base
 
+from betty.classtools import Object
+
 
 @disjoint_base
-class Definition:
+class Definition(Object):
     """
     A definition.
     """
