@@ -28,6 +28,7 @@ from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
+from betty.collection.keyed import MutableKeyedCollection
 from betty.collection.sequence import MutableResolvedSequence
 from betty.collections.keyed.adapter import (
     KeyedCollectionAdapter,
@@ -781,7 +782,7 @@ class ProjectData(Object):
                 value=EnricherManufacturer,
                 label=EnricherDefinition.definition.label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
-                    [] if values is None else list(values),
+                    () if values is None else values,
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_id,
                     value_resolver=EnricherManufacturer.resolve,
@@ -807,8 +808,13 @@ class ProjectData(Object):
             KeyedCollectionDefinition(
                 value=ServiceProviderManufacturer,
                 label=ServiceProviderDefinition.definition.label_plural,
-                manufacturer=lambda values: MutableKeyedCollectionAdapter(
-                    [] if values is None else list(values),
+                manufacturer=lambda values: MutableKeyedCollectionAdapter[
+                    MachineName,
+                    ResolvableMachineName,
+                    ServiceProviderManufacturer,
+                    ResolvableServiceProviderManufacturer,
+                ](
+                    () if values is None else values,
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_id,
                     value_resolver=ServiceProviderManufacturer.resolve,
@@ -881,11 +887,24 @@ class ProjectData(Object):
 
     loaders = CollectionOwnerAttr(
         FieldDefinition(
-            KeyedCollectionDefinition(
+            KeyedCollectionDefinition[
+                MutableKeyedCollection[
+                    MachineName,
+                    ResolvableMachineName,
+                    LoaderManufacturer,
+                    ResolvableLoaderManufacturer,
+                ],
+                LoaderManufacturer,
+            ](
                 value=LoaderManufacturer,
                 label=LoaderDefinition.definition.label_plural,
-                manufacturer=lambda values: MutableKeyedCollectionAdapter(
-                    [] if values is None else list(values),
+                manufacturer=lambda values: MutableKeyedCollectionAdapter[
+                    MachineName,
+                    ResolvableMachineName,
+                    LoaderManufacturer,
+                    ResolvableLoaderManufacturer,
+                ](
+                    () if values is None else values,
                     key=lambda data: data.plugin_id,
                     key_resolver=resolve_id,
                     value_resolver=LoaderManufacturer.resolve,
@@ -906,7 +925,7 @@ class ProjectData(Object):
                 label=_("Locales"),
                 order_dump=True,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
-                    [] if values is None else list(values),
+                    () if values is None else values,
                     key=lambda item: item.locale,
                     key_resolver=resolve_locale,
                     value_resolver=lambda value: (

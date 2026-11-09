@@ -43,9 +43,10 @@ NoPluginData = sentinel("NoPluginData")
 
 
 @disjoint_base
-class PluginManufacturer[DefinitionT: PluginDefinition, PluginT](
-    Object["PluginManufacturerDefinition"]
-):
+class PluginManufacturer[
+    DefinitionT: Intersection[PluginDefinition, ClsDefinition],
+    PluginT,
+](Object["PluginManufacturerDefinition[DefinitionT, PluginT]"]):
     """
     Configure a single plugin instance.
     """
@@ -195,9 +196,10 @@ class PluginManufacturerPorter[PluginManufacturerT: PluginManufacturer](
 
 
 @final
-class PluginManufacturerDefinition[DefinitionT: PluginDefinition, PluginT](
-    ObjectDefinition[PluginManufacturer[DefinitionT, PluginT]]
-):
+class PluginManufacturerDefinition[
+    DefinitionT: Intersection[PluginDefinition, ClsDefinition],
+    PluginT,
+](ObjectDefinition[PluginManufacturer[DefinitionT, PluginT]]):
     """
     Define a plugin manufacturer.
     """

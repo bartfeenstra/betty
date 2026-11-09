@@ -128,7 +128,7 @@ def resolve_field_definition[OwnerT, DataT, DefinitionT: DataDefinition](
     """
     if isinstance(field, FieldDefinition):
         return field
-    return FieldDefinition(resolve_data_definition(field))
+    return FieldDefinition[OwnerT, DataT, DefinitionT](resolve_data_definition(field))
 
 
 class _RecordManufacturer[DataT](Protocol):
