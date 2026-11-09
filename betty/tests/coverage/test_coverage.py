@@ -111,6 +111,7 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
         "OwnedClassVar": {
             "__set_name__": MissingReason.COVERED_ELSEWHERE,
         },
+        "Type": MissingReason.COVERED_ELSEWHERE,
         "TypeABCMeta": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/commands/project.py": {
@@ -189,6 +190,8 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     },
     "betty/data.py": {
         "Data": MissingReason.ABSTRACT,
+        "DefaultDataDefinition": MissingReason.ABSTRACT,
+        "PortableDataDefinition": MissingReason.ABSTRACT,
     },
     "betty/datas/aggregate/collection/__init__.py": {
         "CollectionDefinition": MissingReason.ABSTRACT,
