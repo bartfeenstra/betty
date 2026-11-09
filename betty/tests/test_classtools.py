@@ -49,17 +49,6 @@ class TestObjectAlreadyInitialized:
         )
 
 
-class TestType:
-    def test___instancecheck____without_instance(self) -> None:
-        raise NotImplementedError
-
-    def test___instancecheck____with_instance(self) -> None:
-        raise NotImplementedError
-
-    def test___instancecheck____with__proxied_instance(self) -> None:
-        raise NotImplementedError
-
-
 class TestObject:
     def test___new__(self) -> None:
         assert Object().is_initialized

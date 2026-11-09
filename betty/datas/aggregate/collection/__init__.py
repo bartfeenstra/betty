@@ -4,11 +4,10 @@ Collection data types.
 
 from __future__ import annotations
 
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Final, final
 
-from betty.classtools import TypeABCMeta
 from betty.data import (
     DataDefinition,
     PortableDataDefinitionBase,
@@ -25,7 +24,7 @@ type CollectionManufacturer[DataT, NewT: Iterable] = Callable[[NewT | None], Dat
 
 
 class CollectionDefinition[CollectionT: Collection, ItemT, NewT: Iterable](
-    PortableDataDefinitionBase[CollectionT], metaclass=TypeABCMeta
+    PortableDataDefinitionBase[CollectionT], metaclass=ABCMeta
 ):
     """
     A homogenous collection data definition.

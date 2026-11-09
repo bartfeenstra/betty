@@ -4,12 +4,11 @@ Describe, access, and manipulate arbitrary data.
 
 from __future__ import annotations
 
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, Self, final, override
 
 from wrapt import BaseObjectProxy
 
-from betty.classtools import TypeABCMeta
 from betty.definition import HasDefinition
 from betty.definition.cls import OptionalClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -125,7 +124,7 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         return self.__samples(self)
 
 
-class DefaultDataDefinition[DataT](DataDefinition[DataT], metaclass=TypeABCMeta):
+class DefaultDataDefinition[DataT](DataDefinition[DataT], metaclass=ABCMeta):
     """
     A data definition that can produce default values.
     """
@@ -192,7 +191,7 @@ class _OptionalDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
 
 
 class PortableDataDefinition[DataT, PortableDataT: PortableData = PortableData](
-    DataDefinition[DataT], metaclass=TypeABCMeta
+    DataDefinition[DataT], metaclass=ABCMeta
 ):
     """
     A data definition that allows the data to be loaded from and dumped to portable data.

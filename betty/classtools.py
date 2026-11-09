@@ -7,10 +7,9 @@ from __future__ import annotations
 from abc import ABCMeta
 from functools import cache
 from inspect import getmembers
-from typing import TYPE_CHECKING, Any, Final, Self, final
+from typing import TYPE_CHECKING, Any, Final, Self, cast, final
 
 from typing_extensions import disjoint_base
-from wrapt import BaseObjectProxy
 
 from betty.importlib import fully_qualified_name
 
@@ -38,29 +37,21 @@ class ObjectAlreadyInitialized(RuntimeError):
         super().__init__(f"{repr(object_)} was unexpectedly initialized already")
 
 
-class Type(type):
+class Type(type["Object"]):
     """
     The metaclass for :py:class:`betty.classtools.Object`.
     """
 
-    def __call__(cls, *args: Any, **kwargs: Any):
+    def __call__(self, *args: Any, **kwargs: Any):
         """
         Create a new instance.
         """
-        new = cls.__new__(cls, *args, **kwargs)
-        assert isinstance(new, Object)
+        new = cast(Object, self.__new__(self, *args, **kwargs))
         new._pre_init()
         new.__init__(*args, **kwargs)
         new._post_init()
         new._is_initialized = True
         return new
-
-    def __instancecheck__(self, instance: Any, /) -> bool:
-        if super().__instancecheck__(instance):
-            return True
-        if isinstance(instance, BaseObjectProxy):
-            return isinstance(instance.__wrapped__, self)
-        return False
 
 
 class Object(metaclass=Type):
