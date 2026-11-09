@@ -359,7 +359,7 @@ dev = [
     'ruff ~= 0.17.0',
     'slotscheck ~= 0.21',
     'twine ~= 7.0',
-    'ty == 0.0.95',
+    'ty == 0.0.99',
     'types-babel ~= 2.11',
     'types-docutils ~= 0.21',
     'types-lxml >= 2024.9.16',

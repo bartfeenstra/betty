@@ -140,7 +140,7 @@ class App(RequirableServiceLevel, HasPluginServices):
 
     async def _set_ui(self, ui: Callable[[App], ResolvableAwaitable[Ui]], /) -> None:
         self._ui = await resolve_await(ui(self))
-        if isinstance(ui, Bootstrappable | Shutdownable):
+        if isinstance(self._ui, Bootstrappable | Shutdownable):
             await self.life_cycle.bind(self._ui)
 
     @property

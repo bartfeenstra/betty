@@ -875,16 +875,16 @@ class _ModuleCoverageTester:
         Sequence[Intersection[_Importable, type]],
     ]:
         module_name = _module_path_to_name(module)
-        return (
+        return (  # ty: ignore[invalid-return-type]
             module_name,
             sorted(
                 self._get_members(module_name, isfunction),
                 key=lambda member: member.__name__,
-            ),  # ty: ignore[no-matching-overload]
+            ),
             sorted(
                 self._get_members(module_name, isclass),
                 key=lambda member: member.__name__,
-            ),  # ty: ignore[no-matching-overload]
+            ),
         )
 
     def _get_members(
