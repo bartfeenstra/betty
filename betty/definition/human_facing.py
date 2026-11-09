@@ -4,7 +4,8 @@ Definitions that are human-facing and provide human-friendly information.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final
+from abc import ABCMeta, abstractmethod
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.definition import Definition
 
@@ -13,9 +14,29 @@ if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
 
 
-class HumanFacingDefinition(Definition):
+class HumanFacingDefinition(Definition, metaclass=ABCMeta):
     """
     A definition that is human-facing and provides human-friendly information.
+    """
+
+    @property
+    @abstractmethod
+    def label(self) -> AnyLocalizable:
+        """
+        The human-readable short label (singular).
+        """
+
+    @property
+    @abstractmethod
+    def description(self) -> AnyLocalizable | None:
+        """
+        The human-readable long description.
+        """
+
+
+class HumanFacingDefinitionBase(HumanFacingDefinition):
+    """
+    A base class for :py:class:`betty.definition.human_facing.HumanFacingDefinition`.
     """
 
     def __init__(
@@ -26,19 +47,45 @@ class HumanFacingDefinition(Definition):
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self.label: Final[AnyLocalizable] = label
-        """
-        The human-readable short label (singular).
-        """
-        self.description: Final[AnyLocalizable | None] = description
-        """
-        The human-readable long description.
-        """
+        self.__label = label
+        self.__description = description
+
+    @final
+    @override
+    def label(self) -> AnyLocalizable:
+        return self.__label
+
+    @final
+    @override
+    def description(self) -> AnyLocalizable | None:
+        return self.__description
 
 
 class CountableHumanFacingDefinition(HumanFacingDefinition):
     """
     A definition that is human-facing and provides countable human-friendly information.
+    """
+
+    @property
+    @abstractmethod
+    def label_plural(self) -> AnyLocalizable:
+        """
+        The human-readable short label (plural).
+        """
+
+    @property
+    @abstractmethod
+    def label_countable(self) -> CountableLocalizable:
+        """
+        The human-readable short label (countable).
+        """
+
+
+class CountableHumanFacingDefinitionBase(
+    HumanFacingDefinitionBase, CountableHumanFacingDefinition
+):
+    """
+    A base class for :py:class:`betty.definition.human_facing.CountableHumanFacingDefinition`.
     """
 
     def __init__(
@@ -51,11 +98,15 @@ class CountableHumanFacingDefinition(HumanFacingDefinition):
         **kwargs: Any,
     ):
         super().__init__(*args, label=label, description=description, **kwargs)
-        self.label_plural: Final[AnyLocalizable] = label_plural
-        """
-        The human-readable short label (plural).
-        """
-        self.label_countable: Final[CountableLocalizable] = label_countable
-        """
-        The human-readable short label (countable).
-        """
+        self.__label_plural = label_plural
+        self.__label_countable = label_countable
+
+    @final
+    @override
+    def label_plural(self) -> AnyLocalizable:
+        return self.__label_plural
+
+    @final
+    @override
+    def label_countable(self) -> CountableLocalizable:
+        return self.__label_countable

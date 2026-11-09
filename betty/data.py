@@ -10,8 +10,11 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 from wrapt import BaseObjectProxy
 
 from betty.definition import HasDefinition
-from betty.definition.cls import OptionalClsDefinition
-from betty.definition.human_facing import HumanFacingDefinition
+from betty.definition.cls import OptionalClsDefinition, OptionalClsDefinitionBase
+from betty.definition.human_facing import (
+    HumanFacingDefinition,
+    HumanFacingDefinitionBase,
+)
 from betty.functools import LazyReCallable
 from betty.portable import Porter
 from betty.porters.optional import OptionalPorter
@@ -51,26 +54,10 @@ def _resolve_data_samples[DefinitionT: DataDefinition, DataT](
             yield from sample(definition)
 
 
-# @todo Extract implementations to DataDefinitionBase? That would solve our proxy issues straight away.
-# @todo
-# @todo Except that we would have to do that for every, single, Definition base class
-# @todo
 class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT]):
     """
     A data definition.
     """
-
-    def __init__(
-        self,
-        *args: Any,
-        cls: type[DataT] | None = None,
-        label: AnyLocalizable,
-        description: AnyLocalizable | None = None,
-        samples: ResolvableDataSamples[Self, DataT] | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
-        self.__samples = () if samples is None else samples
 
     @final
     def default(
@@ -123,10 +110,30 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         """
         Create a new definition like this one, but with the added samples.
         """
-        return _SamplableDataDefinition(  # ty:ignore[invalid-return-type]
+        return _SamplableDataDefinitionProxy(  # ty:ignore[invalid-return-type]
             self,
             samples,
         )
+
+
+class DataDefinitionBase[DataT](
+    HumanFacingDefinitionBase, OptionalClsDefinitionBase[DataT], DataDefinition[DataT]
+):
+    """
+    A base class for data definitions.
+    """
+
+    def __init__(
+        self,
+        *args: Any,
+        cls: type[DataT] | None = None,
+        label: AnyLocalizable,
+        description: AnyLocalizable | None = None,
+        samples: ResolvableDataSamples[Self, DataT] | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
+        self.__samples = () if samples is None else samples
 
     @final
     @property
@@ -156,12 +163,7 @@ class _DefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
 ):
     def __init__(self, wrapped: DefinitionT, default: DataT, /):
         BaseObjectProxy.__init__(self, wrapped)
-        DefaultDataDefinition.__init__(
-            self,
-            label=wrapped.label,
-            description=wrapped.description,
-            samples=wrapped.samples,
-        )
+        DefaultDataDefinition.__init__(self)
         self._default = default
 
     @override
@@ -178,12 +180,7 @@ class _NewDefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
         self, wrapped: DefinitionT, default: Callable[[DefinitionT], DataT], /
     ):
         BaseObjectProxy.__init__(self, wrapped)
-        DefaultDataDefinition.__init__(
-            self,
-            label=wrapped.label,
-            description=wrapped.description,
-            samples=wrapped.samples,
-        )
+        DefaultDataDefinition.__init__(self)
         self._default = default
 
     @override
@@ -210,8 +207,7 @@ class _OptionalDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
         )
         DataDefinition.__init__(
             self,
-            label=wrapped.label,
-            description=wrapped.description,
+            # @todo What to do with these now we have Base classes?
             samples=Samples(
                 Sample(lambda: None, label="Minimal", size=Size.MINIMAL),
                 wrapped.samples,
@@ -235,7 +231,7 @@ class PortableDataDefinition[DataT, PorterT: Porter = Porter](
 
 
 class PortableDataDefinitionBase[DataT, PorterT: Porter = Porter](
-    PortableDataDefinition[DataT, PorterT]
+    DataDefinitionBase[DataT], PortableDataDefinition[DataT, PorterT]
 ):
     """
     A base class to make any data definition portable.
@@ -278,15 +274,12 @@ class _PortableDataDefinitionProxy[DefinitionT: DataDefinition, DataT, PorterT: 
         PortableDataDefinitionBase.__init__(
             self,
             porter=porter,  # ty: ignore[invalid-argument-type]
-            label=wrapped.label,
-            description=wrapped.description,
-            samples=wrapped.samples,
         )
 
 
 # @todo assert issubclass(_SamplableDataDefinition, Samplable) is True
 @final
-class _SamplableDataDefinition[DefinitionT: DataDefinition, DataT](
+class _SamplableDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
     BaseObjectProxy[DefinitionT], DataDefinition[DataT]
 ):
     def __init__(
@@ -298,8 +291,7 @@ class _SamplableDataDefinition[DefinitionT: DataDefinition, DataT](
         BaseObjectProxy.__init__(self, wrapped)
         DataDefinition.__init__(
             self,
-            label=wrapped.label,
-            description=wrapped.description,
+            # @todo What to do with these now that we have Base classes?
             samples=(*_resolve_data_samples(wrapped, samples, wrapped.samples),),
         )
 
