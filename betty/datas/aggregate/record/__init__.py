@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final
 
 from betty.data import (
     DataDefinition,
+    DefaultDataDefinition,
     PortableDataDefinition,
     PortableDataDefinitionBase,
     ResolvableDataDefinition,
@@ -72,7 +73,7 @@ class FieldDefinition[OwnerT, DataT, DefinitionT: DataDefinition = DataDefinitio
         *,
         label: AnyLocalizable | None = None,
         description: AnyLocalizable | None = None,
-        optional: bool = False,
+        optional: bool | None = None,
         porter: ResolvableFieldPorter[OwnerT, DataT] | None = None,
     ):
         from betty.porters.porter_field import PorterFieldPorter
@@ -87,7 +88,11 @@ class FieldDefinition[OwnerT, DataT, DefinitionT: DataDefinition = DataDefinitio
             description=description or self.data.description,
         )
 
-        self.optional: Final[bool] = optional
+        self.optional: Final[bool] = (
+            isinstance(self.data, DefaultDataDefinition)
+            if optional is None
+            else optional
+        )
         """
         Whether the field is optional within its enclosing record.
         """
