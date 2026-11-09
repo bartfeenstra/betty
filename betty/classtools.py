@@ -10,6 +10,7 @@ from inspect import getmembers
 from typing import TYPE_CHECKING, Any, Final, Self, final
 
 from typing_extensions import disjoint_base
+from wrapt import BaseObjectProxy
 
 from betty.importlib import fully_qualified_name
 
@@ -53,6 +54,13 @@ class Type(type):
         new._post_init()
         new._is_initialized = True
         return new
+
+    def __instancecheck__(self, instance: Any, /) -> bool:
+        if super().__instancecheck__(instance):
+            return True
+        if isinstance(instance, BaseObjectProxy):
+            return isinstance(instance.__wrapped__, self)
+        return False
 
 
 class Object(metaclass=Type):

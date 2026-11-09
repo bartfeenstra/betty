@@ -127,14 +127,14 @@ class TestRecordDefinition:
         sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
             cls=RecordDefinitionTestRecord, label="-"
         )
-        assert isinstance(sut.try_porter, FieldsPorter)
+        assert isinstance(sut.porter, FieldsPorter)
 
     def test_porter__with_porter(self) -> None:
         m_porter = Mock(spec=Porter)
         sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
             cls=RecordDefinitionTestRecord, label="-", porter=m_porter
         )
-        assert sut.try_porter is m_porter
+        assert sut.porter is m_porter
 
     def test_fields(self) -> None:
         field = FieldDefinition(StrDefinition(label="-"))

@@ -11,7 +11,7 @@ from betty.typing import Unreachable
 
 class TestIdentifiableDefinitionConfigDefinition:
     def test__porter(self) -> None:
-        assert IdentifiableDefinitionConfigDefinition(label="-").try_porter
+        assert IdentifiableDefinitionConfigDefinition(label="-").porter
 
 
 class _IdentifiableDefinition(IdentifiableDefinition, ObjectDefinition):

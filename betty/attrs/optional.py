@@ -11,7 +11,6 @@ from betty.attr import Attr
 from betty.attrs.proxy import ProxyAttr
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
-from betty.datas.optional import OptionalDefinition
 from betty.porters.omit_field import OmitFieldPorter
 from betty.prop import HasProps
 
@@ -26,7 +25,7 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
     def __init__(self, proxied: Attr[OwnerT, GetT, SetT, DataDefinition[GetT]], /):
         super().__init__(
             FieldDefinition[OwnerT, GetT | None, DataDefinition[GetT | None]](
-                OptionalDefinition(proxied.field.data),
+                proxied.field.data.optional,
                 label=proxied.field.label,
                 description=proxied.field.description,
                 optional=True,

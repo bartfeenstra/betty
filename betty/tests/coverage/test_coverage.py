@@ -111,7 +111,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
         "OwnedClassVar": {
             "__set_name__": MissingReason.COVERED_ELSEWHERE,
         },
-        "Type": MissingReason.COVERED_ELSEWHERE,
         "TypeABCMeta": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/commands/project.py": {

@@ -1,6 +1,5 @@
 from betty.attrs.optional import OptionalAttr
 from betty.attrs.owner import OwnerAttr
-from betty.datas.optional import OptionalDefinition
 from betty.datas.str import StrDefinition
 from betty.prop import HasProps
 
@@ -38,7 +37,7 @@ class TestOptionalAttr:
         class _Owner(HasProps):
             my_first_attr = OptionalAttr(OwnerAttr(data))
 
-        assert isinstance(_Owner.my_first_attr.field.data, OptionalDefinition)
+        assert _Owner.my_first_attr.field.optional
 
     def test_pre_init_owner(self) -> None:
         class _Owner(HasProps):

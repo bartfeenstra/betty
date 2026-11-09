@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final
 
 from betty.data import (
     DataDefinition,
+    PortableDataDefinition,
     ResolvableDataDefinition,
     ResolvableDataPorter,
     ResolvableDataSamples,
@@ -90,8 +91,8 @@ class FieldDefinition[OwnerT, DataT, DefinitionT: DataDefinition = DataDefinitio
         """
 
         if porter is None:
-            if data_porter := self.data.try_porter:
-                porter = PorterFieldPorter(data_porter)
+            if isinstance(self.data, PortableDataDefinition):
+                porter = PorterFieldPorter(self.data.porter)
         elif not isinstance(porter, FieldPorter):
             porter = porter(self)
         self._porter: FieldPorter[OwnerT, DataT] = porter  # ty:ignore[invalid-assignment]
