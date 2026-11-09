@@ -9,7 +9,12 @@ from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Final, final
 
 from betty.classtools import TypeABCMeta
-from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
+from betty.data import (
+    DataDefinition,
+    PortableDataDefinitionBase,
+    ResolvableDataDefinition,
+    resolve_data_definition,
+)
 
 if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
@@ -20,7 +25,7 @@ type CollectionManufacturer[DataT, NewT: Iterable] = Callable[[NewT | None], Dat
 
 
 class CollectionDefinition[CollectionT: Collection, ItemT, NewT: Iterable](
-    DataDefinition[CollectionT], metaclass=TypeABCMeta
+    PortableDataDefinitionBase[CollectionT], metaclass=TypeABCMeta
 ):
     """
     A homogenous collection data definition.

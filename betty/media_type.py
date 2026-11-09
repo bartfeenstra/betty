@@ -21,7 +21,6 @@ if TYPE_CHECKING:
 
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.portable import PortableData
 
 
 class InvalidMediaType(ValueError):
@@ -48,17 +47,9 @@ class MissingMediaType(RuntimeError):
         super().__init__("Missing media type")
 
 
-__load = assert_str()
-
-
-def _load(portable: PortableData, /) -> MediaType:
-    return MediaType(__load(portable))
-
-
 @final
-@DataDefinition(
-    label=_("Media type"),
-    porter=CallbackPorter(_load, lambda media_type: media_type._str),
+@DataDefinition(label=_("Media type")).portable(
+    CallbackPorter(lambda data: MediaType(assert_str()(data)), str)
 )
 class MediaType(Data):
     """

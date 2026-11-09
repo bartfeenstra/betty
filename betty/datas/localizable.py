@@ -10,7 +10,7 @@ from betty.assertions.if_else import assert_if_else
 from betty.assertions.locale import assert_locale
 from betty.assertions.mapping import assert_mapping
 from betty.assertions.str import assert_str
-from betty.data import DataDefinition
+from betty.data import PortableDataDefinitionBase
 from betty.importlib import fully_qualified_name
 from betty.locale import to_language_tag
 from betty.localizable import CountableLocalizable
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 
 @final
-class LocalizableDefinition(DataDefinition[AnyLocalizable]):
+class LocalizableDefinition(PortableDataDefinitionBase[AnyLocalizable]):
     """
     The data definition for :py:class:`betty.localizer.AnyLocalizable`.
     """
@@ -78,7 +78,7 @@ class _LocalizablePorter(Porter[AnyLocalizable]):
 
 
 @final
-class CountableLocalizableDefinition(DataDefinition[CountableLocalizable]):
+class CountableLocalizableDefinition(PortableDataDefinitionBase[CountableLocalizable]):
     """
     The data definition for :py:class:`betty.localizable.CountableLocalizable`.
     """

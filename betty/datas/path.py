@@ -8,13 +8,13 @@ from pathlib import Path
 from typing import final
 
 from betty.assertions.path import assert_path
-from betty.data import DataDefinition
+from betty.data import PortableDataDefinitionBase
 from betty.localizables.gettext import _
 from betty.porters.callback import CallbackPorter
 
 
 @final
-class PathDefinition(DataDefinition[Path]):
+class PathDefinition(PortableDataDefinitionBase[Path]):
     """
     A file system path definition.
     """

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final
 from betty.data import (
     DataDefinition,
     PortableDataDefinition,
+    PortableDataDefinitionBase,
     ResolvableDataDefinition,
     ResolvableDataPorter,
     ResolvableDataSamples,
@@ -140,7 +141,9 @@ class _RecordManufacturer[DataT](Protocol):
 type RecordManufacturer[DataT] = type[DataT] | _RecordManufacturer[DataT]
 
 
-class RecordDefinition[DataT, OperatorT: FieldOperator](DataDefinition[DataT]):
+class RecordDefinition[DataT, OperatorT: FieldOperator](
+    PortableDataDefinitionBase[DataT]
+):
     """
     A record data definition.
 

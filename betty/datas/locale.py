@@ -10,7 +10,7 @@ from babel import Locale
 
 from betty import samples
 from betty.assertions.locale import assert_locale
-from betty.data import DataDefinition
+from betty.data import PortableDataDefinitionBase
 from betty.locale import to_language_tag
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 @final
-class LocaleDefinition(DataDefinition[Locale]):
+class LocaleDefinition(PortableDataDefinitionBase[Locale]):
     """
     Define a locale (identifier).
     """

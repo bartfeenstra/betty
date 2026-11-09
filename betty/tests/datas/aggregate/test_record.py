@@ -5,7 +5,7 @@ from unittest.mock import Mock
 import pytest
 from pytest_mock import MockerFixture
 
-from betty.data import DataDefinition
+from betty.data import DataDefinition, PortableDataDefinitionBase
 from betty.datas.aggregate.record import (
     FieldDefinition,
     FieldPorter,
@@ -65,7 +65,7 @@ class TestFieldDefinition:
         self, mocker: MockerFixture
     ) -> None:
         sut = FieldDefinition(
-            DataDefinition(label="-", porter=mocker.MagicMock(spec=Porter))
+            PortableDataDefinitionBase(label="-", porter=mocker.MagicMock(spec=Porter))
         )
         assert isinstance(sut.porter, PorterFieldPorter)
 
@@ -82,7 +82,7 @@ class TestFieldDefinition:
         self, mocker: MockerFixture
     ) -> None:
         sut = FieldDefinition(
-            DataDefinition(label="-", porter=mocker.MagicMock(spec=Porter))
+            PortableDataDefinitionBase(label="-", porter=mocker.MagicMock(spec=Porter))
         )
         assert isinstance(sut.porter, PorterFieldPorter)
 

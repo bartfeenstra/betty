@@ -18,7 +18,6 @@ from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
     from betty.localizable import Localizable
-    from betty.portable import PortableData
 
 machine_name_description: Final[Localizable] = _(
     "A machine name is an identifier of at most 250 characters long, made up of lowercase letters, numbers, and/or non-consecutive hyphens (-)."
@@ -29,18 +28,10 @@ _machinify_disallowed_character_pattern: Final[re.Pattern[str]] = re.compile(
 )
 _machinify_hyphen_pattern: Final[re.Pattern[str]] = re.compile(r"-{2,}")
 
-__load = assert_str()
-
-
-def _load(portable: PortableData, /) -> MachineName:
-    return MachineName(__load(portable))
-
 
 @final
-@DataDefinition(
-    label=_("Machine name"),
-    description=machine_name_description,
-    porter=CallbackPorter(_load, pipe),
+@DataDefinition(label=_("Machine name"), description=machine_name_description).portable(
+    CallbackPorter(lambda data: MachineName(assert_str()(data)), pipe)
 )
 class MachineName(str, Data):
     """

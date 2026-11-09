@@ -47,14 +47,11 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         cls: type[DataT] | None = None,
         label: AnyLocalizable,
         description: AnyLocalizable | None = None,
-        # @todo Remove this. Extract reusable functionality from _PortableDefinition into PortableDefinitionBase
-        # @todo or something like that, as a mixin.
-        porter: ResolvableDataPorter[Self, DataT] | None = None,
         samples: ResolvableDataSamples[Self, DataT] | None = None,
         **kwargs: Any,
     ):
-        self.__samples = samples or Samples()
         super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
+        self.__samples = samples or Samples()
 
     @final
     def default(
@@ -63,7 +60,7 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         """
         Create a new definition like this one, but with the given default data.
         """
-        return _DefaultDataDefinition(  # ty:ignore[invalid-return-type]
+        return _DefaultDataDefinitionProxy(  # ty:ignore[invalid-return-type]
             self,
             default,
         )
@@ -75,7 +72,7 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         """
         Create a new definition like this one, but with the given default data factory.
         """
-        return _NewDefaultDataDefinition(  # ty:ignore[invalid-return-type]
+        return _NewDefaultDataDefinitionProxy(  # ty:ignore[invalid-return-type]
             self,
             default,
         )
@@ -86,7 +83,7 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         """
         Create a new definition like this one, but where the data may also be ``None``.
         """
-        return _OptionalDataDefinition(  # ty:ignore[invalid-return-type]
+        return _OptionalDataDefinitionProxy(  # ty:ignore[invalid-return-type]
             self,
         )
 
@@ -97,7 +94,7 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         """
         Create a new definition like this one, but with the given porter.
         """
-        return _PortableDataDefinition(  # ty:ignore[invalid-return-type]
+        return _PortableDataDefinitionProxy(  # ty:ignore[invalid-return-type]
             self,
             porter,
         )
@@ -113,7 +110,9 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
     @final
     def samplable(self, samples: ResolvableDataSamples[Self, DataT], /) -> Self:
         """Create a new definition like this one, but with the added samples."""
-        raise NotImplementedError
+        # @todo
+        return self
+        # raise NotImplementedError
 
     @final
     @property
@@ -138,13 +137,17 @@ class DefaultDataDefinition[DataT](DataDefinition[DataT], metaclass=TypeABCMeta)
         """
 
 
-# @todo assert issubclass(_DefaultDataDefinition, DefaultDataDefinition) is True
+# @todo assert issubclass(_DefaultDataDefinitionProxy, DefaultDataDefinition) is True
 @final
-class _DefaultDataDefinition[DefinitionT: DataDefinition, DataT](
+class _DefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
     DefaultDataDefinition[DataT], BaseObjectProxy[DefinitionT]
 ):
     def __init__(self, wrapped: DefinitionT, default: DataT, /):
-        super().__init__(wrapped)
+        super().__init__(
+            wrapped,
+            # @todo Remove the dummy label
+            label="",
+        )
         self._default = default
 
     @override
@@ -152,9 +155,9 @@ class _DefaultDataDefinition[DefinitionT: DataDefinition, DataT](
         return self._default
 
 
-# @todo assert issubclass(_NewDefaultDataDefinition, DefaultDataDefinition) is True
+# @todo assert issubclass(_NewDefaultDataDefinitionProxy, DefaultDataDefinition) is True
 @final
-class _NewDefaultDataDefinition[DefinitionT: DataDefinition, DataT](
+class _NewDefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
     DefaultDataDefinition[DataT], BaseObjectProxy[DefinitionT]
 ):
     def __init__(
@@ -168,8 +171,9 @@ class _NewDefaultDataDefinition[DefinitionT: DataDefinition, DataT](
         return self._default(self)
 
 
+# @todo assert issubclass(_OptionalDataDefinitionProxy, OptionalDataDefinition) is True
 @final
-class _OptionalDataDefinition[DefinitionT: DataDefinition, DataT](
+class _OptionalDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
     DataDefinition[DataT], BaseObjectProxy[DefinitionT]
 ):
     def __init__(self, wrapped: DefinitionT, /):
@@ -181,7 +185,9 @@ class _OptionalDataDefinition[DefinitionT: DataDefinition, DataT](
                     lambda: Sample(None, label="Minimal", size=Size.MINIMAL),
                     wrapped.samples,
                 )
-            )
+            ),
+            # @todo Remove the dummy label
+            label="",
         )
 
 
@@ -200,27 +206,50 @@ class PortableDataDefinition[DataT, PortableDataT: PortableData = PortableData](
         """
 
 
-# @todo assert issubclass(_PortableDataDefinition, PortableDataDefinition) is True
+class PortableDataDefinitionBase[DataT, PortableDataT: PortableData = PortableData](
+    PortableDataDefinition[DataT]
+):
+    """
+    A base class to make any data definition portable.
+    """
+
+    def __init__(
+        self,
+        *args: Any,
+        porter: ResolvableDataPorter[DataT, PortableDataT],
+        **kwargs: Any,
+    ):
+        super().__init__(*args, **kwargs)
+        self.__porter = LazyReCallable[Porter[DataT, PortableDataT]](
+            lambda: porter if isinstance(porter, Porter) else porter(self)  # ty:ignore[invalid-argument-type]
+        )
+
+    @final
+    @override
+    @property
+    def porter(self) -> Porter[DataT, PortableDataT]:
+        return self.__porter()
+
+
+# @todo assert issubclass(_PortableDataDefinitionProxy, PortableDataDefinition) is True
 @final
-class _PortableDataDefinition[
+class _PortableDataDefinitionProxy[
     DefinitionT: DataDefinition,
     DataT,
-    PortableDataT: PortableData = PortableData,
-](PortableDataDefinition[DataT], BaseObjectProxy[DefinitionT]):
+    PortableDataT: PortableData,
+](PortableDataDefinitionBase[DataT], BaseObjectProxy[DefinitionT]):
     def __init__(
         self,
         wrapped: DefinitionT,
         porter: ResolvableDataPorter[DataT, PortableDataT],
         /,
     ):
-        super().__init__(wrapped)
-        self._porter = LazyReCallable[Porter[DataT, PortableDataT]](
-            lambda: porter if isinstance(porter, Porter) else porter(self)  # ty:ignore[invalid-argument-type]
+        super().__init__(
+            wrapped,
+            porter=porter,
+            # @todo Remove the dummy label
+            label="",
         )
-
-    @property
-    def porter(self) -> Porter[DataT, PortableDataT]:
-        return self._porter()
 
 
 class Data[DefinitionT: DataDefinition = DataDefinition](HasDefinition[DefinitionT]):

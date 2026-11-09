@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Final, final
 
 from betty import samples
 from betty.assertions.str import assert_str
-from betty.data import DataDefinition
+from betty.data import PortableDataDefinitionBase
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
@@ -33,7 +33,7 @@ def _assert_hex(color: str) -> str:
 
 
 @final
-class ColorDefinition(DataDefinition[str]):
+class ColorDefinition(PortableDataDefinitionBase[str]):
     """
     Define a color.
     """

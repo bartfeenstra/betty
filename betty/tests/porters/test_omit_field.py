@@ -1,6 +1,6 @@
 from pytest_mock import MockerFixture
 
-from betty.data import DataDefinition
+from betty.data import DataDefinition, PortableDataDefinitionBase
 from betty.datas.aggregate.record import FieldDefinition
 from betty.portable import NoPortableData, PortableData, Porter
 from betty.porters.omit_field import OmitFieldPorter
@@ -14,7 +14,8 @@ class TestOmitFieldPorter:
         m_porter = mocker.MagicMock(spec=Porter)
         m_porter.dump.return_value = dumped
         sut = OmitFieldPorter(
-            FieldDefinition(DataDefinition(label="-", porter=m_porter)), lambda _: False
+            FieldDefinition(PortableDataDefinitionBase(label="-", porter=m_porter)),
+            lambda _: False,
         )
         data = object()
         assert sut.dump(object(), data) == dumped
@@ -31,7 +32,8 @@ class TestOmitFieldPorter:
         m_porter = mocker.MagicMock(spec=Porter)
         m_porter.load.return_value = loaded
         sut = OmitFieldPorter(
-            FieldDefinition(DataDefinition(label="-", porter=m_porter)), lambda _: False
+            FieldDefinition(PortableDataDefinitionBase(label="-", porter=m_porter)),
+            lambda _: False,
         )
         dumped: PortableData = {
             "hello": "World!",
@@ -46,7 +48,7 @@ class TestOmitFieldPorter:
         m_porter = mocker.MagicMock(spec=Porter)
         m_porter.dump.return_value = dumped
         sut = OmitFieldPorter.new(lambda _: False)(
-            FieldDefinition(DataDefinition(label="-", porter=m_porter))
+            FieldDefinition(PortableDataDefinitionBase(label="-", porter=m_porter))
         )
         data = object()
         assert sut.dump(object(), data) == dumped

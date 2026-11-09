@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.data import DataDefinition
+from betty.data import PortableDataDefinitionBase
 from betty.date import AnyDate, Date, DateRange
 from betty.localizables.gettext import _
 from betty.porters.date import AnyDatePorter
@@ -14,7 +14,7 @@ from betty.sample import Samples
 
 
 @final
-class AnyDateDefinition(DataDefinition[AnyDate]):
+class AnyDateDefinition(PortableDataDefinitionBase[AnyDate]):
     """
     The data definition for a date or a date range.
     """

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.data import DataDefinition
+from betty.data import PortableDataDefinitionBase
 from betty.datas.entity_reference import EntityReference
 from betty.entity import Entity
 from betty.porters.entity_as_reference import EntityAsReferencePorter
@@ -17,17 +17,14 @@ if TYPE_CHECKING:
 
 @final
 class EntityAsReferenceDefinition[AssociateT: Entity](
-    DataDefinition[AssociateT | EntityReference[AssociateT]]
+    PortableDataDefinitionBase[AssociateT | EntityReference[AssociateT]]
 ):
     """
     Define the data for an entity that is ported as an :py:class:`betty.datas.entity_reference.EntityReference`.
     """
 
     def __init__(
-        self,
-        *,
-        description: AnyLocalizable | None = None,
-        label: AnyLocalizable,
+        self, *, description: AnyLocalizable | None = None, label: AnyLocalizable
     ):
         super().__init__(
             description=description,
