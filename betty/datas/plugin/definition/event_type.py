@@ -17,27 +17,25 @@ from betty.datas.plugin.definition import (
 from betty.event_type import EventType, EventTypeDefinition
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
-from betty.sample import Sample, Samples
+from betty.sample import Sample
 
 
 @final
 @PluginDefinitionConfigDefinition(
     EventTypeDefinition,
-    samples=Samples(
-        lambda: Sample(
-            EventTypeDefinitionConfig(
-                id="moon-landing",
-                label="Moon landing",
-                label_plural="Moon landings",
-                label_countable=CountableStaticTranslations({
-                    default_locale: {
-                        "one": "{count} moon landing",
-                        "other": "{count} moon landings",
-                    }
-                }),
-            ),
-            label="Default",
-        )
+    samples=Sample(
+        lambda: EventTypeDefinitionConfig(
+            id="moon-landing",
+            label="Moon landing",
+            label_plural="Moon landings",
+            label_countable=CountableStaticTranslations({
+                default_locale: {
+                    "one": "{count} moon landing",
+                    "other": "{count} moon landings",
+                }
+            }),
+        ),
+        label="Default",
     ),
 )
 class EventTypeDefinitionConfig(

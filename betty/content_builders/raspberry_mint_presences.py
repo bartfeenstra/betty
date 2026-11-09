@@ -19,7 +19,7 @@ from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.project import Project
 from betty.role import RoleDefinition
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -32,15 +32,18 @@ if TYPE_CHECKING:
 @final
 @ObjectDefinition(
     label=_("Presences configuration"),
-    samples=Samples(
-        lambda: Sample(PresencesData(), label="Minimal"),
-        lambda: Sample(
-            PresencesData(include=["subject"]),
+    samples=(
+        Sample(
+            lambda: PresencesData,  # noqa: PLW0108
+            label="Minimal",
+        ),
+        Sample(
+            lambda: PresencesData(include=["subject"]),
             label="Includes",
             size=Size.FULL,
         ),
-        lambda: Sample(
-            PresencesData(exclude=["subject"]),
+        Sample(
+            lambda: PresencesData(exclude=["subject"]),
             label="Excludes",
             size=Size.FULL,
         ),

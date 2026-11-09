@@ -14,7 +14,7 @@ from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.media_types import plain_text
 from betty.project import Project
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -26,8 +26,8 @@ if TYPE_CHECKING:
 @final
 @ObjectDefinition(
     label=_("Rendered content configuration"),
-    samples=Samples(
-        lambda: Sample(RenderData("Hello, world!"), label="Minimal", size=Size.MINIMAL)
+    samples=Sample(
+        lambda: RenderData("Hello, world!"), label="Minimal", size=Size.MINIMAL
     ),
 )
 class RenderData(Object):

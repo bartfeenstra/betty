@@ -16,27 +16,25 @@ from betty.datas.plugin.definition import (
 from betty.gender import Gender, GenderDefinition
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
-from betty.sample import Sample, Samples
+from betty.sample import Sample
 
 
 @final
 @PluginDefinitionConfigDefinition(
     GenderDefinition,
-    samples=Samples(
-        lambda: Sample(
-            GenderDefinitionConfig(
-                id="genderqueer",
-                label="Genderqueer",
-                label_plural="Genderqueers",
-                label_countable=CountableStaticTranslations({
-                    default_locale: {
-                        "one": "{count} genderqueer",
-                        "other": "{count} genderqueers",
-                    }
-                }),
-            ),
-            label="Default",
-        )
+    samples=Sample(
+        lambda: GenderDefinitionConfig(
+            id="genderqueer",
+            label="Genderqueer",
+            label_plural="Genderqueers",
+            label_countable=CountableStaticTranslations({
+                default_locale: {
+                    "one": "{count} genderqueer",
+                    "other": "{count} genderqueers",
+                }
+            }),
+        ),
+        label="Default",
     ),
 )
 class GenderDefinitionConfig(

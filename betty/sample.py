@@ -8,7 +8,7 @@ from enum import IntEnum, auto
 from typing import TYPE_CHECKING, Final, final
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
 
     from betty.localizer import AnyLocalizable
 
@@ -25,7 +25,7 @@ class Size(IntEnum):
 
 
 @final
-class Sample[T]:
+class Sample[SampleT]:
     """
     A sample.
 
@@ -34,16 +34,13 @@ class Sample[T]:
 
     def __init__(
         self,
-        subject: T,
+        subject: Callable[[], SampleT],
         *,
         label: AnyLocalizable,
         description: AnyLocalizable | None = None,
         size: Size = Size.INTERMEDIATE,
     ):
-        self.subject: Final[T] = subject
-        """
-        The sample subject.
-        """
+        self._subject = subject
         self.label: Final[AnyLocalizable] = label
         """
         The sample's human-readable short label.
@@ -57,24 +54,42 @@ class Sample[T]:
         The sample size.
         """
 
+    @property
+    def subject(self) -> SampleT:
+        """
+        The sample subject.
+        """
+        return self._subject()
+
+
+type ResolvableSamples[SampleT] = (
+    Samples[SampleT] | tuple[Sample[SampleT], ...] | Sample[SampleT]
+)
+
+
+def _resolve_samples[SampleT](
+    *samples: ResolvableSamples[SampleT],
+) -> Iterable[Sample[SampleT]]:
+    for samples_ in samples:
+        if isinstance(samples_, Sample):
+            yield samples_
+        else:
+            yield from samples_
+
 
 @final
-class Samples[T]:
+class Samples[SampleT]:
     """
     A set of samples.
     """
 
-    def __init__(self, *samples: Callable[[], Sample[T]] | Samples[T]):
-        self._samples = tuple(samples)
+    def __init__(self, *samples: ResolvableSamples[SampleT]):
+        self._samples = tuple(map(_resolve_samples, samples))
 
-    def __iter__(self) -> Iterator[Sample[T]]:
-        for sample in self._samples:
-            if isinstance(sample, Samples):
-                yield from sample
-            else:
-                yield sample()
+    def __iter__(self) -> Iterator[Sample[SampleT]]:
+        return iter(self._samples)
 
-    def get(self, preferred_size: Size = Size.INTERMEDIATE, /) -> Sample[T]:
+    def get(self, preferred_size: Size = Size.INTERMEDIATE, /) -> Sample[SampleT]:
         """
         Get a sample.
         """

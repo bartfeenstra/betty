@@ -45,7 +45,7 @@ from betty.operator import Attr, Key
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.webpack.build import EntryPointProvider
@@ -71,18 +71,22 @@ type ManufacturableRegionalContent = Mapping[
 @final
 @ObjectDefinition(
     label=_("Raspberry Mint configuration"),
-    samples=Samples(
-        lambda: Sample(RaspberryMintData(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(
-            RaspberryMintData(
+    samples=(
+        Sample(
+            lambda: RaspberryMintData(),  # noqa: PLW0108
+            label="Minimal",
+            size=Size.MINIMAL,
+        ),
+        Sample(
+            lambda: RaspberryMintData(
                 primary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
                 secondary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
                 tertiary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
             ),
             label="Custom colors",
         ),
-        lambda: Sample(
-            RaspberryMintData(
+        Sample(
+            lambda: RaspberryMintData(
                 regional_content={
                     "front-page-content": [
                         ContentBuilderManufacturer(Render, RenderData("Hello, world!")),

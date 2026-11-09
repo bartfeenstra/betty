@@ -16,27 +16,25 @@ from betty.datas.plugin.definition import (
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
 from betty.role import Role, RoleDefinition
-from betty.sample import Sample, Samples
+from betty.sample import Sample
 
 
 @final
 @PluginDefinitionConfigDefinition(
     RoleDefinition,
-    samples=Samples(
-        lambda: Sample(
-            RoleDefinitionConfig(
-                id="astronaut",
-                label="Astronaut",
-                label_plural="Astronauts",
-                label_countable=CountableStaticTranslations({
-                    default_locale: {
-                        "one": "{count} astronaut",
-                        "other": "{count} astronauts",
-                    }
-                }),
-            ),
-            label="Default",
-        )
+    samples=Sample(
+        lambda: RoleDefinitionConfig(
+            id="astronaut",
+            label="Astronaut",
+            label_plural="Astronauts",
+            label_countable=CountableStaticTranslations({
+                default_locale: {
+                    "one": "{count} astronaut",
+                    "other": "{count} astronauts",
+                }
+            }),
+        ),
+        label="Default",
     ),
 )
 class RoleDefinitionConfig(

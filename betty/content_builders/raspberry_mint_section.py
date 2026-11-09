@@ -27,7 +27,7 @@ from betty.datas.bool import BoolDefinition
 from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -39,15 +39,13 @@ if TYPE_CHECKING:
 @final
 @ObjectDefinition(
     label=_("Section configuration"),
-    samples=Samples(
-        lambda: Sample(
-            SectionData(
-                ContentBuilderManufacturer("my-first-content"),
-                heading="My First Heading",
-            ),
-            label="Minimal",
-            size=Size.MINIMAL,
+    samples=Sample(
+        lambda: SectionData(
+            ContentBuilderManufacturer("my-first-content"),
+            heading="My First Heading",
         ),
+        label="Minimal",
+        size=Size.MINIMAL,
     ),
     manufacturer=lambda **fields: SectionData(*fields.pop("content"), **fields),
 )

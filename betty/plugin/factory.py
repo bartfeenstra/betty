@@ -209,13 +209,13 @@ class PluginManufacturerDefinition[DefinitionT: PluginDefinition, PluginT](
             label=plugin_type.definition.label,
             porter=lambda definition: PluginManufacturerPorter(definition.cls),
             samples=lambda definition: Samples(
-                lambda: Sample(
-                    definition.cls("my-first-plugin-id"),
+                Sample(
+                    lambda: definition.cls("my-first-plugin-id"),
                     label="Minimal",
                     size=Size.MINIMAL,
                 ),
-                lambda: Sample(
-                    definition.cls(
+                Sample(
+                    lambda: definition.cls(
                         "my-first-plugin-id",
                         {
                             "configuration-key": "configuration-value",

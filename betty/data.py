@@ -15,10 +15,10 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.functools import LazyReCallable
 from betty.portable import Porter
 from betty.porters.optional import OptionalPorter
-from betty.sample import Sample, Samples, Size
+from betty.sample import ResolvableSamples, Sample, Samples, Size
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterator
 
     from ty_extensions import Intersection
 
@@ -36,10 +36,25 @@ type ResolvableDataPorter[
 
 
 type ResolvableDataSamples[DefinitionT: DataDefinition, DataT] = (
-    Samples[DataT] | Callable[[DefinitionT], Samples[DataT]]
+    ResolvableSamples[DataT] | Callable[[DefinitionT], Samples[DataT]]
 )
 
 
+def _resolve_data_samples[DefinitionT: DataDefinition, DataT](
+    definition: Intersection[DefinitionT, DataDefinition[DataT]],
+    *samples: ResolvableDataSamples[DefinitionT, DataT],
+) -> Iterator[Sample[DataT]]:
+    for sample in samples:
+        if isinstance(sample, Samples | tuple | Sample):
+            yield from Samples(sample)
+        else:
+            yield from sample(definition)
+
+
+# @todo Extract implementations to DataDefinitionBase? That would solve our proxy issues straight away.
+# @todo
+# @todo Except that we would have to do that for every, single, Definition base class
+# @todo
 class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT]):
     """
     A data definition.
@@ -55,7 +70,7 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         **kwargs: Any,
     ):
         super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
-        self.__samples = samples or Samples()
+        self.__samples = () if samples is None else samples
 
     @final
     def default(
@@ -106,9 +121,10 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
     @final
     def samplable(self, samples: ResolvableDataSamples[Self, DataT], /) -> Self:
         """Create a new definition like this one, but with the added samples."""
-        # @todo
-        return self
-        # raise NotImplementedError
+        return _SamplableDataDefinition(  # ty:ignore[invalid-return-type]
+            self,
+            samples,
+        )
 
     @final
     @property
@@ -116,9 +132,7 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         """
         Any samples for this data.
         """
-        if isinstance(self.__samples, Samples):
-            return self.__samples
-        return self.__samples(self)
+        return Samples(*_resolve_data_samples(self, self.__samples))
 
 
 class DefaultDataDefinition[DataT](DataDefinition[DataT], metaclass=ABCMeta):
@@ -142,8 +156,10 @@ class _DefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
         BaseObjectProxy.__init__(self, wrapped)
         DefaultDataDefinition.__init__(
             self,
-            # @todo Remove the dummy label
-            label="",
+            cls=wrapped.cls,
+            label=wrapped.label,
+            description=wrapped.description,
+            samples=wrapped.samples,
         )
         self._default = default
 
@@ -163,8 +179,10 @@ class _NewDefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
         BaseObjectProxy.__init__(self, wrapped)
         DefaultDataDefinition.__init__(
             self,
-            # @todo Remove the dummy label
-            label="",
+            cls=wrapped.cls,
+            label=wrapped.label,
+            description=wrapped.description,
+            samples=wrapped.samples,
         )
         self._default = default
 
@@ -183,18 +201,22 @@ class _OptionalDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
             wrapped = wrapped.portable(OptionalPorter(wrapped.porter))
         BaseObjectProxy.__init__(
             self,
-            # @todo Do not set a default if there is one already
-            wrapped.default(None).samplable(
-                Samples(
-                    lambda: Sample(None, label="Minimal", size=Size.MINIMAL),
-                    wrapped.samples,
-                )
-            ),
+            # @todo We can't set a default on `wrapped` because we don't know if None is supported!
+            # @todo Find another way.
+            # @todo
+            # @todo Maybe subclass _DefaultDataDefinitionProxy here?
+            # @todo
+            wrapped.default(None),
         )
         DataDefinition.__init__(
             self,
-            # @todo Remove the dummy label
-            label="",
+            cls=wrapped.cls,
+            label=wrapped.label,
+            description=wrapped.description,
+            samples=Samples(
+                Sample(lambda: None, label="Minimal", size=Size.MINIMAL),
+                wrapped.samples,
+            ),
         )
 
 
@@ -257,8 +279,31 @@ class _PortableDataDefinitionProxy[DefinitionT: DataDefinition, DataT, PorterT: 
         PortableDataDefinitionBase.__init__(
             self,
             porter=porter,  # ty: ignore[invalid-argument-type]
-            # @todo Remove the dummy label
-            label="",
+            cls=wrapped.cls,
+            label=wrapped.label,
+            description=wrapped.description,
+            samples=wrapped.samples,
+        )
+
+
+# @todo assert issubclass(_SamplableDataDefinition, Samplable) is True
+@final
+class _SamplableDataDefinition[DefinitionT: DataDefinition, DataT](
+    BaseObjectProxy[DefinitionT], DataDefinition[DataT]
+):
+    def __init__(
+        self,
+        wrapped: DefinitionT,
+        samples: ResolvableDataSamples[DefinitionT, DataT],
+        /,
+    ):
+        BaseObjectProxy.__init__(self, wrapped)
+        DataDefinition.__init__(
+            self,
+            cls=wrapped.cls,
+            label=wrapped.label,
+            description=wrapped.description,
+            samples=(*_resolve_data_samples(wrapped, samples, wrapped.samples),),
         )
 
 

@@ -25,7 +25,7 @@ from betty.datas.str import StrDefinition
 from betty.factory import DataManufacturable
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -35,10 +35,14 @@ if TYPE_CHECKING:
 @final
 @ObjectDefinition(
     label=_("Box configuration"),
-    samples=Samples(
-        lambda: Sample(BoxData(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(
-            BoxData(
+    samples=(
+        Sample(
+            lambda: BoxData(),  # noqa: PLW0108
+            label="Minimal",
+            size=Size.MINIMAL,
+        ),
+        Sample(
+            lambda: BoxData(
                 ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
                 min_height="100px",
                 max_height="1000px",

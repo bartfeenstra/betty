@@ -14,7 +14,7 @@ from betty.datas.plugin.definition import (
 )
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
-from betty.sample import Sample, Samples
+from betty.sample import Sample
 
 if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
@@ -23,16 +23,14 @@ if TYPE_CHECKING:
 @final
 @PluginDefinitionConfigDefinition(
     LicenseDefinition,
-    samples=Samples(
-        lambda: Sample(
-            LicenseDefinitionConfig(
-                id="my-first-license",
-                label="My First License",
-                summary="My First License is my first license",
-                text="My First License is my first license, and allows you o…",
-            ),
-            label="Default",
-        )
+    samples=Sample(
+        lambda: LicenseDefinitionConfig(
+            id="my-first-license",
+            label="My First License",
+            summary="My First License is my first license",
+            text="My First License is my first license, and allows you o…",
+        ),
+        label="Default",
     ),
 )
 class LicenseDefinitionConfig(

@@ -12,7 +12,7 @@ from betty.definition.id import resolve_id
 from betty.entity import Entity, EntityDefinition
 from betty.freezer import Frozen
 from betty.localizables.gettext import _
-from betty.sample import Sample, Samples
+from betty.sample import Sample
 
 if TYPE_CHECKING:
     from betty.definition.id import ResolvableId
@@ -21,9 +21,7 @@ if TYPE_CHECKING:
 @final
 @ObjectDefinition(
     label=_("Entity reference"),
-    samples=Samples(
-        lambda: Sample(EntityReference("person", "123"), label="Default"),
-    ),
+    samples=Sample(lambda: EntityReference("person", "123"), label="Default"),
 )
 class EntityReference[EntityT: Entity = Entity](Object, Frozen):
     """

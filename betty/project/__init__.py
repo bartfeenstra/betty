@@ -107,7 +107,7 @@ from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 from betty.server import ManufacturableServer, ServerDefinition
 from betty.service import (
     Service,
@@ -136,14 +136,12 @@ if TYPE_CHECKING:
 
     from betty.asset import AssetDirectoryDefinition
     from betty.collection.keyed import KeyedCollection
-    from betty.data import PortableDataDefinition as PortableDataDefinition
     from betty.definition import ResolvableDefinition
     from betty.jinja import Environment
     from betty.localizer import AnyLocalizable
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
-    from betty.portable import KeyedPorter as KeyedPorter
     from betty.services.plugin import SupportedPlugins
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.url_generator import UrlGenerator
@@ -627,12 +625,16 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
 @ObjectDefinition(
     label=_("Project locale"),
     porter=lambda definition: KeyedMappingPorter("locale", FieldsPorter(definition)),
-    samples=Samples(
-        lambda: Sample(
-            ProjectLocale(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL
+    samples=(
+        Sample(
+            lambda: ProjectLocale(Locale("nl", "NL")),
+            label="Minimal",
+            size=Size.MINIMAL,
         ),
-        lambda: Sample(
-            ProjectLocale(Locale("nl", "NL"), alias="nl"), label="Full", size=Size.FULL
+        Sample(
+            lambda: ProjectLocale(Locale("nl", "NL"), alias="nl"),
+            label="Full",
+            size=Size.FULL,
         ),
     ),
 )
@@ -668,14 +670,14 @@ class ProjectLocale(Object, Frozen):
 @final
 @ObjectDefinition(
     label=_("Project configuration"),
-    samples=Samples(
-        lambda: Sample(
-            ProjectData(title="Betty", url="https://example.com"),
+    samples=(
+        Sample(
+            lambda: ProjectData(title="Betty", url="https://example.com"),
             label="Minimal",
             size=Size.MINIMAL,
         ),
-        lambda: Sample(
-            ProjectData(
+        Sample(
+            lambda: ProjectData(
                 author="Bart Feenstra",
                 clean_urls=True,
                 copyright_notice=CopyrightNoticeManufacturer.definition.samples.get(
