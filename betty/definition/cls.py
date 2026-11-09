@@ -35,7 +35,7 @@ class _ClsDefinition[BaseClsT = Any](Definition):
         if issubclass(cls, HasDefinition):
             if hasattr(cls, "definition"):
                 raise ValueError(
-                    f"{self._cls!r} has already been decorated with {cls.definition}."
+                    f"{cls!r} has already been decorated with {cls.definition}."
                 )
             cls.definition = DefinitionClassVar(self)
         self._cls = cls

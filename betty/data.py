@@ -158,7 +158,6 @@ class _DefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
         BaseObjectProxy.__init__(self, wrapped)
         DefaultDataDefinition.__init__(
             self,
-            cls=wrapped.cls,
             label=wrapped.label,
             description=wrapped.description,
             samples=wrapped.samples,
@@ -181,7 +180,6 @@ class _NewDefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
         BaseObjectProxy.__init__(self, wrapped)
         DefaultDataDefinition.__init__(
             self,
-            cls=wrapped.cls,
             label=wrapped.label,
             description=wrapped.description,
             samples=wrapped.samples,
@@ -212,7 +210,6 @@ class _OptionalDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
         )
         DataDefinition.__init__(
             self,
-            cls=wrapped.cls,
             label=wrapped.label,
             description=wrapped.description,
             samples=Samples(
@@ -281,7 +278,6 @@ class _PortableDataDefinitionProxy[DefinitionT: DataDefinition, DataT, PorterT: 
         PortableDataDefinitionBase.__init__(
             self,
             porter=porter,  # ty: ignore[invalid-argument-type]
-            cls=wrapped.cls,
             label=wrapped.label,
             description=wrapped.description,
             samples=wrapped.samples,
@@ -302,7 +298,6 @@ class _SamplableDataDefinition[DefinitionT: DataDefinition, DataT](
         BaseObjectProxy.__init__(self, wrapped)
         DataDefinition.__init__(
             self,
-            cls=wrapped.cls,
             label=wrapped.label,
             description=wrapped.description,
             samples=(*_resolve_data_samples(wrapped, samples, wrapped.samples),),
