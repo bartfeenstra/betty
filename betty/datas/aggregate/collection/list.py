@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 from betty.datas.aggregate.collection.sequence import MutableSequenceDefinition
 
 if TYPE_CHECKING:
-    from betty.data import DataDefinition, ResolvableDataDefinition
+    from betty.data import PortableDataDefinition, ResolvableDataDefinition
     from betty.localizer import AnyLocalizable
 
 
@@ -22,7 +22,7 @@ class ListDefinition[ValueT](MutableSequenceDefinition[list[ValueT], ValueT]):
     def __init__(
         self,
         *,
-        value: ResolvableDataDefinition[DataDefinition[ValueT]],
+        value: ResolvableDataDefinition[PortableDataDefinition[ValueT]],
         label: AnyLocalizable,
         description: AnyLocalizable | None = None,
     ):

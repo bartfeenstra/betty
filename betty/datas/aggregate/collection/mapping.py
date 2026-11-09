@@ -8,7 +8,11 @@ from collections.abc import Iterable, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.assertions.mapping import assert_mapping
-from betty.data import DataDefinition, ResolvableDataDefinition, resolve_data_definition
+from betty.data import (
+    PortableDataDefinition,
+    ResolvableDataDefinition,
+    resolve_data_definition,
+)
 from betty.datas.aggregate.collection import (
     CollectionDefinition,
     CollectionManufacturer,
@@ -34,8 +38,8 @@ class MappingDefinition[MappingT: Mapping[Any, Any], KeyT, ValueT](
     def __init__(
         self,
         *,
-        key: ResolvableDataDefinition[DataDefinition[KeyT]],
-        value: ResolvableDataDefinition[DataDefinition[ValueT]],
+        key: ResolvableDataDefinition[PortableDataDefinition[KeyT]],
+        value: ResolvableDataDefinition[PortableDataDefinition[ValueT]],
         label: AnyLocalizable,
         description: AnyLocalizable | None = None,
         manufacturer: CollectionManufacturer[MappingT, NewMapping[KeyT, ValueT]]
@@ -52,17 +56,21 @@ class MappingDefinition[MappingT: Mapping[Any, Any], KeyT, ValueT](
         self._value = resolve_data_definition(value)
 
     def _load(self, portable: PortableData, /) -> MappingT:
+        assert isinstance(self.item, PortableDataDefinition)
+        assert isinstance(self._value, PortableDataDefinition)
         return self.new(
             assert_mapping(self._value.porter.load, self.item.porter.load)(portable)
         )
 
     def _dump(self, data: MappingT) -> PortableData:
+        assert isinstance(self._value, PortableDataDefinition)
         return {
             self._dump_key(key): self._value.porter.dump(item)
             for key, item in data.items()
         }
 
     def _dump_key(self, key: KeyT, /) -> str:
+        assert isinstance(self.item, PortableDataDefinition)
         dumped = self.item.porter.dump(key)
         assert isinstance(dumped, str)
         return dumped

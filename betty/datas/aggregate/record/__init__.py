@@ -18,6 +18,7 @@ from betty.data import (
 )
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.operator import Attr, Key
+from betty.portable import Porter
 from betty.portable.error import NotPortable
 from betty.typing import empty_frozen_dict
 
@@ -141,8 +142,8 @@ class _RecordManufacturer[DataT](Protocol):
 type RecordManufacturer[DataT] = type[DataT] | _RecordManufacturer[DataT]
 
 
-class RecordDefinition[DataT, OperatorT: FieldOperator](
-    PortableDataDefinitionBase[DataT]
+class RecordDefinition[DataT, OperatorT: FieldOperator, PorterT: Porter = Porter](
+    PortableDataDefinitionBase[DataT, "Intersection[PorterT, Porter[DataT]]"]
 ):
     """
     A record data definition.
@@ -159,7 +160,8 @@ class RecordDefinition[DataT, OperatorT: FieldOperator](
         ] = empty_frozen_dict,
         description: AnyLocalizable | None = None,
         manufacturer: RecordManufacturer[DataT] | None = None,
-        porter: ResolvableDataPorter[Self, DataT] | None = None,
+        porter: ResolvableDataPorter[Self, DataT, Intersection[PorterT, Porter[DataT]]]
+        | None = None,
         samples: ResolvableDataSamples[Self, DataT] | None = None,
         **kwargs: Any,
     ):

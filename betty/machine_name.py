@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Final, Self, final
 from uuid import uuid4
 
 from betty.assertions.str import assert_str
-from betty.data import Data, DataDefinition
+from betty.data import Data, DataDefinition, PortableDataDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, Quote
@@ -33,7 +33,7 @@ _machinify_hyphen_pattern: Final[re.Pattern[str]] = re.compile(r"-{2,}")
 @DataDefinition(label=_("Machine name"), description=machine_name_description).portable(
     CallbackPorter(lambda data: MachineName(assert_str()(data)), pipe)
 )
-class MachineName(str, Data):
+class MachineName(str, Data[PortableDataDefinition["MachineName"]]):
     """
     A machine name.
 

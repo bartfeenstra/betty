@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 from betty.datas.aggregate.collection.mapping import MutableMappingDefinition
 
 if TYPE_CHECKING:
-    from betty.data import DataDefinition, ResolvableDataDefinition
+    from betty.data import PortableDataDefinition, ResolvableDataDefinition
     from betty.localizer import AnyLocalizable
     from betty.portable import Porter
 
@@ -25,8 +25,8 @@ class DictDefinition[KeyT, ValueT](
     def __init__(
         self,
         *,
-        key: ResolvableDataDefinition[DataDefinition[KeyT]],
-        value: ResolvableDataDefinition[DataDefinition[ValueT]],
+        key: ResolvableDataDefinition[PortableDataDefinition[KeyT]],
+        value: ResolvableDataDefinition[PortableDataDefinition[ValueT]],
         label: AnyLocalizable,
         description: AnyLocalizable | None = None,
         porter: Porter[dict[KeyT, ValueT]] | None = None,

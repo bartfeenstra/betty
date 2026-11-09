@@ -13,7 +13,7 @@ from betty.definition import HasDefinition
 from betty.definition.cls import OptionalClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.functools import LazyReCallable
-from betty.portable import PortableData, Porter
+from betty.portable import Porter
 from betty.porters.optional import OptionalPorter
 from betty.sample import Sample, Samples, Size
 
@@ -25,8 +25,13 @@ if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
 
 
-type ResolvableDataPorter[DefinitionT: DataDefinition, DataT] = (
-    Porter[DataT] | Callable[[DefinitionT], Porter[DataT]]
+type ResolvableDataPorter[
+    DefinitionT: DataDefinition,
+    DataT,
+    PorterT: Porter = Porter,
+] = (
+    Intersection[PorterT, Porter[DataT]]
+    | Callable[[DefinitionT], Intersection[PorterT, Porter[DataT]]]
 )
 
 
@@ -87,9 +92,9 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         )
 
     @final
-    def portable[PortableDataT: PortableData](
-        self, porter: ResolvableDataPorter[DataT, PortableDataT], /
-    ) -> PortableDataDefinition[DataT, PortableDataT]:
+    def portable[PorterT: Porter](
+        self, porter: ResolvableDataPorter[Self, DataT, PorterT], /
+    ) -> Intersection[Self, PortableDataDefinition[DataT, PorterT]]:
         """
         Create a new definition like this one, but with the given porter.
         """
@@ -97,14 +102,6 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
             self,
             porter,
         )
-
-    # @todo Remove this
-    @property
-    def porter(self) -> Porter[DataT]:
-        """
-        The porter for the data.
-        """
-        raise NotImplementedError
 
     @final
     def samplable(self, samples: ResolvableDataSamples[Self, DataT], /) -> Self:
@@ -162,18 +159,22 @@ class _NewDefaultDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
     def __init__(
         self, wrapped: DefinitionT, default: Callable[[DefinitionT], DataT], /
     ):
-        super().__init__(wrapped)
+        super().__init__(
+            wrapped,
+            # @todo Remove the dummy label
+            label="",
+        )
         self._default = default
 
     @override
     def new(self) -> DataT:
-        return self._default(self)
+        return self._default(self.__wrapped__)
 
 
 # @todo assert issubclass(_OptionalDataDefinitionProxy, OptionalDataDefinition) is True
 @final
 class _OptionalDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
-    DataDefinition[DataT], BaseObjectProxy[DefinitionT]
+    DataDefinition[DataT | None], BaseObjectProxy[DefinitionT]
 ):
     def __init__(self, wrapped: DefinitionT, /):
         if isinstance(wrapped, PortableDataDefinition):
@@ -190,7 +191,7 @@ class _OptionalDataDefinitionProxy[DefinitionT: DataDefinition, DataT](
         )
 
 
-class PortableDataDefinition[DataT, PortableDataT: PortableData = PortableData](
+class PortableDataDefinition[DataT, PorterT: Porter = Porter](
     DataDefinition[DataT], metaclass=ABCMeta
 ):
     """
@@ -199,14 +200,14 @@ class PortableDataDefinition[DataT, PortableDataT: PortableData = PortableData](
 
     @property
     @abstractmethod
-    def porter(self) -> Porter[DataT, PortableDataT]:
+    def porter(self) -> Intersection[PorterT, Porter[DataT]]:
         """
         The porter for the data.
         """
 
 
-class PortableDataDefinitionBase[DataT, PortableDataT: PortableData = PortableData](
-    PortableDataDefinition[DataT]
+class PortableDataDefinitionBase[DataT, PorterT: Porter = Porter](
+    PortableDataDefinition[DataT, PorterT]
 ):
     """
     A base class to make any data definition portable.
@@ -215,32 +216,30 @@ class PortableDataDefinitionBase[DataT, PortableDataT: PortableData = PortableDa
     def __init__(
         self,
         *args: Any,
-        porter: ResolvableDataPorter[DataT, PortableDataT],
+        porter: ResolvableDataPorter[Self, DataT, Intersection[PorterT, Porter[DataT]]],
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self.__porter = LazyReCallable[Porter[DataT, PortableDataT]](
+        self.__porter = LazyReCallable[PorterT](
             lambda: porter if isinstance(porter, Porter) else porter(self)  # ty:ignore[invalid-argument-type]
         )
 
     @final
     @override
     @property
-    def porter(self) -> Porter[DataT, PortableDataT]:
+    def porter(self) -> PorterT:
         return self.__porter()
 
 
 # @todo assert issubclass(_PortableDataDefinitionProxy, PortableDataDefinition) is True
 @final
-class _PortableDataDefinitionProxy[
-    DefinitionT: DataDefinition,
-    DataT,
-    PortableDataT: PortableData,
-](PortableDataDefinitionBase[DataT], BaseObjectProxy[DefinitionT]):
+class _PortableDataDefinitionProxy[DefinitionT: DataDefinition, DataT, PorterT: Porter](
+    PortableDataDefinitionBase[DataT, PorterT], BaseObjectProxy[DefinitionT]
+):
     def __init__(
         self,
         wrapped: DefinitionT,
-        porter: ResolvableDataPorter[DataT, PortableDataT],
+        porter: ResolvableDataPorter[DefinitionT, DataT, PorterT],
         /,
     ):
         super().__init__(

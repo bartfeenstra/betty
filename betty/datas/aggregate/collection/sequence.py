@@ -8,6 +8,9 @@ from collections.abc import Iterable, MutableSequence, Sequence
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.assertions.sequence import assert_sequence
+from betty.data import (
+    PortableDataDefinition,
+)
 from betty.datas.aggregate.collection import (
     CollectionDefinition,
     CollectionManufacturer,
@@ -16,7 +19,9 @@ from betty.datas.aggregate.collection import (
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
-    from betty.data import DataDefinition, ResolvableDataDefinition
+    from betty.data import (
+        ResolvableDataDefinition,
+    )
     from betty.localizer import AnyLocalizable
     from betty.portable import PortableData
 
@@ -31,7 +36,7 @@ class SequenceDefinition[SequenceT: Sequence[Any], ValueT](
     def __init__(
         self,
         *,
-        value: ResolvableDataDefinition[DataDefinition[ValueT]],
+        value: ResolvableDataDefinition[PortableDataDefinition[ValueT]],
         label: AnyLocalizable,
         description: AnyLocalizable | None = None,
         manufacturer: CollectionManufacturer[SequenceT, Iterable[ValueT]] | None = None,
@@ -45,9 +50,11 @@ class SequenceDefinition[SequenceT: Sequence[Any], ValueT](
         )
 
     def _load(self, portable: PortableData, /) -> SequenceT:
+        assert isinstance(self.item, PortableDataDefinition)
         return self.new(assert_sequence(self.item.porter.load)(portable))
 
     def _dump(self, data: SequenceT) -> PortableData:
+        assert isinstance(self.item, PortableDataDefinition)
         return [self.item.porter.dump(item) for item in data]
 
 

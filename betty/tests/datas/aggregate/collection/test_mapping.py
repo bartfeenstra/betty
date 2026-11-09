@@ -2,13 +2,15 @@ from collections.abc import Mapping
 
 import pytest
 
-from betty.data import DataDefinition
+from betty.data import PortableDataDefinitionBase
 from betty.datas.aggregate.collection.mapping import (
     MappingDefinition,
     MutableMappingDefinition,
 )
 from betty.datas.str import StrDefinition
+from betty.pipeline import pipe
 from betty.portable.error import NotPortable
+from betty.porters.callback import CallbackPorter
 
 
 class TestMappingDefinition:
@@ -41,7 +43,9 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str], str, str](
             manufacturer=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
-            value=DataDefinition(label="-"),
+            value=PortableDataDefinitionBase(
+                label="-", porter=CallbackPorter(pipe, pipe)
+            ),
             label="-",
         )
         with pytest.raises(NotPortable):
@@ -69,7 +73,9 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str], str, str](
             manufacturer=lambda values: dict(values) if values else {},
             key=StrDefinition(label="-"),
-            value=DataDefinition(label="-"),
+            value=PortableDataDefinitionBase(
+                label="-", porter=CallbackPorter(pipe, pipe)
+            ),
             label="-",
         )
         with pytest.raises(NotPortable):
@@ -81,7 +87,9 @@ class TestMutableMappingDefinition:
         data = {"foo": "FOO", "bar": "BAR"}
         MutableMappingDefinition[dict[str, str], str, str](
             key=StrDefinition(label="-"),
-            value=DataDefinition(label="-"),
+            value=PortableDataDefinitionBase(
+                label="-", porter=CallbackPorter(pipe, pipe)
+            ),
             label="-",
         ).clear(data)
         assert not data
@@ -103,7 +111,9 @@ class TestMutableMappingDefinition:
     ) -> None:
         MutableMappingDefinition[dict[str, str], str, str](
             key=StrDefinition(label="-"),
-            value=DataDefinition(label="-"),
+            value=PortableDataDefinitionBase(
+                label="-", porter=CallbackPorter(pipe, pipe)
+            ),
             label="-",
         ).replace(data, values)
         assert data == expected

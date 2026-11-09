@@ -2,13 +2,17 @@ from collections.abc import Iterable, MutableSequence, Sequence
 
 import pytest
 
-from betty.data import DataDefinition
+from betty.data import (
+    PortableDataDefinitionBase,
+)
 from betty.datas.aggregate.collection.sequence import (
     MutableSequenceDefinition,
     SequenceDefinition,
 )
 from betty.datas.str import StrDefinition
+from betty.pipeline import pipe
 from betty.portable.error import NotPortable
+from betty.porters.callback import CallbackPorter
 
 
 class TestSequenceDefinition:
@@ -39,7 +43,9 @@ class TestSequenceDefinition:
     def test_porter__load__with_item_without_porter(self) -> None:
         sut = SequenceDefinition[Sequence[str], str](
             manufacturer=lambda values: list(values) if values else [],
-            value=DataDefinition(label="-"),
+            value=PortableDataDefinitionBase(
+                label="-", porter=CallbackPorter(pipe, pipe)
+            ),
             label="-",
         )
         with pytest.raises(NotPortable):
@@ -64,7 +70,9 @@ class TestSequenceDefinition:
     def test_porter__dump__with_item_without_porter(self) -> None:
         sut = SequenceDefinition[Sequence[str], str](
             manufacturer=lambda values: list(values) if values else [],
-            value=DataDefinition(label="-"),
+            value=PortableDataDefinitionBase(
+                label="-", porter=CallbackPorter(pipe, pipe)
+            ),
             label="-",
         )
         with pytest.raises(NotPortable):
@@ -75,7 +83,10 @@ class TestMutableSequenceDefinition:
     def test_clear(self) -> None:
         data = ["foo", "bar"]
         MutableSequenceDefinition[MutableSequence[str], str](
-            value=DataDefinition(label="-"), label="-"
+            value=PortableDataDefinitionBase(
+                label="-", porter=CallbackPorter(pipe, pipe)
+            ),
+            label="-",
         ).clear(data)
         assert not data
 
@@ -94,6 +105,9 @@ class TestMutableSequenceDefinition:
         values: Iterable[str],
     ) -> None:
         MutableSequenceDefinition[MutableSequence[str], str](
-            value=DataDefinition(label="-"), label="-"
+            value=PortableDataDefinitionBase(
+                label="-", porter=CallbackPorter(pipe, pipe)
+            ),
+            label="-",
         ).replace(data, values)
         assert data == expected

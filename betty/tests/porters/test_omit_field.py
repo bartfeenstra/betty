@@ -2,7 +2,9 @@ from pytest_mock import MockerFixture
 
 from betty.data import DataDefinition, PortableDataDefinitionBase
 from betty.datas.aggregate.record import FieldDefinition
+from betty.pipeline import pipe
 from betty.portable import NoPortableData, PortableData, Porter
+from betty.porters.callback import CallbackPorter
 from betty.porters.omit_field import OmitFieldPorter
 
 
@@ -23,7 +25,10 @@ class TestOmitFieldPorter:
 
     def test_dump__with_omit(self) -> None:
         sut = OmitFieldPorter(
-            FieldDefinition(DataDefinition(label="-")), lambda _: True
+            FieldDefinition(
+                PortableDataDefinitionBase(label="-", porter=CallbackPorter(pipe, pipe))
+            ),
+            lambda _: True,
         )
         assert sut.dump(object(), object()) is NoPortableData
 

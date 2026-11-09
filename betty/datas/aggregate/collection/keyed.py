@@ -15,15 +15,16 @@ from betty.datas.aggregate.collection import (
     CollectionManufacturer,
     MutableCollectionDefinition,
 )
-from betty.portable import (
-    KeyedPorter,
-)
 from betty.porters.callback import CallbackPorter
 
 if TYPE_CHECKING:
-    from betty.data import DataDefinition, ResolvableDataDefinition
+    from betty.data import (
+        PortableDataDefinition,
+        ResolvableDataDefinition,
+    )
     from betty.localizer import AnyLocalizable
     from betty.portable import (
+        KeyedPorter,
         PortableData,
         PortableMapping,
         PortableSequence,
@@ -40,7 +41,9 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
     def __init__(
         self,
         *,
-        value: ResolvableDataDefinition[DataDefinition[ValueT]],
+        value: ResolvableDataDefinition[
+            PortableDataDefinition[ValueT, KeyedPorter[ValueT]]
+        ],
         order_dump: bool = False,
         label: AnyLocalizable,
         description: AnyLocalizable | None = None,
@@ -55,9 +58,7 @@ class KeyedCollectionDefinition[KeyedCollectionT: KeyedCollection, ValueT](
             manufacturer=manufacturer,
         )
         self._order_dump = order_dump
-        value_porter = self.item.porter
-        assert isinstance(value_porter, KeyedPorter)
-        self._value_porter: KeyedPorter[ValueT] = value_porter
+        self._value_porter: KeyedPorter[ValueT] = self.item.porter  # ty: ignore[unresolved-attribute]
 
     def _load(self, portable: PortableData, /) -> KeyedCollectionT:
         if self._order_dump:

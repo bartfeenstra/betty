@@ -136,12 +136,14 @@ if TYPE_CHECKING:
 
     from betty.asset import AssetDirectoryDefinition
     from betty.collection.keyed import KeyedCollection
+    from betty.data import PortableDataDefinition as PortableDataDefinition
     from betty.definition import ResolvableDefinition
     from betty.jinja import Environment
     from betty.localizer import AnyLocalizable
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
+    from betty.portable import KeyedPorter as KeyedPorter
     from betty.services.plugin import SupportedPlugins
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.url_generator import UrlGenerator
@@ -630,9 +632,7 @@ class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServ
             ProjectLocale(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL
         ),
         lambda: Sample(
-            ProjectLocale(Locale("nl", "NL"), alias="nl"),
-            label="Full",
-            size=Size.FULL,
+            ProjectLocale(Locale("nl", "NL"), alias="nl"), label="Full", size=Size.FULL
         ),
     ),
 )
@@ -778,7 +778,7 @@ class ProjectData(Object):
     enrichers = CollectionOwnerAttr(
         FieldDefinition(
             KeyedCollectionDefinition(
-                value=EnricherManufacturer,
+                value=EnricherManufacturer,  # ty: ignore[invalid-argument-type]
                 label=EnricherDefinition.definition.label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values),
@@ -805,7 +805,7 @@ class ProjectData(Object):
     service_providers = CollectionOwnerAttr(
         FieldDefinition(
             KeyedCollectionDefinition(
-                value=ServiceProviderManufacturer,
+                value=ServiceProviderManufacturer,  # ty: ignore[invalid-argument-type]
                 label=ServiceProviderDefinition.definition.label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values),
@@ -882,7 +882,7 @@ class ProjectData(Object):
     loaders = CollectionOwnerAttr(
         FieldDefinition(
             KeyedCollectionDefinition(
-                value=LoaderManufacturer,
+                value=LoaderManufacturer,  # ty: ignore[invalid-argument-type]
                 label=LoaderDefinition.definition.label_plural,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(
                     [] if values is None else list(values),
@@ -902,7 +902,7 @@ class ProjectData(Object):
     locales = CollectionOwnerAttr(
         FieldDefinition(
             KeyedCollectionDefinition(
-                value=ProjectLocale,
+                value=ProjectLocale,  # ty: ignore[invalid-argument-type]
                 label=_("Locales"),
                 order_dump=True,
                 manufacturer=lambda values: MutableKeyedCollectionAdapter(

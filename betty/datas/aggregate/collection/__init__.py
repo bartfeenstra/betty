@@ -6,19 +6,19 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Collection, Iterable
-from typing import TYPE_CHECKING, Final, final
+from typing import TYPE_CHECKING, Final, Self, final
 
 from betty.data import (
     DataDefinition,
+    PortableDataDefinition,
     PortableDataDefinitionBase,
     ResolvableDataDefinition,
+    ResolvableDataPorter,
     resolve_data_definition,
 )
 
 if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
-    from betty.portable import Porter
-
 
 type CollectionManufacturer[DataT, NewT: Iterable] = Callable[[NewT | None], DataT]
 
@@ -33,10 +33,10 @@ class CollectionDefinition[CollectionT: Collection, ItemT, NewT: Iterable](
     def __init__(
         self,
         *,
-        item: ResolvableDataDefinition[DataDefinition[ItemT]],
+        item: ResolvableDataDefinition[PortableDataDefinition[ItemT]],
         label: AnyLocalizable,
         description: AnyLocalizable | None = None,
-        porter: Porter[CollectionT] | None = None,
+        porter: ResolvableDataPorter[Self, CollectionT],
         manufacturer: CollectionManufacturer[CollectionT, NewT] | None = None,
     ):
         super().__init__(label=label, description=description, porter=porter)

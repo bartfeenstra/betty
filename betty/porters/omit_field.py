@@ -8,7 +8,7 @@ from collections.abc import Callable
 from inspect import signature
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.data import DataDefinition
+from betty.data import DataDefinition, PortableDataDefinition
 from betty.datas.aggregate.record import FieldDefinition, FieldPorter
 from betty.portable import NoPortableData, OptionalPortableData
 
@@ -31,7 +31,7 @@ class OmitFieldPorter[OwnerT, DataT](FieldPorter[OwnerT, DataT, DataT]):
 
     def __init__(
         self,
-        field: FieldDefinition[OwnerT, DataT, DataDefinition],
+        field: FieldDefinition[OwnerT, DataT, PortableDataDefinition[DataT]],
         omit_dump: _OmitDump[OwnerT, DataT],
         /,
     ):

@@ -1,9 +1,7 @@
-from collections.abc import Iterable, MutableSequence
 from typing import override
 
 from betty.attr import Attr
 from betty.attrs.default import DefaultAttr
-from betty.datas.aggregate.collection import CollectionDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.str import StrDefinition
 from betty.prop import HasProps
@@ -36,14 +34,3 @@ class TestDefaultAttr:
             my_first_attr = DefaultAttr(_Attr(), lambda: default)
 
         assert _Owner().my_first_attr == default
-
-
-class _CollectionDefinition(
-    CollectionDefinition[MutableSequence[str], str, Iterable[str]]
-):
-    def __init__(self):
-        super().__init__(
-            label="-",
-            item=StrDefinition(label="-"),
-            manufacturer=lambda _: ["Hello, world!"],
-        )

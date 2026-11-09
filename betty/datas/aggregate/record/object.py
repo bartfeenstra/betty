@@ -11,10 +11,13 @@ from betty.classtools import TypeABCMeta
 from betty.data import Data
 from betty.datas.aggregate.record import RecordDefinition
 from betty.operator import Attr as AttrOperator
+from betty.portable import Porter
 from betty.prop import HasProps
 
 
-class ObjectDefinition[DataT](RecordDefinition[DataT, AttrOperator]):
+class ObjectDefinition[DataT, PorterT: Porter = Porter](
+    RecordDefinition[DataT, AttrOperator, PorterT]
+):
     """
     Define an object with attributes.
 
