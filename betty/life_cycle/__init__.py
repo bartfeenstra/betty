@@ -4,14 +4,13 @@ Life cycle and resource management.
 
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any, Protocol, Self, final
 from warnings import warn
 
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from betty.asyncio import ResolvableAwaitable
+    from betty.asyncio import ResolvableCoroutineFunction
 
 
 class LifeCycleError(RuntimeError):
@@ -171,20 +170,23 @@ class LifeCycle(Bootstrappable, Shutdownable):
             warn(f"{self} was bootstrapped, but never shut down.", stacklevel=2)
 
 
-type Bootstrapper = Callable[[], Awaitable[None] | None]
+type Bootstrapper = ResolvableCoroutineFunction[[], None]
 """
 A callback to bootstrap resources.
 """
 
 
-class Shutdowner(Protocol):
-    """
-    A callback to shut down resources.
-    """
-
-    def __call__(  # noqa: D102
-        self,
-        *,
-        wait: bool,
-    ) -> ResolvableAwaitable[None]:
+class _Shutdowner(Protocol):
+    def __call__(self, *, wait: bool) -> None:
         pass
+
+
+class _ShutdownerCoroutineFunction(Protocol):
+    async def __call__(self, *, wait: bool) -> None:
+        pass
+
+
+type Shutdowner = _Shutdowner | _ShutdownerCoroutineFunction
+"""
+A callback to shut down resources.
+"""
