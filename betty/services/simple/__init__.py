@@ -14,7 +14,7 @@ from betty.services.simple.synchronous import SynchronousServiceManager
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
-    from betty.asyncio import ReAwaitable, ResolvableAwaitable
+    from betty.asyncio import ReAwaitable, ResolvableCoroutine
     from betty.service import ResolvableServiceLevelHasServices, ServiceManager
 
 
@@ -26,7 +26,7 @@ def service[OwnerT: ResolvableServiceLevelHasServices, ServiceT](
     ServiceT,
     ReAwaitable[ServiceT],
     ReAwaitable[ServiceT],
-    ResolvableAwaitable[ServiceT],
+    ResolvableCoroutine[ServiceT],
 ]:
     pass
 

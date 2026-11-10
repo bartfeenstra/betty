@@ -5,6 +5,7 @@ from __future__ import annotations
 from asyncio import to_thread
 from concurrent import futures
 from contextlib import AsyncExitStack, asynccontextmanager
+from inspect import markcoroutinefunction
 from os import environ
 from shutil import rmtree
 from tempfile import mkdtemp
@@ -14,7 +15,6 @@ from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
 from betty import about
-from betty.asyncio import ResolvableAwaitable, resolve_await
 from betty.attrs.locale import new_locale_attr
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
@@ -44,13 +44,13 @@ from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
-from betty.typing import Unreachable, empty_frozen_dict
+from betty.typing import Unreachable, empty_frozen_dict, resolve_coroutine_function
 from betty.uis.console import Console
 from betty.uis.no_op import NoOpUi
 from betty.user.ui import Ui
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator, Callable, Iterable
+    from collections.abc import AsyncGenerator, Iterable
     from pathlib import Path
 
     import aiohttp
@@ -62,6 +62,7 @@ if TYPE_CHECKING:
     from betty.service_level import Plugins
     from betty.services.plugin import SupportedPlugins
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
+    from betty.typing import ResolvableCoroutineFunction
 
 
 @final
@@ -100,7 +101,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         rate_limits: Iterable[RateLimitDefinition] = (),
         serializers: Iterable[ResolvableDefinition[SerializerDefinition]] = (),
         supported_plugins: SupportedPlugins = (),
-        ui: Ui | Callable[[App], ResolvableAwaitable[Ui]] | None = None,
+        ui: Ui | ResolvableCoroutineFunction[[App], Ui] | None = None,
     ):
         cls = type(self)
         cls.binary_file_cache.override(
@@ -138,9 +139,9 @@ class App(RequirableServiceLevel, HasPluginServices):
     async def _set_default_ui(self) -> None:
         self._ui = Console()
 
-    async def _set_ui(self, ui: Callable[[App], ResolvableAwaitable[Ui]], /) -> None:
-        self._ui = await resolve_await(ui(self))
-        if isinstance(ui, Bootstrappable | Shutdownable):
+    async def _set_ui(self, ui: ResolvableCoroutineFunction[[App], Ui], /) -> None:
+        self._ui = await resolve_coroutine_function(ui)(self)
+        if isinstance(self._ui, Bootstrappable | Shutdownable):
             await self.life_cycle.bind(self._ui)
 
     @property
@@ -167,7 +168,9 @@ class App(RequirableServiceLevel, HasPluginServices):
         async with cls(
             cache=TransientPickledFileStore(app_cache_directory),
             binary_file_cache=TransientBinaryFileStore(app_cache_directory),
-            ui=lambda app: cls._new_from_environment_user(app, locale),
+            ui=markcoroutinefunction(
+                lambda app: cls._new_from_environment_user(app, locale)
+            ),
         ) as app:
             yield app
 

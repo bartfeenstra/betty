@@ -6,14 +6,14 @@ from __future__ import annotations
 
 import inspect
 from abc import ABCMeta, abstractmethod
-from collections.abc import Callable, Coroutine
 from inspect import Parameter
-from typing import TYPE_CHECKING, Any, Self, final
+from typing import TYPE_CHECKING, Self, final
 
 from betty.asyncio import resolve_await
 from betty.data import Data
 from betty.importlib import fully_qualified_name
 from betty.service_level import ServiceLevel
+from betty.typing import ResolvableCoroutineFunction
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
@@ -52,8 +52,8 @@ class Manufacturable(metaclass=ABCMeta):
 
 type Manufacturer[T] = (
     type[Intersection[T, Manufacturable]]
-    | Callable[[], Coroutine[Any, Any, T] | T]
-    | Callable[[ServiceLevel], Coroutine[Any, Any, T] | T]
+    | ResolvableCoroutineFunction[[], T]
+    | ResolvableCoroutineFunction[[ServiceLevel], T]
 )
 
 

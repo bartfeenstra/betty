@@ -13,11 +13,10 @@ from betty.concurrent import ThreadSafeLock
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Generator
 
+    from betty.typing import ResolvableCoroutine
 
-type ResolvableAwaitable[T] = Awaitable[T] | T
 
-
-async def resolve_await[T](value: ResolvableAwaitable[T]) -> T:
+async def resolve_await[T](value: ResolvableCoroutine[T], /) -> T:
     """
     Return a value, but await it first if it is awaitable.
     """

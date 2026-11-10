@@ -5,12 +5,12 @@ Plugin discovery.
 from __future__ import annotations
 
 from asyncio import gather
-from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Mapping
+from collections.abc import AsyncIterator, Awaitable, Iterable, Mapping
 from contextlib import suppress
 from importlib import metadata
 from typing import TYPE_CHECKING, Final, cast, final
 
-from betty.asyncio import ResolvableAwaitable, resolve_await
+from betty.asyncio import resolve_await
 from betty.concurrent import ThreadSafeLock
 from betty.definition import ResolvableDefinition, resolve_definition
 from betty.definition.id import ResolvableId, resolve_id
@@ -19,6 +19,7 @@ from betty.plugin.error import PluginNotFound
 from betty.requirement import UnmetRequirement
 from betty.service_level import ServiceLevel
 from betty.string import kebab_case_to_snake_case
+from betty.typing import ResolvableCoroutineFunction
 
 if TYPE_CHECKING:
     import builtins
@@ -28,9 +29,8 @@ if TYPE_CHECKING:
 
 type ResolvableDiscovery[DefinitionT: PluginDefinition = PluginDefinition] = (
     ResolvableDefinition[DefinitionT]
-    | Callable[
-        [ServiceLevel],
-        ResolvableAwaitable[Iterable[ResolvableDiscovery[DefinitionT]]],
+    | ResolvableCoroutineFunction[
+        [ServiceLevel], Iterable[ResolvableDiscovery[DefinitionT]]
     ]
 )
 

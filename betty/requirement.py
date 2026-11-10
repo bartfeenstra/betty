@@ -9,17 +9,18 @@ from asyncio import gather
 from functools import partial
 from typing import TYPE_CHECKING, Any, Concatenate, Self, final, overload, override
 
-from betty.asyncio import ResolvableAwaitable, resolve_await
+from betty.asyncio import resolve_await
 from betty.exception import HumanFacingException
 from betty.functools import CallableDecorator, DecoratedCallable, DecoratedCallableType
+from betty.typing import ResolvableCoroutine, ResolvableCoroutineFunction
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Iterable
+    from collections.abc import Awaitable, Callable, Coroutine, Iterable
 
     from betty.service_level import ServiceLevel
 
 
-type Requirement[CheckT] = Callable[[ServiceLevel], Awaitable[CheckT] | CheckT]
+type Requirement[CheckT] = ResolvableCoroutineFunction[[ServiceLevel], CheckT]
 
 
 class UnmetRequirement(HumanFacingException):
@@ -51,10 +52,10 @@ class RequirableDecorator[CheckT](CallableDecorator, metaclass=ABCMeta):
     def __call__[**P, ReturnT](
         self,
         decorated: DecoratedCallableType[
-            Concatenate[CheckT, P], ResolvableAwaitable[ReturnT]
+            Concatenate[CheckT, P], ResolvableCoroutine[ReturnT]
         ],
         /,
-    ) -> DecoratedCallable[Concatenate[ServiceLevel, P], Awaitable[ReturnT]]:
+    ) -> DecoratedCallable[Concatenate[ServiceLevel, P], Coroutine[Any, Any, ReturnT]]:
         pass
 
     @override
@@ -81,10 +82,7 @@ class _RequirableDecorator[CheckT, **P, ReturnT]:
     def __init__(
         self,
         check: Callable[[ServiceLevel], Awaitable[CheckT]],
-        decorated: Callable[
-            Concatenate[CheckT, P],
-            Awaitable[ReturnT] | ReturnT,
-        ],
+        decorated: ResolvableCoroutineFunction[Concatenate[CheckT, P], ReturnT],
         /,
     ):
         self._check = check

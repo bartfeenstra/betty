@@ -13,11 +13,11 @@ from typing import TYPE_CHECKING, Protocol, Self, final, overload, runtime_check
 
 from typing_extensions import sentinel
 
-from betty.asyncio import resolve_await
 from betty.pipeline import pipe
+from betty.typing import ResolvableCoroutineFunction, resolve_coroutine_function
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Hashable, Iterable, Iterator
+    from collections.abc import Callable, Hashable, Iterable, Iterator
 
 
 def map_suppress[T, U](
@@ -43,17 +43,17 @@ class Do[**DoFP, DoFReturnT]:
 
     def __init__(
         self,
-        do: Callable[DoFP, DoFReturnT | Awaitable[DoFReturnT]],
+        do: ResolvableCoroutineFunction[DoFP, DoFReturnT],
         *do_args: DoFP.args,
         **do_kwargs: DoFP.kwargs,
     ):
-        self._do = do
+        self._do = resolve_coroutine_function(do)
         self._do_args = do_args
         self._do_kwargs = do_kwargs
 
     async def until(
         self,
-        *conditions: Callable[[DoFReturnT], None | bool | Awaitable[None | bool]],
+        *conditions: ResolvableCoroutineFunction[[DoFReturnT], None | bool],
         retries: int = 5,
         timeout: int = 300,
         interval: float = 0.1,
@@ -64,15 +64,14 @@ class Do[**DoFP, DoFReturnT]:
         :param timeout: The timeout in seconds.
         :param interval: The interval between 'loops' in seconds.
         """
+        conditions = tuple(map(resolve_coroutine_function, conditions))
         start_time = time()
         while True:
             retries -= 1
             try:
-                do_result = await resolve_await(
-                    self._do(*self._do_args, **self._do_kwargs)
-                )
+                do_result = await self._do(*self._do_args, **self._do_kwargs)
                 for condition in conditions:
-                    if await resolve_await(condition(do_result)) is False:
+                    if await condition(do_result) is False:
                         raise RuntimeError(  # noqa: TRY301
                             f"Condition {condition} was not met for {do_result}."
                         )
