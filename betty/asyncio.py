@@ -15,10 +15,7 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Coroutine, Generator
 
 
-type ResolvableAwaitable[T] = Awaitable[T] | T
-
-
-async def resolve_await[T](value: ResolvableAwaitable[T], /) -> T:
+async def resolve_await[T](value: ResolvableCoroutine[T], /) -> T:
     """
     Return a value, but await it first if it is awaitable.
     """
@@ -27,8 +24,9 @@ async def resolve_await[T](value: ResolvableAwaitable[T], /) -> T:
     return value
 
 
+type ResolvableCoroutine[ReturnT] = Coroutine[Any, Any, ReturnT] | ReturnT
 type ResolvableCoroutineFunction[**P, ReturnT] = Callable[
-    P, Coroutine[Any, Any, ReturnT] | ReturnT
+    P, ResolvableCoroutine[ReturnT]
 ]
 
 

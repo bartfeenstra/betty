@@ -51,9 +51,7 @@ async def test_resolve_coroutine_function__with__lambda() -> None:
 
 async def test_resolve_coroutine_function__with__lambda_returns_coroutine() -> None:
     value = _Value()
-    actual = await resolve_coroutine_function(_coroutine_function)(
-        value
-    )
+    actual = await resolve_coroutine_function(_coroutine_function)(value)
     assert iscoroutine(actual)
     assert await actual is value
 

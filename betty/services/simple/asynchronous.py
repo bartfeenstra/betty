@@ -9,7 +9,7 @@ from typing import final, override
 from betty.asyncio import (
     LazyReAwaitable,
     ReAwaitable,
-    ResolvableAwaitable,
+    ResolvableCoroutine,
     resolve_await,
 )
 from betty.life_cycle import Bootstrappable, Shutdownable
@@ -22,12 +22,12 @@ from betty.service import (
 )
 
 type AsynchronousServiceFactory[OwnerT: ResolvableServiceLevelHasServices, ServiceT] = (
-    ServiceFactory[OwnerT, ResolvableAwaitable[ServiceT]]
+    ServiceFactory[OwnerT, ResolvableCoroutine[ServiceT]]
 )
 type AsynchronousServiceOrFactory[
     OwnerT: ResolvableServiceLevelHasServices,
     ServiceT,
-] = ServiceOrFactory[OwnerT, ServiceT, ResolvableAwaitable[ServiceT]]
+] = ServiceOrFactory[OwnerT, ServiceT, ResolvableCoroutine[ServiceT]]
 type TypedAsynchronousServiceOrFactory[
     OwnerT: ResolvableServiceLevelHasServices,
     ServiceT,
@@ -41,7 +41,7 @@ class AsynchronousServiceManager[OwnerT: ResolvableServiceLevelHasServices, Serv
         ServiceT,
         ReAwaitable[ServiceT],
         ReAwaitable[ServiceT],
-        ResolvableAwaitable[ServiceT],
+        ResolvableCoroutine[ServiceT],
     ],
 ):
     """
