@@ -111,6 +111,14 @@ class MachineName(str, Data):
 
 
 type ResolvableMachineName = MachineName | str
+"""
+A string that is or can be made a :py:class:`betty.machine_name.MachineName`.
+
+A machine name is a string that meets these criteria:
+- At least 1 character long.
+- At most 250 characters long.
+- Lowercase letters, numbers, and non-consecutive hyphens (-).
+"""
 
 
 @final
