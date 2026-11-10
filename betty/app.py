@@ -15,7 +15,6 @@ from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
 
 from betty import about
-from betty.asyncio import ResolvableCoroutineFunction, resolve_coroutine_function
 from betty.attrs.locale import new_locale_attr
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
@@ -45,7 +44,7 @@ from betty.services.simple import service
 from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
-from betty.typing import Unreachable, empty_frozen_dict
+from betty.typing import Unreachable, empty_frozen_dict, resolve_coroutine_function
 from betty.uis.console import Console
 from betty.uis.no_op import NoOpUi
 from betty.user.ui import Ui
@@ -63,6 +62,7 @@ if TYPE_CHECKING:
     from betty.service_level import Plugins
     from betty.services.plugin import SupportedPlugins
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
+    from betty.typing import ResolvableCoroutineFunction
 
 
 @final

@@ -6,12 +6,7 @@ from __future__ import annotations
 
 from typing import final, override
 
-from betty.asyncio import (
-    LazyReAwaitable,
-    ReAwaitable,
-    ResolvableCoroutine,
-    resolve_await,
-)
+from betty.asyncio import LazyReAwaitable, ReAwaitable, resolve_await
 from betty.life_cycle import Bootstrappable, Shutdownable
 from betty.service import (
     ResolvableServiceLevelHasServices,
@@ -20,6 +15,7 @@ from betty.service import (
     ServiceManager,
     ServiceOrFactory,
 )
+from betty.typing import ResolvableCoroutine
 
 type AsynchronousServiceFactory[OwnerT: ResolvableServiceLevelHasServices, ServiceT] = (
     ServiceFactory[OwnerT, ResolvableCoroutine[ServiceT]]

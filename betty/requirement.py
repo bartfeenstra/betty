@@ -9,13 +9,10 @@ from asyncio import gather
 from functools import partial
 from typing import TYPE_CHECKING, Any, Concatenate, Self, final, overload, override
 
-from betty.asyncio import (
-    ResolvableCoroutine,
-    ResolvableCoroutineFunction,
-    resolve_await,
-)
+from betty.asyncio import resolve_await
 from betty.exception import HumanFacingException
 from betty.functools import CallableDecorator, DecoratedCallable, DecoratedCallableType
+from betty.typing import ResolvableCoroutine, ResolvableCoroutineFunction
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Coroutine, Iterable
@@ -85,10 +82,7 @@ class _RequirableDecorator[CheckT, **P, ReturnT]:
     def __init__(
         self,
         check: Callable[[ServiceLevel], Awaitable[CheckT]],
-        decorated: Callable[
-            Concatenate[CheckT, P],
-            Coroutine[Any, Any, ReturnT] | ReturnT,
-        ],
+        decorated: ResolvableCoroutineFunction[Concatenate[CheckT, P], ReturnT],
         /,
     ):
         self._check = check

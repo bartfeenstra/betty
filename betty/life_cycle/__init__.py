@@ -10,7 +10,7 @@ from warnings import warn
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from betty.asyncio import ResolvableCoroutineFunction
+    from betty.typing import ResolvableCoroutineFunction
 
 
 class LifeCycleError(RuntimeError):

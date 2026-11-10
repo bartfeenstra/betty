@@ -6,7 +6,9 @@ from __future__ import annotations
 
 import builtins
 import sys
-from collections.abc import Iterable, Iterator, Mapping
+from collections.abc import Callable, Coroutine, Iterable, Iterator, Mapping
+from functools import wraps
+from inspect import iscoroutinefunction
 from typing import Any, Final, TypeIs, final, overload
 
 
@@ -151,3 +153,27 @@ def is_runtime_checkable_mapping(value: Any, /) -> TypeIs[RuntimeCheckableMappin
     Check that a value is a mapping of a type checkable at runtime.
     """
     return isinstance(value, runtime_checkable_mapping_types)
+
+
+type _AnyCoroutine[ReturnT] = Coroutine[Any, Any, ReturnT]
+type CoroutineFunction[**P, ReturnT] = Callable[P, _AnyCoroutine[ReturnT]]
+type ResolvableCoroutine[ReturnT] = _AnyCoroutine[ReturnT] | ReturnT
+type ResolvableCoroutineFunction[**P, ReturnT] = Callable[
+    P, ResolvableCoroutine[ReturnT]
+]
+
+
+def resolve_coroutine_function[**P, ReturnT](
+    f: ResolvableCoroutineFunction[P, ReturnT], /
+) -> Callable[P, Coroutine[Any, Any, ReturnT]]:
+    """
+    Ensure that a function is a coroutine function.
+    """
+    if iscoroutinefunction(f):
+        return f
+
+    @wraps(f)
+    async def _coroutine_f(*args: P.args, **kwargs: P.kwargs) -> Any:
+        return f(*args, **kwargs)
+
+    return _coroutine_f

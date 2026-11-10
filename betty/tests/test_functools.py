@@ -20,7 +20,9 @@ from betty.functools import (
 from betty.typing import Unreachable
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Iterable, Sequence
+    from collections.abc import Callable, Iterable, Sequence
+
+    from betty.typing import ResolvableCoroutineFunction
 
 
 class TestDo:
@@ -37,7 +39,7 @@ class TestDo:
 
     def _build_do_success_after_tries(
         self, tries: int
-    ) -> Callable[[int], Awaitable[int]]:
+    ) -> ResolvableCoroutineFunction[[int], int]:
         async def __build_do_success_after_retries(result: int) -> int:
             nonlocal tries
 
