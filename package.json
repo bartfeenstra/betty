@@ -14,7 +14,7 @@
     "@types/node": "*",
     "@types/webpack": "^5.28.5",
     "eslint": "^10.11.0",
-    "eslint-plugin-import-x": "^4.17.1",
+    "eslint-plugin-import-x": "^4.18.0",
     "eslint-plugin-n": "^18.3.0",
     "eslint-plugin-promise": "^7.3.0",
     "globals": "^17.12.0",
