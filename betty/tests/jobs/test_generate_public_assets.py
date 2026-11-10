@@ -2,6 +2,7 @@ from betty.jobs.generate_public_assets import (
     GenerateLocalizedPublicAssets,
     GenerateStaticPublicAssets,
 )
+from betty.jobs.generate_www_directory import GenerateWwwDirectory
 from betty.project import ProjectLocale
 from betty.test_utils.conftest import IsolatedProjectFactory
 from betty.test_utils.jinja import assert_betty_html
@@ -25,7 +26,10 @@ class TestGenerateStaticPublicAssets:
             ) as project,
             project,
         ):
-            await do(GenerateStaticPublicAssets(project=project))
+            await do(
+                GenerateWwwDirectory(project=project),
+                GenerateStaticPublicAssets(project=project),
+            )
 
             with open(
                 await assert_betty_html(project, "/index.html"), encoding="utf-8"
@@ -54,6 +58,7 @@ class TestGenerateLocalizedPublicAssets:
             project,
         ):
             await do(
+                GenerateWwwDirectory(project=project),
                 GenerateStaticPublicAssets(project=project),
                 GenerateLocalizedPublicAssets(project=project),
             )

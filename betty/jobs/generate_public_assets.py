@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Final, final, override
 
 from betty.jinja import CopyFunction, make_copy_function
 from betty.job import Job
+from betty.jobs.generate_www_directory import GenerateWwwDirectory
 
 if TYPE_CHECKING:
     from babel import Locale
@@ -30,7 +31,9 @@ class GenerateStaticPublicAssets(Job):
     """
 
     def __init__(self, *, project: Project):
-        super().__init__(self.id_for, priority=True)
+        super().__init__(
+            self.id_for, dependencies=[GenerateWwwDirectory.id_for], priority=True
+        )
         self._project = project
 
     @override
