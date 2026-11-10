@@ -33,7 +33,7 @@ type ResolvableCoroutineFunction[**P, ReturnT] = Callable[
 
 
 def resolve_coroutine_function[**P, ReturnT](
-    f: Callable[P, Coroutine[Any, Any, ReturnT] | ReturnT], /
+    f: ResolvableCoroutineFunction[P, ReturnT], /
 ) -> Callable[P, Coroutine[Any, Any, ReturnT]]:
     """
     Return a value, but await it first if it is awaitable.
