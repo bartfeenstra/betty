@@ -9,7 +9,11 @@ from asyncio import gather
 from functools import partial
 from typing import TYPE_CHECKING, Any, Concatenate, Self, final, overload, override
 
-from betty.asyncio import ResolvableAwaitable, resolve_await
+from betty.asyncio import (
+    ResolvableAwaitable,
+    ResolvableCoroutineFunction,
+    resolve_await,
+)
 from betty.exception import HumanFacingException
 from betty.functools import CallableDecorator, DecoratedCallable, DecoratedCallableType
 
@@ -19,7 +23,7 @@ if TYPE_CHECKING:
     from betty.service_level import ServiceLevel
 
 
-type Requirement[CheckT] = Callable[[ServiceLevel], Awaitable[CheckT] | CheckT]
+type Requirement[CheckT] = ResolvableCoroutineFunction[[ServiceLevel], CheckT]
 
 
 class UnmetRequirement(HumanFacingException):

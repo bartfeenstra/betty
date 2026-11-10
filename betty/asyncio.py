@@ -5,25 +5,47 @@ Provide asynchronous programming utilities.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from inspect import isawaitable
+from functools import wraps
+from inspect import isawaitable, iscoroutinefunction
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.concurrent import ThreadSafeLock
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Generator
+    from collections.abc import Awaitable, Callable, Coroutine, Generator
 
 
 type ResolvableAwaitable[T] = Awaitable[T] | T
 
 
-async def resolve_await[T](value: ResolvableAwaitable[T]) -> T:
+async def resolve_await[T](value: ResolvableAwaitable[T], /) -> T:
     """
     Return a value, but await it first if it is awaitable.
     """
     if isawaitable(value):
         return await value
     return value
+
+
+type ResolvableCoroutineFunction[**P, ReturnT] = Callable[
+    P, Coroutine[Any, Any, ReturnT] | ReturnT
+]
+
+
+def resolve_coroutine_function[**P, ReturnT](
+    f: Callable[P, Coroutine[Any, Any, ReturnT] | ReturnT], /
+) -> Callable[P, Coroutine[Any, Any, ReturnT]]:
+    """
+    Return a value, but await it first if it is awaitable.
+    """
+    if iscoroutinefunction(f):
+        return f
+
+    @wraps(f)
+    async def _coroutine_f(*args: P.args, **kwargs: P.kwargs) -> Any:
+        return f(*args, **kwargs)
+
+    return _coroutine_f
 
 
 class ReAwaitable[ValueT](metaclass=ABCMeta):
