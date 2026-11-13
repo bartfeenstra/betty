@@ -21,5 +21,7 @@ class AnyDateDefinition(DataDefinition[AnyDate]):
 
     def __init__(self):
         super().__init__(
-            label=_("Date"), porter=AnyDatePorter(), samples=Samples(Date, DateRange)
+            label=_("Date"),
+            porter=AnyDatePorter(),
+            samples=Samples(Date.definition.samples, DateRange.definition.samples),
         )
