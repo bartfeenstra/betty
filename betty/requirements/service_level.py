@@ -39,7 +39,7 @@ class ServiceLevelRequirement[ServiceLevelT: ServiceLevel](RequirableDecorator):
         if isinstance(services, DownstreamServiceLevel):
             return await self._check(services.upstream)
         raise UnmetRequirement(
-            f"This requires a(n) {fully_qualified_name(self.services)}, but a(n) {services} was given."
+            f"This requires a(n) {fully_qualified_name(self.services)}, but a(n) {fully_qualified_name(services)} was given."
         )
 
 

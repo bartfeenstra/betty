@@ -67,7 +67,7 @@ class _LocalizablePorter(Porter[AnyLocalizable]):
             }
         if not isinstance(data, StaticTranslations):
             raise NotDumpable(
-                f"Only {fully_qualified_name(StaticTranslations)} and {fully_qualified_name(str)} can be dumped to portable data, not `{fully_qualified_name(type(data))}` objects."
+                f"Only {fully_qualified_name(StaticTranslations)} and {fully_qualified_name(str)} can be dumped to portable data, not `{fully_qualified_name(data)}` objects."
             )
         if len(data.translations) == 1 and None in data.translations:
             return data.translations[None]
@@ -100,7 +100,7 @@ class _CountableLocalizablePorter(Porter[CountableLocalizable]):
     def dump(self, data: CountableLocalizable) -> PortableData:
         if not isinstance(data, CountableStaticTranslations):
             raise NotDumpable(
-                f"Only {fully_qualified_name(CountableStaticTranslations)} and {fully_qualified_name(str)} can be dumped to portable data, not `{fully_qualified_name(type(data))}` objects."
+                f"Only {fully_qualified_name(CountableStaticTranslations)} and {fully_qualified_name(str)} can be dumped to portable data, not `{fully_qualified_name(data)}` objects."
             )
         return {
             to_language_tag(locale): translations

@@ -24,7 +24,7 @@ class ObjectNotYetInitialized(RuntimeError):
     """
 
     def __init__(self, object_: Object, /):
-        super().__init__(f"{repr(object_)} was unexpectedly not yet initialized")
+        super().__init__(f"{object_!r} was unexpectedly not yet initialized")
 
 
 @final
@@ -34,7 +34,7 @@ class ObjectAlreadyInitialized(RuntimeError):
     """
 
     def __init__(self, object_: Object, /):
-        super().__init__(f"{repr(object_)} was unexpectedly initialized already")
+        super().__init__(f"{object_!r} was unexpectedly initialized already")
 
 
 class Type(type):
@@ -149,6 +149,9 @@ class ClassVarOwnership[OwnerT, ClassVarT]:
         """
         The fully qualified class var name.
         """
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} {fully_qualified_name(type(self.var))} @ {self.fully_qualified_name}>"
 
 
 @disjoint_base

@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty import console
 from betty.console import Command, CommandDefinition, CommandFunction, ExitCode
+from betty.importlib import fully_qualified_name
 from betty.uis.no_op import NoOpUi
 
 if TYPE_CHECKING:
@@ -84,9 +85,13 @@ async def run(
             else:
                 exit_code = 1  # pragma: no cover
         except BaseException as error:  # pragma: no cover
-            raise AssertionError(f"The console did not raise {SystemExit}") from error
+            raise AssertionError(
+                f"The console did not raise {fully_qualified_name(SystemExit)}"
+            ) from error
         else:  # pragma: no cover
-            raise AssertionError(f"The console did not raise {SystemExit}")
+            raise AssertionError(
+                f"The console did not raise {fully_qualified_name(SystemExit)}"
+            )
 
     stderr_f.seek(0)
     stderr = stderr_f.read()

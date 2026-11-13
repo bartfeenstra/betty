@@ -35,7 +35,7 @@ class MissingAssociate(AttributeError):
         self, association: Association, owner: HasAssociations, reason: str, /
     ):
         super().__init__(
-            f"Missing associate for {association.ownership.fully_qualified_name} on {repr(owner)}. {reason}"
+            f"Missing associate for {association.ownership.fully_qualified_name} on {owner!r}. {reason}"
         )
 
 

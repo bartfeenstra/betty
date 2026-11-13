@@ -15,7 +15,7 @@ from betty.importlib import fully_qualified_name
 
 class _Object(Object):
     def __repr__(self) -> str:
-        return fully_qualified_name(type(self))
+        return fully_qualified_name(self)
 
 
 class _ObjectWithArg(_Object):
@@ -126,6 +126,13 @@ class TestClassVarOwnership:
         assert (
             sut.fully_qualified_name
             == "betty.tests.test_classtools:_ClassVarOwner.my_first_class_var"
+        )
+
+    def test___repr__(self) -> None:
+        sut = ClassVarOwnership(_ClassVarOwner, "my_first_class_var", _OwnedClassVar())
+        assert (
+            repr(sut)
+            == "<ClassVarOwnership betty.tests.test_classtools:_OwnedClassVar @ betty.tests.test_classtools:_ClassVarOwner.my_first_class_var>"
         )
 
 
