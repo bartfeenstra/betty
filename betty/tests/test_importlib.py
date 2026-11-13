@@ -3,6 +3,7 @@ from typing import Any
 import pytest
 
 from betty.importlib import fully_qualified_name, import_any
+from betty.typing import Unreachable
 
 
 def test_import_any__with_unknown_module_should_raise_invalid() -> None:
@@ -27,7 +28,8 @@ def test_import_any__with_importable_should_return() -> None:
 
 
 class _FullyQualifiedNameTestTarget:
-    pass
+    def fully_qualified_name_test_target(self) -> None:
+        raise Unreachable
 
 
 def _fully_qualified_name_test_target() -> None:
@@ -38,9 +40,18 @@ def _fully_qualified_name_test_target() -> None:
     ("expected", "target"),
     [
         ("builtins:object", object),
+        ("builtins:object", object()),
         (
             "betty.tests.test_importlib:_FullyQualifiedNameTestTarget",
             _FullyQualifiedNameTestTarget,
+        ),
+        (
+            "betty.tests.test_importlib:_FullyQualifiedNameTestTarget",
+            _FullyQualifiedNameTestTarget(),
+        ),
+        (
+            "betty.tests.test_importlib:_FullyQualifiedNameTestTarget.fully_qualified_name_test_target",
+            _FullyQualifiedNameTestTarget.fully_qualified_name_test_target,
         ),
         (
             "betty.tests.test_importlib:_fully_qualified_name_test_target",

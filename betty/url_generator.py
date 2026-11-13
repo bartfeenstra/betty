@@ -8,6 +8,7 @@ from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, TypeGuard
 
 from betty.collections.mapping.dict import empty_frozen_dict
+from betty.importlib import fully_qualified_name
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -30,7 +31,7 @@ class UnsupportedResource(GenerationError):
     """
 
     def __init__(self, resource: Any, /):
-        super().__init__(f"Unsupported resource: {resource}")
+        super().__init__(f"Unsupported resource: {fully_qualified_name(resource)}")
 
 
 class UrlGenerator[ResourceT](metaclass=ABCMeta):

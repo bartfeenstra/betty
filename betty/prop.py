@@ -8,7 +8,6 @@ from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload
 
 from betty.classtools import Object, ObjectClassVar, OwnedClassVar
-from betty.importlib import fully_qualified_name
 from betty.operator import Attr
 
 if TYPE_CHECKING:
@@ -161,7 +160,7 @@ class NotSettable(OwnerError):
         super().__init__(
             prop,
             owner,
-            f"{fully_qualified_name(type(owner))}.{prop.ownership.name} is not settable on {repr(owner)}.",
+            f"{prop.ownership.fully_qualified_name} is not settable on {owner!r}.",
         )
 
 
@@ -174,5 +173,5 @@ class NotDeletable(OwnerError):
         super().__init__(
             prop,
             owner,
-            f"{fully_qualified_name(type(owner))}.{prop.ownership.name} is not deletable from {repr(owner)}.",
+            f"{prop.ownership.fully_qualified_name} is not deletable from {owner!r}.",
         )

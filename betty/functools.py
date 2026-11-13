@@ -82,7 +82,7 @@ class Do[**DoFP, DoFReturnT]:
                 for condition in conditions:
                     if await resolve_await(condition(do_result)) is False:
                         raise RuntimeError(  # noqa: TRY301
-                            f"Condition {condition} was not met for {do_result}."
+                            f"Condition {condition!r} was not met for {do_result}."
                         )
             except Exception:
                 if retries == 0:

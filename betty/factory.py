@@ -97,13 +97,13 @@ class Factory:
         args = self._args(manufacturer)
         if args is None:
             raise UnsupportedManufacturer(
-                f'{manufacturer} must not have any required arguments, except optionally a first argument typed on {fully_qualified_name(ServiceLevel)} and/or named "services".'
+                f'{manufacturer!r} must not have any required arguments, except optionally a first argument typed on {fully_qualified_name(ServiceLevel)} and/or named "services".'
             )
         try:
             return await resolve_await(manufacturer(*args))
         except Exception as error:
             raise ManufacturerError(
-                f"{repr(manufacturer)} raised an unexpected error when creating a new object."
+                f"{manufacturer!r} raised an unexpected error when creating a new object."
             ) from error
 
     def _args(self, manufacturer: Manufacturer) -> tuple | None:
