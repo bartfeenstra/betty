@@ -5,7 +5,7 @@ Tools to create classes.
 from __future__ import annotations
 
 from abc import ABCMeta
-from typing import TYPE_CHECKING, Any, Self, final
+from typing import TYPE_CHECKING, Any, Self, cast, final
 
 from betty.class_var import ClassVar, HasClassVars
 
@@ -38,11 +38,34 @@ class Type(type):
     The metaclass for :py:class:`betty.classtools.Object`.
     """
 
+    def __new__(
+        cls,
+        name: str,
+        bases: tuple[type, ...],
+        namespace: dict[str, Any],
+        /,
+        *,
+        slots: bool = False,
+    ) -> type:
+        """
+        Create a new class.
+        """
+        new = cast("type[Object]", super().__new__(cls, name, bases, namespace))
+        if slots:
+            new_slots = tuple(new._slots())
+            if hasattr(new, "__slots__"):
+                if isinstance(new.__slots__, str):
+                    new_slots += (new.__slots__,)
+                else:
+                    new_slots += cast(tuple[str, ...], new.__slots__)
+            new.__slots__ = new_slots  # ty: ignore[unresolved-attribute]
+        return new
+
     def __call__(cls, *args: Any, **kwargs: Any):
         """
         Create a new instance.
         """
-        new = cls.__new__(cls, *args, **kwargs)
+        new = cls.__new__(cls, *args, **kwargs)  # ty: ignore[invalid-argument-type]
         assert isinstance(new, Object)
         new._pre_init()
         new.__init__(*args, **kwargs)
@@ -56,6 +79,7 @@ class Object(HasClassVars, metaclass=Type):
     An object that supports cooperative initialization.
     """
 
+    # @todo Refactor into a slottable class var?
     _is_initialized = False
 
     @final
@@ -67,6 +91,11 @@ class Object(HasClassVars, metaclass=Type):
         for class_var in cls.class_vars():
             if isinstance(class_var, ObjectClassVar):
                 yield class_var
+
+    @classmethod
+    def _slots(cls) -> Iterable[str]:
+        for class_var in cls.object_class_vars():
+            yield from class_var.slots()
 
     def _pre_init(self) -> None:
         for class_var in self.object_class_vars():
@@ -111,6 +140,12 @@ class ObjectClassVar[OwnerT: Object](ClassVar):
     """
     A class variable on an :py:class:`betty.classtools.Object`.
     """
+
+    def slots(self) -> Iterable[str]:
+        """
+        Declare the slots this class variable needs to be present on the owner.
+        """
+        return ()
 
     def pre_init_owner(self, owner: OwnerT, /) -> None:
         """
