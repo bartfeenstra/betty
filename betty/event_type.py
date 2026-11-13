@@ -4,9 +4,10 @@ Provide Betty's ancestry event types.
 
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from typing import TYPE_CHECKING, Self, final
 
+from betty.classtools.co_op import CoOpABCMeta
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
@@ -37,7 +38,7 @@ class EventType(Object["EventTypeDefinition"]):
     """
 
 
-class ShouldExistEventType(EventType, metaclass=ABCMeta):
+class ShouldExistEventType(EventType, metaclass=CoOpABCMeta):
     """
     An event type that controls whether at least one event of this type should exist for a person.
     """

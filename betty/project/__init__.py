@@ -28,6 +28,7 @@ from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
+from betty.classtools.co_op import co_op
 from betty.collection.sequence import MutableResolvableSequence
 from betty.collections.catalog.dict import DictCatalog, FrozenDictCatalog
 from betty.collections.mapping.dict import empty_frozen_dict
@@ -107,9 +108,7 @@ from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
 from betty.sample import Sample, Samples, Size
 from betty.server import ManufacturableServer, ServerDefinition
-from betty.service import (
-    Service,
-)
+from betty.service import Service
 from betty.service_level import DownstreamServiceLevel, Plugins
 from betty.service_provider import (
     ManufacturableServiceProvider,
@@ -159,6 +158,7 @@ The default number of items on list pages.
 
 
 @final
+@co_op
 class Project(DownstreamServiceLevel[App], RequirableServiceLevel, HasPluginServices):
     """
     Define a Betty project.

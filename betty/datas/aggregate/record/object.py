@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import override
 
 from betty.attr import Attr
-from betty.classtools import TypeABCMeta
 from betty.data import Data
 from betty.datas.aggregate.record import RecordDefinition
 from betty.operator import Attr as AttrOperator
@@ -31,7 +30,7 @@ class ObjectDefinition[DataT](RecordDefinition[DataT, AttrOperator]):
 
 
 class Object[DefinitionT: ObjectDefinition = ObjectDefinition](
-    Data[DefinitionT], HasProps, metaclass=TypeABCMeta
+    Data[DefinitionT], HasProps
 ):
     """
     An object with attributes.
