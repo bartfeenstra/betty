@@ -3,12 +3,10 @@ from typing import Any
 import pytest
 
 from betty.classtools import (
-    ClassVarOwnership,
     Object,
     ObjectAlreadyInitialized,
     ObjectClassVar,
     ObjectNotYetInitialized,
-    OwnedClassVar,
 )
 from betty.importlib import fully_qualified_name
 
@@ -88,17 +86,6 @@ class TestObject:
         with pytest.raises(ObjectAlreadyInitialized):
             _Object().assert_not_initialized()
 
-    def test_init_class_vars__without_class_vars(self) -> None:
-        assert not list(Object.init_class_vars())
-
-    def test_init_class_vars__with_class_var(self) -> None:
-        class_var = ObjectClassVar()
-
-        class _Object(Object):
-            my_first_class_var = class_var
-
-        assert list(_Object.init_class_vars()) == [class_var]
-
 
 class TestObjectClassVar:
     def test_pre_init_owner(self) -> None:
@@ -106,39 +93,3 @@ class TestObjectClassVar:
 
     def test_post_init_owner(self) -> None:
         ObjectClassVar().post_init_owner(Object())
-
-
-class _ClassVarOwner:
-    pass
-
-
-class _OwnedClassVar(OwnedClassVar[_ClassVarOwner]):
-    pass
-
-
-class _OwnerWithClassVar(_ClassVarOwner):
-    my_first_class_var = _OwnedClassVar()
-
-
-class TestClassVarOwnership:
-    def test_fully_qualified_name(self) -> None:
-        sut = ClassVarOwnership(_ClassVarOwner, "my_first_class_var", _OwnedClassVar())
-        assert (
-            sut.fully_qualified_name
-            == "betty.tests.test_classtools:_ClassVarOwner.my_first_class_var"
-        )
-
-    def test___repr__(self) -> None:
-        sut = ClassVarOwnership(_ClassVarOwner, "my_first_class_var", _OwnedClassVar())
-        assert (
-            repr(sut)
-            == "<ClassVarOwnership betty.tests.test_classtools:_OwnedClassVar @ betty.tests.test_classtools:_ClassVarOwner.my_first_class_var>"
-        )
-
-
-class TestOwnedClassVar:
-    def test_ownership(self) -> None:
-        assert (
-            _OwnerWithClassVar.my_first_class_var.ownership.fully_qualified_name
-            == "betty.tests.test_classtools:_OwnerWithClassVar.my_first_class_var"
-        )

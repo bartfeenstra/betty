@@ -44,9 +44,9 @@ class HasAssociations(HasProps):
         """
         Get all associations on objects of this type.
         """
-        for prop in cls.props():
-            if isinstance(prop, Association):
-                yield prop
+        for class_var in cls.class_vars():
+            if isinstance(class_var, Association):
+                yield class_var
 
 
 _AssociateAttrNotYetInitialized = sentinel("_AssociateAttrNotYetInitialized")

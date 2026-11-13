@@ -5,13 +5,9 @@ Tools to create classes.
 from __future__ import annotations
 
 from abc import ABCMeta
-from functools import cache
-from inspect import getmembers
-from typing import TYPE_CHECKING, Any, Final, Self, final
+from typing import TYPE_CHECKING, Any, Self, final
 
-from typing_extensions import disjoint_base
-
-from betty.importlib import fully_qualified_name
+from betty.class_var import ClassVar, HasClassVars
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -55,19 +51,29 @@ class Type(type):
         return new
 
 
-class Object(metaclass=Type):
+class Object(HasClassVars, metaclass=Type):
     """
     An object that supports cooperative initialization.
     """
 
     _is_initialized = False
 
+    @final
+    @classmethod
+    def object_class_vars(cls) -> Iterable[ObjectClassVar[Self]]:
+        """
+        Get all object class variables on this class.
+        """
+        for class_var in cls.class_vars():
+            if isinstance(class_var, ObjectClassVar):
+                yield class_var
+
     def _pre_init(self) -> None:
-        for class_var in self.init_class_vars():
+        for class_var in self.object_class_vars():
             class_var.pre_init_owner(self)
 
     def _post_init(self) -> None:
-        for class_var in self.init_class_vars():
+        for class_var in self.object_class_vars():
             class_var.post_init_owner(self)
 
     @final
@@ -94,19 +100,6 @@ class Object(metaclass=Type):
         if self.is_initialized:
             raise ObjectAlreadyInitialized(self)
 
-    @final
-    @classmethod
-    @cache
-    def init_class_vars(cls) -> Iterable[ObjectClassVar[Self]]:
-        """
-        Get all init class variables on this class.
-        """
-        return tuple(
-            member
-            for _, member in getmembers(cls)
-            if isinstance(member, ObjectClassVar)
-        )
-
 
 class TypeABCMeta(Type, ABCMeta):
     """
@@ -114,7 +107,7 @@ class TypeABCMeta(Type, ABCMeta):
     """
 
 
-class ObjectClassVar[OwnerT: Object]:
+class ObjectClassVar[OwnerT: Object](ClassVar):
     """
     A class variable on an :py:class:`betty.classtools.Object`.
     """
@@ -130,45 +123,3 @@ class ObjectClassVar[OwnerT: Object]:
         Pos-initialize the class variable on an owner.
         """
         return
-
-
-@final
-class ClassVarOwnership[OwnerT, ClassVarT]:
-    """
-    The ownership of a class var on an owner class.
-    """
-
-    def __init__(self, owner: type[OwnerT], name: str, var: ClassVarT, /):
-        self.var: Final[ClassVarT] = var
-        self.owner: Final[type[OwnerT]] = owner
-        self.name: Final[str] = name
-        """
-        The name of the attribute on the owner the class var is assigned to.
-        """
-        self.fully_qualified_name: Final[str] = f"{fully_qualified_name(owner)}.{name}"
-        """
-        The fully qualified class var name.
-        """
-
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} {fully_qualified_name(type(self.var))} @ {self.fully_qualified_name}>"
-
-
-@disjoint_base
-class OwnedClassVar[OwnerT]:
-    """
-    A class var with access to its owner.
-    """
-
-    __ownership: ClassVarOwnership[OwnerT, Self]
-
-    def __set_name__(self, owner: type[OwnerT], name: str) -> None:
-        self.__ownership = ClassVarOwnership(owner, name, self)
-
-    @final
-    @property
-    def ownership(self) -> ClassVarOwnership[OwnerT, Self]:
-        """
-        The class var ownership.
-        """
-        return self.__ownership

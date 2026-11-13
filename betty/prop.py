@@ -7,7 +7,10 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload
 
-from betty.classtools import Object, ObjectClassVar, OwnedClassVar
+from typing_extensions import disjoint_base
+
+from betty.class_var import OwnedClassVar
+from betty.classtools import Object, ObjectClassVar
 from betty.operator import Attr
 
 if TYPE_CHECKING:
@@ -27,11 +30,12 @@ class HasProps(Object):
         """
         Get all properties on this class.
         """
-        for class_var in cls.init_class_vars():
+        for class_var in cls.class_vars():
             if isinstance(class_var, Prop):
                 yield class_var
 
 
+@disjoint_base
 class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
     OwnedClassVar[OwnerT], ObjectClassVar[OwnerT], metaclass=ABCMeta
 ):

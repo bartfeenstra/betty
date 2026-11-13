@@ -107,10 +107,13 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     "betty/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/classtools.py": {
+    "betty/class_var.py": {
+        "ClassVar": MissingReason.STATIC_CONTENT_ONLY,
         "OwnedClassVar": {
             "__set_name__": MissingReason.COVERED_ELSEWHERE,
         },
+    },
+    "betty/classtools.py": {
         "Type": MissingReason.COVERED_ELSEWHERE,
         "TypeABCMeta": MissingReason.STATIC_CONTENT_ONLY,
     },
