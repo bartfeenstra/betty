@@ -1,4 +1,5 @@
-from typing import Any
+from collections.abc import Iterable
+from typing import Any, override
 
 import pytest
 
@@ -45,6 +46,52 @@ class TestObjectAlreadyInitialized:
             str(ObjectAlreadyInitialized(_Object()))
             == "betty.tests.test_classtools:_Object was unexpectedly initialized already"
         )
+
+
+class TestType:
+    def test___new____without_slots_creation(self) -> None:
+        class _Object(Object):
+            pass
+
+        assert not hasattr(_Object, "__slots__")
+
+    def test___new____without_slots(self) -> None:
+        class _Object(Object, slots=True):
+            pass
+
+        assert _Object.__slots__ == ()  # ty: ignore[unresolved-attribute]
+
+    def test___new____with_explicit_slots_as_tuple(self) -> None:
+        class _Object(Object, slots=True):
+            __slots__ = ("my_explicit_slot",)
+
+        assert _Object.__slots__ == ("my_explicit_slot",)
+
+    def test___new____with_explicit_slots_as_str(self) -> None:
+        class _Object(Object, slots=True):
+            __slots__ = "my_explicit_slot"  # noqa: PLC0205
+
+        assert _Object.__slots__ == ("my_explicit_slot",)
+
+    def test___new____with_declared_slots(self) -> None:
+        class _Object(Object, slots=True):
+            @override
+            @classmethod
+            def _slots(cls) -> Iterable[str]:
+                yield "my_declared_slot"
+
+        assert _Object.__slots__ == ("my_declared_slot",)  # ty: ignore[unresolved-attribute]
+
+    def test___new____with_explicit_and_declared_slots(self) -> None:
+        class _Object(Object, slots=True):
+            __slots__ = ("my_explicit_slot",)
+
+            @override
+            @classmethod
+            def _slots(cls) -> Iterable[str]:
+                yield "my_declared_slot"
+
+        assert _Object.__slots__ == ("my_declared_slot", "my_explicit_slot")
 
 
 class TestObject:
