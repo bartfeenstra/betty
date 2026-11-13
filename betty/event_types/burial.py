@@ -8,6 +8,7 @@ from typing import final
 
 from betty.event_type import EventType, EventTypeDefinition
 from betty.event_types.death import Death
+from betty.freezers.classtools import FrozenOnInit
 from betty.localizables.gettext import _, ngettext
 
 
@@ -19,7 +20,7 @@ from betty.localizables.gettext import _, ngettext
     label_countable=ngettext("{count} burial", "{count} burials"),
     after={Death},
 )
-class Burial(EventType):
+class Burial(EventType, FrozenOnInit):
     """
     .. plugin:: event-type:burial.
     """

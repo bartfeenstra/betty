@@ -7,15 +7,15 @@ from betty.content_builders.raspberry_mint_incomplete_translation_warning import
 )
 from betty.document import Document
 from betty.localizer import Localizer
-from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestIncompleteTranslationWarning:
     async def test_build_template__with_default_locale(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(
+            new_isolated_project(
                 supported_plugins=[IncompleteTranslationWarning]
             ) as project,
             project,
@@ -25,24 +25,16 @@ class TestIncompleteTranslationWarning:
         assert actual is None
 
     async def test_build_template__with_missing_translations(
-        self,
-        tmp_path: Path,
-        isolated_app_factory: IsolatedAppFactory,
-        isolated_project_factory: IsolatedProjectFactory,
+        self, tmp_path: Path, new_isolated_project: NewIsolatedProject
     ) -> None:
-        async with (
-            isolated_app_factory() as app,
-            app,
-            isolated_project_factory(
-                app=app,
-                locales=["nl"],
-                supported_plugins=[IncompleteTranslationWarning],
-            ) as project,
-            project,
-        ):
-            sut = await IncompleteTranslationWarning.new(project)
-            actual = await sut.build(
-                document=Document(localizer=Localizer(Locale("nl")))
-            )
+        async with new_isolated_project(
+            supported_plugins=[IncompleteTranslationWarning]
+        ) as project:
+            project.locales = ["nl"]
+            async with project:
+                sut = await IncompleteTranslationWarning.new(project)
+                actual = await sut.build(
+                    document=Document(localizer=Localizer(Locale("nl")))
+                )
         assert actual is not None
         assert "0%" in actual

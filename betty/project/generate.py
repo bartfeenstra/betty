@@ -89,11 +89,10 @@ async def _builtin_jobs(project: Project, /) -> AsyncIterator[Job]:
     yield GenerateSitemap(project=project)
     yield GenerateRobotsTxt(project=project)
     yield GenerateFavicon(project=project)
-    generate_entity_list_html = await project.generate_entity_list_html
     async for entity_type in project.plugins[EntityDefinition]:
         if entity_type.public_facing:
             yield GenerateEntityType(entity_type, project=project)
-            if entity_type.id in generate_entity_list_html:
+            if entity_type.id in project.generate_entity_list_html:
                 yield GenerateEntityTypeHtml(entity_type, project=project)
             for entity in project.ancestry[entity_type.cls]:
                 yield GenerateEntity(entity, project=project)

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from asyncio import to_thread
-from concurrent import futures
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from shutil import rmtree
@@ -19,6 +18,7 @@ from betty.attrs.locale import new_locale_attr
 from betty.collections.mapping.dict import empty_frozen_dict
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
+from betty.freezers.attr import AttrFreezable
 from betty.gettext import TranslationsRepository
 from betty.http_client import (
     ClientErrorToUserMessageMiddleware,
@@ -42,7 +42,6 @@ from betty.services.plugin import HasPluginServices
 from betty.services.plugin.definition.collection.catalog import PluginDefinitionsService
 from betty.services.plugin.instance.collection.catalog import PluginInstancesService
 from betty.services.simple import service
-from betty.store import TransientStore
 from betty.stores.file import TransientBinaryFileStore, TransientPickledFileStore
 from betty.stores.no_op import NoOpStore
 from betty.typing import Unreachable
@@ -51,18 +50,18 @@ from betty.uis.no_op import NoOpUi
 from betty.user.ui import Ui
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator, Callable, Iterable
+    from collections.abc import AsyncGenerator, Callable
+    from concurrent import futures
     from pathlib import Path
 
     import aiohttp
     from babel import Locale
 
-    from betty.asset import AssetDirectoryDefinition
-    from betty.definition import ResolvableDefinition
     from betty.pathlib import StrPath
     from betty.service_level import Plugins
     from betty.services.plugin import SupportedPlugins
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
+    from betty.store import TransientStore
 
 
 @final
@@ -79,11 +78,8 @@ class App(RequirableServiceLevel, HasPluginServices):
     """
 
     asset_directories = AssetRepositoryService()
-
     media_types = PluginDefinitionsService(MediaTypeDefinition)
-
     rate_limits = PluginDefinitionsService(RateLimitDefinition)
-
     serializers = PluginInstancesService(SerializerDefinition)
 
     def __init__(
@@ -92,14 +88,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         binary_file_cache: TypedSynchronousServiceOrFactory[
             App, TransientBinaryFileStore
         ],
-        assets: Iterable[ResolvableDefinition[AssetDirectoryDefinition]] = (),
-        cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
-        media_types: Iterable[ResolvableDefinition[MediaTypeDefinition]] = (),
         plugins: Plugins = empty_frozen_dict,
-        process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
-        | None = None,
-        rate_limits: Iterable[RateLimitDefinition] = (),
-        serializers: Iterable[ResolvableDefinition[SerializerDefinition]] = (),
         supported_plugins: SupportedPlugins = (),
         ui: Ui | Callable[[App], ResolvableAwaitable[Ui]] | None = None,
     ):
@@ -110,22 +99,7 @@ class App(RequirableServiceLevel, HasPluginServices):
             if isinstance(binary_file_cache, TransientBinaryFileStore)
             else binary_file_cache,
         )
-        if process_pool is not None:
-            cls.process_pool.override(
-                self,
-                Service(process_pool)
-                if isinstance(process_pool, futures.ProcessPoolExecutor)
-                else process_pool,
-            )
-        if cache is not None:
-            cls.cache.override(
-                self, Service(cache) if isinstance(cache, TransientStore) else cache
-            )
         super().__init__(plugins=plugins, supported_plugins=supported_plugins)
-        cls.asset_directories.add_init_plugins(self, *assets)
-        cls.media_types.add_init_plugins(self, *media_types)
-        cls.rate_limits.add_init_plugins(self, *rate_limits)
-        cls.serializers.add_init_plugins(self, *serializers)
         self._ui: Ui
         if ui is None:
             self.life_cycle.on_bootstrap(self._set_default_ui)
@@ -165,11 +139,12 @@ class App(RequirableServiceLevel, HasPluginServices):
         else:
             locale = None
         app_cache_directory = environ.get("BETTY_CACHE_DIRECTORY", cache_directory)
-        async with cls(
-            cache=TransientPickledFileStore(app_cache_directory),
+        app = cls(
             binary_file_cache=TransientBinaryFileStore(app_cache_directory),
             ui=lambda app: cls._new_from_environment_user(app, locale),
-        ) as app:
+        )
+        cls.cache.override(app, Service(TransientPickledFileStore(app_cache_directory)))
+        async with app:
             yield app
 
     @classmethod
@@ -182,10 +157,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         cls,
         *,
         binary_file_cache_directory: StrPath | None = None,
-        cache: TypedSynchronousServiceOrFactory[App, TransientStore[Any]] | None = None,
         plugins: Plugins = empty_frozen_dict,
-        process_pool: TypedSynchronousServiceOrFactory[App, futures.ProcessPoolExecutor]
-        | None = None,
         ui: Ui | None = None,
     ) -> AsyncGenerator[Self]:
         """
@@ -202,13 +174,14 @@ class App(RequirableServiceLevel, HasPluginServices):
                 exit_stack.push_async_callback(
                     to_thread, rmtree, binary_file_cache_directory
                 )
-            yield cls(
+            project = cls(
                 binary_file_cache=TransientBinaryFileStore(binary_file_cache_directory),
-                cache=NoOpStore() if cache is None else cache,
                 plugins=plugins,
-                process_pool=process_pool,
                 ui=NoOpUi() if ui is None else ui,
             )
+
+            cls.cache.override(project, Service(NoOpStore()))
+            yield project
 
     @service
     def localizers(self) -> LocalizerRepository:
@@ -279,7 +252,7 @@ class App(RequirableServiceLevel, HasPluginServices):
         lambda: Sample(AppData(locale=default_locale), label="Full", size=Size.FULL),
     ),
 )
-class AppData(Object):
+class AppData(Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.app.App`.
 

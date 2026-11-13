@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from betty.collection.catalog import Catalog, MutableCatalog
 from betty.collections import KeyResolvable, ValueResolvable
+from betty.freezers.attr import AttrFreezable
 from betty.pipeline import pipe
 
 if TYPE_CHECKING:
@@ -73,6 +74,7 @@ class MutableMappingCatalog[
     ResolvableValueT,
     WrappedT: MutableMapping,
 ](
+    AttrFreezable,
     ValueResolvable[ValueT, ResolvableValueT],
     MappingCatalog[KeyT, ResolvableKeyT, ValueT, WrappedT],
     MutableCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT],
@@ -80,8 +82,6 @@ class MutableMappingCatalog[
     """
     A mutable catalog backed by a mapping.
     """
-
-    __slots__ = ("__value", "_keyer")
 
     def __init__(
         self,
@@ -103,18 +103,22 @@ class MutableMappingCatalog[
 
     @override
     def add(self, *values: ValueT | ResolvableValueT) -> None:
+        self.assert_not_frozen()
         for value in map(self.resolve_value, values):
             self.__wrapped__[self.resolve_key(self._keyer(value))] = value
 
     @override
     def remove(self, *keys: KeyT | ResolvableKeyT) -> None:
+        self.assert_not_frozen()
         for key in keys:
             del self[key]
 
     @override
     def __delitem__(self, key: KeyT | ResolvableKeyT) -> None:
+        self.assert_not_frozen()
         del self.__wrapped__[self.resolve_key(key)]
 
     @override
     def clear(self) -> None:
+        self.assert_not_frozen()
         self.__wrapped__.clear()

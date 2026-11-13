@@ -12,6 +12,7 @@ from betty.datas.plugin.definition import (
     PluginDefinitionConfig,
     PluginDefinitionConfigDefinition,
 )
+from betty.freezers.classtools import FrozenOnInit
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
 from betty.sample import Sample, Samples
@@ -68,7 +69,7 @@ class LicenseDefinitionConfig(
             label=self.label,
             description=self.description,
         )
-        class _LicenseDefinitionConfigLicense(License):
+        class _LicenseDefinitionConfigLicense(License, FrozenOnInit):
             @override
             @property
             def summary(self) -> AnyLocalizable:

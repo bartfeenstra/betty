@@ -82,40 +82,37 @@ text/html"""
         )
 
     async def test_do__multilingual(self) -> None:
-        async with (
-            Project.new_isolated(
-                locales=[
-                    ProjectLocale("en-US", alias="en"),
-                    ProjectLocale("nl-NL"),
-                ],
-            ) as project,
-            project,
-        ):
-            self._setup_template(project)
-            resource = _Resource("My First Resource Value")
-            www_destination = Path("resource-template")
-            locales = (Locale("en", "US"), Locale("nl", "NL"))
-            for locale in locales:
-                (project.localize_www_directory(locale) / www_destination).mkdir(
-                    parents=True
-                )
-            await do(_ResourceTemplate(resource, www_destination, project=project))
-            for locale in locales:
-                with open(
-                    project.localize_www_directory(locale)
-                    / www_destination
-                    / "index.html",
-                    encoding="utf-8",
-                ) as f:
-                    rendered = f.read()
-                assert (
-                    rendered
-                    == f"""
+        async with Project.new_isolated() as project:
+            project.locales = [
+                ProjectLocale("en-US", alias="en"),
+                ProjectLocale("nl-NL"),
+            ]
+            async with project:
+                self._setup_template(project)
+                resource = _Resource("My First Resource Value")
+                www_destination = Path("resource-template")
+                locales = (Locale("en", "US"), Locale("nl", "NL"))
+                for locale in locales:
+                    (project.localize_www_directory(locale) / www_destination).mkdir(
+                        parents=True
+                    )
+                await do(_ResourceTemplate(resource, www_destination, project=project))
+                for locale in locales:
+                    with open(
+                        project.localize_www_directory(locale)
+                        / www_destination
+                        / "index.html",
+                        encoding="utf-8",
+                    ) as f:
+                        rendered = f.read()
+                    assert (
+                        rendered
+                        == f"""
 My First Resource Value
 My First Resource Value
 {locale}
 text/html"""
-                )
+                    )
 
 
 @dataclass(frozen=True)
@@ -191,138 +188,73 @@ text/html
         )
 
     async def test_do__multilingual_without_items(self) -> None:
-        async with (
-            Project.new_isolated(
-                locales=[
-                    ProjectLocale("en-US", alias="en"),
-                    ProjectLocale("nl-NL"),
-                ],
-            ) as project,
-            project,
-        ):
-            self._setup_template(project)
-            locales = (Locale("en", "US"), Locale("nl", "NL"))
-            for locale in locales:
-                (project.localize_www_directory(locale) / self._www_destination).mkdir(
-                    parents=True
+        async with Project.new_isolated() as project:
+            project.locales = [
+                ProjectLocale("en-US", alias="en"),
+                ProjectLocale("nl-NL"),
+            ]
+            async with project:
+                self._setup_template(project)
+                locales = (Locale("en", "US"), Locale("nl", "NL"))
+                for locale in locales:
+                    (
+                        project.localize_www_directory(locale) / self._www_destination
+                    ).mkdir(parents=True)
+                await do(
+                    _CollectionResourceTemplate(
+                        self._resource, self._www_destination, project=project
+                    )
                 )
-            await do(
-                _CollectionResourceTemplate(
-                    self._resource, self._www_destination, project=project
-                )
-            )
-            for locale in locales:
-                with open(
-                    project.localize_www_directory(locale)
-                    / self._www_destination
-                    / "index.html",
-                    encoding="utf-8",
-                ) as f:
-                    rendered = f.read()
-                assert (
-                    rendered
-                    == f"""
+                for locale in locales:
+                    with open(
+                        project.localize_www_directory(locale)
+                        / self._www_destination
+                        / "index.html",
+                        encoding="utf-8",
+                    ) as f:
+                        rendered = f.read()
+                    assert (
+                        rendered
+                        == f"""
 My First Resource Value
 My First Resource Value
 {locale}
 text/html
 """
-                )
+                    )
 
     async def test_do__monolingual_with_items(self) -> None:
-        async with Project.new_isolated(per_page=2) as project, project:
-            self._setup_template(project)
-            (project.www_directory / self._www_destination).mkdir(parents=True)
-            await do(
-                _CollectionResourceTemplate(
-                    self._resource,
-                    self._www_destination,
-                    *self._resource_items,
-                    project=project,
+        async with Project.new_isolated() as project:
+            project.per_page = 2
+            async with project:
+                self._setup_template(project)
+                (project.www_directory / self._www_destination).mkdir(parents=True)
+                await do(
+                    _CollectionResourceTemplate(
+                        self._resource,
+                        self._www_destination,
+                        *self._resource_items,
+                        project=project,
+                    )
                 )
-            )
-            with open(
-                project.www_directory / self._www_destination / "index.html",
-                encoding="utf-8",
-            ) as f:
-                rendered = f.read()
-            assert (
-                rendered
-                == """
-My First Resource Value
-My First Resource Value
-en_US
-text/html
-- My First Resource Item Value
-- My Second Resource Item Value
-"""
-            )
-            with open(
-                project.www_directory
-                / self._www_destination
-                / "page--2"
-                / "index.html",
-                encoding="utf-8",
-            ) as f:
-                rendered = f.read()
-            assert (
-                rendered
-                == """
-My First Resource Value
-My First Resource Value
-en_US
-text/html
-- My Third Resource Item Value
-"""
-            )
-
-    async def test_do__multilingual_with_items(self) -> None:
-        async with (
-            Project.new_isolated(
-                locales=[
-                    ProjectLocale("en-US", alias="en"),
-                    ProjectLocale("nl-NL"),
-                ],
-                per_page=2,
-            ) as project,
-            project,
-        ):
-            self._setup_template(project)
-            locales = (Locale("en", "US"), Locale("nl", "NL"))
-            for locale in locales:
-                (project.localize_www_directory(locale) / self._www_destination).mkdir(
-                    parents=True
-                )
-            await do(
-                _CollectionResourceTemplate(
-                    self._resource,
-                    self._www_destination,
-                    *self._resource_items,
-                    project=project,
-                )
-            )
-            for locale in locales:
                 with open(
-                    project.localize_www_directory(locale)
-                    / self._www_destination
-                    / "index.html",
+                    project.www_directory / self._www_destination / "index.html",
                     encoding="utf-8",
                 ) as f:
                     rendered = f.read()
                 assert (
                     rendered
-                    == f"""
+                    == """
 My First Resource Value
 My First Resource Value
-{locale}
+en_US
 text/html
 - My First Resource Item Value
 - My Second Resource Item Value
 """
                 )
-
                 with open(
-                    project.localize_www_directory(locale)
+                    project.www_directory
                     / self._www_destination
                     / "page--2"
                     / "index.html",
@@ -331,11 +263,72 @@ text/html
                     rendered = f.read()
                 assert (
                     rendered
-                    == f"""
+                    == """
+My First Resource Value
+My First Resource Value
+en_US
+text/html
+- My Third Resource Item Value
+"""
+                )
+
+    async def test_do__multilingual_with_items(self) -> None:
+        async with Project.new_isolated() as project:
+            project.locales = [
+                ProjectLocale("en-US", alias="en"),
+                ProjectLocale("nl-NL"),
+            ]
+            project.per_page = 2
+            async with project:
+                self._setup_template(project)
+                locales = (Locale("en", "US"), Locale("nl", "NL"))
+                for locale in locales:
+                    (
+                        project.localize_www_directory(locale) / self._www_destination
+                    ).mkdir(parents=True)
+                await do(
+                    _CollectionResourceTemplate(
+                        self._resource,
+                        self._www_destination,
+                        *self._resource_items,
+                        project=project,
+                    )
+                )
+                for locale in locales:
+                    with open(
+                        project.localize_www_directory(locale)
+                        / self._www_destination
+                        / "index.html",
+                        encoding="utf-8",
+                    ) as f:
+                        rendered = f.read()
+                    assert (
+                        rendered
+                        == f"""
+My First Resource Value
+My First Resource Value
+{locale}
+text/html
+- My First Resource Item Value
+- My Second Resource Item Value
+"""
+                    )
+
+                    with open(
+                        project.localize_www_directory(locale)
+                        / self._www_destination
+                        / "page--2"
+                        / "index.html",
+                        encoding="utf-8",
+                    ) as f:
+                        rendered = f.read()
+                    assert (
+                        rendered
+                        == f"""
 My First Resource Value
 My First Resource Value
 {locale}
 text/html
 - My Third Resource Item Value
 """
-                )
+                    )

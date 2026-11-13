@@ -5,7 +5,7 @@ from betty.document import Document
 from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestFamilies:
@@ -19,23 +19,23 @@ class TestFamilies:
         ],
     )
     async def test_build_template__without_person(
-        self, resource: object, isolated_project_factory: IsolatedProjectFactory
+        self, resource: object, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Families]) as project,
+            new_isolated_project(supported_plugins=[Families]) as project,
             project,
         ):
             sut = await Families.new(project)
         assert await sut.build(document=Document(resource)) is None
 
     async def test_build_template__with_person(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         parent = Person(id="parent")
         resource = Person(id="resource", parents=[parent])
         child = Person(id="child", parents=[resource])
         async with (
-            isolated_project_factory(supported_plugins=[Families]) as project,
+            new_isolated_project(supported_plugins=[Families]) as project,
             project,
         ):
             project.ancestry.add(resource)

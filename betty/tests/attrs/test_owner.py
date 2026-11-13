@@ -54,7 +54,7 @@ class TestCollectionOwnerAttr:
         collection = owner.mutable_collection
         owner.mutable_collection = ["Hello", "other", "world!"]
         assert owner.mutable_collection is collection
-        assert owner.mutable_collection == ["Hello", "other", "world!"]
+        assert list(owner.mutable_collection) == ["Hello", "other", "world!"]
 
     def test_default(self) -> None:
         assert isinstance(_Owner.collection.default(lambda: ()), DefaultAttr)

@@ -8,6 +8,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Self
 
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
+from betty.freezers.classtools import FrozenOnInit
 from betty.porters.fields import FieldsPorter
 
 if TYPE_CHECKING:
@@ -31,7 +32,7 @@ class DefinitionConfigDefinition[DefinitionT: ObjectDefinition](
 
 
 class DefinitionConfig[DefinitionT: ObjectDefinition](
-    Object[DefinitionConfigDefinition[DefinitionT]]
+    Object[DefinitionConfigDefinition[DefinitionT]], FrozenOnInit
 ):
     """
     Configure a :py:class:`betty.definition.Definition`.

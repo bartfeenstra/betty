@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-02 19:48+0000\n"
+"POT-Creation-Date: 2026-11-11 22:55+0000\n"
 "PO-Revision-Date: 2026-10-25 16:51+0000\n"
 "Last-Translator: Andi Chandler <andibing@users.noreply.hosted.weblate.org>\n"
 "Language: en_GB\n"
@@ -857,6 +857,9 @@ msgstr "Invalid plural tag(s) {plural_tags} for {locale} translations."
 #, python-brace-format
 msgid "Invalid region {invalid_region}."
 msgstr "Invalid region {invalid_region}."
+
+msgid "Items per page"
+msgstr ""
 
 msgid "JavaScript resource"
 msgstr "JavaScript resource"

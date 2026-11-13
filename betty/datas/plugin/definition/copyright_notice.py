@@ -13,6 +13,7 @@ from betty.datas.plugin.definition import (
     PluginDefinitionConfig,
     PluginDefinitionConfigDefinition,
 )
+from betty.freezers.classtools import FrozenOnInit
 from betty.localizables.gettext import _
 from betty.sample import Sample, Samples
 
@@ -68,7 +69,9 @@ class CopyrightNoticeDefinitionConfig(
             label=self.label,
             description=self.description,
         )
-        class _CopyrightNoticeDefinitionConfigCopyrightNotice(CopyrightNotice):
+        class _CopyrightNoticeDefinitionConfigCopyrightNotice(
+            CopyrightNotice, FrozenOnInit
+        ):
             @override
             @property
             def summary(self) -> AnyLocalizable:

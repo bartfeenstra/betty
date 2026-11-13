@@ -63,3 +63,9 @@ class OptionalToOne[AssociateT: Entity](
         if self._storage.get(owner) is None:
             return ()
         return self._proxied_association.get_associates(owner)
+
+    @override
+    def freeze(self, owner: HasAssociations, /) -> None:
+        if self._storage.get(owner) is None:
+            return
+        super().freeze(owner)

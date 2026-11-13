@@ -48,10 +48,12 @@ class Type(type):
         """
         new = cls.__new__(cls, *args, **kwargs)
         assert isinstance(new, Object)
+        new._is_initialized = False
         new._pre_init()
         new.__init__(*args, **kwargs)
         new._post_init()
         new._is_initialized = True
+        new._on_is_initialized()
         return new
 
 
@@ -60,15 +62,18 @@ class Object(metaclass=Type):
     An object that supports cooperative initialization.
     """
 
-    _is_initialized = False
+    _is_initialized: bool
 
     def _pre_init(self) -> None:
         for class_var in self.init_class_vars():
             class_var.pre_init_owner(self)
 
     def _post_init(self) -> None:
-        for class_var in self.init_class_vars():
+        for class_var in reversed(self.init_class_vars()):
             class_var.post_init_owner(self)
+
+    def _on_is_initialized(self) -> None:
+        pass
 
     @final
     @property
@@ -76,7 +81,10 @@ class Object(metaclass=Type):
         """
         Whether the object is fully initialized.
         """
-        return self._is_initialized
+        try:
+            return self._is_initialized
+        except AttributeError:
+            return False
 
     @final
     def assert_initialized(self) -> None:
@@ -151,7 +159,7 @@ class ClassVarOwnership[OwnerT, ClassVarT]:
         """
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} {fully_qualified_name(type(self.var))} @ {self.fully_qualified_name}>"
+        return f"<{self.__class__.__name__} {fully_qualified_name(self.var)} @ {self.fully_qualified_name}>"
 
 
 @disjoint_base

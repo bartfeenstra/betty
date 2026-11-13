@@ -16,6 +16,7 @@ from betty.association import (
 )
 from betty.collection import Clearable
 from betty.entity import Entity
+from betty.freezers.attr import AttrFreezable
 from betty.functools import unique
 
 if TYPE_CHECKING:
@@ -25,18 +26,12 @@ if TYPE_CHECKING:
 
 
 @final
-class ToManyCollection[AssociateT: Entity](Clearable, Sequence[AssociateT]):
+class ToManyCollection[AssociateT: Entity](
+    AttrFreezable, Clearable, Sequence[AssociateT]
+):
     r"""
     A collection of \*-to-many associates.
     """
-
-    __slots__ = (
-        "_associates",
-        "_association",
-        "_owner",
-        "_owner_if_entity",
-        "_unresolved",
-    )
 
     def __init__(
         self,
@@ -65,6 +60,7 @@ class ToManyCollection[AssociateT: Entity](Clearable, Sequence[AssociateT]):
         This behaves similar to :py:meth:betty.association.Association.associate` and **MUST** only be called by
         :py:class:`betty.associations.to_many.ToMany`.
         """
+        self.assert_not_frozen()
         existing_associates = tuple(self)
         for associate in unique(associates):
             assert associate not in existing_associates
@@ -77,6 +73,7 @@ class ToManyCollection[AssociateT: Entity](Clearable, Sequence[AssociateT]):
         This behaves similar to :py:meth:betty.association.Association.disassociate` and **MUST** only be called by
         :py:class:`betty.associations.to_many.ToMany`.
         """
+        self.assert_not_frozen()
         for associate in associates:
             self._associates.remove(associate)
 
@@ -84,6 +81,7 @@ class ToManyCollection[AssociateT: Entity](Clearable, Sequence[AssociateT]):
         """
         Add the given associates.
         """
+        self.assert_not_frozen()
         associate_type = self._association.associate_type
         associate_attr = self._association.associate_attr
         existing_associates = tuple(self)
@@ -104,6 +102,7 @@ class ToManyCollection[AssociateT: Entity](Clearable, Sequence[AssociateT]):
         """
         Remove the given associates.
         """
+        self.assert_not_frozen()
         self.assert_resolved()
         associate_attr = self._association.associate_attr
         for associate in associates:
@@ -159,6 +158,7 @@ class ToManyCollection[AssociateT: Entity](Clearable, Sequence[AssociateT]):
         """
         Resolve all associates in this collection.
         """
+        self.assert_not_frozen()
         for i, associate in enumerate(self._associates):
             if not isinstance(associate, Entity):
                 self._associates[i] = resolve_associate(

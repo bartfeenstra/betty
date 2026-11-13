@@ -11,7 +11,9 @@ from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final, override
 
+from betty.classtools import TypeABCMeta
 from betty.definition import ResolvableDefinition, resolve_definition
+from betty.freezers.life_cycle import FrozenOnBootstrap
 from betty.functools import LazyReCallable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.plugin import PluginDefinition
@@ -194,7 +196,9 @@ class PluginServiceManager[
         """
 
 
-class HasPluginServices(HasProps, ManagedLifeCycle):
+class HasPluginServices(
+    FrozenOnBootstrap, HasProps, ManagedLifeCycle, metaclass=TypeABCMeta
+):
     """
     A plugin service provider.
     """

@@ -30,7 +30,7 @@ def test_assert_record__with_optional_fields_with_items() -> None:
         "hello": "WORLD!",
     }
     actual = assert_record(
-        Field("hello", assert_str().pipe(lambda x: x.upper()), optional=True)
+        Field("hello", assert_str() | (lambda x: x.upper()), optional=True)
     )({"hello": "World!"})
     assert actual == expected
 
@@ -44,7 +44,7 @@ def test_assert_record__with_required_fields_with_items() -> None:
     expected = {
         "hello": "WORLD!",
     }
-    actual = assert_record(Field("hello", assert_str().pipe(lambda x: x.upper())))({
+    actual = assert_record(Field("hello", assert_str() | (lambda x: x.upper())))({
         "hello": "World!",
     })
     assert actual == expected

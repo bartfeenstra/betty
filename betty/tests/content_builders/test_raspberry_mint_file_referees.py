@@ -6,7 +6,7 @@ from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.entities.person import Person
 from betty.entities.place import Place
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 from betty.test_utils.entity.associations.has_file_references import (
     DummyHasFileReferences,
 )
@@ -24,23 +24,23 @@ class TestFileReferees:
         ],
     )
     async def test_build_template__without_referees(
-        self, resource: object, isolated_project_factory: IsolatedProjectFactory
+        self, resource: object, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[FileReferees]) as project,
+            new_isolated_project(supported_plugins=[FileReferees]) as project,
             project,
         ):
             sut = await FileReferees.new(project)
         assert await sut.build(document=Document(resource)) is None
 
     async def test_build_template__with_referee(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         referee = DummyHasFileReferences()
         resource = File(__file__)
         FileReference(referee, resource)
         async with (
-            isolated_project_factory(supported_plugins=[FileReferees]) as project,
+            new_isolated_project(supported_plugins=[FileReferees]) as project,
             project,
         ):
             sut = await FileReferees.new(project)

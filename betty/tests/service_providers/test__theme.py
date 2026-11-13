@@ -19,7 +19,7 @@ from betty.event_types.birth import Birth
 from betty.event_types.death import Death
 from betty.event_types.unknown import UnknownEventType
 from betty.privacy import Privacy
-from betty.project import default_lifetime_threshold
+from betty.project import Project
 from betty.roles.subject import Subject
 from betty.roles.unknown import UnknownRole
 from betty.service_providers._theme import (
@@ -160,7 +160,9 @@ class TestPersonLifetimeEvents:
             privacy=event_privacy,
         )
         Presence(person, UnknownRole(), event)
-        actual = list(person_timeline_events(person, default_lifetime_threshold))
+        actual = list(
+            person_timeline_events(person, Project.default_lifetime_threshold)
+        )
         assert expected is (event in actual)
 
     @pytest.mark.parametrize(
@@ -246,7 +248,9 @@ class TestPersonLifetimeEvents:
         )
         Presence(sibling, role, sibling_event)
 
-        actual = list(person_timeline_events(person, default_lifetime_threshold))
+        actual = list(
+            person_timeline_events(person, Project.default_lifetime_threshold)
+        )
         assert expected is (ancestor3_event in actual)
         assert expected is (descendant3_event in actual)
         assert expected is (sibling_event in actual)

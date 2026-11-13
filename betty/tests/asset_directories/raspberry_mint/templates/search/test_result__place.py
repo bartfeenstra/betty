@@ -1,17 +1,12 @@
-from betty.asset_directories import raspberry_mint
 from betty.entities.place import Place
 from betty.localizer import default_localizer
-from betty.test_utils.conftest import AssertTemplateFile
+from betty.test_utils.conftest import AssertJinja
 
 
-async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
+async def test_minimal(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
     entity = Place()
-    async with assert_template_file(
-        data={
-            "entity": entity,
-        },
-        assets={raspberry_mint},
-        template="search/result--place.html.j2",
-    ) as (actual, _):
-        assert default_localizer.localize(entity.label) in actual
-        assert entity.id in actual
+    async with assert_raspberry_mint_jinja_file(
+        "search/result--place.html.j2", data={"entity": entity}
+    ) as rendered:
+        assert default_localizer.localize(entity.label) in rendered
+        assert entity.id in rendered

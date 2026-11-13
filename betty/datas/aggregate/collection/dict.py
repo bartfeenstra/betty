@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
+from betty.collections.mapping.dict import Dict, empty_frozen_dict
 from betty.datas.aggregate.collection.mapping import MutableMappingDefinition
 
 if TYPE_CHECKING:
@@ -16,10 +17,10 @@ if TYPE_CHECKING:
 
 @final
 class DictDefinition[KeyT, ValueT](
-    MutableMappingDefinition[dict[KeyT, ValueT], KeyT, ValueT]
+    MutableMappingDefinition[Dict[KeyT, KeyT, ValueT, ValueT], KeyT, ValueT]
 ):
     """
-    A dictionary definition.
+    A :py:class`betty.collections.mapping.dict.Dict` definition.
     """
 
     def __init__(
@@ -29,13 +30,13 @@ class DictDefinition[KeyT, ValueT](
         value: ResolvableDataDefinition[DataDefinition[ValueT]],
         label: AnyLocalizable,
         description: AnyLocalizable | None = None,
-        porter: Porter[dict[KeyT, ValueT]] | None = None,
+        porter: Porter[Dict[KeyT, KeyT, ValueT, ValueT]] | None = None,
     ):
         super().__init__(
             key=key,
             value=value,
             label=label,
             description=description,
-            manufacturer=lambda values: {} if values is None else dict(values),
+            manufacturer=lambda values: Dict(values or empty_frozen_dict),
             porter=porter,
         )

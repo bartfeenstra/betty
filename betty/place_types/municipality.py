@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import final
 
+from betty.freezers.classtools import FrozenOnInit
 from betty.localizables.gettext import _, ngettext
 from betty.place_type import PlaceType, PlaceTypeDefinition
 
@@ -17,7 +18,7 @@ from betty.place_type import PlaceType, PlaceTypeDefinition
     label_plural=_("Municipalities"),
     label_countable=ngettext("{count} municipality", "{count} municipalities"),
 )
-class Municipality(PlaceType):
+class Municipality(PlaceType, FrozenOnInit):
     """
     .. plugin:: place-type:municipality.
     """
