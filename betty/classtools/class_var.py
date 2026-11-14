@@ -22,7 +22,7 @@ class ClassVar[OwnerT]:
 
 class HasClassVars:
     """
-    An object that has :py:class:`class variables <betty.class_var.ClassVar>`.
+    An object that has :py:class:`class variables <betty.classtools.class_var.ClassVar>`.
     """
 
     @final

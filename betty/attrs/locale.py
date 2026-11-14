@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.attrs.owner import OwnerAttr
-from betty.classtools import TypeABCMeta
 from betty.datas.locale import LocaleDefinition
 from betty.locale import ResolvableLocale, resolve_locale
 from betty.localized import Localized
@@ -34,7 +33,7 @@ def new_locale_attr(
     ).setter(resolve_locale)
 
 
-class HasLocale(Localized, HasProps, metaclass=TypeABCMeta):
+class HasLocale(Localized, HasProps):
     """
     A resource that is localized, e.g. contains information in a specific locale.
     """

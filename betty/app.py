@@ -16,6 +16,7 @@ from aiohttp_client_cache.session import CachedSession
 from betty import about
 from betty.asyncio import ResolvableAwaitable, resolve_await
 from betty.attrs.locale import new_locale_attr
+from betty.classtools.co_op import co_op
 from betty.collections.mapping.dict import empty_frozen_dict
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.dirs import app_config_directory, cache_directory
@@ -66,6 +67,7 @@ if TYPE_CHECKING:
 
 
 @final
+@co_op
 class App(RequirableServiceLevel, HasPluginServices):
     """
     The Betty application.

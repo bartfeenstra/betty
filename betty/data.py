@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Self, final
 
+from betty.classtools.co_op import CoOp, CoOpMeta
 from betty.definition import HasDefinition
 from betty.definition.cls import OptionalClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -82,7 +83,9 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         return self.__samples(self)
 
 
-class Data[DefinitionT: DataDefinition = DataDefinition](HasDefinition[DefinitionT]):
+class Data[DefinitionT: DataDefinition = DataDefinition](
+    HasDefinition[DefinitionT], CoOp, metaclass=CoOpMeta
+):
     """
     A class that defines data for its instances.
     """

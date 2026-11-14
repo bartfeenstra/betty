@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.attrs.owner import OwnerAttr
-from betty.classtools import TypeABCMeta
 from betty.datas.aggregate.record import FieldDefinition
 from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.prop import HasProps
@@ -30,7 +29,7 @@ def new_media_type_attr(
     ).setter(resolve_media_type)
 
 
-class HasMediaType(HasProps, metaclass=TypeABCMeta):
+class HasMediaType(HasProps):
     """
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
     """

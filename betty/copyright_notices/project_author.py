@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.classtools.co_op import CoOpABCMeta
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
@@ -17,7 +18,7 @@ if TYPE_CHECKING:
 
 @final
 @CopyrightNoticeDefinition("project-author", label=_("Project author"))
-class ProjectAuthor(Manufacturable, CopyrightNotice):
+class ProjectAuthor(Manufacturable, CopyrightNotice, metaclass=CoOpABCMeta):
     """
     .. plugin:: copyright-notice:project-author.
     """

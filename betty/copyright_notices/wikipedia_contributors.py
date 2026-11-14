@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Self, final, override
 import aiohttp
 
 from betty.app import App
+from betty.classtools.co_op import CoOpABCMeta
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.factory import Manufacturable
 from betty.locale import default_locale, resolve_locale
@@ -27,7 +28,7 @@ def _copyright_url(language: str, page: str) -> str:
 
 @final
 @CopyrightNoticeDefinition("wikipedia-contributors", label=_("Wikipedia contributors"))
-class WikipediaContributors(Manufacturable, CopyrightNotice):
+class WikipediaContributors(Manufacturable, CopyrightNotice, metaclass=CoOpABCMeta):
     """
     .. plugin:: copyright-notice:wikipedia-contributors.
     """
