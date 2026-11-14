@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload
 from typing_extensions import disjoint_base
 
 from betty.classtools.class_var import OwnedClassVar
-from betty.classtools.co_op import CoOp, CoOpClassVar
+from betty.classtools.init import Init, InitClassVar
 from betty.operator import Attr
 
 if TYPE_CHECKING:
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
 
-class HasProps(CoOp):
+class HasProps(Init):
     """
     An object that has :py:class:`properties <betty.prop.Prop>`.
     """
@@ -37,7 +37,7 @@ class HasProps(CoOp):
 
 @disjoint_base
 class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
-    OwnedClassVar[OwnerT], CoOpClassVar[OwnerT], metaclass=ABCMeta
+    OwnedClassVar[OwnerT], InitClassVar[OwnerT], metaclass=ABCMeta
 ):
     """
     A property.

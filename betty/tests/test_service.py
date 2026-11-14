@@ -5,7 +5,7 @@ from typing import override
 
 import pytest
 
-from betty.classtools.co_op import AlreadyInitialized
+from betty.classtools.init import AlreadyInitialized
 from betty.functools import LazyReCallable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.prop import HasProps
