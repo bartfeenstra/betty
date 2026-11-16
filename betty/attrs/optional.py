@@ -9,6 +9,7 @@ from typing import final, override
 
 from betty.attr import Attr
 from betty.attrs.proxy import ProxyAttr
+from betty.classtools.store import StoreClassVar
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.optional import OptionalDefinition
@@ -17,7 +18,8 @@ from betty.prop import HasProps
 
 
 class OptionalAttr[OwnerT: HasProps, GetT, SetT](
-    ProxyAttr[OwnerT, GetT | None, SetT | None, DataDefinition[GetT | None]]
+    StoreClassVar[OwnerT, GetT | None],
+    ProxyAttr[OwnerT, GetT | None, SetT | None, DataDefinition[GetT | None]],
 ):
     """
     Make another attribute optional, e.g. allow ``None``.
@@ -37,12 +39,12 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
 
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:
-        self._storage.set(owner, None)
+        self._store.set(owner, None)
 
     @final
     @override
     def get(self, owner: OwnerT, /) -> GetT | None:
-        if self._storage.get(owner) is None:
+        if self._store.get(owner) is None:
             return None
         return super().get(owner)
 
@@ -52,7 +54,7 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
         self.assert_settable(owner)
         if value is None:
             super().delete_owner(owner)
-            self._storage.set(owner, None)
+            self._store.set(owner, None)
         else:
             super().set(owner, value)
 

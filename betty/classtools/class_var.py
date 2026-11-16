@@ -15,6 +15,9 @@ class ClassVar[OwnerT]:
     A class variable on an object.
     """
 
+    def __set_name__(self, owner: type[OwnerT], name: str) -> None:
+        pass
+
 
 @final
 class ClassVars[ClassVarT: ClassVar]:
@@ -67,7 +70,7 @@ class ClassVarOwnership[OwnerT, ClassVarT]:
         return f"<{self.__class__.__name__} {fully_qualified_name(type(self.var))} @ {self.fully_qualified_name}>"
 
 
-class OwnedClassVar[OwnerT](ClassVar):
+class OwnedClassVar[OwnerT](ClassVar[OwnerT]):
     """
     A class var with access to its owner.
     """

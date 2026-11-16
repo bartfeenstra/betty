@@ -8,6 +8,7 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, TypeGuard, final, override
 
 from betty.association import Associate, AssociateResolver, Association, HasAssociations
+from betty.classtools.store import StoreClassVar
 from betty.collections.to_many import ToManyCollection
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -23,7 +24,8 @@ type ToManyAssociates[AssociateT: Entity] = Iterable[Associate[AssociateT]]
 
 @final
 class ToMany[AssociateT: Entity](
-    Association[AssociateT, ToManyCollection[AssociateT], ToManyAssociates[AssociateT]]
+    StoreClassVar[HasAssociations, ToManyCollection[AssociateT]],
+    Association[AssociateT, ToManyCollection[AssociateT], ToManyAssociates[AssociateT]],
 ):
     r"""
     A \*-to-many entity association.
@@ -53,11 +55,11 @@ class ToMany[AssociateT: Entity](
     @override
     def pre_init_owner(self, owner: HasAssociations, /) -> None:
         super().pre_init_owner(owner)
-        self._storage.set(owner, ToManyCollection(owner, self))
+        self._store.set(owner, ToManyCollection(owner, self))
 
     @override
     def get(self, owner: HasAssociations, /) -> ToManyCollection[AssociateT]:
-        return self._storage.get(owner)
+        return self._store.get(owner)
 
     @override
     def set(

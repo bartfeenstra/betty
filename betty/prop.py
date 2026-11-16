@@ -11,7 +11,6 @@ from typing_extensions import disjoint_base
 
 from betty.classtools.class_var import ClassVars, OwnedClassVar
 from betty.classtools.init import Init, InitClassVar
-from betty.operator import Attr
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
@@ -34,12 +33,6 @@ class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
     """
     A property.
     """
-
-    _storage: Attr[OwnerT, Any]
-
-    def __set_name__(self, owner: type[OwnerT], name: str) -> None:
-        super().__set_name__(owner, name)
-        self._storage = Attr(f"_betty_prop__{name}")
 
     def delete_owner(self, owner: OwnerT, /) -> None:
         """
