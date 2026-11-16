@@ -12,10 +12,10 @@ from betty.entities.note import Note
 from betty.entity import Entity
 from betty.media_types import plain_text
 from betty.privacy import Privacy
-from betty.test_utils.entity import EntityTestBase
-from betty.test_utils.entity.associations.has_file_references import (
+from betty.test_utils.associations.has_file_references import (
     DummyHasFileReferences,
 )
+from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

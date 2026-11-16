@@ -8,8 +8,8 @@ from betty.entities.citation import Citation
 from betty.entities.source import Source
 from betty.entity import Entity
 from betty.privacy import Privacy
+from betty.test_utils.associations.has_citations import DummyHasCitations
 from betty.test_utils.entity import EntityTestBase
-from betty.test_utils.entity.associations.has_citations import DummyHasCitations
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

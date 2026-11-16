@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from betty.entities.link import Link
-from betty.test_utils.entity.associations.has_links import DummyHasLinks
+from betty.test_utils.associations.has_links import DummyHasLinks
 
 
 class TestHasLinks:
