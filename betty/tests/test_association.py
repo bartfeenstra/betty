@@ -277,4 +277,4 @@ class TestHasAssociations:
             my_first_association = _Association(DummyEntityOne)
 
         owner = _Owner()
-        assert list(owner.associations()) == [_Owner.my_first_association]
+        assert list(owner.associations) == [_Owner.my_first_association]

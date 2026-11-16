@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.attrs.owner import OwnerAttr
-from betty.classtools import TypeABCMeta
 from betty.datas.date import AnyDateDefinition
 from betty.prop import HasProps
 
@@ -15,7 +14,7 @@ if TYPE_CHECKING:
     from betty.date import AnyDate
 
 
-class HasAnyDate(HasProps, metaclass=TypeABCMeta):
+class HasAnyDate(HasProps):
     """
     A resource with date information.
     """

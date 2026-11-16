@@ -214,9 +214,7 @@ class HasPluginServices(HasProps, ManagedLifeCycle):
             PluginServiceManager[
                 ResolvableServiceLevelHasPluginServices, PluginDefinition, Any, Any
             ]
-        ] = tuple(
-            prop for prop in self.props() if isinstance(prop, PluginServiceManager)
-        )  # ty:ignore[invalid-assignment]
+        ] = tuple(prop for prop in self.props if isinstance(prop, PluginServiceManager))
         self.life_cycle.on_bootstrap(self.__initialize)
 
     async def __initialize(self: Intersection[Self, ResolvableServiceLevel]) -> None:

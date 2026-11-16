@@ -5,9 +5,9 @@ Data operators.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, Any, Final, final, override
+from typing import TYPE_CHECKING, Any, Final, final, overload, override
 
-from typing_extensions import disjoint_base
+from typing_extensions import disjoint_base, sentinel
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
@@ -105,6 +105,9 @@ class _Operator[LookupT](Operator):
         return self.operator == other.operator
 
 
+_AttrNoDefault = sentinel("_AttrNoDefault")
+
+
 @final
 class Attr[OwnerT, ValueT = Any](_Operator[str]):
     """
@@ -115,11 +118,21 @@ class Attr[OwnerT, ValueT = Any](_Operator[str]):
     def __str__(self) -> str:
         return f".{self.operator}"
 
+    @overload
     def get(self, owner: OwnerT, /) -> ValueT:
+        pass
+
+    @overload
+    def get[DefaultT](self, owner: OwnerT, default: DefaultT, /) -> ValueT | DefaultT:
+        pass
+
+    def get(self, owner, default=_AttrNoDefault, /):
         """
         Get the value for the attribute.
         """
-        return getattr(owner, self.operator)
+        if default is _AttrNoDefault:
+            return getattr(owner, self.operator)
+        return getattr(owner, self.operator, default)
 
     def set(self, owner: OwnerT, value: ValueT, /) -> None:
         """

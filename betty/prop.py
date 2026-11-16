@@ -9,35 +9,27 @@ from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload
 
 from typing_extensions import disjoint_base
 
-from betty.class_var import OwnedClassVar
-from betty.classtools import Object, ObjectClassVar
+from betty.classtools.class_var import ClassVars, OwnedClassVar
+from betty.classtools.init import Init, InitClassVar
 from betty.operator import Attr
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from ty_extensions import Intersection
 
 
-class HasProps(Object):
+class HasProps(Init):
     """
     An object that has :py:class:`properties <betty.prop.Prop>`.
     """
 
-    @final
-    @classmethod
-    def props(cls) -> Iterable[Prop[Self, Any]]:
-        """
-        Get all properties on this class.
-        """
-        for class_var in cls.class_vars():
-            if isinstance(class_var, Prop):
-                yield class_var
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        cls.props = ClassVars(cls, Prop)
 
 
 @disjoint_base
 class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
-    OwnedClassVar[OwnerT], ObjectClassVar[OwnerT], metaclass=ABCMeta
+    OwnedClassVar[OwnerT], InitClassVar[OwnerT], metaclass=ABCMeta
 ):
     """
     A property.

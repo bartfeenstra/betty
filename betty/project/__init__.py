@@ -107,9 +107,7 @@ from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
 from betty.sample import Sample, Samples, Size
 from betty.server import ManufacturableServer, ServerDefinition
-from betty.service import (
-    Service,
-)
+from betty.service import Service
 from betty.service_level import DownstreamServiceLevel, Plugins
 from betty.service_provider import (
     ManufacturableServiceProvider,
