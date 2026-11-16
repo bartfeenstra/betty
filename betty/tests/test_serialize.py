@@ -30,14 +30,6 @@ class SerializerOne(_Serializer):
         return MediaType("text/x.betty.test.one", extensions=[".one"])
 
 
-@SerializerDefinition("two", label="Two")
-class SerializerTwo(_Serializer):
-    @override
-    @classmethod
-    def media_type(cls) -> MediaType:
-        return MediaType("text/x.betty.test.two", extensions=[".two"])
-
-
 def test_serializer_for__with_supported_type() -> None:
     serializer = SerializerOne()
     assert serializer_for([serializer], ".one") is serializer

@@ -33,7 +33,7 @@ class _FullyQualifiedNameTestTarget:
 
 
 def _fully_qualified_name_test_target() -> None:
-    pass
+    raise Unreachable
 
 
 @pytest.mark.parametrize(

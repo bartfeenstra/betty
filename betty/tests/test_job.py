@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, override
 
 from betty.job import Context, Job
 from betty.progresses.no_op import NoOpProgress
+from betty.typing import Unreachable
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -36,7 +37,7 @@ class TestContext:
 class _Job(Job):
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        pass
+        raise Unreachable
 
 
 class TestJob:

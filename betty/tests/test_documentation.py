@@ -107,7 +107,7 @@ async def _assert_sphinx_references(
                 return
             try:
                 import_object(py_ref_target)
-            except ExtensionError as error:
+            except ExtensionError as error:  # pragma: no cover
                 with subtests.test():
                     raise AssertionError(
                         f"Cannot import {py_ref} as mentioned by {py_ref} in {file}."

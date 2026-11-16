@@ -53,7 +53,7 @@ def pytest_collection_modifyitems(
 
         # Each order marker creates a parameterized test matrix, which we do not want to do here, so only set an order
         # marker if none existed yet.
-        if not item.get_closest_marker("order"):
+        if not item.get_closest_marker("order"):  # pragma: no cover
             item.add_marker(pytest.mark.order(item_duration.value))
         # pytest-timeout works based on the closest found marker, so we prepend ours to make that happen.
         item.add_marker(pytest.mark.timeout(item_timeout), False)
@@ -90,7 +90,9 @@ def webpack_test[MarkableT: Markable](markable: MarkableT, /) -> MarkableT:
 # Work around a problem where aiohttp 3.14 added a required kwarg ``stream_writer``, which aioresponses does not yet
 # support.
 _aiohttp_client_response_init = aiohttp.ClientResponse.__init__
-if "stream_writer" in signature(_aiohttp_client_response_init).parameters:
+if (
+    "stream_writer" in signature(_aiohttp_client_response_init).parameters
+):  # pragma: no cover
 
     def _init(*args: Any, **kwargs: Any) -> None:
         kwargs.setdefault("stream_writer", Mock(output_size=0))

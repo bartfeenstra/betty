@@ -26,29 +26,6 @@ class TestConsole:
             (False, Severity.WARN),
             (False, Severity.CONFIRM),
             (False, Severity.INFO),
-            (False, Severity.DEBUG),
-        ],
-    )
-    async def test_log_handler(self, expected: bool, severity: Severity) -> None:
-        message = "Hello, world!"
-        stdout = StringIO()
-        with redirect_stdout(stdout):
-            Console(severity=severity)
-            logging.getLogger().debug(message)
-        stdout.seek(0)
-        stdout_str = stdout.read().replace("\n", "")
-        if expected:
-            assert message in stdout_str
-        else:
-            assert message not in stdout_str
-
-    @pytest.mark.parametrize(
-        ("expected", "severity"),
-        [
-            (False, Severity.ERROR),
-            (False, Severity.WARN),
-            (False, Severity.CONFIRM),
-            (False, Severity.INFO),
             (True, Severity.DEBUG),
         ],
     )

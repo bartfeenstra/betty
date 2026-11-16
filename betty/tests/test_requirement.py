@@ -23,12 +23,6 @@ class _DownstreamServiceLevel(DownstreamServiceLevel):
     pass
 
 
-async def _requirement(services: ServiceLevel, /) -> _ServiceLevel:
-    if isinstance(services, _ServiceLevel):
-        return services
-    raise UnmetRequirement("")
-
-
 class TestRequirableDecorator:
     class _RequirableDecorator(
         RequirableDecorator[tuple[_ServiceLevel, _ServiceLevel]]
