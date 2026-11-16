@@ -1,4 +1,4 @@
-name: Build setuptools artifacts (Release)
+name: Publish to PyPI
 
 on:
   release:
@@ -8,6 +8,9 @@ on:
 jobs:
   setuptools:
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
     strategy:
       matrix:
         include:
@@ -60,8 +63,4 @@ jobs:
         run: betty dev-build-package '${{ github.event.release.tag_name }}'
 
       - name: Publish the distributions to PyPI
-        run: twine upload -u __token__ ./dist/*
-        shell: bash
-        env:
-          TWINE_NON_INTERACTIVE: true
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        uses: pypa/gh-action-pypi-publish@release/v1
