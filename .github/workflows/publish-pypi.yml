@@ -6,7 +6,7 @@ on:
       - published
 
 jobs:
-  setuptools:
+  publish-pypi:
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -57,7 +57,8 @@ jobs:
           node-version: ${{ matrix.nodejs }}
 
       - name: Install Betty
-        run: python ./bin/install.py
+        run: python ./bin/install.py --no-npm --no-playwright
+
 
       - name: Build the distributions
         run: betty dev-build-package '${{ github.event.release.tag_name }}'
