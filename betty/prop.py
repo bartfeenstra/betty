@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Final, Never, Self, final, overload
 
 from typing_extensions import disjoint_base
 
-from betty.classtools.class_var import ClassVars, OwnedClassVar
+from betty.classtools.class_var import ClassVars
 from betty.classtools.init import Init, InitClassVar
 
 if TYPE_CHECKING:
@@ -28,7 +28,7 @@ class HasProps(Init):
 
 @disjoint_base
 class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
-    OwnedClassVar[OwnerT], InitClassVar[OwnerT], metaclass=ABCMeta
+    InitClassVar[OwnerT], metaclass=ABCMeta
 ):
     """
     A property.

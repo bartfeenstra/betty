@@ -108,8 +108,7 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/classtools/class_var.py": {
-        "ClassVar": MissingReason.STATIC_CONTENT_ONLY,
-        "OwnedClassVar": {
+        "ClassVar": {
             "__set_name__": MissingReason.COVERED_ELSEWHERE,
         },
     },

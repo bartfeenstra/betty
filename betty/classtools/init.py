@@ -117,7 +117,7 @@ class Init(HasClassVars):
             raise AlreadyInitialized(self)
 
 
-class InitClassVar[OwnerT: Init](ClassVar):
+class InitClassVar[OwnerT: Init](ClassVar[OwnerT]):
     """
     A class variable on an :py:class:`betty.classtools.init.Init`.
     """
