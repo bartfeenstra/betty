@@ -7,7 +7,6 @@ from typing import Final, override
 from unittest.mock import call
 
 import pytest
-import winuvloop
 from pytest_mock import MockerFixture
 
 from betty.concurrent import Ledger, Lock, RateLimiter, ThreadSafeLock, backoff
@@ -93,15 +92,6 @@ class TestRateLimiter:
         end = time.time()
         duration = end - start
         assert duration >= expected
-
-    @classmethod
-    def _consume(cls, sut: RateLimiter) -> None:
-        winuvloop.run(cls.__consume(sut))
-
-    @classmethod
-    async def __consume(cls, sut: RateLimiter) -> None:
-        async with sut:
-            pass
 
     async def test_is_available(self) -> None:
         sut = RateLimiter(1, 1)

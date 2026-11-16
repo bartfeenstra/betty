@@ -722,7 +722,7 @@ class TestCoverage:
         errors = await CoverageTester().test()
         for file in sorted(errors):
             for error in sorted(errors[file]):
-                with subtests.test():
+                with subtests.test():  # pragma: no cover
                     raise AssertionError(error)
 
 
@@ -790,7 +790,7 @@ class CoverageTester:
         if expected_src_module_path in self._ignore_src_module_paths and isinstance(
             self._ignore_src_module_paths[expected_src_module_path], MissingReason
         ):
-            yield f"{expected_src_module_path} has a matching test file at {file}, which was unexpectedly declared as known to be missing."
+            yield f"{expected_src_module_path} has a matching test file at {file}, which was unexpectedly declared as known to be missing."  # pragma: no cover
 
 
 class _Importable(Protocol):
@@ -856,7 +856,7 @@ class _ModuleCoverageTester:
             if not isinstance(child, Expr):
                 return False
             if not isinstance(child.value, Constant):
-                return False
+                return False  # pragma: no cover
         return True
 
     def _get_module_data(

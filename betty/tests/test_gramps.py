@@ -46,6 +46,7 @@ from betty.project import Project
 from betty.roles.subject import Subject
 from betty.subprocess import CalledSubprocessError
 from betty.test_utils.user.ui import StaticUi
+from betty.typing import Unreachable
 from betty.user import Severity
 
 if TYPE_CHECKING:
@@ -128,7 +129,7 @@ class LoadPartial(Protocol):
         ] = empty_frozen_dict,
         role_mapping: Mapping[str, ResolvableRoleManufacturer] = empty_frozen_dict,
     ) -> EntityPool:
-        pass
+        raise Unreachable
 
 
 class TestGrampsLoader:
@@ -324,11 +325,6 @@ class TestGrampsLoader:
             place_type_mapping=place_type_mapping,
             role_mapping=role_mapping,
         ).load_xml(xml.strip())
-
-    @pytest.fixture
-    async def load_project(self) -> AsyncIterator[Project]:
-        async with Project.new_isolated(name=self.project_name) as project, project:
-            yield project
 
     @pytest.fixture
     async def load_partial(self, isolated_project: Project) -> LoadPartial:

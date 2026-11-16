@@ -50,7 +50,7 @@ def test_python_source_modules_no_needless_directories(
         ):
             continue
 
-        with subtests.test():
+        with subtests.test():  # pragma: nocover
             raise AssertionError(
                 f"betty.{'.'.join(directory.relative_to(python_directory).parts)} does not have any submodules. Rename {directory}/__init__.py to {directory}.py and remove {directory}."
             )
@@ -74,7 +74,7 @@ def test_python_source_modules_have_from_future_import_annotations(
                         directory / file_name
                     )
                 ):
-                    with subtests.test():
+                    with subtests.test():  # pragma: nocover
                         raise AssertionError(
                             f"Failed asserting that {directory / file_name} contains `from __future__ import annotations`."
                         )
@@ -85,7 +85,7 @@ def _test_python_file_contains_docstring_only(file: Path, /) -> bool:
         python = f.read()
     for child in iter_child_nodes(parse(python, file)):
         if not isinstance(child, Expr):
-            return False
+            return False  # pragma: nocover
         if not isinstance(child.value, Constant):
-            return False
+            return False  # pragma: nocover
     return True

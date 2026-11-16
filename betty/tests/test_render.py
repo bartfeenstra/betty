@@ -3,6 +3,7 @@ from typing import ClassVar, override
 from betty.media_type import MediaType
 from betty.media_types import html
 from betty.render import RenderDispatcher, Renderer
+from betty.typing import Unreachable
 
 
 class _StaticRenderer(Renderer):
@@ -12,11 +13,11 @@ class _StaticRenderer(Renderer):
     @override
     @property
     def media_type(self) -> MediaType:
-        return self._media_type
+        raise Unreachable
 
     @override
     async def render(self, content: str, /) -> str:
-        return self._rendered_content
+        raise Unreachable
 
 
 class _StaticRendererOne(_StaticRenderer):

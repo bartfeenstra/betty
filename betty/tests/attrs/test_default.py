@@ -11,14 +11,8 @@ from betty.prop import HasProps
 
 
 class _Attr(StoreClassVar[HasProps, str], Attr[HasProps, str, str]):
-    def __init__(self, *, init_value: str | None = None):
+    def __init__(self):
         super().__init__(FieldDefinition(StrDefinition(label="-")))
-        self._init_value = init_value
-
-    @override
-    def pre_init_owner(self, owner: HasProps, /) -> None:
-        if self._init_value is not None:
-            self._store.set(owner, self._init_value)
 
     @override
     def get(self, owner: HasProps, /) -> str:
