@@ -4,14 +4,10 @@ The class variable API.
 
 from __future__ import annotations
 
-from functools import cache
 from inspect import getmembers
-from typing import TYPE_CHECKING, Final, Self, final
+from typing import Any, Final, Self, final
 
 from betty.importlib import fully_qualified_name
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable
 
 
 class ClassVar[OwnerT]:
@@ -20,21 +16,33 @@ class ClassVar[OwnerT]:
     """
 
 
-class HasClassVars:
+@final
+class ClassVars[ClassVarT: ClassVar]:
     """
-    An object that has :py:class:`class variables <betty.class_var.ClassVar>`.
+    Expose a class's class variables.
     """
 
-    @final
-    @classmethod
-    @cache
-    def class_vars(cls) -> Iterable[ClassVar[Self]]:
-        """
-        Get all class variables on this class.
-        """
-        return tuple(
-            member for _, member in getmembers(cls) if isinstance(member, ClassVar)
+    __slots__ = ("_vars",)
+
+    def __init__(self, cls: type, class_var_cls: type[ClassVarT], /):
+        self._vars = tuple(
+            member for _, member in getmembers(cls) if isinstance(member, class_var_cls)
         )
+
+    def __get__(self, instance: Any, owner: Any) -> tuple[ClassVarT, ...]:
+        return self._vars
+
+
+class HasClassVars:
+    """
+    An object that has :py:class:`class variables <betty.classtools.class_var.ClassVar>`.
+    """
+
+    __slots__ = ()
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        cls.class_vars = ClassVars(cls, ClassVar)
 
 
 @final

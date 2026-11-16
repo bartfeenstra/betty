@@ -16,14 +16,14 @@ from betty.prop import (
 
 class _PropOwner(HasProps):
     @override
-    def _pre_init(self) -> None:
+    def pre_init(self) -> None:
         self.pre_init_properties = []
-        super()._pre_init()
+        super().pre_init()
 
     @override
-    def _post_init(self) -> None:
+    def post_init(self) -> None:
         self.post_init_properties = []
-        super()._post_init()
+        super().post_init()
 
 
 class _Value:

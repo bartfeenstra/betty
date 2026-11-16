@@ -4,7 +4,7 @@ Provide Betty's ancestry event types.
 
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from typing import TYPE_CHECKING, Self, final
 
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
@@ -37,7 +37,7 @@ class EventType(Object["EventTypeDefinition"]):
     """
 
 
-class ShouldExistEventType(EventType, metaclass=ABCMeta):
+class ShouldExistEventType(EventType):
     """
     An event type that controls whether at least one event of this type should exist for a person.
     """

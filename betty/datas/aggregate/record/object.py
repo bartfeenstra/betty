@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import override
 
 from betty.attr import Attr
-from betty.classtools import TypeABCMeta
 from betty.data import Data
 from betty.datas.aggregate.record import RecordDefinition
 from betty.operator import Attr as AttrOperator
@@ -25,13 +24,13 @@ class ObjectDefinition[DataT](RecordDefinition[DataT, AttrOperator]):
     def _set_cls(self, cls: type[DataT], /) -> None:
         super()._set_cls(cls)
         if issubclass(cls, HasProps):
-            for prop in cls.props():
+            for prop in cls.props:
                 if isinstance(prop, Attr):
-                    self._fields[AttrOperator(prop.ownership.name)] = prop.field  # ty:ignore[invalid-assignment]
+                    self._fields[AttrOperator(prop.ownership.name)] = prop.field
 
 
 class Object[DefinitionT: ObjectDefinition = ObjectDefinition](
-    Data[DefinitionT], HasProps, metaclass=TypeABCMeta
+    Data[DefinitionT], HasProps
 ):
     """
     An object with attributes.

@@ -47,5 +47,5 @@ class EntityPool(MultipleTypesEntityCollection):
 
     def _get_associates(self, *entities: Entity) -> Iterable[Entity]:
         for entity in entities:
-            for association in entity.associations():
+            for association in entity.associations:
                 yield from association.get_associates(entity)

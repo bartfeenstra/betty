@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any, Final, final, override
 from betty.association import HasAssociations
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.privacy import HasPrivacy
-from betty.classtools import TypeABCMeta
 from betty.data import Data
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.cls import ClsDefinition
@@ -26,9 +25,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class Entity(
-    Data["EntityDefinition"], HasPrivacy, HasAssociations, metaclass=TypeABCMeta
-):
+class Entity(Data["EntityDefinition"], HasPrivacy, HasAssociations):
     """
     An entity is a uniquely identifiable data container.
 

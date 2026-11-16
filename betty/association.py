@@ -20,6 +20,7 @@ from typing import (
 from typing_extensions import sentinel
 
 from betty.attr import Attr
+from betty.classtools.class_var import ClassVars
 from betty.data import DataDefinition, ResolvableDataDefinition
 from betty.importlib import fully_qualified_name, import_any
 from betty.prop import HasProps
@@ -38,15 +39,9 @@ class HasAssociations(HasProps):
     An object that has entity associations.
     """
 
-    @final
-    @classmethod
-    def associations(cls) -> Iterable[Association]:
-        """
-        Get all associations on objects of this type.
-        """
-        for class_var in cls.class_vars():
-            if isinstance(class_var, Association):
-                yield class_var
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        cls.associations = ClassVars(cls, Association)
 
 
 _AssociateAttrNotYetInitialized = sentinel("_AssociateAttrNotYetInitialized")
@@ -114,7 +109,7 @@ class Association[
 
     @final
     def _bi_associate_attr(self) -> Association | None:
-        for associate_association in self.associate_type.associations():
+        for associate_association in self.associate_type.associations:
             if (
                 associate_association.associate_type is self.ownership.owner
                 and associate_association.associate_attr_name == self.ownership.name
@@ -239,10 +234,10 @@ def resolve_associates(*owners: HasAssociations) -> None:
     Resolve all owners' associates.
     """
     for owner in owners:
-        for association in owner.associations():
+        for association in owner.associations:
             association.resolve(owner)
     for owner in owners:
-        for association in owner.associations():
+        for association in owner.associations:
             if associate_attr := association.associate_attr:
                 for associate in association.get_associates(owner):
                     assert owner in associate_attr.get_associates(associate), (
