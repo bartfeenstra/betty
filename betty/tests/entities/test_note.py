@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, override
 import pytest
 
 from betty.entities.note import Note
+from betty.test_utils.associations.has_notes import DummyHasNotes
 from betty.test_utils.entity import EntityTestBase
-from betty.test_utils.entity.associations.has_notes import DummyHasNotes
 
 if TYPE_CHECKING:
     from betty.entity import Entity

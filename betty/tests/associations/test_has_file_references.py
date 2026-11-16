@@ -5,7 +5,7 @@ from pathlib import Path
 from betty.associations.to_one import Placeholder
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
-from betty.test_utils.entity.associations.has_file_references import (
+from betty.test_utils.associations.has_file_references import (
     DummyHasFileReferences,
 )
 

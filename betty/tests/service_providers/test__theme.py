@@ -26,7 +26,7 @@ from betty.service_providers._theme import (
     associated_file_references,
     person_timeline_events,
 )
-from betty.test_utils.entity.associations.has_file_references import (
+from betty.test_utils.associations.has_file_references import (
     DummyHasFileReferences,
 )
 

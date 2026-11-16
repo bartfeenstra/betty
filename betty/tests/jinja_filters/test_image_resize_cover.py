@@ -12,10 +12,10 @@ from betty.entities.file_reference import FileReference
 from betty.job import Context
 from betty.media_type import MediaType
 from betty.media_types import svg
-from betty.test_utils.conftest import AssertTemplateString
-from betty.test_utils.entity.associations.has_file_references import (
+from betty.test_utils.associations.has_file_references import (
     DummyHasFileReferences,
 )
+from betty.test_utils.conftest import AssertTemplateString
 
 _test_filter_image_resize_cover_image_path: Final[Path] = (
     builtin_asset_directory / "public" / "static" / "betty-512x512.png"

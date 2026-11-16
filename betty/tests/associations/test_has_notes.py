@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from betty.entities.note import Note
-from betty.test_utils.entity.associations.has_notes import DummyHasNotes
+from betty.test_utils.associations.has_notes import DummyHasNotes
 
 
 class TestHasNotes:

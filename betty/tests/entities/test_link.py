@@ -6,8 +6,8 @@ import pytest
 
 from betty.entities.link import Link
 from betty.localizer import default_localizer
+from betty.test_utils.associations.has_links import DummyHasLinks
 from betty.test_utils.entity import EntityTestBase
-from betty.test_utils.entity.associations.has_links import DummyHasLinks
 
 if TYPE_CHECKING:
     from betty.entity import Entity
