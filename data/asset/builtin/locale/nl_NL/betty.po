@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-02 19:48+0000\n"
+"POT-Creation-Date: 2026-11-11 22:55+0000\n"
 "PO-Revision-Date: 2026-10-28 00:01+0000\n"
 "Last-Translator: Bart Feenstra <bartfeenstra@users.noreply.hosted.weblate.org>\n"
 "Language: nl_NL\n"
@@ -857,6 +857,9 @@ msgstr "Ongeldige plural tag(s) {plural_tags} voor de {locale}-vertalingen."
 #, python-brace-format
 msgid "Invalid region {invalid_region}."
 msgstr "Ongeldige regio {invalid_region}."
+
+msgid "Items per page"
+msgstr ""
 
 msgid "JavaScript resource"
 msgstr "JavaScript-resource"

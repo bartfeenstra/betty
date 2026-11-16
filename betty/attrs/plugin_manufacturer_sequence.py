@@ -19,10 +19,10 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.attrs.common import CommonAttr
+    from betty.classtools.init import Init
     from betty.collection.sequence import MutableResolvableSequence
     from betty.localizer import AnyLocalizable
     from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
-    from betty.prop import HasProps
 
 
 def new_plugin_manufacturer_sequence_attr[
@@ -34,7 +34,7 @@ def new_plugin_manufacturer_sequence_attr[
     label: AnyLocalizable | None = None,
     description: AnyLocalizable | None = None,
 ) -> CommonAttr[
-    HasProps,
+    Init,
     MutableResolvableSequence[
         PluginManufacturerT,
         ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT],

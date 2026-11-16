@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.associations.to_one import ToOne, ToOneAssociate
 from betty.entity import Entity, EntityDefinition
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_secondary_privacies
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
     description=_("A person's presence at an event."),
     public_facing=False,
 )
-class Presence(Entity):
+class Presence(AttrFreezable, Entity):
     """
     .. plugin:: entity:presence.
     """

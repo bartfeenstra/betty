@@ -6,17 +6,18 @@ from __future__ import annotations
 
 from typing import Any, Final, Never
 
+from betty.classtools.init import Init
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import (
     FieldDefinition,
     ResolvableFieldDefinition,
     resolve_field_definition,
 )
-from betty.prop import HasProps, Prop
+from betty.prop import Prop
 
 
 class Attr[
-    OwnerT: HasProps,
+    OwnerT: Init,
     GetT,
     SetT: Any = Never,
     DefinitionT: DataDefinition = DataDefinition,

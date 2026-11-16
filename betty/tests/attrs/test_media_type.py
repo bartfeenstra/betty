@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from betty.attrs.media_type import HasMediaType, new_media_type_attr
+from betty.classtools.init import Init
 from betty.media_type import MediaType, MediaTypeDefinition
-from betty.prop import HasProps
 
 
 def test_new_media_type_attr__set() -> None:
-    class _Owner(HasProps):
+    class _Owner(Init):
         media_type = new_media_type_attr()
 
     owner = _Owner()

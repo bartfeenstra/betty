@@ -9,15 +9,15 @@ from typing import TYPE_CHECKING
 
 from betty.attr import Attr
 from betty.attrs.optional import OptionableAttr
+from betty.classtools.init import Init
 from betty.data import DataDefinition
-from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
 
 class CommonAttr[
-    OwnerT: HasProps,
+    OwnerT: Init,
     GetT,
     SetT,
     DefinitionT: DataDefinition = DataDefinition,
@@ -48,7 +48,7 @@ class CommonAttr[
 
 
 class OptionableCommonAttr[
-    OwnerT: HasProps,
+    OwnerT: Init,
     GetT,
     SetT,
     DefinitionT: DataDefinition = DataDefinition,

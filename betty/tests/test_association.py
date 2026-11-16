@@ -17,6 +17,8 @@ from betty.association import (
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.entity import Entity, EntityDefinition
+from betty.freezers.attr import AttrFreezable
+from betty.freezers.init import FrozenOnInit
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.locale.localizable import dummy_countable_localizable
 from betty.typing import Unreachable
@@ -60,6 +62,9 @@ class _Association[AssociateT: Entity = Entity](
     def get(self, owner: HasAssociations, /) -> AssociateT:
         raise Unreachable
 
+    def freeze(self, owner: HasAssociations, /) -> None:
+        pass
+
 
 @EntityDefinition(
     "named",
@@ -67,7 +72,7 @@ class _Association[AssociateT: Entity = Entity](
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _NamedEntity(Entity):
+class _NamedEntity(AttrFreezable, Entity):
     association = _Association["_TypedEntity"](
         "betty.tests.test_association:_TypedEntity"
     )
@@ -79,7 +84,7 @@ class _NamedEntity(Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _TypedEntity(Entity):
+class _TypedEntity(AttrFreezable, Entity):
     association = _Association[_NamedEntity](_NamedEntity)
 
 
@@ -89,7 +94,7 @@ class _TypedEntity(Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _BiNamedEntity(Entity):
+class _BiNamedEntity(AttrFreezable, Entity):
     association = _Association["_BiTypedEntity"](
         "betty.tests.test_association:_BiTypedEntity", "association"
     )
@@ -101,17 +106,17 @@ class _BiNamedEntity(Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _BiTypedEntity(Entity):
+class _BiTypedEntity(AttrFreezable, Entity):
     association = _Association(_BiNamedEntity, _BiNamedEntity.association)
 
 
-class _AssociateDeclaresBidirectionalityOwner(Entity):
+class _AssociateDeclaresBidirectionalityOwner(AttrFreezable, Entity):
     association = _Association["_AssociateDeclaresBidirectionalityAssociate"](
         "betty.tests.test_association:_AssociateDeclaresBidirectionalityAssociate"
     )
 
 
-class _AssociateDeclaresBidirectionalityAssociate(Entity):
+class _AssociateDeclaresBidirectionalityAssociate(AttrFreezable, Entity):
     association = _Association(
         _AssociateDeclaresBidirectionalityOwner,
         _AssociateDeclaresBidirectionalityOwner.association,
@@ -160,7 +165,7 @@ class TestAssociation:
             label_plural="-",
             label_countable=dummy_countable_localizable,
         )
-        class _Entity(Entity):
+        class _Entity(AttrFreezable, Entity):
             association = IsNoResolverAssociation(_TypedEntity)
 
         _Entity.association.assert_not_resolver(_Entity(), _TypedEntity())
@@ -176,7 +181,7 @@ class TestAssociation:
             label_plural="-",
             label_countable=dummy_countable_localizable,
         )
-        class _Entity(Entity):
+        class _Entity(AttrFreezable, Entity):
             association = IsResolverAssociation(_TypedEntity)
 
         with pytest.raises(UnresolvedAssociate):
@@ -187,28 +192,34 @@ class TestAssociation:
 
 
 def test_resolve_associate__without_arguments() -> None:
-    associate = Entity()
+    associate = DummyEntityOne()
     assert (
-        resolve_associate(Entity(), MagicMock(spec=Association), lambda: associate)
+        resolve_associate(
+            DummyEntityOne(), MagicMock(spec=Association), lambda: associate
+        )
         is associate
     )
 
 
 def test_resolve_associate__with_project() -> None:
-    associate = Entity()
+    associate = DummyEntityOne()
 
     def resolver() -> Entity:
         return associate
 
     assert (
-        resolve_associate(Entity(), MagicMock(spec=Association), resolver) is associate
+        resolve_associate(DummyEntityOne(), MagicMock(spec=Association), resolver)
+        is associate
     )
 
 
 def test_resolve_associate__with_owner_and_association() -> None:
-    owner = HasAssociations()
+    class _Owner(FrozenOnInit, HasAssociations):
+        pass
+
+    owner = _Owner()
     association = MagicMock(spec=Association)
-    associate = Entity()
+    associate = DummyEntityOne()
 
     def resolver(
         resolver_owner: HasAssociations, resolver_association: Association
@@ -221,9 +232,12 @@ def test_resolve_associate__with_owner_and_association() -> None:
 
 
 def test_resolve_associate__with_project_and_owner_and_association() -> None:
-    owner = HasAssociations()
+    class _Owner(FrozenOnInit, HasAssociations):
+        pass
+
+    owner = _Owner()
     association = MagicMock(spec=Association)
-    associate = Entity()
+    associate = DummyEntityOne()
 
     def resolver(
         resolver_owner: HasAssociations, resolver_association: Association
@@ -244,7 +258,7 @@ def test_resolve_associates(mocker: MockerFixture) -> None:
         label_plural="-",
         label_countable=dummy_countable_localizable,
     )
-    class _Entity(Entity):
+    class _Entity(AttrFreezable, Entity):
         association = mocker.MagicMock(spec=Association)
         association.field = FieldDefinition(DataDefinition(label="-"))
         association.resolve.return_value = associate
@@ -273,7 +287,7 @@ class TestBiResolver:
 
 class TestHasAssociations:
     def test___init__(self) -> None:
-        class _Owner(HasAssociations):
+        class _Owner(FrozenOnInit, HasAssociations):
             my_first_association = _Association(DummyEntityOne)
 
         owner = _Owner()

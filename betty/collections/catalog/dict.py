@@ -11,7 +11,7 @@ from typing_extensions import disjoint_base
 from betty.collections import ValueResolvable
 from betty.collections.catalog.mapping import MappingCatalog, MutableMappingCatalog
 from betty.collections.mapping.dict import empty_frozen_dict
-from betty.freezer import Frozen
+from betty.freezers.frozen import Frozen
 from betty.pipeline import pipe
 
 if TYPE_CHECKING:
@@ -53,8 +53,6 @@ class DictCatalog[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     """
     A mutable catalog backed by a dictionary.
     """
-
-    __slots__ = ()
 
     def __init__(
         self,

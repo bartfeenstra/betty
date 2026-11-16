@@ -1,11 +1,11 @@
 from betty.attrs.localizable import new_countable_localizable_attr, new_localizable_attr
+from betty.classtools.init import Init
 from betty.locale import default_locale_tag
 from betty.localizables.static import CountableStaticTranslations
 from betty.localizer import default_localizer
-from betty.prop import HasProps
 
 
-class _Owner(HasProps):
+class _Owner(Init):
     attr = new_localizable_attr(label="-")
 
 
@@ -16,7 +16,7 @@ def test_new_localizable_attr() -> None:
     assert owner.attr == localizable
 
 
-class _CountableOwner(HasProps):
+class _CountableOwner(Init):
     attr = new_countable_localizable_attr(label="-")
 
 

@@ -6,10 +6,11 @@ from __future__ import annotations
 
 from typing import Any, override
 
-from betty.prop import HasProps, Prop
+from betty.classtools.init import Init
+from betty.prop import Prop
 
 
-class ProxyProp[OwnerT: HasProps, GetT, SetT](Prop[OwnerT, GetT, SetT]):
+class ProxyProp[OwnerT: Init, GetT, SetT](Prop[OwnerT, GetT, SetT]):
     """
     A property that proxies another property.
     """
@@ -33,7 +34,7 @@ class ProxyProp[OwnerT: HasProps, GetT, SetT](Prop[OwnerT, GetT, SetT]):
 
     @override
     def set(self, owner: OwnerT, value: SetT, /) -> None:
-        return self.__proxied.set(owner, value)
+        self.__proxied.set(owner, value)
 
     @override
     def is_deletable(self, owner: OwnerT, /) -> bool:
@@ -41,7 +42,7 @@ class ProxyProp[OwnerT: HasProps, GetT, SetT](Prop[OwnerT, GetT, SetT]):
 
     @override
     def delete(self, owner: OwnerT, /) -> None:
-        return self.__proxied.delete(owner)
+        self.__proxied.delete(owner)
 
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:

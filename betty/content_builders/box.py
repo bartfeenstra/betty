@@ -11,6 +11,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.plugin_manufacturer_sequence import (
     new_plugin_manufacturer_sequence_attr,
 )
+from betty.classtools.init import Init
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
@@ -18,11 +19,12 @@ from betty.content_builder import (
     ResolvableContentBuilderManufacturer,
     build,
 )
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.render import Render, RenderConfig
 from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.str import StrDefinition
 from betty.factory import DataManufacturable
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.sample import Sample, Samples, Size
@@ -32,14 +34,23 @@ if TYPE_CHECKING:
     from betty.jinja import Environment
 
 
+class _BoxConfig(Init):
+    min_height = OwnerAttr(StrDefinition(label=_("Minimum height"))).optional
+    max_height = OwnerAttr(StrDefinition(label=_("Maximum height"))).optional
+    height = OwnerAttr(StrDefinition(label=_("Height"))).optional
+    min_width = OwnerAttr(StrDefinition(label=_("Minimum width"))).optional
+    max_width = OwnerAttr(StrDefinition(label=_("Maximum width"))).optional
+    width = OwnerAttr(StrDefinition(label=_("Width"))).optional
+
+
 @final
 @ObjectDefinition(
     label=_("Box configuration"),
     samples=Samples(
-        lambda: Sample(BoxData(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(BoxConfig(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
-            BoxData(
-                ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
+            BoxConfig(
+                ContentBuilderManufacturer(Render, RenderConfig("Hello, world!")),
                 min_height="100px",
                 max_height="1000px",
                 height="500px",
@@ -51,13 +62,13 @@ if TYPE_CHECKING:
             size=Size.FULL,
         ),
     ),
-    manufacturer=lambda **fields: BoxData(*fields.pop("content"), **fields),
+    manufacturer=lambda **fields: BoxConfig(*fields.pop("content"), **fields),
 )
-class BoxData(Object):
+class BoxConfig(_BoxConfig, Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.content_builders.box.Box`.
 
-    .. data:: betty.content_builders.box:BoxData
+    .. data:: betty.content_builders.box:BoxConfig
     """
 
     content = new_plugin_manufacturer_sequence_attr(
@@ -66,13 +77,6 @@ class BoxData(Object):
     """
     The content within this box.
     """
-
-    min_height = OwnerAttr(StrDefinition(label=_("Minimum height"))).optional
-    max_height = OwnerAttr(StrDefinition(label=_("Maximum height"))).optional
-    height = OwnerAttr(StrDefinition(label=_("Height"))).optional
-    min_width = OwnerAttr(StrDefinition(label=_("Minimum width"))).optional
-    max_width = OwnerAttr(StrDefinition(label=_("Maximum width"))).optional
-    width = OwnerAttr(StrDefinition(label=_("Width"))).optional
 
     def __init__(
         self,
@@ -96,7 +100,7 @@ class BoxData(Object):
 
 @final
 @ContentBuilderDefinition("box", label=_("Box"))
-class Box(Template, DataManufacturable[BoxData]):
+class Box(_BoxConfig, Template, DataManufacturable[BoxConfig]):
     """
     .. plugin:: content-builder:box.
     """
@@ -115,22 +119,22 @@ class Box(Template, DataManufacturable[BoxData]):
     ):
         super().__init__(jinja=jinja)
         self._content = tuple(content)
-        self._min_height = min_height
-        self._max_height = max_height
-        self._height = height
-        self._min_width = min_width
-        self._max_width = max_width
-        self._width = width
+        self.min_height = min_height
+        self.max_height = max_height
+        self.height = height
+        self.min_width = min_width
+        self.max_width = max_width
+        self.width = width
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[BoxData]:
-        return BoxData
+    def new_data_cls(cls) -> type[BoxConfig]:
+        return BoxConfig
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: BoxData, /) -> Self:
+    async def new(cls, project: Project, data: BoxConfig, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(
@@ -158,10 +162,10 @@ class Box(Template, DataManufacturable[BoxData]):
             return None
         return "component/box.html.j2", {
             "box_content": content,
-            "box_min_height": self._min_height,
-            "box_max_height": self._max_height,
-            "box_height": self._height,
-            "box_min_width": self._min_width,
-            "box_max_width": self._max_width,
-            "box_width": self._width,
+            "box_min_height": self.min_height,
+            "box_max_height": self.max_height,
+            "box_height": self.height,
+            "box_min_width": self.min_width,
+            "box_max_width": self.max_width,
+            "box_width": self.width,
         }

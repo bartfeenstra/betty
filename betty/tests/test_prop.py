@@ -4,17 +4,11 @@ from typing import Never, override
 
 import pytest
 
-from betty.prop import (
-    HasProps,
-    NotDeletable,
-    NotSettable,
-    OwnerError,
-    Prop,
-    PropError,
-)
+from betty.classtools.init import Init
+from betty.prop import NotDeletable, NotSettable, OwnerError, Prop, PropError
 
 
-class _PropOwner(HasProps):
+class _PropOwner(Init):
     @override
     def pre_init(self) -> None:
         self.pre_init_properties = []

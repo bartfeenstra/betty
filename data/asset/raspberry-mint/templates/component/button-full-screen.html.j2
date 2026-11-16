@@ -1,6 +1,6 @@
 {% with attributes = attributes | default(new_attributes()) %}
     {% do attributes.html_class.append('button-full-screen') %}
-    {% do attributes.set_data(betty_full_screen_target=target) %}
+    {% do attributes.set_data(betty_full_screen_target=button_full_screen_target) %}
     {% set button_label = _('Toggle full screen') %}
     {% include 'component/button-icon.html.j2' %}
 {% endwith %}

@@ -8,7 +8,7 @@ from betty.app import App
 from betty.commands.serve import Serve
 from betty.console import ExitCode
 from betty.file import write
-from betty.project import ProjectData
+from betty.project import ProjectConfig
 from betty.servers.no_op import NoOpServer
 from betty.test_utils.console import run
 from betty.tests.conftest import Duration
@@ -25,7 +25,7 @@ class TestServe:
         )
         mocker.patch("betty.servers.project_builtin.ProjectBuiltinServer.show")
         mocker.patch("betty.servers.builtin.BuiltinServer", new=NoOpServer)
-        configuration = ProjectData(title="Betty", url="https://example.com")
+        configuration = ProjectConfig(title="Betty", url="https://example.com")
         await write(
             tmp_path / "betty.json",
             dumps(configuration.definition.porter.dump(configuration)),
@@ -48,7 +48,7 @@ class TestServe:
         )
         mocker.patch("betty.servers.project_builtin.ProjectBuiltinServer.show")
         mocker.patch("betty.servers.builtin.BuiltinServer", new=NoOpServer)
-        configuration = ProjectData(title="Betty", url="https://example.com")
+        configuration = ProjectConfig(title="Betty", url="https://example.com")
         await write(
             tmp_path / "betty.json",
             dumps(configuration.definition.porter.dump(configuration)),

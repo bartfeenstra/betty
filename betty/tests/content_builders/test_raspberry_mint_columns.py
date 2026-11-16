@@ -1,40 +1,41 @@
 import pytest
 
+from betty.collections.mapping.dict import FrozenDict
 from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.raspberry_mint_columns import (
     Columns,
-    ColumnsData,
+    ColumnsConfig,
     ColumnsWidth,
     ResolvableColumnsWidth,
 )
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.render import Render, RenderConfig
 from betty.document import Document
 from betty.service_providers.raspberry_mint import Breakpoint, JustifyContent
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 from betty.test_utils.data import DataTestBase
 
 
-class TestColumnsData(DataTestBase[ColumnsData]):
-    sut_cls = ColumnsData
+class TestColumnsConfig(DataTestBase[ColumnsConfig]):
+    sut_cls = ColumnsConfig
 
     def test_content(self) -> None:
-        content = ContentBuilderManufacturer(Render, RenderData("-"))
-        sut = ColumnsData([content])
+        content = ContentBuilderManufacturer(Render, RenderConfig("-"))
+        sut = ColumnsConfig([content])
         assert list(map(list, sut.content)) == [[content]]
 
     @pytest.mark.parametrize(
         ("expected", "width"),
         [
-            ({Breakpoint.XS: [7]}, 7),
-            ({Breakpoint.XS: [7]}, [7]),
-            ({Breakpoint.XS: [7]}, {Breakpoint.XS: 7}),
-            ({Breakpoint.XS: [7]}, {Breakpoint.XS: [7]}),
+            (FrozenDict({Breakpoint.XS: (7,)}), 7),
+            (FrozenDict({Breakpoint.XS: (7,)}), (7,)),
+            (FrozenDict({Breakpoint.XS: (7,)}), {Breakpoint.XS: 7}),
+            (FrozenDict({Breakpoint.XS: (7,)}), {Breakpoint.XS: (7,)}),
         ],
     )
     def test_width(self, expected: ColumnsWidth, width: ResolvableColumnsWidth) -> None:
         assert (
-            ColumnsData(
-                [ContentBuilderManufacturer(Render, RenderData("-"))],
+            ColumnsConfig(
+                [ContentBuilderManufacturer(Render, RenderConfig("-"))],
                 width=width,
             ).width
             == expected
@@ -42,8 +43,8 @@ class TestColumnsData(DataTestBase[ColumnsData]):
 
     def test_justify_content(self) -> None:
         justify_content = JustifyContent.CENTER
-        sut = ColumnsData(
-            [ContentBuilderManufacturer(Render, RenderData("-"))],
+        sut = ColumnsConfig(
+            [ContentBuilderManufacturer(Render, RenderConfig("-"))],
             justify_content=justify_content,
         )
         assert sut.justify_content == justify_content
@@ -51,31 +52,31 @@ class TestColumnsData(DataTestBase[ColumnsData]):
 
 class TestColumns:
     async def test_build_template__minimal(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Columns]) as project,
+            new_isolated_project(supported_plugins=[Columns]) as project,
             project,
         ):
             sut = await Columns.new(
                 project,
-                ColumnsData([ContentBuilderManufacturer(Render, RenderData("-"))]),
+                ColumnsConfig([ContentBuilderManufacturer(Render, RenderConfig("-"))]),
             )
             actual = await sut.build(document=Document())
         assert actual is not None
         assert "col col-12" in actual
 
     async def test_build_template__single_column_multiple_breakpoints(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Columns]) as project,
+            new_isolated_project(supported_plugins=[Columns]) as project,
             project,
         ):
             sut = await Columns.new(
                 project,
-                ColumnsData(
-                    [ContentBuilderManufacturer(Render, RenderData("-"))],
+                ColumnsConfig(
+                    [ContentBuilderManufacturer(Render, RenderConfig("-"))],
                     width={Breakpoint.XS: 12, Breakpoint.LG: 6},
                 ),
             )
@@ -84,17 +85,17 @@ class TestColumns:
         assert "col col-12 col-lg-6" in actual
 
     async def test_build_template__multiple_columns_single_breakpoint(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Columns]) as project,
+            new_isolated_project(supported_plugins=[Columns]) as project,
             project,
         ):
             sut = await Columns.new(
                 project,
-                ColumnsData(
-                    [ContentBuilderManufacturer(Render, RenderData("-"))],
-                    [ContentBuilderManufacturer(Render, RenderData("-"))],
+                ColumnsConfig(
+                    [ContentBuilderManufacturer(Render, RenderConfig("-"))],
+                    [ContentBuilderManufacturer(Render, RenderConfig("-"))],
                     width=[8, 4],
                 ),
             )
@@ -104,17 +105,17 @@ class TestColumns:
         assert "col col-4" in actual
 
     async def test_build_template__multiple_columns_multiple_breakpoints(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Columns]) as project,
+            new_isolated_project(supported_plugins=[Columns]) as project,
             project,
         ):
             sut = await Columns.new(
                 project,
-                ColumnsData(
-                    [ContentBuilderManufacturer(Render, RenderData("-"))],
-                    [ContentBuilderManufacturer(Render, RenderData("-"))],
+                ColumnsConfig(
+                    [ContentBuilderManufacturer(Render, RenderConfig("-"))],
+                    [ContentBuilderManufacturer(Render, RenderConfig("-"))],
                     width={Breakpoint.XS: [8, 4], Breakpoint.LG: [7, 5]},
                 ),
             )

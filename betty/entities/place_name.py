@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, final
 from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.entity import Entity, EntityDefinition
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
 
 if TYPE_CHECKING:
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} place name", "{count} place names"),
     public_facing=False,
 )
-class PlaceName(HasAnyDate, Entity):
+class PlaceName(AttrFreezable, HasAnyDate, Entity):
     """
     .. plugin:: entity:place-name.
     """

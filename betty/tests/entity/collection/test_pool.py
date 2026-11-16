@@ -7,6 +7,7 @@ import pytest
 from betty.associations.to_one import ToOne
 from betty.entity import Entity, EntityDefinition
 from betty.entity.collection.pool import EntityPool
+from betty.freezers.attr import AttrFreezable
 from betty.test_utils.entity import DummyEntityOne
 from betty.test_utils.entity.collection import EntityCollectionTestBase
 from betty.test_utils.locale.localizable import dummy_countable_localizable
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _TestEntityPool_OneToOne_Left(Entity):
+class _TestEntityPool_OneToOne_Left(AttrFreezable, Entity):
     one_right = ToOne["_TestEntityPool_OneToOne_Right"](
         "betty.tests.entity.collection.test_pool:_TestEntityPool_OneToOne_Right",
         "one_left",
@@ -39,7 +40,7 @@ class _TestEntityPool_OneToOne_Left(Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _TestEntityPool_OneToOne_Right(Entity):
+class _TestEntityPool_OneToOne_Right(AttrFreezable, Entity):
     one_left = ToOne[_TestEntityPool_OneToOne_Left](
         "betty.tests.entity.collection.test_pool:_TestEntityPool_OneToOne_Left",
         "one_right",

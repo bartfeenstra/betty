@@ -27,7 +27,7 @@ class HasProps(Init):
 
 
 @disjoint_base
-class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
+class Prop[OwnerT: Init, GetT, SetT: Any = Never](
     InitClassVar[OwnerT], metaclass=ABCMeta
 ):
     """
@@ -95,7 +95,7 @@ class Prop[OwnerT: HasProps, GetT, SetT: Any = Never](
         self.assert_deletable(owner)
 
     @overload
-    def __get__[OwnedOwnerT: HasProps](
+    def __get__[OwnedOwnerT: Init](
         self, instance: None, owner: Intersection[type[OwnedOwnerT], type[OwnerT]], /
     ) -> Intersection[Self, Prop[OwnedOwnerT, GetT, SetT]]:
         pass
@@ -134,7 +134,7 @@ class OwnerError(PropError, AttributeError):
     Raised for property errors on a specific owner instance.
     """
 
-    def __init__[OwnerT: HasProps](
+    def __init__[OwnerT: Init](
         self, prop: Prop[OwnerT, Any], owner: OwnerT, message: str, /
     ):
         super().__init__(prop, message, name=prop.ownership.name, obj=owner)
@@ -145,7 +145,7 @@ class NotSettable(OwnerError):
     Raised when a property is not settable.
     """
 
-    def __init__[OwnerT: HasProps](self, prop: Prop[OwnerT, Any], owner: OwnerT, /):
+    def __init__[OwnerT: Init](self, prop: Prop[OwnerT, Any], owner: OwnerT, /):
         super().__init__(
             prop,
             owner,
@@ -158,7 +158,7 @@ class NotDeletable(OwnerError):
     Raised when a property is not deletable.
     """
 
-    def __init__[OwnerT: HasProps](self, prop: Prop[OwnerT, Any], owner: OwnerT, /):
+    def __init__[OwnerT: Init](self, prop: Prop[OwnerT, Any], owner: OwnerT, /):
         super().__init__(
             prop,
             owner,

@@ -8,15 +8,15 @@ from betty.entities.event import Event
 from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entity import Entity
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestTree:
     async def test_build_template__without_supported_entity(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Tree]) as project,
+            new_isolated_project(supported_plugins=[Tree]) as project,
             project,
         ):
             sut = await Tree.new(project)
@@ -30,10 +30,10 @@ class TestTree:
         ],
     )
     async def test_build_template__without_trees(
-        self, resource: Entity, isolated_project_factory: IsolatedProjectFactory
+        self, resource: Entity, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Tree]) as project,
+            new_isolated_project(supported_plugins=[Tree]) as project,
             project,
         ):
             project.ancestry.add(resource)
@@ -43,12 +43,12 @@ class TestTree:
             )
 
     async def test_build_template__with_person_with_relationships(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         person = Person()
         Person(parents=[person])
         async with (
-            isolated_project_factory(supported_plugins=[Tree]) as project,
+            new_isolated_project(supported_plugins=[Tree]) as project,
             project,
         ):
             project.ancestry.add(person)

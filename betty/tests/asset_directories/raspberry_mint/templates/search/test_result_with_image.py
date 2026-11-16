@@ -2,55 +2,34 @@ from pathlib import Path
 
 from PIL import Image
 
-from betty.asset_directories import raspberry_mint
-from betty.associations.has_file_references import HasFileReferences
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
-from betty.entity import EntityDefinition
 from betty.localizer import default_localizer
 from betty.media_type import MediaType
-from betty.test_utils.conftest import AssertTemplateFile
-from betty.test_utils.locale.localizable import dummy_countable_localizable
+from betty.test_utils.associations.has_file_references import DummyHasFileReferences
+from betty.test_utils.conftest import AssertJinja
 
 
-@EntityDefinition(
-    "dummy-has-file-references",
-    label="-",
-    label_plural="-",
-    label_countable=dummy_countable_localizable,
-)
-class DummyEntityWithFileReferences(HasFileReferences):
-    pass
-
-
-async def test_minimal(assert_template_file: AssertTemplateFile) -> None:
-    entity = DummyEntityWithFileReferences()
-    async with assert_template_file(
-        data={
-            "entity": entity,
-        },
-        assets={raspberry_mint},
-        template="search/result-with-image.html.j2",
-    ) as (actual, _):
-        assert default_localizer.localize(entity.label) in actual
-        assert entity.id in actual
+async def test_minimal(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
+    entity = DummyHasFileReferences()
+    async with assert_raspberry_mint_jinja_file(
+        "search/result-with-image.html.j2", data={"entity": entity}
+    ) as rendered:
+        assert default_localizer.localize(entity.label) in rendered
+        assert entity.id in rendered
 
 
 async def test_with_image(
-    assert_template_file: AssertTemplateFile, tmp_path: Path
+    assert_raspberry_mint_jinja_file: AssertJinja, tmp_path: Path
 ) -> None:
     image_path = tmp_path / "image.png"
     image = Image.new("1", (1, 1))
     image.save(image_path)
-    entity = DummyEntityWithFileReferences()
+    entity = DummyHasFileReferences()
     FileReference(entity, File(image_path, media_type=MediaType("image/png")))
-    async with assert_template_file(
-        data={
-            "entity": entity,
-        },
-        assets={raspberry_mint},
-        template="search/result-with-image.html.j2",
-    ) as (actual, _):
-        assert default_localizer.localize(entity.label) in actual
-        assert entity.id in actual
-        assert "<img" in actual
+    async with assert_raspberry_mint_jinja_file(
+        "search/result-with-image.html.j2", data={"entity": entity}
+    ) as rendered:
+        assert default_localizer.localize(entity.label) in rendered
+        assert entity.id in rendered
+        assert "<img" in rendered

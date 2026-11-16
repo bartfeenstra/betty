@@ -8,10 +8,11 @@ from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.static import Static
 from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException
+from betty.project import Project
 from betty.project.generate import generate
 from betty.service_providers.raspberry_mint import (
     RaspberryMint,
-    RaspberryMintData,
+    RaspberryMintConfig,
     Region,
 )
 from betty.test_utils.data import DataTestBase
@@ -19,60 +20,27 @@ from betty.test_utils.entity import DummyEntityOne
 from betty.tests.conftest import webpack_test
 
 if TYPE_CHECKING:
-    from betty.app import App
-    from betty.project import Project
-    from betty.test_utils.conftest import IsolatedProjectFactory
+    from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestRaspberryMint:
-    @pytest.mark.parametrize(
-        ("expected", "primary_color"),
-        [
-            (RaspberryMint.default_primary_color, None),
-            ("#aabbcc", "#aabbcc"),
-        ],
-    )
-    async def test_primary_color(
-        self, expected: str, primary_color: str | None, isolated_project: Project
-    ) -> None:
-        async with (
-            RaspberryMint(project=isolated_project, primary_color=primary_color) as sut,
-        ):
-            assert sut.primary_color == expected
+    async def test_primary_color(self, isolated_project: Project) -> None:
+        async with RaspberryMint(
+            project=isolated_project, primary_color="#aabbcc"
+        ) as sut:
+            assert sut.primary_color == "#aabbcc"
 
-    @pytest.mark.parametrize(
-        ("expected", "secondary_color"),
-        [
-            (RaspberryMint.default_secondary_color, None),
-            ("#aabbcc", "#aabbcc"),
-        ],
-    )
-    async def test_secondary_color(
-        self, expected: str, secondary_color: str | None, isolated_project: Project
-    ) -> None:
-        async with (
-            RaspberryMint(
-                project=isolated_project, secondary_color=secondary_color
-            ) as sut,
-        ):
-            assert sut.secondary_color == expected
+    async def test_secondary_color(self, isolated_project: Project) -> None:
+        async with RaspberryMint(
+            project=isolated_project, secondary_color="#aabbcc"
+        ) as sut:
+            assert sut.secondary_color == "#aabbcc"
 
-    @pytest.mark.parametrize(
-        ("expected", "tertiary_color"),
-        [
-            (RaspberryMint.default_tertiary_color, None),
-            ("#aabbcc", "#aabbcc"),
-        ],
-    )
-    async def test_tertiary_color(
-        self, expected: str, tertiary_color: str | None, isolated_project: Project
-    ) -> None:
-        async with (
-            RaspberryMint(
-                project=isolated_project, tertiary_color=tertiary_color
-            ) as sut,
-        ):
-            assert sut.tertiary_color == expected
+    async def test_tertiary_color(self, isolated_project: Project) -> None:
+        async with RaspberryMint(
+            project=isolated_project, tertiary_color="#aabbcc"
+        ) as sut:
+            assert sut.tertiary_color == "#aabbcc"
 
     async def test_regional_content__with_defaults(
         self, isolated_project: Project
@@ -102,32 +70,22 @@ class TestRaspberryMint:
             )
 
     @webpack_test
-    async def test_generate(
-        self, isolated_app: App, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with (
-            isolated_project_factory(
-                app=isolated_app, service_providers=[RaspberryMint]
-            ) as project,
-            project,
-        ):
-            await generate(project)
-            assert (project.www_directory / "betty.webmanifest").is_file()
+    async def test_generate(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project() as project:
+            Project.service_providers.add_init_plugins(project, RaspberryMint)
+            async with project:
+                await generate(project)
+                assert (project.www_directory / "betty.webmanifest").is_file()
 
 
 class TestRegion:
-    async def test_all(
-        self, isolated_app: App, isolated_project_factory: IsolatedProjectFactory
-    ) -> None:
-        async with (
-            isolated_project_factory(
-                app=isolated_app,
-                generate_entity_list_html=[DummyEntityOne],
-                plugins={EntityDefinition: [DummyEntityOne]},
-            ) as project,
-            project,
-        ):
-            assert "entity-page-content--dummy-one" in await Region.all(project)
+    async def test_all(self, new_isolated_project: NewIsolatedProject) -> None:
+        async with new_isolated_project(
+            plugins={EntityDefinition: [DummyEntityOne]},
+        ) as project:
+            project.generate_entity_list_html = [DummyEntityOne]
+            async with project:
+                assert "entity-page-content--dummy-one" in await Region.all(project)
 
     def test_resolve__with_enum(self) -> None:
         assert Region.resolve(Region.FRONT_PAGE_CONTENT) == "front-page-content"
@@ -136,39 +94,38 @@ class TestRegion:
         assert Region.resolve("my-first-region") == "my-first-region"
 
 
-class TestRaspberryMintData(DataTestBase[RaspberryMintData]):
-    sut_cls = RaspberryMintData
+class TestRaspberryMintConfig(DataTestBase[RaspberryMintConfig]):
+    sut_cls = RaspberryMintConfig
 
     async def test_validate__should_validate_featured_entities_configuration(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
-        sut = RaspberryMintData(regional_content={"unknown-region": []})
-        async with (
-            isolated_project_factory(service_providers=[RaspberryMint]) as project,
-            project,
-        ):
-            with pytest.raises(HumanFacingException) as exc_info:
-                await sut.validate(project)
+        sut = RaspberryMintConfig(regional_content={"unknown-region": []})
+        async with new_isolated_project() as project:
+            Project.service_providers.add_init_plugins(project, RaspberryMint)
+            async with project:
+                with pytest.raises(HumanFacingException) as exc_info:
+                    await sut.validate(project)
         assert 'data.regional_content["unknown-region"]' in str(exc_info.value)
 
     def test_primary_color__from___init__(self) -> None:
         color = "#000000"
-        sut = RaspberryMintData(primary_color=color)
+        sut = RaspberryMintConfig(primary_color=color)
         assert sut.primary_color == color
 
     def test_secondary_color__from___init__(self) -> None:
         color = "#000000"
-        sut = RaspberryMintData(secondary_color=color)
+        sut = RaspberryMintConfig(secondary_color=color)
         assert sut.secondary_color == color
 
     def test_tertiary_color__from___init__(self) -> None:
         color = "#000000"
-        sut = RaspberryMintData(tertiary_color=color)
+        sut = RaspberryMintConfig(tertiary_color=color)
         assert sut.tertiary_color == color
 
     def test_regional_content__from___init__(self) -> None:
         content = ContentBuilderManufacturer("my-first-plugin")
-        sut = RaspberryMintData(
+        sut = RaspberryMintConfig(
             regional_content={
                 Region.FRONT_PAGE_CONTENT: [content],
             }

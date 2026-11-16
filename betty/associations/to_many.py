@@ -14,6 +14,7 @@ from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.entity_as_reference import EntityAsReferenceDefinition
 from betty.entity import Entity
+from betty.frozen import FreezableClassVar
 from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
@@ -24,6 +25,7 @@ type ToManyAssociates[AssociateT: Entity] = Iterable[Associate[AssociateT]]
 
 @final
 class ToMany[AssociateT: Entity](
+    FreezableClassVar[HasAssociations],
     StoreClassVar[HasAssociations, ToManyCollection[AssociateT]],
     Association[AssociateT, ToManyCollection[AssociateT], ToManyAssociates[AssociateT]],
 ):
@@ -92,3 +94,7 @@ class ToMany[AssociateT: Entity](
     @override
     def resolve(self, owner: HasAssociations, /) -> None:
         self.get(owner).resolve()
+
+    @override
+    def freeze(self, owner: HasAssociations, /) -> None:
+        self.get(owner).freeze()

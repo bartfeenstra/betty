@@ -86,8 +86,8 @@ class TestPluginInstanceServiceManager(PluginServiceManagerTestBase):
             plugin = await service_item
             assert isinstance(plugin, DummyPluginWithLifeCycle)
             assert await service_item is plugin
-            assert plugin.bootstrapped
-        assert plugin.shut_down
+            assert plugin.is_bootstrapped
+        assert plugin.is_shutdown
 
     async def test_prepare_plugins(self) -> None:
         manufacturer_one = DummyPluginManufacturer(DummyPluginOne)

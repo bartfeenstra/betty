@@ -55,3 +55,13 @@ class TestSingleTypeEntityCollection(EntityCollectionTestBase[DummyEntityOne]):
 
         assert sut_entities[0].id in sut
         assert sut_entities[1].id not in sut
+
+    def test_freeze(
+        self,
+        sut: SingleTypeEntityCollection[DummyEntityOne],
+        sut_entities: Sequence[DummyEntityOne],
+    ) -> None:
+        sut.add(*sut_entities)
+        sut.freeze()
+        for entity in sut_entities:
+            assert entity.is_frozen

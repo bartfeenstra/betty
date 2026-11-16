@@ -6,6 +6,7 @@ import pytest
 
 from betty.associations.to_many import ToMany
 from betty.entity import Entity, EntityDefinition
+from betty.freezers.attr import AttrFreezable
 from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 if TYPE_CHECKING:
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _Owner(Entity):
+class _Owner(AttrFreezable, Entity):
     associates = ToMany["_Associate"](
         "betty.tests.associations.test_to_many:_Associate",
         "owners",
@@ -32,7 +33,7 @@ class _Owner(Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _Associate(Entity):
+class _Associate(AttrFreezable, Entity):
     owners = ToMany(_Owner, "associates", label="-")
 
 
@@ -108,3 +109,10 @@ class TestToMany:
 
     def test_is_deletable(self) -> None:
         assert _Associate.owners.is_deletable(_Associate())
+
+    def test_freeze(self) -> None:
+        associate = _Associate()
+        owner = _Owner()
+        owner.associates = (associate,)
+        _Owner.associates.freeze(owner)
+        assert associate.is_frozen

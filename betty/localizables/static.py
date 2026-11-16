@@ -7,7 +7,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.assertions.len import assert_len
+from betty.collections.mapping.dict import FrozenDict
 from betty.exception import reraise_with_locator
+from betty.freezers.frozen import Frozen
 from betty.locale import (
     ResolvableLocale,
     negotiate_locale,
@@ -74,7 +76,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 
 
 @final
-class CountableStaticTranslations(CountableLocalizable):
+class CountableStaticTranslations(Frozen, CountableLocalizable):
     """
     A countable localizable backed by static translations.
     """
@@ -83,10 +85,12 @@ class CountableStaticTranslations(CountableLocalizable):
 
     def __init__(self, translations: ResolvableCountableStaticTranslations, /):
         assert_len(minimum=1)(translations)
-        self.translations: Final[CountableStaticTranslationsMapping] = {
-            self._ensure_locale(locale, locale_translations): locale_translations
+        self.translations: Final[CountableStaticTranslationsMapping] = FrozenDict({
+            self._ensure_locale(locale, locale_translations): FrozenDict(
+                locale_translations
+            )
             for locale, locale_translations in translations.items()
-        }
+        })
         """
         The translations.
         """
@@ -168,7 +172,7 @@ class CountableStaticTranslations(CountableLocalizable):
 
 
 @final
-class StaticTranslations(Localizable):
+class StaticTranslations(Frozen, Localizable):
     """
     A localizable backed by static translations.
 

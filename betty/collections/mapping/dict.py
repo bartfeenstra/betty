@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Final, final, override
 from typing_extensions import disjoint_base
 
 from betty.collections.mapping.adapter import MappingAdapter, MutableMappingAdapter
-from betty.freezer import Frozen
+from betty.freezers.frozen import Frozen
 from betty.pipeline import pipe
 
 if TYPE_CHECKING:
@@ -68,8 +68,6 @@ class Dict[KeyT, ResolvableKeyT, ValueT, ResolvableValueT](
     """
     A dictionary.
     """
-
-    __slots__ = ("__value_resolver",)
 
     def __init__(
         self,

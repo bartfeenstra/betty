@@ -9,6 +9,7 @@ from betty.associations.to_one import (
     ToOneAssociate,
 )
 from betty.entity import Entity, EntityDefinition
+from betty.freezers.attr import AttrFreezable
 from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 
@@ -18,7 +19,7 @@ from betty.test_utils.locale.localizable import dummy_countable_localizable
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _Owner(Entity):
+class _Owner(AttrFreezable, Entity):
     associate = ToOne["_Associate"](
         "betty.tests.associations.test_to_one:_Associate", label="-"
     )
@@ -30,7 +31,7 @@ class _Owner(Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _Associate(Entity):
+class _Associate(AttrFreezable, Entity):
     owner = ToOne[_Owner](_Owner, label="-")
 
 
@@ -40,7 +41,7 @@ class _Associate(Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _BiOwner(Entity):
+class _BiOwner(AttrFreezable, Entity):
     associate = ToOne["_BiAssociate"](
         "betty.tests.associations.test_to_one:_BiAssociate",
         "owner",
@@ -54,7 +55,7 @@ class _BiOwner(Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _BiAssociate(Entity):
+class _BiAssociate(AttrFreezable, Entity):
     owner = ToOne[_BiOwner](_BiOwner, "associate", label="-")
 
 

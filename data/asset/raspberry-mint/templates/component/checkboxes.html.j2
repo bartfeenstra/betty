@@ -1,5 +1,5 @@
 <fieldset>
-    <legend{% if checkboxes_label_visually_hidden %} class="visually-hidden"{% endif %}>{{ checkboxes_label }}</legend>
+    <legend{% if checkboxes_label_visually_hidden | default(false) %} class="visually-hidden"{% endif %}>{{ checkboxes_label }}</legend>
     {% for checkbox in checkboxes %}
         {% with checkbox_label = checkbox['label'],
             checkbox_value = checkbox['value'],

@@ -15,6 +15,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.str import StrDefinition
 from betty.entity import Entity, EntityDefinition
+from betty.freezers.attr import AttrFreezable
 from betty.link import Link as LinkType
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
@@ -35,7 +36,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} link", "{count} links"),
     public_facing=False,
 )
-class Link(LinkType, HasMediaType, HasDescription, Entity):
+class Link(AttrFreezable, LinkType, HasMediaType, HasDescription, Entity):
     """
     .. plugin:: entity:link.
     """

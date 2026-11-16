@@ -6,23 +6,22 @@ from __future__ import annotations
 
 from asyncio import gather
 from collections import defaultdict
+from collections.abc import Iterable, Sequence
 from enum import Enum
 from operator import not_
 from typing import TYPE_CHECKING, Final, Self, final, override
 
 from betty.asset_directories import raspberry_mint
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
+from betty.classtools.init import Init
 from betty.collection.mapping import ResolvableMapping
-from betty.collections.mapping.adapter import (
-    MappingAdapter as MappingAdapter,
-)
 from betty.collections.mapping.dict import Dict, FrozenDict, empty_frozen_dict
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderManufacturer,
     ResolvableContentBuilderManufacturer,
 )
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.render import Render, RenderConfig
 from betty.datas.aggregate.collection.mapping import MutableMappingDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
@@ -35,6 +34,7 @@ from betty.dirs import webpack_entry_point_directory
 from betty.entity import EntityDefinition
 from betty.exception import HumanFacingException, reraise_with_locator
 from betty.factory import DataManufacturable, Manufacturable
+from betty.freezers.attr import AttrFreezable
 from betty.jobs._generate_raspberry_mint_search_index import (
     _GenerateRaspberryMintSearchIndex,
 )
@@ -52,7 +52,7 @@ from betty.service_providers.webpack.build import EntryPointProvider
 from betty.services.simple import service
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Iterable, Mapping, Sequence
+    from collections.abc import Collection, Mapping
 
     from betty.content_builders.raspberry_mint_columns import ResolvableColumnsWidth
     from betty.job.scheduler import Scheduler
@@ -64,274 +64,6 @@ type RegionalContent = ResolvableMapping[
 type ResolvableRegionalContent = Mapping[
     ResolvableRegion, Iterable[ResolvableContentBuilderManufacturer]
 ]
-type ManufacturableRegionalContent = Mapping[
-    ResolvableRegion, Iterable[ResolvableContentBuilderManufacturer]
-]
-
-
-@final
-@ObjectDefinition(
-    label=_("Raspberry Mint configuration"),
-    samples=Samples(
-        lambda: Sample(RaspberryMintData(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(
-            RaspberryMintData(
-                primary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
-                secondary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
-                tertiary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
-            ),
-            label="Custom colors",
-        ),
-        lambda: Sample(
-            RaspberryMintData(
-                regional_content={
-                    "front-page-content": [
-                        ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
-                    ]
-                }
-            ),
-            label="Regional content",
-        ),
-    ),
-)
-class RaspberryMintData(Object):
-    """
-    Configuration for the :py:class:`betty.service_providers.raspberry_mint.RaspberryMint` extension.
-
-    .. data:: betty.service_providers.raspberry_mint:RaspberryMintData
-    """
-
-    primary_color = OwnerAttr(ColorDefinition(label=_("Primary color"))).optional
-    """
-    The primary color.
-    """
-
-    secondary_color = OwnerAttr(ColorDefinition(label=_("Secondary color"))).optional
-    """
-    The secondary color.
-    """
-
-    tertiary_color = OwnerAttr(ColorDefinition(label=_("Tertiary color"))).optional
-    """
-    The tertiary color.
-    """
-
-    regional_content = CollectionOwnerAttr(
-        FieldDefinition(
-            MutableMappingDefinition(
-                manufacturer=lambda values: Dict(
-                    {} if values is None else dict(values), key=Region.resolve
-                ),
-                label=_("Regions"),
-                key=StrDefinition(label=_("Region")),
-                value=PluginManufacturerSequenceDefinition(
-                    ContentBuilderManufacturer, label=_("Regional content")
-                ),
-            ),
-            optional=True,
-            porter=OmitFieldPorter.new(not_),
-        )
-    )
-    """
-    The regional content.
-    """
-
-    def __init__(
-        self,
-        *,
-        primary_color: str | None = None,
-        secondary_color: str | None = None,
-        tertiary_color: str | None = None,
-        regional_content: ResolvableRegionalContent = empty_frozen_dict,
-    ):
-
-        super().__init__()
-        self.primary_color = primary_color
-        self.secondary_color = secondary_color
-        self.tertiary_color = tertiary_color
-        self.regional_content.update(regional_content)
-
-    async def validate(self, project: Project, /) -> None:
-        """
-        Validate the configuration.
-        """
-        available_regions = await Region.all(project)
-        with reraise_with_locator(Attr("regional_content")):
-            for region in self.regional_content:
-                with reraise_with_locator(Key(region)):
-                    if region not in available_regions:
-                        raise HumanFacingException(
-                            Paragraph(
-                                _("Invalid region {invalid_region}.").format(
-                                    invalid_region=f'"{region}"',
-                                ),
-                                do_you_mean(
-                                    *(
-                                        f'"{available_region}"'
-                                        for available_region in available_regions
-                                    )
-                                ),
-                            )
-                        ) from None
-
-
-@final
-@ServiceProviderDefinition(
-    "raspberry-mint",
-    label="Raspberry Mint",
-    requires={
-        Project.asset_directories.require(raspberry_mint),
-        Project.service_providers.require(Webpack),
-    },
-)
-class RaspberryMint(
-    EntryPointProvider[Project],
-    DataManufacturable[RaspberryMintData],
-    Manufacturable,
-    Generator,
-):
-    """
-    .. plugin:: service-provider:raspberry-mint.
-
-    .. important::
-        This extension requires :ref:`Node.js <installation-requirements-nodejs>`.
-
-    Regions
-    -------
-
-    Raspberry Mint provides the following regions contents may be configured for:
-
-    - ``front-page-content``
-      The main content for the front page.
-    - ``front-page-summary``
-      The page summary for the front page.
-    - ``entity-page-content``
-      The page content region for entity pages.
-    - ``entity-page-content--{entity_type_id}``
-      The page content region for entity pages of a specific public-facing entity type, where ``{entity_type_id}`` is the
-      entity type ID. If no content is assigned to this region for an entity type, ``entity-page-content`` is used instead.
-
-    """
-
-    default_primary_color: Final[str] = "#b3446c"
-    default_secondary_color: Final[str] = "#3eb489"
-    default_tertiary_color: Final[str] = "#ffbd22"
-
-    def __init__(
-        self,
-        *,
-        project: Project,
-        primary_color: str | None = None,
-        regional_content: ManufacturableRegionalContent | None = None,
-        secondary_color: str | None = None,
-        tertiary_color: str | None = None,
-    ):
-        super().__init__(services=project)
-        self.primary_color: Final[str] = (
-            self.default_primary_color if primary_color is None else primary_color
-        )
-        """
-        The primary color.
-        """
-        self._regional_content_manufacturers: ManufacturableRegionalContent = (
-            regional_content or {}
-        )
-        self.secondary_color = (
-            self.default_secondary_color if secondary_color is None else secondary_color
-        )
-        """
-        The secondary color.
-        """
-        self.tertiary_color = (
-            self.default_tertiary_color if tertiary_color is None else tertiary_color
-        )
-        """
-        The tertiary color.
-        """
-
-    @override
-    @classmethod
-    def new_data_cls(cls) -> type[RaspberryMintData]:
-        return RaspberryMintData
-
-    @override
-    @Project.require
-    @classmethod
-    async def new(
-        cls,
-        project: Project,
-        data: RaspberryMintData | None = None,
-        /,
-    ) -> Self:
-        if data is None:
-            return cls(project=project)
-        return cls(
-            primary_color=data.primary_color,
-            project=project,
-            regional_content=data.regional_content,
-            secondary_color=data.secondary_color,
-            tertiary_color=data.tertiary_color,
-        )
-
-    @override
-    async def generate(self, scheduler: Scheduler) -> None:
-        from betty.jobs._generate_raspberry_mint_webmanifest import (
-            _GenerateRaspberryMintWebmanifest,
-        )
-
-        await scheduler.add(
-            GenerateLogo(project=self.services),
-            _GenerateRaspberryMintSearchIndex(project=self.services),
-            _GenerateRaspberryMintWebmanifest(project=self.services),
-        )
-
-    @override
-    @classmethod
-    def webpack_entry_point_directory(cls) -> StrPath:
-        return webpack_entry_point_directory / cls.definition.id
-
-    @override
-    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
-        return (
-            self.services.root_path,
-            self.primary_color,
-            self.secondary_color,
-            self.tertiary_color,
-        )
-
-    @service
-    async def regional_content(self) -> RegionalContent:
-        """
-        The regional content.
-        """
-        from betty.service_providers.raspberry_mint._default import (
-            DefaultRegionalContent,
-        )
-
-        async with DefaultRegionalContent(self.services) as content:
-            regional_content_manufacturers = {
-                **await content.get(),
-                **self._regional_content_manufacturers,
-            }
-        return FrozenDict(
-            defaultdict(
-                tuple,
-                zip(
-                    map(Region.resolve, regional_content_manufacturers),
-                    await gather(*[
-                        gather(
-                            *map(
-                                self.services.factory.new,
-                                map(ContentBuilderManufacturer.resolve, region_content),
-                            )
-                        )
-                        for region_content in regional_content_manufacturers.values()
-                    ]),
-                    strict=False,
-                ),
-            ),
-            key=Region.resolve,
-        )
 
 
 @final
@@ -437,3 +169,276 @@ class Region(Enum):
 
 
 type ResolvableRegion = Region | str
+
+
+class _RaspberryMintConfig(Init):
+    DEFAULT_PRIMARY_COLOR: Final[str] = "#b3446c"
+    DEFAULT_SECONDARY_COLOR: Final[str] = "#3eb489"
+    DEFAULT_TERTIARY_COLOR: Final[str] = "#ffbd22"
+
+    primary_color = OwnerAttr(ColorDefinition(label=_("Primary color"))).default(
+        lambda _: _RaspberryMintConfig.DEFAULT_PRIMARY_COLOR
+    )
+    """
+    The primary color.
+    """
+
+    secondary_color = OwnerAttr(ColorDefinition(label=_("Secondary color"))).default(
+        lambda _: _RaspberryMintConfig.DEFAULT_SECONDARY_COLOR
+    )
+    """
+    The secondary color.
+    """
+
+    tertiary_color = OwnerAttr(ColorDefinition(label=_("Tertiary color"))).default(
+        lambda _: _RaspberryMintConfig.DEFAULT_TERTIARY_COLOR
+    )
+    """
+    The tertiary color.
+    """
+
+
+@final
+@ObjectDefinition(
+    label=_("Raspberry Mint configuration"),
+    samples=Samples(
+        lambda: Sample(RaspberryMintConfig(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(
+            RaspberryMintConfig(
+                primary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
+                secondary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
+                tertiary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
+            ),
+            label="Custom colors",
+        ),
+        lambda: Sample(
+            RaspberryMintConfig(
+                regional_content={
+                    "front-page-content": [
+                        ContentBuilderManufacturer(
+                            Render, RenderConfig("Hello, world!")
+                        ),
+                    ]
+                }
+            ),
+            label="Regional content",
+        ),
+    ),
+)
+class RaspberryMintConfig(_RaspberryMintConfig, Object, AttrFreezable):
+    """
+    Configuration for the :py:class:`betty.service_providers.raspberry_mint.RaspberryMint` extension.
+
+    .. data:: betty.service_providers.raspberry_mint:RaspberryMintConfig
+    """
+
+    regional_content = CollectionOwnerAttr(
+        FieldDefinition(
+            MutableMappingDefinition(
+                manufacturer=lambda values: Dict[
+                    str,
+                    ResolvableRegion,
+                    Sequence[ResolvableContentBuilderManufacturer],
+                    Iterable[ResolvableContentBuilderManufacturer],
+                ](values or {}, key=Region.resolve),
+                label=_("Regions"),
+                key=StrDefinition(label=_("Region")),
+                value=PluginManufacturerSequenceDefinition(
+                    ContentBuilderManufacturer, label=_("Regional content")
+                ),
+            ),
+            optional=True,
+            porter=OmitFieldPorter.new(not_),
+        )
+    )
+    """
+    The regional content.
+    """
+
+    def __init__(
+        self,
+        *,
+        primary_color: str = _RaspberryMintConfig.DEFAULT_PRIMARY_COLOR,
+        secondary_color: str = _RaspberryMintConfig.DEFAULT_SECONDARY_COLOR,
+        tertiary_color: str = _RaspberryMintConfig.DEFAULT_TERTIARY_COLOR,
+        regional_content: ResolvableRegionalContent = empty_frozen_dict,
+    ):
+
+        super().__init__()
+        self.primary_color = primary_color
+        self.secondary_color = secondary_color
+        self.tertiary_color = tertiary_color
+        self.regional_content.update(regional_content)
+
+    async def validate(self, project: Project, /) -> None:
+        """
+        Validate the configuration.
+        """
+        available_regions = await Region.all(project)
+        with reraise_with_locator(Attr("regional_content")):
+            for region in self.regional_content:
+                with reraise_with_locator(Key(region)):
+                    if region not in available_regions:
+                        raise HumanFacingException(
+                            Paragraph(
+                                _("Invalid region {invalid_region}.").format(
+                                    invalid_region=f'"{region}"',
+                                ),
+                                do_you_mean(
+                                    *(
+                                        f'"{available_region}"'
+                                        for available_region in available_regions
+                                    )
+                                ),
+                            )
+                        ) from None
+
+
+@final
+@ServiceProviderDefinition(
+    "raspberry-mint",
+    label="Raspberry Mint",
+    requires={
+        Project.asset_directories.require(raspberry_mint),
+        Project.service_providers.require(Webpack),
+    },
+)
+class RaspberryMint(
+    _RaspberryMintConfig,
+    EntryPointProvider[Project],
+    DataManufacturable[RaspberryMintConfig],
+    Manufacturable,
+    Generator,
+):
+    """
+    .. plugin:: service-provider:raspberry-mint.
+
+    .. important::
+        This extension requires :ref:`Node.js <installation-requirements-nodejs>`.
+
+    Regions
+    -------
+
+    Raspberry Mint provides the following regions contents may be configured for:
+
+    - ``front-page-content``
+      The main content for the front page.
+    - ``front-page-summary``
+      The page summary for the front page.
+    - ``entity-page-content``
+      The page content region for entity pages.
+    - ``entity-page-content--{entity_type_id}``
+      The page content region for entity pages of a specific public-facing entity type, where ``{entity_type_id}`` is the
+      entity type ID. If no content is assigned to this region for an entity type, ``entity-page-content`` is used instead.
+
+    """
+
+    def __init__(
+        self,
+        *,
+        project: Project,
+        primary_color: str = _RaspberryMintConfig.DEFAULT_PRIMARY_COLOR,
+        secondary_color: str = _RaspberryMintConfig.DEFAULT_SECONDARY_COLOR,
+        tertiary_color: str = _RaspberryMintConfig.DEFAULT_TERTIARY_COLOR,
+        regional_content: ResolvableRegionalContent | None = None,
+    ):
+        super().__init__(services=project)
+        self.primary_color = primary_color
+        """
+        The primary color.
+        """
+        self._regional_content_manufacturers: ResolvableRegionalContent = (
+            regional_content or {}
+        )
+        self.secondary_color = secondary_color
+        """
+        The secondary color.
+        """
+        self.tertiary_color = tertiary_color
+        """
+        The tertiary color.
+        """
+
+    @override
+    @classmethod
+    def new_data_cls(cls) -> type[RaspberryMintConfig]:
+        return RaspberryMintConfig
+
+    @override
+    @Project.require
+    @classmethod
+    async def new(
+        cls,
+        project: Project,
+        data: RaspberryMintConfig | None = None,
+        /,
+    ) -> Self:
+        if data is None:
+            return cls(project=project)
+        return cls(
+            primary_color=data.primary_color,
+            project=project,
+            regional_content=data.regional_content,
+            secondary_color=data.secondary_color,
+            tertiary_color=data.tertiary_color,
+        )
+
+    @override
+    async def generate(self, scheduler: Scheduler) -> None:
+        from betty.jobs._generate_raspberry_mint_webmanifest import (
+            _GenerateRaspberryMintWebmanifest,
+        )
+
+        await scheduler.add(
+            GenerateLogo(project=self.services),
+            _GenerateRaspberryMintSearchIndex(project=self.services),
+            _GenerateRaspberryMintWebmanifest(project=self.services),
+        )
+
+    @override
+    @classmethod
+    def webpack_entry_point_directory(cls) -> StrPath:
+        return webpack_entry_point_directory / cls.definition.id
+
+    @override
+    def webpack_entry_point_cache_keys(self) -> Sequence[str]:
+        return (
+            self.services.root_path,
+            self.primary_color,
+            self.secondary_color,
+            self.tertiary_color,
+        )
+
+    @service
+    async def regional_content(self) -> RegionalContent:
+        """
+        The regional content.
+        """
+        from betty.service_providers.raspberry_mint._default import (
+            DefaultRegionalContent,
+        )
+
+        async with DefaultRegionalContent(self.services) as content:
+            regional_content_manufacturers = {
+                **await content.get(),
+                **self._regional_content_manufacturers,
+            }
+        return FrozenDict(
+            defaultdict(
+                tuple,
+                zip(
+                    map(Region.resolve, regional_content_manufacturers),
+                    await gather(*[
+                        gather(
+                            *map(
+                                self.services.factory.new,
+                                map(ContentBuilderManufacturer.resolve, region_content),
+                            )
+                        )
+                        for region_content in regional_content_manufacturers.values()
+                    ]),
+                    strict=False,
+                ),
+            ),
+            key=Region.resolve,
+        )

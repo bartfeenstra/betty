@@ -22,8 +22,8 @@ from typing_extensions import sentinel
 from betty.attr import Attr
 from betty.classtools.class_var import ClassVars
 from betty.data import DataDefinition, ResolvableDataDefinition
+from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.importlib import fully_qualified_name, import_any
-from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from betty.entity import Entity, EntityResolver
 
 
-class HasAssociations(HasProps):
+class HasAssociations[DefinitionT: ObjectDefinition](Object[DefinitionT]):
     """
     An object that has entity associations.
     """

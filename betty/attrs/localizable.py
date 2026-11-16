@@ -15,16 +15,14 @@ from betty.datas.localizable import (
 
 if TYPE_CHECKING:
     from betty.attrs.common import CommonAttr, OptionableCommonAttr
+    from betty.classtools.init import Init
     from betty.localizable import CountableLocalizable
     from betty.localizer import AnyLocalizable
-    from betty.prop import HasProps
 
 
 def new_localizable_attr(
-    *,
-    label: AnyLocalizable,
-    description: AnyLocalizable | None = None,
-) -> OptionableCommonAttr[HasProps, AnyLocalizable, AnyLocalizable]:
+    *, label: AnyLocalizable, description: AnyLocalizable | None = None
+) -> OptionableCommonAttr[Init, AnyLocalizable, AnyLocalizable]:
     """
     Create an attribute containing a :py:class:`betty.localizable.Localizable`.
     """
@@ -35,7 +33,7 @@ def new_localizable_attr(
 
 def new_countable_localizable_attr(
     *, label: AnyLocalizable, description: AnyLocalizable | None = None
-) -> CommonAttr[HasProps, CountableLocalizable, CountableLocalizable]:
+) -> CommonAttr[Init, CountableLocalizable, CountableLocalizable]:
     """
     Create an attribute containing a :py:class:`betty.localizable.CountableLocalizable`.
     """

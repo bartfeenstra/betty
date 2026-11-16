@@ -56,17 +56,7 @@ class MapsTestBase:
         """
         Serve a test page with a map, navigate to it, and return the Playwright Page fixture.
         """
-        async with (
-            Project.new_isolated(
-                service_providers=[
-                    Maps,
-                    *map(
-                        ServiceProviderManufacturer.resolve, cls.get_other_extensions()
-                    ),
-                ],
-            ) as project,
-            project,
-        ):
+        async with Project.new_isolated() as project:
             project.ancestry.add(
                 Place(
                     id=_place_id,
@@ -74,15 +64,21 @@ class MapsTestBase:
                     names=[PlaceName(_place_name)],
                 ),
             )
-            copytree(
-                Path(__file__).parent / "maps_assets",
-                project.asset_directory,
+            Project.service_providers.add_init_plugins(
+                project,
+                Maps,
+                *map(ServiceProviderManufacturer.resolve, cls.get_other_extensions()),
             )
-            await generate(project)
-            async with await project_builtin.ProjectBuiltinServer.new(
-                project
-            ) as server:
-                yield server
+            async with project:
+                copytree(
+                    Path(__file__).parent / "maps_assets",
+                    project.asset_directory,
+                )
+                await generate(project)
+                async with await project_builtin.ProjectBuiltinServer.new(
+                    project
+                ) as server:
+                    yield server
 
     @playwright_test
     @webpack_test

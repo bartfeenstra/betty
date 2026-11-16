@@ -19,6 +19,7 @@ from betty.entities.place import Place
 from betty.entities.presence import Presence
 from betty.entity import EntityDefinition
 from betty.event_types.unknown import UnknownEventType
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import JoinAnd
 from betty.privacy import Privacy
@@ -45,7 +46,13 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} event", "{count} events"),
 )
 class Event(
-    HasAnyDate, HasFileReferences, HasCitations, HasNotes, HasDescription, HasLinks
+    AttrFreezable,
+    HasAnyDate,
+    HasFileReferences,
+    HasCitations,
+    HasNotes,
+    HasDescription,
+    HasLinks,
 ):
     """
     .. plugin:: entity:event.

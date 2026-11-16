@@ -15,6 +15,7 @@ from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.entities.source import Source
 from betty.entity import EntityDefinition
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_secondary_privacies
@@ -34,7 +35,7 @@ if TYPE_CHECKING:
     label_plural=_("Citations"),
     label_countable=ngettext("{count} citation", "{count} citations"),
 )
-class Citation(HasAnyDate, HasFileReferences, HasLinks):
+class Citation(AttrFreezable, HasAnyDate, HasFileReferences, HasLinks):
     """
     .. plugin:: entity:citation.
     """

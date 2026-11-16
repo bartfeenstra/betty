@@ -15,16 +15,14 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.attrs.common import OptionableCommonAttr
+    from betty.classtools.init import Init
     from betty.localizer import AnyLocalizable
     from betty.pathlib import StrPath
-    from betty.prop import HasProps
 
 
 def new_path_attr(
-    *,
-    label: AnyLocalizable | None = None,
-    description: AnyLocalizable | None = None,
-) -> OptionableCommonAttr[HasProps, Path, StrPath]:
+    *, label: AnyLocalizable | None = None, description: AnyLocalizable | None = None
+) -> OptionableCommonAttr[Init, Path, StrPath]:
     """
     An attribute containing a file system path.
     """

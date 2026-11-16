@@ -7,15 +7,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 
 from betty.attr import Attr
+from betty.classtools.init import Init
 from betty.data import DataDefinition
-from betty.prop import HasProps
 from betty.props.proxy import ProxyProp
 
 if TYPE_CHECKING:
     from betty.datas.aggregate.record import ResolvableFieldDefinition
 
 
-class ProxyAttr[OwnerT: HasProps, GetT, SetT, DefinitionT: DataDefinition](
+class ProxyAttr[OwnerT: Init, GetT, SetT, DefinitionT: DataDefinition](
     ProxyProp[OwnerT, GetT, SetT], Attr[OwnerT, GetT, SetT, DefinitionT]
 ):
     """

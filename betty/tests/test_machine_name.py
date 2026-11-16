@@ -80,6 +80,9 @@ class TestMachineName:
         if sut is not None:
             assert sut.persistent
 
+    def test_is_frozen(self) -> None:
+        assert MachineName().is_frozen
+
 
 class TestInvalidMachineName:
     def test_new(self) -> None:

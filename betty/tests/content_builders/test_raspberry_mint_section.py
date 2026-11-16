@@ -1,28 +1,28 @@
 from betty.content_builder import ContentBuilderManufacturer
-from betty.content_builders.raspberry_mint_section import Section, SectionData
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.raspberry_mint_section import Section, SectionConfig
+from betty.content_builders.render import Render, RenderConfig
 from betty.content_builders.static import Static
 from betty.document import Document
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 from betty.test_utils.data import DataTestBase
 
 
-class TestSectionData(DataTestBase[SectionData]):
-    sut_cls = SectionData
+class TestSectionConfig(DataTestBase[SectionConfig]):
+    sut_cls = SectionConfig
 
     def test_content(self) -> None:
-        sut = SectionData(ContentBuilderManufacturer("my-first-content"), heading="-")
+        sut = SectionConfig(ContentBuilderManufacturer("my-first-content"), heading="-")
         assert sut.content[0].plugin_id == "my-first-content"
 
     def test_heading(self) -> None:
         heading = "My First Section"
-        sut = SectionData(
+        sut = SectionConfig(
             ContentBuilderManufacturer("my-first-content"), heading=heading
         )
         assert sut.heading == heading
 
     def test_name(self) -> None:
-        sut = SectionData(
+        sut = SectionConfig(
             ContentBuilderManufacturer("my-first-content"),
             name="my-first-section",
             heading="-",
@@ -30,7 +30,7 @@ class TestSectionData(DataTestBase[SectionData]):
         assert sut.name == "my-first-section"
 
     def test_visually_hide_heading(self) -> None:
-        sut = SectionData(
+        sut = SectionConfig(
             ContentBuilderManufacturer("my-first-content"),
             heading="-",
             visually_hide_heading=True,
@@ -40,15 +40,15 @@ class TestSectionData(DataTestBase[SectionData]):
 
 class TestSection:
     async def test_build_template__without_content(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Section]) as project,
+            new_isolated_project(supported_plugins=[Section]) as project,
             project,
         ):
             sut = await Section.new(
                 project,
-                SectionData(
+                SectionConfig(
                     ContentBuilderManufacturer(Static),
                     heading="My First Section",
                 ),
@@ -56,18 +56,18 @@ class TestSection:
             assert await sut.build(document=Document()) is None
 
     async def test_build_template__with_content(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Section]) as project,
+            new_isolated_project(supported_plugins=[Section]) as project,
             project,
         ):
             sut = await Section.new(
                 project,
-                SectionData(
+                SectionConfig(
                     ContentBuilderManufacturer(
                         Render,
-                        RenderData("My First Content"),
+                        RenderConfig("My First Content"),
                     ),
                     heading="My First Section",
                 ),
@@ -78,18 +78,18 @@ class TestSection:
         assert "My First Content" in actual
 
     async def test_build_template__with_name(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Section]) as project,
+            new_isolated_project(supported_plugins=[Section]) as project,
             project,
         ):
             sut = await Section.new(
                 project,
-                SectionData(
+                SectionConfig(
                     ContentBuilderManufacturer(
                         Render,
-                        RenderData("My First Content"),
+                        RenderConfig("My First Content"),
                     ),
                     name="my-first-section",
                     heading="My First Section",
@@ -100,18 +100,18 @@ class TestSection:
         assert "my-first-section" in actual
 
     async def test_build_template__with_visually_hide_heading(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Section]) as project,
+            new_isolated_project(supported_plugins=[Section]) as project,
             project,
         ):
             sut = await Section.new(
                 project,
-                SectionData(
+                SectionConfig(
                     ContentBuilderManufacturer(
                         Render,
-                        RenderData("My First Content"),
+                        RenderConfig("My First Content"),
                     ),
                     visually_hide_heading=True,
                     heading="My First Section",
