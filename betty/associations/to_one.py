@@ -5,7 +5,7 @@ To-one entity associations.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, ClassVar, TypeGuard, final, override
+from typing import TYPE_CHECKING, ClassVar, TypeGuard, cast, final, override
 
 from betty.association import (
     Associate,
@@ -14,6 +14,7 @@ from betty.association import (
     HasAssociations,
     resolve_associate,
 )
+from betty.classtools.store import StoreClassVar
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.entity_as_reference import EntityAsReferenceDefinition
 from betty.entity import Entity
@@ -81,7 +82,8 @@ type ToOneAssociate[AssociateT: Entity] = (
 
 @final
 class ToOne[AssociateT: Entity](
-    Association[AssociateT, AssociateT, ToOneAssociate[AssociateT]]
+    StoreClassVar[HasAssociations, ToOneAssociate[AssociateT]],
+    Association[AssociateT, AssociateT, ToOneAssociate[AssociateT]],
 ):
     r"""
     A \*-to-one entity association.
@@ -146,38 +148,38 @@ class ToOne[AssociateT: Entity](
     @override
     def resolve(self, owner: HasAssociations, /) -> None:
         try:
-            value = self._storage.get(owner)
+            value = self._store.get(owner)
         except AttributeError:
             return
         if not isinstance(value, Entity):
             self._assert_not_missing(owner, value)
-            self._storage.set(
+            self._store.set(
                 owner,
                 resolve_associate(owner, self, value),
             )
 
     @override
     def pre_init_owner(self, owner: HasAssociations, /) -> None:
-        self._storage.set(owner, _NotInitialized)
+        self._store.set(owner, _NotInitialized)
 
     @override
     def delete_owner(self, owner: HasAssociations, /) -> None:
         if associate_attr := self.associate_attr:
-            existing_associate = self._storage.get(owner)
+            existing_associate = self._store.get(owner)
             if isinstance(existing_associate, Entity) and isinstance(owner, Entity):
                 associate_attr.disassociate(existing_associate, owner)
-        self._storage.set(owner, _OwnerDeleted)
+        self._store.set(owner, _OwnerDeleted)
 
     @override
     def set(self, owner: HasAssociations, value: ToOneAssociate[AssociateT], /) -> None:
         existing_associate: ToOneAssociate[AssociateT] | None = None
         with suppress(AttributeError):
-            existing_associate = self._storage.get(owner)
+            existing_associate = self._store.get(owner)
         if existing_associate is not None:
             self.assert_not_resolver(owner, existing_associate)
         if existing_associate == value:
             return
-        self._storage.set(owner, value)
+        self._store.set(owner, value)
         if (associate_attr := self.associate_attr) and isinstance(owner, Entity):
             if isinstance(existing_associate, Entity):
                 associate_attr.disassociate(existing_associate, owner)
@@ -186,18 +188,18 @@ class ToOne[AssociateT: Entity](
 
     @override
     def associate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
-        self._storage.set(owner, associate)
+        self._store.set(owner, associate)
 
     @override
     def disassociate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
-        self._storage.set(owner, _Disassociated)
+        self._store.set(owner, _Disassociated)
 
     @override
     def get(self, owner: HasAssociations, /) -> AssociateT:
-        value = self._storage.get(owner)
+        value = self._store.get(owner)
         self._assert_not_missing(owner, value)
         self.assert_not_resolver(owner, value)
-        return value
+        return cast(AssociateT, value)
 
     @override
     def get_associates(self, owner: HasAssociations, /) -> Iterable[AssociateT]:

@@ -11,6 +11,7 @@ from betty.attrs.common import CommonAttr, OptionableCommonAttr
 from betty.attrs.default import DefaultAttr
 from betty.attrs.optional import OptionalAttr
 from betty.attrs.proxy import ProxyAttr
+from betty.classtools.store import StoreClassVar
 from betty.data import DataDefinition
 from betty.datas.aggregate.collection import (
     CollectionDefinition,
@@ -29,7 +30,7 @@ class __Owner[
     GetT,
     SetT,
     DefinitionT: DataDefinition = DataDefinition,
-](CommonAttr[OwnerT, GetT, SetT, DefinitionT]):
+](StoreClassVar[OwnerT, GetT], CommonAttr[OwnerT, GetT, SetT, DefinitionT]):
     def __init__(
         self,
         field: ResolvableFieldDefinition[OwnerT, GetT, DefinitionT],
@@ -134,12 +135,12 @@ class OwnerAttr[OwnerT: HasProps, T, DefinitionT: DataDefinition = DataDefinitio
     @final
     @override
     def get(self, owner: OwnerT, /) -> T:
-        return self._storage.get(owner)
+        return self._store.get(owner)
 
     @override
     def set(self, owner: OwnerT, value: T, /) -> None:
         self.assert_settable(owner)
-        self._storage.set(owner, value)
+        self._store.set(owner, value)
 
 
 class _CollectionOwner[
@@ -209,7 +210,7 @@ class CollectionOwnerAttr[
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:
         super().pre_init_owner(owner)
-        self._storage.set(owner, self.field.data.new())
+        self._store.set(owner, self.field.data.new())
 
     @override
     def normalize(self, owner: OwnerT, value: SetT, /) -> GetT:
@@ -217,7 +218,7 @@ class CollectionOwnerAttr[
 
     @override
     def get(self, owner: OwnerT, /) -> GetT:
-        return self._storage.get(owner)
+        return self._store.get(owner)
 
     @override
     def set(self, owner: OwnerT, value: SetT, /) -> None:
@@ -225,4 +226,4 @@ class CollectionOwnerAttr[
         if isinstance(self.field.data, MutableCollectionDefinition):
             self.field.data.replace(self.get(owner), value)
         else:
-            self._storage.set(owner, self.field.data.new(value))
+            self._store.set(owner, self.field.data.new(value))

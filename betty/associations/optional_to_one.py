@@ -37,7 +37,7 @@ class OptionalToOne[AssociateT: Entity](
     @final
     @override
     def pre_init_owner(self, owner: HasAssociations, /) -> None:
-        self._storage.set(owner, None)
+        self._store.set(owner, None)
 
     @override
     def is_resolver(
@@ -49,17 +49,17 @@ class OptionalToOne[AssociateT: Entity](
 
     @override
     def resolve(self, owner: HasAssociations, /) -> None:
-        if self._storage.get(owner) is None:
+        if self._store.get(owner) is None:
             return
         super().resolve(owner)
 
     @override
     def disassociate(self, owner: HasAssociations, associate: AssociateT, /) -> None:
         self._proxied_association.disassociate(owner, associate)
-        self._storage.set(owner, None)
+        self._store.set(owner, None)
 
     @override
     def get_associates(self, owner: HasAssociations, /) -> Iterable[AssociateT]:
-        if self._storage.get(owner) is None:
+        if self._store.get(owner) is None:
             return ()
         return self._proxied_association.get_associates(owner)
