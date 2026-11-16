@@ -5,7 +5,7 @@ import pytest
 
 from betty.attrs.date import HasAnyDate
 from betty.date import AnyDate, Date, DateRange
-from betty.test_utils.conftest import AssertTemplateString
+from betty.test_utils.conftest import AssertJinja
 
 
 class _DummyHasDate(HasAnyDate):
@@ -92,13 +92,10 @@ class TestNegotiateHasDates:
     )
     async def test___call__(
         self,
-        assert_template_string: AssertTemplateString,
+        assert_jinja_str: AssertJinja,
         expected: str,
         data: MutableMapping[str, Any],
     ) -> None:
         template = '{{ has_dates | negotiate_has_dates(date=date) or "" }}'
-        async with assert_template_string(template=template, data=data) as (
-            actual,
-            _,
-        ):
-            assert actual == expected
+        async with assert_jinja_str(template, data=data) as rendered:
+            assert rendered == expected

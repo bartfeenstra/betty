@@ -4,27 +4,27 @@ from babel import Locale
 
 from betty.commands.new import New
 from betty.data import Data
-from betty.loaders.gramps import Gramps, GrampsData
+from betty.loaders.gramps import Gramps, GrampsConfig
 from betty.locale import default_locale_tag, to_language_tag
 from betty.localizer import default_localizer
 from betty.plugin.factory import NoPluginData
 from betty.portable.file import assert_load_file
-from betty.project import ProjectData
+from betty.project import ProjectConfig
 from betty.serializers.json import Json
-from betty.test_utils.conftest import IsolatedAppFactory
+from betty.test_utils.conftest import NewIsolatedApp
 from betty.test_utils.console import run
 from betty.test_utils.user.ui import StaticUi
 
 
-def _assert_new(configuration_file: Path) -> ProjectData:
-    return ProjectData.definition.porter.load(
+def _assert_new(configuration_file: Path) -> ProjectConfig:
+    return ProjectConfig.definition.porter.load(
         assert_load_file(serializers=[Json()])(configuration_file)
     )
 
 
 class TestNew:
     async def test_configure__minimal(
-        self, isolated_app_factory: IsolatedAppFactory, tmp_path: Path
+        self, new_isolated_app: NewIsolatedApp, tmp_path: Path
     ) -> None:
         configuration_file = tmp_path / "betty.json"
         title = "My First Project"
@@ -45,7 +45,7 @@ class TestNew:
                 url,
             ],
         )
-        async with isolated_app_factory(ui=user) as app, app:
+        async with new_isolated_app(ui=user) as app, app:
             await run(New(app), "new")
             configuration = _assert_new(configuration_file)
         assert default_localizer.localize(configuration.title) == title
@@ -55,7 +55,7 @@ class TestNew:
         assert configuration.url == url
 
     async def test_configure__with_project_directory(
-        self, isolated_app_factory: IsolatedAppFactory, tmp_path: Path
+        self, new_isolated_app: NewIsolatedApp, tmp_path: Path
     ) -> None:
         title = "My First Project"
         machine_name = "my-first-project"
@@ -76,13 +76,13 @@ class TestNew:
             ],
         )
         configuration_file = tmp_path / "betty.json"
-        async with isolated_app_factory(ui=user) as app, app:
+        async with new_isolated_app(ui=user) as app, app:
             await run(New(app), "new")
             _assert_new(configuration_file)
 
     async def test_configure__with_single_locale(
         self,
-        isolated_app_factory: IsolatedAppFactory,
+        new_isolated_app: NewIsolatedApp,
         tmp_path: Path,
     ) -> None:
         configuration_file = tmp_path / "betty.json"
@@ -101,7 +101,7 @@ class TestNew:
                 "https://exampleexampleexample.com/example",
             ],
         )
-        async with isolated_app_factory(ui=user) as app, app:
+        async with new_isolated_app(ui=user) as app, app:
             await run(New(app), "new")
             configuration = _assert_new(configuration_file)
         assert configuration.name == "mijn-eerste-project"
@@ -111,7 +111,7 @@ class TestNew:
 
     async def test_configure__with_multiple_locales(
         self,
-        isolated_app_factory: IsolatedAppFactory,
+        new_isolated_app: NewIsolatedApp,
         tmp_path: Path,
     ) -> None:
         configuration_file = tmp_path / "betty.json"
@@ -135,7 +135,7 @@ class TestNew:
                 "https://exampleexampleexample.com/example",
             ],
         )
-        async with isolated_app_factory(ui=user) as app, app:
+        async with new_isolated_app(ui=user) as app, app:
             await run(New(app), "new")
             configuration = _assert_new(configuration_file)
         assert configuration.name == "mijn-eerste-project"
@@ -143,7 +143,7 @@ class TestNew:
 
     async def test_configure__with_name(
         self,
-        isolated_app_factory: IsolatedAppFactory,
+        new_isolated_app: NewIsolatedApp,
         tmp_path: Path,
     ) -> None:
         configuration_file = tmp_path / "betty.json"
@@ -162,13 +162,13 @@ class TestNew:
                 "https://exampleexampleexample.com/example",
             ],
         )
-        async with isolated_app_factory(ui=user) as app, app:
+        async with new_isolated_app(ui=user) as app, app:
             await run(New(app), "new")
             configuration = _assert_new(configuration_file)
         assert configuration.name == name
 
     async def test_configure__with_gramps(
-        self, isolated_app_factory: IsolatedAppFactory, tmp_path: Path
+        self, new_isolated_app: NewIsolatedApp, tmp_path: Path
     ) -> None:
         configuration_file = tmp_path / "betty.json"
         gramps_family_tree_file = tmp_path / "gramps"
@@ -187,14 +187,14 @@ class TestNew:
                 str(gramps_family_tree_file),
             ],
         )
-        async with isolated_app_factory(ui=user) as app, app:
+        async with new_isolated_app(ui=user) as app, app:
             await run(New(app), "new")
             configuration = _assert_new(configuration_file)
             assert Gramps in configuration.loaders
             portable_gramps_configuration = configuration.loaders[Gramps].plugin_data
             assert portable_gramps_configuration is not NoPluginData
             assert not isinstance(portable_gramps_configuration, Data)
-            gramps_configuration = GrampsData.definition.porter.load(
+            gramps_configuration = GrampsConfig.definition.porter.load(
                 portable_gramps_configuration
             )
             assert (

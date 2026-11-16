@@ -11,14 +11,14 @@ from betty.attrs.common import CommonAttr, OptionableCommonAttr
 from betty.attrs.default import DefaultAttr
 from betty.attrs.optional import OptionalAttr
 from betty.attrs.proxy import ProxyAttr
+from betty.classtools.init import Init
 from betty.classtools.store import StoreClassVar
 from betty.data import DataDefinition
 from betty.datas.aggregate.collection import (
     CollectionDefinition,
     MutableCollectionDefinition,
 )
-from betty.freezer import is_frozen
-from betty.prop import HasProps
+from betty.frozen import FreezableClassVar, freeze, is_frozen
 from betty.props.setter import SetterProp
 
 if TYPE_CHECKING:
@@ -26,11 +26,15 @@ if TYPE_CHECKING:
 
 
 class __Owner[
-    OwnerT: HasProps,
+    OwnerT: Init,
     GetT,
     SetT,
     DefinitionT: DataDefinition = DataDefinition,
-](StoreClassVar[OwnerT, GetT], CommonAttr[OwnerT, GetT, SetT, DefinitionT]):
+](
+    FreezableClassVar[OwnerT],
+    StoreClassVar[OwnerT, GetT],
+    CommonAttr[OwnerT, GetT, SetT, DefinitionT],
+):
     def __init__(
         self,
         field: ResolvableFieldDefinition[OwnerT, GetT, DefinitionT],
@@ -39,13 +43,17 @@ class __Owner[
         **kwargs: Any,
     ):
         super().__init__(field, *args, **kwargs)
-        self._frozen: Final[bool] = frozen
+        self.__frozen: Final[bool] = frozen
+
+    @final
+    @override
+    def post_init_owner(self, owner: OwnerT, /) -> None:
+        if self.__frozen:
+            freeze(self.get(owner))
 
     @final
     def _is_mutable(self, owner: OwnerT, /) -> bool:
-        if self._frozen or is_frozen(owner):
-            return not owner.is_initialized
-        return True
+        return self.__frozen and not owner.is_initialized or not is_frozen(owner)
 
     @final
     @override
@@ -57,9 +65,14 @@ class __Owner[
     def is_deletable(self, owner: OwnerT, /) -> bool:
         return self._is_mutable(owner)
 
+    @final
+    @override
+    def freeze(self, owner: OwnerT, /) -> None:
+        freeze(self.get(owner))
+
 
 class _Owner[
-    OwnerT: HasProps,
+    OwnerT: Init,
     GetT,
     SetT,
     DefinitionT: DataDefinition = DataDefinition,
@@ -93,7 +106,7 @@ class _Owner[
 
 
 class _Default[
-    OwnerT: HasProps,
+    OwnerT: Init,
     GetT,
     SetT,
     DefinitionT: DataDefinition = DataDefinition,
@@ -104,7 +117,7 @@ class _Default[
     pass
 
 
-class _Optional[OwnerT: HasProps, GetT, SetT](
+class _Optional[OwnerT: Init, GetT, SetT](
     OptionalAttr[OwnerT, GetT, SetT],
     _Owner[OwnerT, GetT | None, SetT | None, DataDefinition[GetT | None]],
 ):
@@ -112,7 +125,7 @@ class _Optional[OwnerT: HasProps, GetT, SetT](
 
 
 class _Setter[
-    OwnerT: HasProps,
+    OwnerT: Init,
     GetT,
     SetT,
     DefinitionT: DataDefinition = DataDefinition,
@@ -125,7 +138,7 @@ class _Setter[
 
 
 @final
-class OwnerAttr[OwnerT: HasProps, T, DefinitionT: DataDefinition = DataDefinition](
+class OwnerAttr[OwnerT: Init, T, DefinitionT: DataDefinition = DataDefinition](
     _Owner[OwnerT, T, T, DefinitionT]
 ):
     """
@@ -144,7 +157,7 @@ class OwnerAttr[OwnerT: HasProps, T, DefinitionT: DataDefinition = DataDefinitio
 
 
 class _CollectionOwner[
-    OwnerT: HasProps,
+    OwnerT: Init,
     GetT,
     SetT,
     DefinitionT: DataDefinition = DataDefinition,
@@ -172,7 +185,7 @@ class _CollectionOwner[
 
 
 class _CollectionDefault[
-    OwnerT: HasProps,
+    OwnerT: Init,
     GetT,
     SetT,
     DefinitionT: DataDefinition = DataDefinition,
@@ -184,7 +197,7 @@ class _CollectionDefault[
 
 
 class _CollectionSetter[
-    OwnerT: HasProps,
+    OwnerT: Init,
     GetT,
     SetT,
     DefinitionT: DataDefinition = DataDefinition,
@@ -198,7 +211,7 @@ class _CollectionSetter[
 
 @final
 class CollectionOwnerAttr[
-    OwnerT: HasProps,
+    OwnerT: Init,
     GetT: Collection[Any],
     SetT: Iterable,
     DefinitionT: CollectionDefinition = CollectionDefinition,

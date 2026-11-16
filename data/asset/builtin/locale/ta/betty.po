@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-02 19:48+0000\n"
+"POT-Creation-Date: 2026-11-11 22:55+0000\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -858,6 +858,9 @@ msgstr "{locale} மொழிபெயர்ப்புகளுக்கு �
 #, python-brace-format
 msgid "Invalid region {invalid_region}."
 msgstr "தவறான பகுதி {invalid_region}."
+
+msgid "Items per page"
+msgstr ""
 
 msgid "JavaScript resource"
 msgstr "சாவாச்கிரிப்ட் சான்று"

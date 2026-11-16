@@ -8,6 +8,7 @@ from abc import ABCMeta, abstractmethod
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 
+from betty.freezers.frozen import Frozen
 from betty.localizable import Localizable
 from betty.localizables.gettext import _, pgettext
 from betty.localized import LocalizedStr
@@ -43,7 +44,7 @@ class LocalizableSequence(metaclass=ABCMeta):
         """
 
 
-class _LocalizableSequence(LocalizableSequence):
+class _LocalizableSequence(Frozen, LocalizableSequence):
     __slots__ = ("_localizables",)
 
     def __init__(self, *localizables: AnyLocalizable):

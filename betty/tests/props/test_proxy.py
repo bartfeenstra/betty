@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.prop import HasProps, Prop
+from betty.classtools.init import Init
+from betty.prop import Prop
 from betty.props.proxy import ProxyProp
 
 if TYPE_CHECKING:
@@ -13,7 +14,7 @@ class TestProxyProp:
     def test___set_name__(self, mocker: MockerFixture) -> None:
         m_proxied = mocker.MagicMock(spec=Prop)
 
-        class _Owner(HasProps):
+        class _Owner(Init):
             my_first_prop = ProxyProp(proxied=m_proxied)
 
         m_proxied.__set_name__.assert_called_once_with(_Owner, "my_first_prop")
@@ -23,7 +24,7 @@ class TestProxyProp:
         m_proxied = mocker.MagicMock(spec=Prop)
         m_proxied.get.return_value = value
 
-        class _Owner(HasProps):
+        class _Owner(Init):
             my_first_prop = ProxyProp(proxied=m_proxied)
 
         owner = _Owner()
@@ -34,7 +35,7 @@ class TestProxyProp:
         value = "Hello, world!"
         m_proxied = mocker.MagicMock(spec=Prop)
 
-        class _Owner(HasProps):
+        class _Owner(Init):
             my_first_prop = ProxyProp(proxied=m_proxied)
 
         owner = _Owner()
@@ -44,7 +45,7 @@ class TestProxyProp:
     def test_delete(self, mocker: MockerFixture) -> None:
         m_proxied = mocker.MagicMock(spec=Prop)
 
-        class _Owner(HasProps):
+        class _Owner(Init):
             my_first_prop = ProxyProp(proxied=m_proxied)
 
         owner = _Owner()
@@ -54,7 +55,7 @@ class TestProxyProp:
     def test_pre_init_owner(self, mocker: MockerFixture) -> None:
         m_proxied = mocker.MagicMock(spec=Prop)
 
-        class _Owner(HasProps):
+        class _Owner(Init):
             my_first_prop = ProxyProp(proxied=m_proxied)
 
         owner = _Owner()
@@ -63,7 +64,7 @@ class TestProxyProp:
     def test_post_init_owner(self, mocker: MockerFixture) -> None:
         m_proxied = mocker.MagicMock(spec=Prop)
 
-        class _Owner(HasProps):
+        class _Owner(Init):
             my_first_prop = ProxyProp(proxied=m_proxied)
 
         owner = _Owner()
@@ -72,7 +73,7 @@ class TestProxyProp:
     def test_delete_owner(self, mocker: MockerFixture) -> None:
         m_proxied = mocker.MagicMock(spec=Prop)
 
-        class _Owner(HasProps):
+        class _Owner(Init):
             my_first_prop = ProxyProp(proxied=m_proxied)
 
         owner = _Owner()
@@ -83,7 +84,7 @@ class TestProxyProp:
         m_proxied = mocker.MagicMock(spec=Prop)
         m_proxied.is_settable.return_value = True
 
-        class _Owner(HasProps):
+        class _Owner(Init):
             my_first_prop = ProxyProp(proxied=m_proxied)
 
         owner = _Owner()
@@ -94,7 +95,7 @@ class TestProxyProp:
         m_proxied = mocker.MagicMock(spec=Prop)
         m_proxied.is_deletable.return_value = True
 
-        class _Owner(HasProps):
+        class _Owner(Init):
             my_first_prop = ProxyProp(proxied=m_proxied)
 
         owner = _Owner()

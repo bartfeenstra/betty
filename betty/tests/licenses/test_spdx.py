@@ -17,7 +17,7 @@ from betty.licenses.spdx import (
 from betty.plugin.discovery import ResolvableDiscovery, discover
 from betty.service_level import ServiceLevel
 from betty.stores.file import TransientBinaryFileStore
-from betty.test_utils.conftest import IsolatedAppFactory
+from betty.test_utils.conftest import NewIsolatedApp
 from betty.test_utils.user.ui import StaticUi
 
 if TYPE_CHECKING:
@@ -200,17 +200,17 @@ class TestSpdxLicenseDiscoverer:
             await self.assert_with_licenses(await sut.discover())
 
     async def test_discover_for__without_licenses(
-        self, isolated_app_factory: IsolatedAppFactory, without_licenses: None
+        self, new_isolated_app: NewIsolatedApp, without_licenses: None
     ) -> None:
-        async with isolated_app_factory() as app, app:
+        async with new_isolated_app() as app, app:
             await self.assert_without_licenses(
                 await SpdxLicenseDiscoverer.discover_for(app)
             )
 
     async def test_discover_for__with_licenses(
-        self, isolated_app_factory: IsolatedAppFactory, with_licenses: None
+        self, new_isolated_app: NewIsolatedApp, with_licenses: None
     ) -> None:
-        async with isolated_app_factory() as app, app:
+        async with new_isolated_app() as app, app:
             await self.assert_with_licenses(
                 await SpdxLicenseDiscoverer.discover_for(app)
             )

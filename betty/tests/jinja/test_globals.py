@@ -7,13 +7,11 @@ import pytest
 from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
-    from betty.test_utils.conftest import AssertTemplateString
+    from betty.test_utils.conftest import AssertJinja
 
 
-async def test_deprecate(assert_template_string: AssertTemplateString) -> None:
+async def test_deprecate(assert_jinja_str: AssertJinja) -> None:
     deprecation_message = "ye olde deprecation"
     with pytest.warns(BettyDeprecationWarning, match=deprecation_message):
-        async with assert_template_string(
-            template=f"{{% do deprecate('{deprecation_message}') %}}"
-        ) as (_actual, _):
+        async with assert_jinja_str(f"{{% do deprecate('{deprecation_message}') %}}"):
             pass

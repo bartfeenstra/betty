@@ -9,15 +9,15 @@ from typing import final, override
 
 from betty.attr import Attr
 from betty.attrs.proxy import ProxyAttr
+from betty.classtools.init import Init
 from betty.classtools.store import StoreClassVar
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.datas.optional import OptionalDefinition
 from betty.porters.omit_field import OmitFieldPorter
-from betty.prop import HasProps
 
 
-class OptionalAttr[OwnerT: HasProps, GetT, SetT](
+class OptionalAttr[OwnerT: Init, GetT, SetT](
     StoreClassVar[OwnerT, GetT | None],
     ProxyAttr[OwnerT, GetT | None, SetT | None, DataDefinition[GetT | None]],
 ):
@@ -65,7 +65,7 @@ class OptionalAttr[OwnerT: HasProps, GetT, SetT](
         self.set(owner, None)
 
 
-class OptionableAttr[OwnerT: HasProps, GetT, SetT, DefinitionT: DataDefinition](
+class OptionableAttr[OwnerT: Init, GetT, SetT, DefinitionT: DataDefinition](
     Attr[OwnerT, GetT, SetT, DefinitionT]
 ):
     """

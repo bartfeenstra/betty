@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from babel import Locale
 
-from betty.app import App, AppData
+from betty.app import App, AppConfig
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.user.ui import StaticUi
 
@@ -14,14 +14,14 @@ if TYPE_CHECKING:
 
     from pytest_mock import MockerFixture
 
-    from betty.test_utils.conftest import IsolatedAppFactory
+    from betty.test_utils.conftest import NewIsolatedApp
 
 
 class TestApp:
     async def test_new_from_environment__without_configuration_file(
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
-        mocker.patch("betty.app.AppData.file", tmp_path / "app.json")
+        mocker.patch("betty.app.AppConfig.file", tmp_path / "app.json")
         async with App.new_from_environment():
             pass
 
@@ -31,13 +31,13 @@ class TestApp:
         configuration_file = tmp_path / "app.json"
         with open(tmp_path / "app.json", encoding="utf-8", mode="w") as f:
             f.write(dumps({"locale": "nl-NL"}))
-        mocker.patch("betty.app.AppData.file", configuration_file)
+        mocker.patch("betty.app.AppConfig.file", configuration_file)
         async with App.new_from_environment() as sut:
             assert sut.ui.localizer.locale == Locale("nl", "NL")
 
-    async def test_ui(self, isolated_app_factory: IsolatedAppFactory) -> None:
+    async def test_ui(self, new_isolated_app: NewIsolatedApp) -> None:
         ui = StaticUi()
-        async with isolated_app_factory(ui=ui) as sut:
+        async with new_isolated_app(ui=ui) as sut:
             assert sut.ui is ui
 
     async def test_http_client(self, isolated_app: App) -> None:
@@ -68,20 +68,20 @@ class TestApp:
         assert isolated_app.serializers is isolated_app.serializers
 
 
-class TestAppData(DataTestBase[AppData]):
-    sut_cls = AppData
+class TestAppConfig(DataTestBase[AppConfig]):
+    sut_cls = AppConfig
 
     def test___init____minimal_locale(self) -> None:
-        sut = AppData()
+        sut = AppConfig()
         assert sut.locale is None
 
     def test___init____with_locale(self) -> None:
         locale = Locale("nl", "NL")
-        sut = AppData(locale=locale)
+        sut = AppConfig(locale=locale)
         assert sut.locale is locale
 
     def test_locale(self) -> None:
-        sut = AppData()
+        sut = AppConfig()
         locale = Locale("nl", "NL")
         sut.locale = locale
         assert sut.locale is locale

@@ -1,16 +1,16 @@
 from betty.content_builder import ContentBuilderManufacturer
-from betty.content_builders.box import Box, BoxData
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.box import Box, BoxConfig
+from betty.content_builders.render import Render, RenderConfig
 from betty.document import Document
 from betty.project import Project
 from betty.test_utils.data import DataTestBase
 
 
-class TestBoxData(DataTestBase[BoxData]):
-    sut_cls = BoxData
+class TestBoxConfig(DataTestBase[BoxConfig]):
+    sut_cls = BoxConfig
 
     def test_content(self) -> None:
-        sut = BoxData("my-first-content")
+        sut = BoxConfig("my-first-content")
         assert sut.content[0].plugin_id == "my-first-content"
 
 
@@ -18,7 +18,7 @@ class TestBox:
     async def test_build_template__minimal(self, isolated_project: Project) -> None:
         sut = await Box.new(
             isolated_project,
-            BoxData(ContentBuilderManufacturer(Render, RenderData("-"))),
+            BoxConfig(ContentBuilderManufacturer(Render, RenderConfig("-"))),
         )
         actual = await sut.build(document=Document())
         assert actual is not None
@@ -27,8 +27,8 @@ class TestBox:
     async def test_build_template__full(self, isolated_project: Project) -> None:
         sut = await Box.new(
             isolated_project,
-            BoxData(
-                ContentBuilderManufacturer(Render, RenderData("-")),
+            BoxConfig(
+                ContentBuilderManufacturer(Render, RenderConfig("-")),
                 min_height="MIN_HEIGHT",
                 max_height="MAX_HEIGHT",
                 height="HEIGHT",

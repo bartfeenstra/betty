@@ -12,6 +12,7 @@ from betty.attrs.locale import HasLocale
 from betty.attrs.owner import OwnerAttr
 from betty.datas.str import StrDefinition
 from betty.entity import EntityDefinition
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
@@ -33,7 +34,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} person name", "{count} person names"),
     public_facing=False,
 )
-class PersonName(HasLocale, HasCitations):
+class PersonName(AttrFreezable, HasLocale, HasCitations):
     """
     .. plugin:: entity:person-name.
     """

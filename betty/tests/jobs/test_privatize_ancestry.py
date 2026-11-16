@@ -13,14 +13,15 @@ from betty.entities.source import Source
 from betty.event_types.birth import Birth
 from betty.load import load
 from betty.privacy import Privacy
+from betty.project import Project
 from betty.roles.subject import Subject
 
 if TYPE_CHECKING:
-    from betty.test_utils.conftest import IsolatedProjectFactory
+    from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestPrivatizeAncestry:
-    async def test_do(self, isolated_project_factory: IsolatedProjectFactory) -> None:
+    async def test_do(self, new_isolated_project: NewIsolatedProject) -> None:
         person = Person(id="my-first-person")
         Presence(person, Subject(), Event(event_type=Birth()))
 
@@ -41,9 +42,11 @@ class TestPrivatizeAncestry:
         )
         FileReference(citation, citation_file)
 
-        async with isolated_project_factory(enrichers=[Privatizer]) as project, project:
-            project.ancestry.add(person, source, citation)
-            await load(project)
+        async with new_isolated_project() as project:
+            Project.enrichers.add_init_plugins(project, Privatizer)
+            async with project:
+                project.ancestry.add(person, source, citation)
+                await load(project)
 
         assert person.private
         assert source_file.private

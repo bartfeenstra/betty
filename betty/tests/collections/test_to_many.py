@@ -4,6 +4,7 @@ from betty.association import UnresolvedAssociate
 from betty.associations.to_many import ToMany
 from betty.collections.to_many import ToManyCollection
 from betty.entity import Entity, EntityDefinition
+from betty.freezers.attr import AttrFreezable
 from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 
@@ -13,7 +14,7 @@ from betty.test_utils.locale.localizable import dummy_countable_localizable
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _Owner(Entity):
+class _Owner(AttrFreezable, Entity):
     associates = ToMany("betty.tests.collections.test_to_many:_Associate", label="-")
 
 
@@ -23,7 +24,7 @@ class _Owner(Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _Associate(Entity):
+class _Associate(AttrFreezable, Entity):
     pass
 
 
@@ -33,7 +34,7 @@ class _Associate(Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _BiOwner(Entity):
+class _BiOwner(AttrFreezable, Entity):
     associates = ToMany(
         "betty.tests.collections.test_to_many:_BiAssociate", "owners", label="-"
     )
@@ -45,7 +46,7 @@ class _BiOwner(Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _BiAssociate(Entity):
+class _BiAssociate(AttrFreezable, Entity):
     owners = ToMany(
         "betty.tests.collections.test_to_many:_BiOwner", "associates", label="-"
     )
@@ -202,6 +203,12 @@ class TestToManyCollection:
         ToManyCollection(_Owner(), _Owner.associates, _Associate())
 
     def test_assert_resolved__with_resolver(self) -> None:
-        sut = sut = ToManyCollection(_Owner(), _Owner.associates, _Associate)
+        sut = ToManyCollection(_Owner(), _Owner.associates, _Associate)
         with pytest.raises(UnresolvedAssociate):
             sut.assert_resolved()
+
+    def test_freeze(self) -> None:
+        associate = _Associate()
+        sut = ToManyCollection(_Owner(), _Owner.associates, associate)
+        sut.freeze()
+        assert associate.is_frozen

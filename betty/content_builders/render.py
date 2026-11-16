@@ -8,9 +8,11 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import new_media_type_attr
+from betty.classtools.init import Init
 from betty.content_builder import ContentBuilder, ContentBuilderDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.factory import DataManufacturable
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.media_types import plain_text
 from betty.project import Project
@@ -23,22 +25,26 @@ if TYPE_CHECKING:
     from betty.render import RenderDispatcher
 
 
+class _RenderConfig(Init):
+    content = new_localizable_attr(label=_("Content"))
+    media_type = new_media_type_attr().default(lambda: plain_text)
+
+
 @final
 @ObjectDefinition(
     label=_("Rendered content configuration"),
     samples=Samples(
-        lambda: Sample(RenderData("Hello, world!"), label="Minimal", size=Size.MINIMAL)
+        lambda: Sample(
+            RenderConfig("Hello, world!"), label="Minimal", size=Size.MINIMAL
+        )
     ),
 )
-class RenderData(Object):
+class RenderConfig(_RenderConfig, Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.content_builders.render.Render`.
 
-    .. data:: betty.content_builders.render:RenderData
+    .. data:: betty.content_builders.render:RenderConfig
     """
-
-    content = new_localizable_attr(label=_("Content"))
-    media_type = new_media_type_attr().default(lambda: plain_text)
 
     def __init__(
         self,
@@ -53,7 +59,7 @@ class RenderData(Object):
 
 @final
 @ContentBuilderDefinition("render", label=_("Rendered content"))
-class Render(DataManufacturable[RenderData], ContentBuilder):
+class Render(_RenderConfig, DataManufacturable[RenderConfig], ContentBuilder):
     """
     .. plugin:: content-builder:render.
     """
@@ -65,19 +71,19 @@ class Render(DataManufacturable[RenderData], ContentBuilder):
         renderer: RenderDispatcher,
         media_type: ResolvableMediaType = plain_text,
     ):
-        self._content = content
-        self._media_type = media_type
+        self.content = content
+        self.media_type = media_type
         self._renderer = renderer
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[RenderData]:
-        return RenderData
+    def new_data_cls(cls) -> type[RenderConfig]:
+        return RenderConfig
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: RenderData, /) -> Self:
+    async def new(cls, project: Project, data: RenderConfig, /) -> Self:
         return cls(
             content=data.content,
             media_type=data.media_type,
@@ -87,5 +93,5 @@ class Render(DataManufacturable[RenderData], ContentBuilder):
     @override
     async def build(self, *, document: Document) -> str | None:
         return await self._renderer.render(
-            document.localizer.localize(self._content), self._media_type
+            document.localizer.localize(self.content), self.media_type
         )

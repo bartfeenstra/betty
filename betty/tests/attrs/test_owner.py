@@ -2,14 +2,14 @@ import pytest
 
 from betty.attrs.default import DefaultAttr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
+from betty.classtools.init import Init
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.collection.sequence import SequenceDefinition
 from betty.datas.str import StrDefinition
-from betty.prop import HasProps
 
 
 class TestOwnerAttr:
-    class _Owner(HasProps):
+    class _Owner(Init):
         my_first_attr = OwnerAttr(StrDefinition(label="-"))
 
     def test_get(self) -> None:
@@ -24,7 +24,7 @@ class TestOwnerAttr:
         assert owner.my_first_attr == value
 
 
-class _Owner(HasProps):
+class _Owner(Init):
     collection = CollectionOwnerAttr(
         SequenceDefinition(
             label="-",
@@ -54,7 +54,7 @@ class TestCollectionOwnerAttr:
         collection = owner.mutable_collection
         owner.mutable_collection = ["Hello", "other", "world!"]
         assert owner.mutable_collection is collection
-        assert owner.mutable_collection == ["Hello", "other", "world!"]
+        assert list(owner.mutable_collection) == ["Hello", "other", "world!"]
 
     def test_default(self) -> None:
         assert isinstance(_Owner.collection.default(lambda: ()), DefaultAttr)

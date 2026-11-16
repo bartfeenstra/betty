@@ -7,10 +7,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.attrs.owner import OwnerAttr
+from betty.classtools.init import Init
 from betty.datas.locale import LocaleDefinition
 from betty.locale import ResolvableLocale, resolve_locale
 from betty.localized import Localized
-from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from babel import Locale
@@ -24,7 +24,7 @@ def new_locale_attr(
     label: AnyLocalizable | None = None,
     description: AnyLocalizable | None = None,
     frozen: bool = False,
-) -> OptionableCommonAttr[HasProps, Locale, ResolvableLocale]:
+) -> OptionableCommonAttr[Init, Locale, ResolvableLocale]:
     """
     Create an attribute containing a locale.
     """
@@ -33,7 +33,7 @@ def new_locale_attr(
     ).setter(resolve_locale)
 
 
-class HasLocale(Localized, HasProps):
+class HasLocale(Localized, Init):
     """
     A resource that is localized, e.g. contains information in a specific locale.
     """

@@ -12,6 +12,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.plugin_manufacturer_sequence import (
     new_plugin_manufacturer_sequence_attr,
 )
+from betty.classtools.init import Init
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
@@ -23,6 +24,7 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.enum import EnumDefinition
 from betty.factory import DataManufacturable
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.sample import Sample, Samples
@@ -33,22 +35,29 @@ if TYPE_CHECKING:
     from betty.jinja import Environment
 
 
+class _ColorStyleConfig(Init):
+    style = OwnerAttr(EnumDefinition(RaspberryMintColorStyle, label=_("Style")))
+    """
+    The style.
+    """
+
+
 @final
 @ObjectDefinition(
     label=_("Color style configuration"),
     samples=Samples(
         lambda: Sample(
-            ColorStyleData("my-first-content", style=RaspberryMintColorStyle.DARK),
+            ColorStyleConfig("my-first-content", style=RaspberryMintColorStyle.DARK),
             label="Default",
         )
     ),
-    manufacturer=lambda **fields: ColorStyleData(*fields.pop("content"), **fields),
+    manufacturer=lambda **fields: ColorStyleConfig(*fields.pop("content"), **fields),
 )
-class ColorStyleData(Object):
+class ColorStyleConfig(_ColorStyleConfig, Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_color_style.ColorStyle`.
 
-    .. data:: betty.content_builders.raspberry_mint_color_style:ColorStyleData
+    .. data:: betty.content_builders.raspberry_mint_color_style:ColorStyleConfig
     """
 
     content = new_plugin_manufacturer_sequence_attr(
@@ -56,11 +65,6 @@ class ColorStyleData(Object):
     )
     """
     The content within this color style.
-    """
-
-    style = OwnerAttr(EnumDefinition(RaspberryMintColorStyle, label=_("Style")))
-    """
-    The style.
     """
 
     def __init__(
@@ -79,7 +83,7 @@ class ColorStyleData(Object):
     label=_("Color style"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class ColorStyle(Template, DataManufacturable[ColorStyleData]):
+class ColorStyle(_ColorStyleConfig, Template, DataManufacturable[ColorStyleConfig]):
     """
     Change the color style for all containing content.
 
@@ -95,24 +99,19 @@ class ColorStyle(Template, DataManufacturable[ColorStyleData]):
     ):
         super().__init__(jinja=jinja)
         self._content = tuple(content)
-        self._style = style
+        self.style = style
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[ColorStyleData]:
-        return ColorStyleData
+    def new_data_cls(cls) -> type[ColorStyleConfig]:
+        return ColorStyleConfig
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: ColorStyleData, /) -> Self:
+    async def new(cls, project: Project, data: ColorStyleConfig, /) -> Self:
         content, jinja = await gather(
-            gather(
-                *map(
-                    project.factory.new,
-                    data.content,
-                )
-            ),
+            gather(*map(project.factory.new, data.content)),
             project.jinja,
         )
         return cls(*content, jinja=jinja, style=data.style)
@@ -123,6 +122,6 @@ class ColorStyle(Template, DataManufacturable[ColorStyleData]):
         if content is None:
             return None
         return "component/raspberry-mint/color-style.html.j2", {
-            "color_style": self._style.value,
+            "color_style": self.style.value,
             "color_style_content": content,
         }

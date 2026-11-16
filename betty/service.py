@@ -9,8 +9,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, final, override
 
+from betty.classtools.init import Init
 from betty.life_cycle.manage import ManagedLifeCycle
-from betty.prop import HasProps, Prop
+from betty.prop import Prop
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
@@ -38,7 +39,7 @@ class Service[ServiceT]:
 
 
 type ResolvableServiceLevelHasServices = Intersection[
-    ResolvableServiceLevel, HasProps, ManagedLifeCycle
+    ResolvableServiceLevel, Init, ManagedLifeCycle
 ]
 
 
@@ -58,7 +59,7 @@ class ServiceManager[
 
     @override
     def pre_init_owner(self, owner: OwnerT, /) -> None:
-        owner.assert_not_initialized()
+        owner.assert_not_bootstrapped()
         setattr(
             owner,
             f"_service_{self.ownership.name}",
@@ -111,5 +112,5 @@ class ServiceManager[
 
         This MUST only be called from ``instance.__init__()``.
         """
-        owner.assert_not_initialized()
+        owner.assert_not_bootstrapped()
         setattr(owner, f"_service_{self.ownership.name}_or_factory", service)

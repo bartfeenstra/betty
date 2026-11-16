@@ -3,7 +3,7 @@ from __future__ import annotations  # noqa: D100
 from asyncio import gather
 from typing import TYPE_CHECKING, Self, final, override
 
-from betty.app import App, AppData
+from betty.app import App, AppConfig
 from betty.argparse import assertion_to_argument_type
 from betty.assertions.locale import assert_locale
 from betty.console import Command, CommandDefinition, CommandResult
@@ -54,12 +54,12 @@ class Config(Manufacturable, Command):
     async def _command_function(self, *, locale: Locale) -> CommandResult:
         serializers = await gather(*self._app.serializers)
 
-        if AppData.file.exists():
-            updated_configuration = AppData.definition.porter.load(
-                assert_load_file(serializers=serializers)(AppData.file)
+        if AppConfig.file.exists():
+            updated_configuration = AppConfig.definition.porter.load(
+                assert_load_file(serializers=serializers)(AppConfig.file)
             )
         else:
-            updated_configuration = AppData()
+            updated_configuration = AppConfig()
         updated_configuration.locale = locale
         await self._app.ui.message(
             _("Next time, Betty will talk to you in {locale}").format(
@@ -69,7 +69,7 @@ class Config(Manufacturable, Command):
         )
 
         await dump_file(
-            AppData.definition.porter.dump(updated_configuration),
-            AppData.file,
+            AppConfig.definition.porter.dump(updated_configuration),
+            AppConfig.file,
             serializers=serializers,
         )

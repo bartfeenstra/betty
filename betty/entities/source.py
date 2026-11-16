@@ -14,6 +14,7 @@ from betty.associations.to_one import ToOne
 from betty.attrs.date import HasAnyDate
 from betty.attrs.localizable import new_localizable_attr
 from betty.entity import EntityDefinition
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 from betty.privacy.resolve import merge_privacies
@@ -36,7 +37,7 @@ if TYPE_CHECKING:
     label_plural=_("Sources"),
     label_countable=ngettext("{count} source", "{count} sources"),
 )
-class Source(HasAnyDate, HasFileReferences, HasNotes, HasLinks):
+class Source(AttrFreezable, HasAnyDate, HasFileReferences, HasNotes, HasLinks):
     """
     .. plugin:: entity:source.
     """

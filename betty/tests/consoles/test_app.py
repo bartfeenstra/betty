@@ -3,7 +3,7 @@ from pytest_mock import MockerFixture
 
 from betty.console import CommandDefinition, ExitCode
 from betty.consoles.app import main, run
-from betty.test_utils.conftest import IsolatedAppFactory
+from betty.test_utils.conftest import NewIsolatedApp
 from betty.test_utils.console import NoOpCommand, new_raising_command
 
 
@@ -15,11 +15,9 @@ from betty.test_utils.console import NoOpCommand, new_raising_command
     ],
 )
 async def test_run(
-    expected: ExitCode,
-    command: CommandDefinition,
-    isolated_app_factory: IsolatedAppFactory,
+    expected: ExitCode, command: CommandDefinition, new_isolated_app: NewIsolatedApp
 ) -> None:
-    async with isolated_app_factory(plugins={CommandDefinition: [command]}) as app:
+    async with new_isolated_app(plugins={CommandDefinition: [command]}) as app:
         with pytest.raises(SystemExit) as exc_info:
             await run(app, command.id)
     assert exc_info.value.code == expected.value
@@ -35,10 +33,10 @@ async def test_run(
 def test_main(
     expected: ExitCode,
     command: CommandDefinition,
-    isolated_app_factory: IsolatedAppFactory,
+    new_isolated_app: NewIsolatedApp,
     mocker: MockerFixture,
 ) -> None:
-    app = isolated_app_factory(plugins={CommandDefinition: [command]})
+    app = new_isolated_app(plugins={CommandDefinition: [command]})
     mocker.patch("betty.app.App.new_from_environment", return_value=app)
     mocker.patch("sys.argv", new=["betty", command.id])
     with pytest.raises(SystemExit) as exc_info:

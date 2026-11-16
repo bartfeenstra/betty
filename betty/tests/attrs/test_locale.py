@@ -3,11 +3,11 @@ from __future__ import annotations
 from babel import Locale
 
 from betty.attrs.locale import HasLocale, new_locale_attr
+from betty.classtools.init import Init
 from betty.locale import default_locale, default_locale_tag
-from betty.prop import HasProps
 
 
-class _Owner(HasProps):
+class _Owner(Init):
     locale = new_locale_attr()
 
 

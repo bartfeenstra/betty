@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
+from betty.classtools.init import Init
 from betty.collections.mapping.dict import Dict, empty_frozen_dict
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.collection.mapping import MappingDefinition
@@ -20,6 +21,7 @@ from betty.definition.cls import ClsDefinition
 from betty.event_type import EventTypeManufacturer, ResolvableEventTypeManufacturer
 from betty.exception import HumanFacingException
 from betty.factory import DataManufacturable, Manufacturable
+from betty.freezers.attr import AttrFreezable
 from betty.gramps import (
     GrampsLoader,
     default_event_type_mapping,
@@ -36,7 +38,6 @@ from betty.plugin import PluginDefinition
 from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacturer
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
-from betty.prop import HasProps
 from betty.role import ResolvableRoleManufacturer, RoleManufacturer
 from betty.sample import Sample, Samples, Size
 
@@ -63,12 +64,12 @@ def _new_plugin_mapping_attr[
         str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]
     ],
 ) -> CommonAttr[
-    HasProps,
+    Init,
     MutableMapping[str, PluginManufacturerT],
     Mapping[str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]],
 ]:
     return CollectionOwnerAttr[
-        HasProps,
+        Init,
         MutableMapping[str, PluginManufacturerT],
         Mapping[str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]],
         MappingDefinition,
@@ -101,7 +102,7 @@ def _new_plugin_mapping_attr[
         )
     ),
 )
-class FamilyTree(Object):
+class FamilyTree(Object, AttrFreezable):
     """
     A Gramps family tree.
 
@@ -177,65 +178,7 @@ class FamilyTree(Object):
         )
 
 
-@final
-@ObjectDefinition(
-    label=_("Gramps configuration"),
-    samples=Samples(
-        lambda: Sample(GrampsData(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(
-            GrampsData(executable="gramps.exe"),
-            label="A custom Gramps executable",
-        ),
-        lambda: Sample(
-            GrampsData(family_trees=[FamilyTree(file="./gramps.gpkg")]),
-            label="Load a family tree from a file",
-        ),
-        lambda: Sample(
-            GrampsData(family_trees=[FamilyTree(name="my-family-tree")]),
-            label="Load a family tree by its name directly from Gramps",
-        ),
-        lambda: Sample(
-            GrampsData(
-                family_trees=[
-                    FamilyTree(
-                        name="my-family-tree",
-                        event_types={"GrampsEventType": "betty-event-type"},
-                    ),
-                ]
-            ),
-            label="Map a Gramps event type to a Betty event type",
-        ),
-        lambda: Sample(
-            GrampsData(
-                family_trees=[
-                    FamilyTree(
-                        name="my-family-tree",
-                        place_types={"GrampsPlaceType": "betty-place-type"},
-                    ),
-                ]
-            ),
-            label="Map a Gramps place type to a Betty place type",
-        ),
-        lambda: Sample(
-            GrampsData(
-                family_trees=[
-                    FamilyTree(
-                        name="my-family-tree",
-                        event_types={"GrampsRole": "betty-role"},
-                    ),
-                ]
-            ),
-            label="Map a Gramps role to a Betty role",
-        ),
-    ),
-)
-class GrampsData(Object):
-    """
-    Configuration for the :py:class:`betty.loaders.gramps.Gramps` extension.
-
-    .. data:: betty.loaders.gramps:GrampsData
-    """
-
+class _GrampsConfig(Init):
     family_trees = CollectionOwnerAttr(
         FieldDefinition(
             ListDefinition(value=FamilyTree, label=_("Family trees")),
@@ -254,6 +197,66 @@ class GrampsData(Object):
     Leave ``None`` to use Gramps from the PATH.
     """
 
+
+@final
+@ObjectDefinition(
+    label=_("Gramps configuration"),
+    samples=Samples(
+        lambda: Sample(GrampsConfig(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(
+            GrampsConfig(executable="gramps.exe"),
+            label="A custom Gramps executable",
+        ),
+        lambda: Sample(
+            GrampsConfig(family_trees=[FamilyTree(file="./gramps.gpkg")]),
+            label="Load a family tree from a file",
+        ),
+        lambda: Sample(
+            GrampsConfig(family_trees=[FamilyTree(name="my-family-tree")]),
+            label="Load a family tree by its name directly from Gramps",
+        ),
+        lambda: Sample(
+            GrampsConfig(
+                family_trees=[
+                    FamilyTree(
+                        name="my-family-tree",
+                        event_types={"GrampsEventType": "betty-event-type"},
+                    ),
+                ]
+            ),
+            label="Map a Gramps event type to a Betty event type",
+        ),
+        lambda: Sample(
+            GrampsConfig(
+                family_trees=[
+                    FamilyTree(
+                        name="my-family-tree",
+                        place_types={"GrampsPlaceType": "betty-place-type"},
+                    ),
+                ]
+            ),
+            label="Map a Gramps place type to a Betty place type",
+        ),
+        lambda: Sample(
+            GrampsConfig(
+                family_trees=[
+                    FamilyTree(
+                        name="my-family-tree",
+                        event_types={"GrampsRole": "betty-role"},
+                    ),
+                ]
+            ),
+            label="Map a Gramps role to a Betty role",
+        ),
+    ),
+)
+class GrampsConfig(_GrampsConfig, Object, AttrFreezable):
+    """
+    Configuration for the :py:class:`betty.loaders.gramps.Gramps` extension.
+
+    .. data:: betty.loaders.gramps:GrampsConfig
+    """
+
     def __init__(
         self,
         *,
@@ -262,7 +265,7 @@ class GrampsData(Object):
     ):
         super().__init__()
         self.family_trees = family_trees
-        self.executable = None if executable is None else resolve_path(executable)
+        self.executable = executable
 
 
 @final
@@ -271,7 +274,7 @@ class GrampsData(Object):
     label="Gramps",
     description=_("Load Gramps family trees."),
 )
-class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
+class Gramps(_GrampsConfig, DataManufacturable[GrampsConfig], Manufacturable, Loader):
     """
     .. plugin:: loader:gramps.
 
@@ -554,18 +557,18 @@ class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
         super().__init__()
         self._project = project
         self._attribute_prefix_key = attribute_prefix_key
-        self._executable = executable
-        self._family_trees = tuple(family_trees)
+        self.executable = executable
+        self.family_trees = family_trees
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[GrampsData]:
-        return GrampsData
+    def new_data_cls(cls) -> type[GrampsConfig]:
+        return GrampsConfig
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: GrampsData | None = None, /) -> Self:
+    async def new(cls, project: Project, data: GrampsConfig | None = None, /) -> Self:
         return cls(
             project=project,
             executable=None if data is None else data.executable,
@@ -583,9 +586,9 @@ class Gramps(DataManufacturable[GrampsData], Manufacturable, Loader):
                     event_type_mapping=family_tree.event_types,
                     place_type_mapping=family_tree.place_types,
                     role_mapping=family_tree.roles,
-                    executable=self._executable,
+                    executable=self.executable,
                 ),
                 source=family_tree.source,
             )
-            for family_tree in self._family_trees
+            for family_tree in self.family_trees
         ])

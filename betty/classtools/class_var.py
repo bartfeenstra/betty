@@ -29,7 +29,7 @@ class ClassVarOwnership[OwnerT, ClassVarT: ClassVar]:
         """
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} {fully_qualified_name(type(self.var))} @ {self.fully_qualified_name}>"
+        return f"<{self.__class__.__name__} {fully_qualified_name(self.var)} @ {self.fully_qualified_name}>"
 
 
 class ClassVar[OwnerT]:

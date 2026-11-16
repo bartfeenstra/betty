@@ -9,6 +9,7 @@ from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.enrichers.populate_links import PopulateLinks
 from betty.factory import DataManufacturable, Manufacturable
+from betty.freezers.attr import AttrFreezable
 from betty.jobs.populate_wiki_entity import PopulateWikiEntity
 from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
@@ -20,21 +21,7 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
 
 
-@final
-@ObjectDefinition(
-    label=_("Wiki enricher configuration"),
-    samples=Samples(
-        lambda: Sample(WikiData(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(WikiData(populate_images=False), label="Full", size=Size.FULL),
-    ),
-)
-class WikiData(Object):
-    """
-    Configuration for the :py:class:`betty.enrichers.wiki.Wiki` enricher.
-
-    .. data:: betty.enrichers.wiki:WikiData
-    """
-
+class _WikiConfig:
     populate_images = OwnerAttr(
         BoolDefinition(
             label=_("Populate images"),
@@ -47,7 +34,24 @@ class WikiData(Object):
     Whether to populate entities with Wikimedia images after loading ancestries.
     """
 
+
+@final
+@ObjectDefinition(
+    label=_("Wiki enricher configuration"),
+    samples=Samples(
+        lambda: Sample(WikiConfig(), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(WikiConfig(populate_images=False), label="Full", size=Size.FULL),
+    ),
+)
+class WikiConfig(_WikiConfig, Object, AttrFreezable):
+    """
+    Configuration for the :py:class:`betty.enrichers.wiki.Wiki` enricher.
+
+    .. data:: betty.enrichers.wiki:WikiConfig
+    """
+
     def __init__(self, *, populate_images: bool = True):
+        super().__init__()
         self.populate_images = populate_images
 
 
@@ -63,7 +67,7 @@ class WikiData(Object):
         Project.service_providers.require(WikiExtension),
     },
 )
-class Wiki(Enricher, DataManufacturable[WikiData], Manufacturable):
+class Wiki(_WikiConfig, Enricher, DataManufacturable[WikiConfig], Manufacturable):
     """
     .. plugin:: enricher:wiki.
 
@@ -83,17 +87,17 @@ class Wiki(Enricher, DataManufacturable[WikiData], Manufacturable):
     def __init__(self, *, project: Project, populate_images: bool | None = None):
         super().__init__()
         self._project = project
-        self._populate_images = True if populate_images is None else populate_images
+        self.populate_images = True if populate_images is None else populate_images
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[WikiData]:
-        return WikiData
+    def new_data_cls(cls) -> type[WikiConfig]:
+        return WikiConfig
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: WikiData | None = None, /) -> Self:
+    async def new(cls, project: Project, data: WikiConfig | None = None, /) -> Self:
         return cls(
             populate_images=None if data is None else data.populate_images,
             project=project,

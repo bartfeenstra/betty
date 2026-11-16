@@ -8,11 +8,11 @@ from typing import Any, Literal, final
 
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.proxy import ProxyAttr
+from betty.classtools.init import Init
 from betty.data import DataDefinition
 from betty.datas.enum import EnumDefinition
 from betty.localizables.gettext import _
 from betty.privacy import Privacy
-from betty.prop import HasProps
 
 
 @final
@@ -25,7 +25,7 @@ class PrivacyAttr(ProxyAttr["HasPrivacy", Privacy, Privacy, DataDefinition[Priva
         super().__init__(proxied=OwnerAttr(EnumDefinition(Privacy, label=_("Privacy"))))
 
 
-class HasPrivacy(HasProps):
+class HasPrivacy(Init):
     """
     A resource that has privacy.
     """

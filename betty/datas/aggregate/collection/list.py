@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
+from betty.collections.sequence.list import List
 from betty.datas.aggregate.collection.sequence import MutableSequenceDefinition
 
 if TYPE_CHECKING:
@@ -14,9 +15,9 @@ if TYPE_CHECKING:
 
 
 @final
-class ListDefinition[ValueT](MutableSequenceDefinition[list[ValueT], ValueT]):
+class ListDefinition[ValueT](MutableSequenceDefinition[List[ValueT, ValueT], ValueT]):
     """
-    A list definition.
+    A :py:class`betty.collections.sequence.list.List` definition.
     """
 
     def __init__(
@@ -30,5 +31,5 @@ class ListDefinition[ValueT](MutableSequenceDefinition[list[ValueT], ValueT]):
             value=value,
             label=label,
             description=description,
-            manufacturer=lambda values: [] if values is None else list(values),
+            manufacturer=lambda values: List(values or ()),
         )

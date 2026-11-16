@@ -25,8 +25,8 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.attrs.common import CommonAttr
+    from betty.classtools.init import Init
     from betty.localizer import AnyLocalizable
-    from betty.prop import HasProps
 
 
 def new_plugin_definition_datas_attr[
@@ -38,7 +38,7 @@ def new_plugin_definition_datas_attr[
     label: AnyLocalizable | None = None,
     description: AnyLocalizable | None = None,
 ) -> CommonAttr[
-    HasProps,
+    Init,
     MutableCatalog[
         MachineName,
         ResolvableId[DefinitionT],

@@ -8,10 +8,10 @@ from inspect import signature
 from typing import TYPE_CHECKING, final, override
 
 from betty.attrs.proxy import ProxyAttr
+from betty.classtools.init import Init
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
 from betty.porters.omit_field import OmitFieldPorter
-from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class DefaultAttr[
-    OwnerT: HasProps,
+    OwnerT: Init,
     GetT,
     SetT,
     DefinitionT: DataDefinition = DataDefinition,

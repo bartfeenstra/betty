@@ -34,6 +34,9 @@ class _Association(Association):
     def get(self, owner: HasAssociations, /) -> Any:
         raise Unreachable
 
+    def freeze(self, owner: HasAssociations, /) -> None:
+        raise Unreachable
+
 
 class TestProxyAssociation:
     def test_associate(self, mocker: MockerFixture) -> None:

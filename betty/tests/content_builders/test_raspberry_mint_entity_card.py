@@ -2,15 +2,15 @@ from betty.content_builders.raspberry_mint_entity_card import EntityCard
 from betty.datas.entity_reference import EntityReference
 from betty.document import Document
 from betty.entities.person import Person
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestEntityCard:
     async def test_build_template(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[EntityCard]) as project,
+            new_isolated_project(supported_plugins=[EntityCard]) as project,
             project,
         ):
             entity = Person(id="my-first-entity")

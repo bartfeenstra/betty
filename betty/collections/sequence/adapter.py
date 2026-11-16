@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any, overload, override
 
 from betty.collection.sequence import MutableResolvableSequence
 from betty.collections import ValueResolvable
+from betty.freezers.attr import AttrFreezable
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
@@ -64,6 +65,7 @@ class SequenceAdapter[ValueT, ResolvableValueT, WrappedT: Sequence](
 
 
 class MutableSequenceAdapter[ValueT, ResolvableValueT, WrappedT: MutableSequence](
+    AttrFreezable,
     _SequenceAdapter[ValueT, ResolvableValueT, WrappedT],
     MutableResolvableSequence[ValueT, ResolvableValueT],
 ):
@@ -71,10 +73,9 @@ class MutableSequenceAdapter[ValueT, ResolvableValueT, WrappedT: MutableSequence
     Decorate another sequence to resolve any values before proxying them.
     """
 
-    __slots__ = ()
-
     @override
     def insert(self, index: int, value: ValueT | ResolvableValueT) -> None:
+        self.assert_not_frozen()
         self.__wrapped__.insert(index, self.resolve_value(value))
 
     @overload
@@ -88,6 +89,7 @@ class MutableSequenceAdapter[ValueT, ResolvableValueT, WrappedT: MutableSequence
         pass
 
     def __setitem__(self, index, value):
+        self.assert_not_frozen()
         if isinstance(index, int):
             self.__wrapped__[index] = self.resolve_value(value)
         else:
@@ -102,4 +104,5 @@ class MutableSequenceAdapter[ValueT, ResolvableValueT, WrappedT: MutableSequence
 
     @override
     def extend(self, *others: Any) -> None:
+        self.assert_not_frozen()
         self.__wrapped__.extend(map(self.resolve_value, chain(*others)))

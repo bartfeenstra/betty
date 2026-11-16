@@ -13,6 +13,7 @@ from betty.associations.has_notes import HasNotes
 from betty.associations.to_many import ToMany, ToManyAssociates
 from betty.entities.enclosure import Enclosure
 from betty.entity import EntityDefinition
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
 from betty.place_types.unknown import UnknownPlaceType
 from betty.privacy import Privacy
@@ -38,7 +39,7 @@ if TYPE_CHECKING:
     label_plural=_("Places"),
     label_countable=ngettext("{count} place", "{count} places"),
 )
-class Place(HasLinks, HasFileReferences, HasNotes):
+class Place(AttrFreezable, HasLinks, HasFileReferences, HasNotes):
     """
     .. plugin:: entity:place.
     """

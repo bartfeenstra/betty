@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from betty.classtools.init import Init
 from betty.life_cycle.manage import ManagedLifeCycle
-from betty.prop import HasProps
 from betty.service_level import HasServiceLevel, ServiceLevel
 from betty.services.simple import service
 
@@ -9,7 +9,7 @@ from betty.services.simple import service
 async def test_service__with_asynchronous_service() -> None:
     my_first_service = object()
 
-    class _Owner(HasServiceLevel, HasProps, ManagedLifeCycle):
+    class _Owner(HasServiceLevel, Init, ManagedLifeCycle):
         @service
         async def my_first_service(self) -> object:
             return my_first_service
@@ -22,7 +22,7 @@ async def test_service__with_asynchronous_service() -> None:
 async def test_service__with_synchronous_service() -> None:
     my_first_service = object()
 
-    class _Owner(HasServiceLevel, HasProps, ManagedLifeCycle):
+    class _Owner(HasServiceLevel, Init, ManagedLifeCycle):
         @service
         def my_first_service(self) -> object:
             return my_first_service

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty.asset_directories import raspberry_mint
 from betty.attrs.owner import OwnerAttr
+from betty.collections.sequence.list import List
 from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.aggregate.collection.list import ListDefinition
@@ -15,6 +16,7 @@ from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.definition.id import resolve_id
 from betty.entities.event import Event
 from betty.factory import DataManufacturable, Manufacturable
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.machine_name import MachineName
 from betty.project import Project
@@ -33,24 +35,24 @@ if TYPE_CHECKING:
 @ObjectDefinition(
     label=_("Presences configuration"),
     samples=Samples(
-        lambda: Sample(PresencesData(), label="Minimal"),
+        lambda: Sample(PresencesConfig(), label="Minimal"),
         lambda: Sample(
-            PresencesData(include=["subject"]),
+            PresencesConfig(include=["subject"]),
             label="Includes",
             size=Size.FULL,
         ),
         lambda: Sample(
-            PresencesData(exclude=["subject"]),
+            PresencesConfig(exclude=["subject"]),
             label="Excludes",
             size=Size.FULL,
         ),
     ),
 )
-class PresencesData(Object):
+class PresencesConfig(Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_presences.Presences`.
 
-    .. data:: betty.content_builders.raspberry_mint_presences:PresencesData
+    .. data:: betty.content_builders.raspberry_mint_presences:PresencesConfig
     """
 
     exclude = OwnerAttr(ListDefinition(value=MachineName, label=_("Exclude"))).optional
@@ -71,9 +73,9 @@ class PresencesData(Object):
     ):
         super().__init__()
         if include is not None:
-            self.include = list(map(resolve_id, include))
+            self.include = List(map(resolve_id, include))
         if exclude is not None:
-            self.exclude = list(map(resolve_id, exclude))
+            self.exclude = List(map(resolve_id, exclude))
 
 
 @final
@@ -82,7 +84,7 @@ class PresencesData(Object):
     label=_("Presences"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
+class Presences(Template, DataManufacturable[PresencesConfig], Manufacturable):
     """
     People's presences at an event.
 
@@ -100,14 +102,15 @@ class Presences(Template, DataManufacturable[PresencesData], Manufacturable):
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[PresencesData]:
-        return PresencesData
+    def new_data_cls(cls) -> type[PresencesConfig]:
+        return PresencesConfig
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: PresencesData | None = None, /) -> Self:
-
+    async def new(
+        cls, project: Project, data: PresencesConfig | None = None, /
+    ) -> Self:
         if data is None:
             raise NotImplementedError
         include: Iterable[ResolvableId[RoleDefinition]] | None

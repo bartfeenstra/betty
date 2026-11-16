@@ -4,29 +4,29 @@ from betty.document import Document
 from betty.entities.file import File
 from betty.localizer import default_localizer
 from betty.media_type import MediaType
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestMedia:
     async def test_build_template__without_file(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Media]) as project,
+            new_isolated_project(supported_plugins=[Media]) as project,
             project,
         ):
             sut = await Media.new(project)
             assert await sut.build(document=Document(object())) is None
 
     async def test_build_template__with_file(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         resource = File(
             builtin_asset_directory / "public" / "static" / "betty-16x16.png",
             media_type=MediaType("image/png"),
         )
         async with (
-            isolated_project_factory(supported_plugins=[Media]) as project,
+            new_isolated_project(supported_plugins=[Media]) as project,
             project,
         ):
             sut = await Media.new(project)

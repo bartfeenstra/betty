@@ -7,14 +7,16 @@ from __future__ import annotations
 from inspect import signature
 from typing import TYPE_CHECKING, final, override
 
-from betty.prop import HasProps, Prop
+from betty.classtools.init import Init
 from betty.props.proxy import ProxyProp
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from betty.prop import Prop
 
-class SetterProp[OwnerT: HasProps, GetT, SetT](ProxyProp[OwnerT, GetT, SetT]):
+
+class SetterProp[OwnerT: Init, GetT, SetT](ProxyProp[OwnerT, GetT, SetT]):
     """
     A property with an additional setter.
     """

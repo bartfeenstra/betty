@@ -7,14 +7,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.attrs.localizable import new_localizable_attr
+from betty.classtools.init import Init
 from betty.localizables.gettext import _
-from betty.prop import HasProps
 
 if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
 
 
-class HasDescription(HasProps):
+class HasDescription(Init):
     """
     Data with a description.
     """

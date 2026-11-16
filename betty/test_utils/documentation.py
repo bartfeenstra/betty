@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     import pytest
 
     from betty.plugin import PluginDefinition
-    from betty.test_utils.conftest import IsolatedAppFactory, IsolatedProjectFactory
+    from betty.test_utils.conftest import NewIsolatedApp, NewIsolatedProject
 
 
 class PluginDocumentationTestBase:
@@ -31,17 +31,17 @@ class PluginDocumentationTestBase:
 
     async def test(
         self,
-        isolated_app_factory: IsolatedAppFactory,
-        isolated_project_factory: IsolatedProjectFactory,
+        new_isolated_app: NewIsolatedApp,
+        new_isolated_project: NewIsolatedProject,
         subtests: pytest.Subtests,
     ) -> None:
         """
         Test the plugin and plugin type documentation.
         """
         async with (
-            isolated_app_factory() as app,
+            new_isolated_app() as app,
             app,
-            isolated_project_factory(app=app) as project,
+            new_isolated_project(app=app) as project,
             project,
         ):
             for plugin_type in ServiceLevel().plugins:

@@ -11,7 +11,9 @@ from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Final, Protocol, Self, final, override
 
+from betty.classtools.class_var import ClassVars
 from betty.definition import ResolvableDefinition, resolve_definition
+from betty.freezers.life_cycle import FrozenOnBootstrap
 from betty.functools import LazyReCallable
 from betty.life_cycle.manage import ManagedLifeCycle
 from betty.plugin import PluginDefinition
@@ -194,7 +196,7 @@ class PluginServiceManager[
         """
 
 
-class HasPluginServices(HasProps, ManagedLifeCycle):
+class HasPluginServices(FrozenOnBootstrap, HasProps, ManagedLifeCycle):
     """
     A plugin service provider.
     """
@@ -210,19 +212,18 @@ class HasPluginServices(HasProps, ManagedLifeCycle):
         self._supported_plugins: Sequence[PluginDefinition] = tuple(
             map(resolve_definition, supported_plugins)
         )
-        self._plugin_services: Sequence[
-            PluginServiceManager[
-                ResolvableServiceLevelHasPluginServices, PluginDefinition, Any, Any
-            ]
-        ] = tuple(prop for prop in self.props if isinstance(prop, PluginServiceManager))
         self.life_cycle.on_bootstrap(self.__initialize)
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        cls.plugin_services = ClassVars(cls, PluginServiceManager)
 
     async def __initialize(self: Intersection[Self, ResolvableServiceLevel]) -> None:
         init_plugins = chain(
             *await gather(*[
                 *(
                     self.__collect_init_plugin(service, init_plugin)
-                    for service in self._plugin_services
+                    for service in self.plugin_services
                     for init_plugin in service.get_init_plugins(self)
                 ),
                 self.__collect_auto_plugins(),
@@ -234,7 +235,7 @@ class HasPluginServices(HasProps, ManagedLifeCycle):
                 ),
             ])
         )
-        service_init_plugins = {service: [] for service in self._plugin_services}
+        service_init_plugins = {service: [] for service in self.plugin_services}
         for service, plugin in init_plugins:
             service_init_plugins[service].append(plugin)
         await gather(*[
@@ -265,7 +266,7 @@ class HasPluginServices(HasProps, ManagedLifeCycle):
                 (service, plugin),
                 *await self.__collect_plugin_requirements(type(plugin), plugin.id),
             )
-            for service in self._plugin_services
+            for service in self.plugin_services
             if service.auto
             async for plugin in self._services.plugins[service.plugin_type]
             if plugin.auto

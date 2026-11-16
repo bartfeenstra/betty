@@ -14,6 +14,7 @@ from betty.attrs.owner import OwnerAttr
 from betty.attrs.plugin_manufacturer_sequence import (
     new_plugin_manufacturer_sequence_attr,
 )
+from betty.classtools.init import Init
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
@@ -25,6 +26,7 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.datas.bool import BoolDefinition
 from betty.factory import DataManufacturable
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.sample import Sample, Samples, Size
@@ -36,35 +38,7 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName, ResolvableMachineName
 
 
-@final
-@ObjectDefinition(
-    label=_("Section configuration"),
-    samples=Samples(
-        lambda: Sample(
-            SectionData(
-                ContentBuilderManufacturer("my-first-content"),
-                heading="My First Heading",
-            ),
-            label="Minimal",
-            size=Size.MINIMAL,
-        ),
-    ),
-    manufacturer=lambda **fields: SectionData(*fields.pop("content"), **fields),
-)
-class SectionData(Object):
-    """
-    Configuration for :py:class:`betty.content_builders.raspberry_mint_section.Section`.
-
-    .. data:: betty.content_builders.raspberry_mint_section:SectionData
-    """
-
-    content = new_plugin_manufacturer_sequence_attr(
-        ContentBuilderManufacturer, label=_("Content")
-    )
-    """
-    The content within this section.
-    """
-
+class _SectionConfig(Init):
     heading = new_localizable_attr(label=_("Heading"))
     """
     The section heading.
@@ -80,8 +54,38 @@ class SectionData(Object):
     ).default(lambda: False)
     """
     Visually hide the heading.
-    
+
     This keeps the heading for accessibility purposes, but does not display it visually.
+    """
+
+
+@final
+@ObjectDefinition(
+    label=_("Section configuration"),
+    samples=Samples(
+        lambda: Sample(
+            SectionConfig(
+                ContentBuilderManufacturer("my-first-content"),
+                heading="My First Heading",
+            ),
+            label="Minimal",
+            size=Size.MINIMAL,
+        ),
+    ),
+    manufacturer=lambda **fields: SectionConfig(*fields.pop("content"), **fields),
+)
+class SectionConfig(_SectionConfig, Object, AttrFreezable):
+    """
+    Configuration for :py:class:`betty.content_builders.raspberry_mint_section.Section`.
+
+    .. data:: betty.content_builders.raspberry_mint_section:SectionConfig
+    """
+
+    content = new_plugin_manufacturer_sequence_attr(
+        ContentBuilderManufacturer, label=_("Content")
+    )
+    """
+    The content within this section.
     """
 
     def __init__(
@@ -104,7 +108,7 @@ class SectionData(Object):
     label=_("Section"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Section(Template, DataManufacturable[SectionData]):
+class Section(_SectionConfig, Template, DataManufacturable[SectionConfig]):
     """
     .. plugin:: content-builder:raspberry-mint-section.
     """
@@ -120,19 +124,19 @@ class Section(Template, DataManufacturable[SectionData]):
     ):
         super().__init__(jinja=jinja)
         self._content = tuple(content)
-        self._heading = heading
-        self._name = name
-        self._visually_hide_heading = bool(visually_hide_heading)
+        self.heading = heading
+        self.name = name
+        self.visually_hide_heading = bool(visually_hide_heading)
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[SectionData]:
-        return SectionData
+    def new_data_cls(cls) -> type[SectionConfig]:
+        return SectionConfig
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: SectionData, /) -> Self:
+    async def new(cls, project: Project, data: SectionConfig, /) -> Self:
         content, jinja = await gather(
             gather(
                 *map(
@@ -157,7 +161,7 @@ class Section(Template, DataManufacturable[SectionData]):
             return None
         return "component/raspberry-mint/section.html.j2", {
             "section_content": content,
-            "section_heading": self._heading,
-            "section_name": self._name,
-            "section_visually_hide_heading": self._visually_hide_heading,
+            "section_heading": self.heading,
+            "section_name": self.name,
+            "section_visually_hide_heading": self.visually_hide_heading,
         }

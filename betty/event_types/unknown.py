@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import final
 
 from betty.event_type import EventType, EventTypeDefinition
+from betty.freezers.frozen import Frozen
 from betty.localizables.gettext import _, ngettext
 
 
@@ -17,7 +18,7 @@ from betty.localizables.gettext import _, ngettext
     label_plural=_("Unknowns"),
     label_countable=ngettext("{count} unknown", "{count} unknowns"),
 )
-class UnknownEventType(EventType):
+class UnknownEventType(EventType, Frozen):
     """
     .. plugin:: event-type:unknown.
     """

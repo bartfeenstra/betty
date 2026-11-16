@@ -45,8 +45,8 @@ class TestLifeCycleManager:
         other = LifeCycle()
         await sut.bind(other)
         async with sut:
-            assert other.bootstrapped
-        assert other.shut_down
+            assert other.is_bootstrapped
+        assert other.is_shutdown
 
     async def test_bind__self_not_yet_bootstrapped_other_bootstrapped(
         self,
@@ -62,16 +62,16 @@ class TestLifeCycleManager:
         async with LifeCycleManager() as sut:
             other = LifeCycle()
             await sut.bind(other)
-            assert other.bootstrapped
-        assert other.shut_down
+            assert other.is_bootstrapped
+        assert other.is_shutdown
 
-    async def test_bind__self_shut_down(self) -> None:
+    async def test_bind__self_shutdown(self) -> None:
         async with LifeCycleManager() as sut:
             pass
         with pytest.raises(AlreadyShutDown):
             await sut.bind(LifeCycle())
 
-    async def test_bind__other_shut_down(self) -> None:
+    async def test_bind__other_shutdown(self) -> None:
         async with LifeCycleManager() as sut:
             async with LifeCycle() as other:
                 pass
@@ -137,7 +137,7 @@ class TestLifeCycleManager:
         await sut.shutdown(wait=wait)
         assert carrier == [wait]
 
-    async def test_on_shutdown__shut_down(self) -> None:
+    async def test_on_shutdown__shutdown(self) -> None:
         async with LifeCycleManager() as sut:
             pass
         with pytest.raises(AlreadyShutDown):

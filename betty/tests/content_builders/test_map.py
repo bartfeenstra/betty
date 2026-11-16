@@ -12,15 +12,15 @@ from betty.entities.place import Place
 from betty.entities.presence import Presence
 from betty.entity import Entity
 from betty.roles.subject import Subject
-from betty.test_utils.conftest import IsolatedProjectFactory
+from betty.test_utils.conftest import NewIsolatedProject
 
 
 class TestMap:
     async def test_build_template__without_supported_entity(
-        self, isolated_project_factory: IsolatedProjectFactory
+        self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Map]) as project,
+            new_isolated_project(supported_plugins=[Map]) as project,
             project,
         ):
             sut = await Map.new(project)
@@ -37,10 +37,10 @@ class TestMap:
     async def test_build_template__with_entity_without_places(
         self,
         has_associated_places: Entity,
-        isolated_project_factory: IsolatedProjectFactory,
+        new_isolated_project: NewIsolatedProject,
     ) -> None:
         async with (
-            isolated_project_factory(supported_plugins=[Map]) as project,
+            new_isolated_project(supported_plugins=[Map]) as project,
             project,
         ):
             project.ancestry.add(has_associated_places)
@@ -73,11 +73,11 @@ class TestMap:
     async def test_build_template__with_entity_with_places(
         self,
         has_map_entities: tuple[Entity, Place],
-        isolated_project_factory: IsolatedProjectFactory,
+        new_isolated_project: NewIsolatedProject,
     ) -> None:
         has_associated_places, place = has_map_entities
         async with (
-            isolated_project_factory(supported_plugins=[Map]) as project,
+            new_isolated_project(supported_plugins=[Map]) as project,
             project,
         ):
             project.ancestry.add(has_associated_places)

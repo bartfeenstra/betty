@@ -15,6 +15,8 @@ from betty.assertions.mapping import assert_mapping
 from betty.assertions.sequence import assert_sequence
 from betty.asset_directories import raspberry_mint
 from betty.attrs.owner import OwnerAttr
+from betty.classtools.init import Init
+from betty.collections.mapping.dict import Dict, FrozenDict
 from betty.content_builder import (
     ContentBuilder,
     ContentBuilderDefinition,
@@ -22,7 +24,7 @@ from betty.content_builder import (
     ResolvableContentBuilderManufacturer,
     build,
 )
-from betty.content_builders.render import Render, RenderData
+from betty.content_builders.render import Render, RenderConfig
 from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.aggregate.collection.dict import DictDefinition
 from betty.datas.aggregate.collection.list import ListDefinition
@@ -33,6 +35,7 @@ from betty.datas.plugin.manufacturer.sequence import (
     PluginManufacturerSequenceDefinition,
 )
 from betty.factory import DataManufacturable
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.porters.callback import CallbackPorter
 from betty.project import Project
@@ -51,46 +54,103 @@ type ResolvableColumnsWidth = (
 )
 
 
+def _resolve_columns_width(width: ResolvableColumnsWidth) -> ColumnsWidth:
+    if isinstance(width, int):
+        return FrozenDict({Breakpoint.XS: (width,)})
+    if isinstance(width, Mapping):
+        return FrozenDict({
+            breakpoint: (columns,) if isinstance(columns, int) else tuple(columns)
+            for breakpoint, columns in width.items()  # noqa: A001
+        })
+    return FrozenDict({Breakpoint.XS: tuple(width)})
+
+
+class _ColumnsConfig(Init):
+    _default_width: Final[ColumnsWidth] = {Breakpoint.XS: [12]}
+
+    _load_width = assert_int() | (lambda value: [value])
+    _load_widths = assert_sequence(assert_int()) | list
+    width = (
+        OwnerAttr(
+            DictDefinition(
+                key=EnumDefinition(Breakpoint, label=_("Breakpoint")),
+                value=ListDefinition(
+                    label=_("Column widths"),
+                    value=IntDefinition(label=_("Column width")),
+                ),
+                label=_("Breakpoints"),
+                porter=CallbackPorter(
+                    assert_if_else(
+                        assert_if_else(_load_width, _load_widths)
+                        | (lambda value: Dict({Breakpoint.XS: value})),
+                        assert_mapping(
+                            assert_if_else(_load_width, _load_widths),
+                            assert_enum(Breakpoint),
+                        )
+                        | Dict,
+                    ),
+                    lambda data: {
+                        breakpoint.value: widths
+                        for breakpoint, widths in data.items()  # noqa: A001
+                    },
+                ),
+            )
+        )
+        .setter(_resolve_columns_width)
+        .default(lambda: _ColumnsConfig._default_width)
+    )
+    """
+    The column widths.
+    """
+
+    justify_content = OwnerAttr(
+        EnumDefinition(JustifyContent, label=_("Justify content"))
+    ).optional
+    """
+    If and how to justify content.
+    """
+
+
 @final
 @ObjectDefinition(
     label=_("Columns configuration"),
     samples=Samples(
         lambda: Sample(
-            ColumnsData([
-                ContentBuilderManufacturer(Render, RenderData("Hello, world!"))
+            ColumnsConfig([
+                ContentBuilderManufacturer(Render, RenderConfig("Hello, world!"))
             ]),
             label="Minimal",
             size=Size.MINIMAL,
         ),
         lambda: Sample(
-            ColumnsData(
-                [ContentBuilderManufacturer(Render, RenderData("Hello, world!"))],
+            ColumnsConfig(
+                [ContentBuilderManufacturer(Render, RenderConfig("Hello, world!"))],
                 justify_content=JustifyContent.CENTER,
             ),
             label="Justify content",
         ),
         lambda: Sample(
-            ColumnsData(
-                [ContentBuilderManufacturer(Render, RenderData("Hello, world!"))],
+            ColumnsConfig(
+                [ContentBuilderManufacturer(Render, RenderConfig("Hello, world!"))],
                 width=6,
             ),
             label="A single column with a fixed, non-responsive width",
         ),
         lambda: Sample(
-            ColumnsData(
+            ColumnsConfig(
                 [
-                    ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
+                    ContentBuilderManufacturer(Render, RenderConfig("Hello, world!")),
                 ],
                 [
-                    ContentBuilderManufacturer(Render, RenderData("How are you?")),
+                    ContentBuilderManufacturer(Render, RenderConfig("How are you?")),
                 ],
                 width=[6, 6],
             ),
             label="Multiple columns with fixed, non-responsive widths",
         ),
         lambda: Sample(
-            ColumnsData(
-                [ContentBuilderManufacturer(Render, RenderData("Hello, world!"))],
+            ColumnsConfig(
+                [ContentBuilderManufacturer(Render, RenderConfig("Hello, world!"))],
                 width={
                     Breakpoint.XS: 12,
                     Breakpoint.MD: 6,
@@ -99,12 +159,12 @@ type ResolvableColumnsWidth = (
             label="A single column with responsive widths",
         ),
         lambda: Sample(
-            ColumnsData(
+            ColumnsConfig(
                 [
-                    ContentBuilderManufacturer(Render, RenderData("Hello, world!")),
+                    ContentBuilderManufacturer(Render, RenderConfig("Hello, world!")),
                 ],
                 [
-                    ContentBuilderManufacturer(Render, RenderData("How are you?")),
+                    ContentBuilderManufacturer(Render, RenderConfig("How are you?")),
                 ],
                 width={
                     Breakpoint.XS: [12, 12],
@@ -114,17 +174,14 @@ type ResolvableColumnsWidth = (
             label="Multiple columns with responsive widths",
         ),
     ),
-    manufacturer=lambda **fields: ColumnsData(*fields.pop("content"), **fields),
+    manufacturer=lambda **fields: ColumnsConfig(*fields.pop("content"), **fields),
 )
-class ColumnsData(Object):
+class ColumnsConfig(_ColumnsConfig, Object, AttrFreezable):
     """
     Configuration for :py:class:`betty.content_builders.raspberry_mint_columns.Columns`.
 
-    .. data:: betty.content_builders.raspberry_mint_columns:ColumnsData
+    .. data:: betty.content_builders.raspberry_mint_columns:ColumnsConfig
     """
-
-    _default_width: Final[ColumnsWidth] = {Breakpoint.XS: [12]}
-    _width: ColumnsWidth
 
     content = OwnerAttr(
         ListDefinition(
@@ -138,48 +195,10 @@ class ColumnsData(Object):
     The content within the columns.
     """
 
-    justify_content = OwnerAttr(
-        EnumDefinition(JustifyContent, label=_("Justify content"))
-    ).optional
-    """
-    If and how to justify content.
-    """
-
-    _load_width = assert_int().pipe(lambda value: [value])
-    _load_widths = assert_sequence(assert_int()).pipe(list)
-    width = OwnerAttr(
-        DictDefinition(
-            key=EnumDefinition(Breakpoint, label=_("Breakpoint")),
-            value=ListDefinition(
-                label=_("Column widths"), value=IntDefinition(label=_("Column width"))
-            ),
-            label=_("Breakpoints"),
-            porter=CallbackPorter(
-                assert_if_else(
-                    assert_if_else(_load_width, _load_widths).pipe(
-                        lambda value: {Breakpoint.XS: value}
-                    ),
-                    assert_mapping(
-                        assert_if_else(_load_width, _load_widths),
-                        assert_enum(Breakpoint),
-                    )
-                    | dict,
-                ),
-                lambda data: {
-                    breakpoint.value: widths
-                    for breakpoint, widths in data.items()  # noqa: A001
-                },
-            ),
-        )
-    ).default(lambda: ColumnsData._default_width)
-    """
-    The column widths.
-    """
-
     def __init__(
         self,
         *content: Iterable[ResolvableContentBuilderManufacturer],
-        width: ResolvableColumnsWidth | None = None,
+        width: ResolvableColumnsWidth = _ColumnsConfig._default_width,
         justify_content: JustifyContent | None = None,
     ):
         super().__init__()
@@ -187,16 +206,7 @@ class ColumnsData(Object):
             tuple(map(ContentBuilderManufacturer.resolve, column_content))
             for column_content in content
         )
-        if width is not None:
-            if isinstance(width, int):
-                self.width = {Breakpoint.XS: [width]}
-            elif isinstance(width, Mapping):
-                self.width = {
-                    breakpoint: [columns] if isinstance(columns, int) else columns
-                    for breakpoint, columns in width.items()  # noqa: A001
-                }
-            else:
-                self.width = {Breakpoint.XS: width}
+        self.width = width
         self.justify_content = justify_content
 
 
@@ -206,7 +216,7 @@ class ColumnsData(Object):
     label=_("Columns"),
     requires={Project.asset_directories.require(raspberry_mint)},
 )
-class Columns(Template, DataManufacturable[ColumnsData]):
+class Columns(Template, DataManufacturable[ColumnsConfig]):
     """
     A container with one or more columns.
 
@@ -217,24 +227,24 @@ class Columns(Template, DataManufacturable[ColumnsData]):
         self,
         /,
         *content: Iterable[ContentBuilder],
-        width: ColumnsWidth,
+        width: ColumnsWidth = _ColumnsConfig._default_width,
         jinja: Environment,
         justify_content: JustifyContent | None = None,
     ):
         super().__init__(jinja=jinja)
         self._content = tuple(map(tuple, content))
-        self._justify_content = justify_content
-        self._width = width
+        self.justify_content = justify_content
+        self.width = width
 
     @override
     @classmethod
-    def new_data_cls(cls) -> type[ColumnsData]:
-        return ColumnsData
+    def new_data_cls(cls) -> type[ColumnsConfig]:
+        return ColumnsConfig
 
     @override
     @Project.require
     @classmethod
-    async def new(cls, project: Project, data: ColumnsData, /) -> Self:
+    async def new(cls, project: Project, data: ColumnsConfig, /) -> Self:
         content, jinja = await gather(
             gather(*[
                 gather(
@@ -263,9 +273,9 @@ class Columns(Template, DataManufacturable[ColumnsData]):
             return None
         return "component/raspberry-mint/columns.html.j2", {
             "columns_content": content,
-            "columns_justify_content": self._justify_content,
+            "columns_justify_content": self.justify_content,
             "columns_width": {
                 breakpoint.value: widths
-                for breakpoint, widths in self._width.items()  # noqa: A001
+                for breakpoint, widths in self.width.items()  # noqa: A001
             },
         }
