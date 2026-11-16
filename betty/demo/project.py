@@ -63,6 +63,7 @@ async def create_project(
             Deriver,
             Wiki,
         ],
+        per_page=10,
         service_providers=[
             Maps,
             RaspberryMint,
