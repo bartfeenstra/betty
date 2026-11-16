@@ -3,7 +3,6 @@ from betty.classtools.class_var import (
     ClassVarOwnership,
     ClassVars,
     HasClassVars,
-    OwnedClassVar,
 )
 
 
@@ -11,7 +10,7 @@ class _ClassVarOwner:
     pass
 
 
-class _OwnedClassVar(OwnedClassVar[_ClassVarOwner]):
+class _OwnedClassVar(ClassVar[_ClassVarOwner]):
     pass
 
 
@@ -64,7 +63,7 @@ class TestClassVarOwnership:
         )
 
 
-class TestOwnedClassVar:
+class TestClassVar:
     def test_ownership(self) -> None:
         assert (
             _OwnerWithClassVar.my_first_class_var.ownership.fully_qualified_name
