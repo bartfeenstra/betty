@@ -14,12 +14,8 @@ from urllib.parse import quote, urlsplit
 
 from geopy import Point
 
-from betty.exception import HumanFacingException
-from betty.file import write
-from betty.hashid import hashid
-from betty.localizables.gettext import _
 from betty.media_type import resolve_media_type
-from betty.operator import Index, Key, Operator
+from betty.operator import Operator
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -29,6 +25,15 @@ if TYPE_CHECKING:
         Mapping,
         MutableMapping,
     )
+from betty.error import Error
+from betty.file import write
+from betty.hashid import hashid
+from betty.localizables.gettext import _
+from betty.operator import Index, Key
+from betty.validation import Invalid
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator, Generator, Mapping, MutableMapping
 
     from aiohttp import ClientResponse, ClientSession
     from ty_extensions import Intersection
@@ -38,7 +43,7 @@ if TYPE_CHECKING:
     from betty.user.ui import Ui
 
 
-class ClientError(HumanFacingException, RuntimeError):
+class ClientError(Error, RuntimeError):
     """
     A client error.
     """
@@ -101,20 +106,20 @@ class Client:
         self._ui = ui
 
     @contextmanager
-    def _human_facing_exception_to_client_error(self) -> Generator[None]:
+    def _invalid_to_client_error(self) -> Generator[None]:
         try:
             yield
-        except HumanFacingException as error:
-            raise ClientError(error) from error
+        except Invalid as error:
+            raise ClientError(message=error) from error
 
     @asynccontextmanager
     async def _get(self, url: str) -> AsyncGenerator[ClientResponse]:
         async with self._http_client.get(url) as response:
             if response.status != 200:
                 raise ClientError(
-                    _("HTTP {http_status_code} response returned by {url}").format(
-                        http_status_code=str(response.status), url=url
-                    )
+                    message=_(
+                        "HTTP {http_status_code} response returned by {url}"
+                    ).format(http_status_code=str(response.status), url=url)
                 )
             yield response
 
@@ -123,7 +128,9 @@ class Client:
             try:
                 return self._lookup_json(dict, await response.json())
             except JSONDecodeError as error:
-                raise ClientError(f"Invalid JSON returned by {url}: {error}") from error
+                raise ClientError(
+                    message=f"Invalid JSON returned by {url}: {error}"
+                ) from error
 
     def _lookup_to_operator(self, lookup: int | str, /) -> Operator:
         if isinstance(lookup, int):
@@ -141,11 +148,11 @@ class Client:
                 data = data[lookup]  # ty:ignore[invalid-argument-type,not-subscriptable]
             except (LookupError, TypeError) as error:
                 raise ClientError(
-                    f"Unexpected JSON: cannot get {self._lookup_to_operator(lookup)} from {data!r}"
+                    message=f"Unexpected JSON: cannot get {self._lookup_to_operator(lookup)} from {data!r}"
                 ) from error
         if not isinstance(data, expected):
             raise ClientError(
-                f"Unexpected JSON: {data!r} was expected to be {expected}"
+                message=f"Unexpected JSON: {data!r} was expected to be {expected}"
             )
         return data
 

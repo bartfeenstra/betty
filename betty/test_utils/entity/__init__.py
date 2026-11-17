@@ -11,7 +11,6 @@ import pytest
 
 from betty.entity import Entity, EntityDefinition
 from betty.entity.collection.multiple import MultipleTypesEntityCollection
-from betty.freezers.attr import AttrFreezable
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
 from betty.localizer import default_localizer
@@ -54,7 +53,7 @@ class EntityTestBase[EntityT: Entity]:
         }
     }),
 )
-class DummyEntityOne(AttrFreezable, Entity):
+class DummyEntityOne(Entity):
     """
     A dummy entity.
     """
@@ -72,7 +71,7 @@ class DummyEntityOne(AttrFreezable, Entity):
         }
     }),
 )
-class DummyEntityTwo(AttrFreezable, Entity):
+class DummyEntityTwo(Entity):
     """
     A dummy entity.
     """
@@ -90,7 +89,7 @@ class DummyEntityTwo(AttrFreezable, Entity):
         }
     }),
 )
-class DummyEntityThree(AttrFreezable, Entity):
+class DummyEntityThree(Entity):
     """
     A dummy entity.
     """
@@ -108,7 +107,7 @@ class DummyEntityThree(AttrFreezable, Entity):
         }
     }),
 )
-class DummyEntityFour(AttrFreezable, Entity):
+class DummyEntityFour(Entity):
     """
     A dummy entity.
     """
@@ -127,7 +126,7 @@ class DummyEntityFour(AttrFreezable, Entity):
     }),
     public_facing=False,
 )
-class DummyNonPublicFacingEntityOne(AttrFreezable, Entity):
+class DummyNonPublicFacingEntityOne(Entity):
     """
     A dummy non-public-facing entity.
     """

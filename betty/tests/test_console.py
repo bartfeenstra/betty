@@ -5,8 +5,8 @@ from typing import Any
 import pytest
 
 from betty.console import CommandDefinition, CommandExit, ExitCode, call_command_func
-from betty.exception import HumanFacingException
 from betty.test_utils.console import NoOpCommand, new_raising_command, run
+from betty.test_utils.error import DummyError
 from betty.uis.no_op import NoOpUi
 from betty.user import Severity
 
@@ -17,7 +17,7 @@ class TestCommandExit:
 
 
 async def test_run__without_arguments() -> None:
-    await run(None, expected_exit_code=ExitCode.ERROR_USAGE)
+    await run(None, exit_code=ExitCode.ERROR_USAGE)
 
 
 async def test_run__help() -> None:
@@ -29,7 +29,7 @@ async def test_run__commands() -> None:
 
 
 async def test_run__with_unknown_command() -> None:
-    await run(None, "unknown-command", expected_exit_code=ExitCode.ERROR_USAGE)
+    await run(None, "unknown-command", exit_code=ExitCode.ERROR_USAGE)
 
 
 @pytest.mark.parametrize(
@@ -38,7 +38,7 @@ async def test_run__with_unknown_command() -> None:
         (ExitCode.OK, NoOpCommand.definition),
         (
             ExitCode.ERROR_UNEXPECTED_RECOVERABLE,
-            new_raising_command(HumanFacingException("-")),
+            new_raising_command(DummyError("-")),
         ),
         (ExitCode.USER_QUIT, new_raising_command(CancelledError())),
         (ExitCode.USER_QUIT, new_raising_command(KeyboardInterrupt())),
@@ -48,7 +48,7 @@ async def test_run__with_unknown_command() -> None:
 async def test_run__with_user_facing_exception(
     expected: ExitCode, command: CommandDefinition
 ) -> None:
-    await run(command.cls(), command.id, expected_exit_code=expected)
+    await run(command.cls(), command.id, exit_code=expected)
 
 
 class TestVerbosity:

@@ -10,6 +10,7 @@ from betty.attrs.privacy import HasPrivacy
 from betty.datas.aggregate.record.object import ObjectDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import CountableHumanFacingDefinition
+from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.privacy import Privacy
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requires
 
 
-class Entity(HasPrivacy, HasAssociations["EntityDefinition"]):
+class Entity(AttrFreezable, HasPrivacy, HasAssociations["EntityDefinition"]):
     """
     An entity is a uniquely identifiable data container.
 

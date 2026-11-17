@@ -27,8 +27,8 @@ class TestClientErrorToUserMessageMiddleware:
             return m_response
 
         request = ClientRequest("GET", URL("https://example.com"))
-        user = StaticUi()
-        sut = ClientErrorToUserMessageMiddleware(user)
+        ui = StaticUi()
+        sut = ClientErrorToUserMessageMiddleware(ui)
         assert await sut(request, _handler) is m_response
         assert handler_called_request[0] is request
 
@@ -42,13 +42,13 @@ class TestClientErrorToUserMessageMiddleware:
             raise error
 
         request = ClientRequest("GET", URL("https://example.com"))
-        user = StaticUi()
-        sut = ClientErrorToUserMessageMiddleware(user)
+        ui = StaticUi()
+        sut = ClientErrorToUserMessageMiddleware(ui)
         with pytest.raises(ClientError) as exc_info:
             await sut(request, _handler)
         assert exc_info.value is error
         assert handler_called_request[0] is request
-        user.assert_message(error_message, Severity.DEBUG)
+        ui.assert_message(error_message, Severity.DEBUG)
 
 
 _low_rate_limit: Final[RateLimitDefinition] = RateLimitDefinition(

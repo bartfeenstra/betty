@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from betty import gettext
 from betty.app import App
-from betty.argparse import assertion_to_argument_type
-from betty.assertions.locale import assert_locale
+from betty.argparse import validator_to_argument_type
 from betty.asset import AssetDirectoryDefinition
 from betty.console import Command, CommandDefinition, CommandResult
 from betty.factory import Manufacturable
 from betty.localizables.gettext import _
 from betty.plugin.error import PluginNotFound
+from betty.validators.locale import is_locale
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser
@@ -44,7 +44,7 @@ class NewTranslation(Manufacturable, Command):
             async for asset in self._app.plugins[AssetDirectoryDefinition]
         }
 
-        def _assert_asset(asset_id: str) -> AssetDirectoryDefinition:
+        def _assert_asset(asset_id: str, /) -> AssetDirectoryDefinition:
             try:
                 asset = assets[asset_id]
             except KeyError:
@@ -53,18 +53,8 @@ class NewTranslation(Manufacturable, Command):
                 ) from None
             return asset
 
-        parser.add_argument(
-            "output",
-            type=assertion_to_argument_type(
-                _assert_asset, localizer=self._app.ui.localizer
-            ),
-        )
-        parser.add_argument(
-            "locale",
-            type=assertion_to_argument_type(
-                assert_locale, localizer=self._app.ui.localizer
-            ),
-        )
+        parser.add_argument("output", type=validator_to_argument_type(_assert_asset))
+        parser.add_argument("locale", type=validator_to_argument_type(is_locale))
         return self._command_function
 
     async def _command_function(

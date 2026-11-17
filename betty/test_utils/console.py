@@ -66,7 +66,7 @@ class Result:
 async def run(
     command: console.Command | None,
     *args: str,
-    expected_exit_code: ExitCode = ExitCode.OK,
+    exit_code: ExitCode = ExitCode.OK,
     ui: Ui | None = None,
 ) -> Result:
     """
@@ -79,11 +79,11 @@ async def run(
             await console.run([command] if command else (), args, ui=ui or NoOpUi())
         except SystemExit as exception:
             if exception.code is None:
-                exit_code = 0  # pragma: no cover
+                actual_exit_code = 0  # pragma: no cover
             elif isinstance(exception.code, int):
-                exit_code = exception.code
+                actual_exit_code = exception.code
             else:
-                exit_code = 1  # pragma: no cover
+                actual_exit_code = 1  # pragma: no cover
         except BaseException as error:  # pragma: no cover
             raise AssertionError(
                 f"The console did not raise {fully_qualified_name(SystemExit)}"
@@ -98,11 +98,11 @@ async def run(
     stdout_f.seek(0)
     stdout = stdout_f.read()
 
-    assert exit_code == expected_exit_code, f"""
-The Betty command `{" ".join(args)}` unexpectedly exited with code {exit_code}, but {expected_exit_code} was expected.
+    assert actual_exit_code == exit_code, f"""
+The Betty command `{" ".join(args)}` unexpectedly exited with code {actual_exit_code}, but {exit_code} was expected.
 Stdout:
 {stdout}
 Stderr:
 {stderr}
 """
-    return Result(exit_code, stderr, stdout)
+    return Result(actual_exit_code, stderr, stdout)

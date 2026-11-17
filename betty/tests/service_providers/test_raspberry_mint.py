@@ -7,7 +7,7 @@ import pytest
 from betty.content_builder import ContentBuilderManufacturer
 from betty.content_builders.static import Static
 from betty.entity import EntityDefinition
-from betty.exception import HumanFacingException
+from betty.operator import Attr, Key
 from betty.project import Project
 from betty.project.generate import generate
 from betty.service_providers.raspberry_mint import (
@@ -18,6 +18,7 @@ from betty.service_providers.raspberry_mint import (
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.entity import DummyEntityOne
 from betty.tests.conftest import webpack_test
+from betty.validation import InvalidGroup
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import NewIsolatedProject
@@ -104,9 +105,12 @@ class TestRaspberryMintConfig(DataTestBase[RaspberryMintConfig]):
         async with new_isolated_project() as project:
             Project.service_providers.add_init_plugins(project, RaspberryMint)
             async with project:
-                with pytest.raises(HumanFacingException) as exc_info:
+                with pytest.raises(InvalidGroup) as exc_info:
                     await sut.validate(project)
-        assert 'data.regional_content["unknown-region"]' in str(exc_info.value)
+        assert list(exc_info.value[0].at) == [
+            Key("unknown-region"),
+            Attr("regional_content"),
+        ]
 
     def test_primary_color__from___init__(self) -> None:
         color = "#000000"

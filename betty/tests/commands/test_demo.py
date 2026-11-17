@@ -22,7 +22,7 @@ class TestDemo:
         )
         mocker.patch("betty.servers.demo.DemoServer", new=NoOpServer)
 
-        await run(Demo(isolated_app), "demo", expected_exit_code=ExitCode.USER_QUIT)
+        await run(Demo(isolated_app), "demo", exit_code=ExitCode.USER_QUIT)
 
     async def test_configure__with_path(
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path

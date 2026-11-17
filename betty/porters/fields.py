@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final, override
 
-from betty.assertions.record import Field, assert_record
 from betty.operator import Attr
 from betty.portable import NoPortableData, PortableData, PortableMapping, Porter
+from betty.validators.record import Field, is_record
 
 if TYPE_CHECKING:
     from betty.datas.aggregate.record import RecordDefinition
@@ -22,7 +22,7 @@ class FieldsPorter[DataT](Porter[DataT, PortableMapping]):
 
     def __init__(self, record: RecordDefinition[DataT, Any], /):
         self._record = record
-        self._load = assert_record(*[
+        self._load = is_record(*[
             Field(operator.operator, field_porter.load, optional=field.optional)
             for operator, field in self._record.fields.items()
             if (field_porter := field.try_porter)

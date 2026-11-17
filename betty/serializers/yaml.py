@@ -9,14 +9,23 @@ from typing import TYPE_CHECKING, final, override
 import yaml
 
 from betty import media_types
-from betty.assertions.portable import assert_portable_data
 from betty.localizables.gettext import _
-from betty.serialize import SerializationError, Serializer, SerializerDefinition
+from betty.serialize import InvalidSerializedData, Serializer, SerializerDefinition
 from betty.typing import is_runtime_checkable_mapping, is_runtime_checkable_sequence
+from betty.validators.portable import is_portable_data
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
     from betty.portable import PortableData
+
+
+@final
+class InvalidYaml(InvalidSerializedData):
+    """
+    Raised when something is not valid YAML.
+    """
+
+    _message = _("Invalid YAML")
 
 
 @final
@@ -34,11 +43,9 @@ class Yaml(Serializer):
     @override
     def load(self, serialized: str, /) -> PortableData:
         try:
-            return assert_portable_data(yaml.safe_load(serialized))
-        except yaml.YAMLError as e:
-            raise SerializationError(
-                _("Invalid YAML: {error}.").format(error=str(e))
-            ) from None
+            return is_portable_data(yaml.safe_load(serialized))
+        except yaml.YAMLError as error:
+            raise InvalidYaml(serialized) from error
 
     @override
     def dump(self, portable: PortableData, /) -> str:

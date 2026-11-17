@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Final, Self, final, override
 from aiohttp import ClientError, ClientSession
 
 from betty.app import App
-from betty.exception import HumanFacingException
+from betty.error import Error
 from betty.factory import Manufacturable
 from betty.file import read
 from betty.freezers.init import FrozenOnInit
@@ -234,6 +234,6 @@ class SpdxLicenseDiscoverer(Manufacturable):
         try:
             yield
         except (AssertionError, LookupError) as error:
-            raise HumanFacingException(
-                f"Invalid JSON response received from {self.url}"
+            raise Error(
+                message=f"Invalid JSON response received from {self.url}"
             ) from error

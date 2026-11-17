@@ -26,16 +26,12 @@ from betty.html.attributes import Attributes
 from betty.locale import default_locale
 from betty.localizables.markup import JoinAnd, JoinOr
 from betty.machine_name import MachineName
-from betty.media_type import (
-    ResolvableMediaType,
-    UnsupportedMediaType,
-    match_extension,
-    resolve_media_type,
-)
-from betty.media_types import jinja
+from betty.media_type import ResolvableMediaType, resolve_media_type
+from betty.media_types import jinja, jinja_extension
 from betty.pathlib import resolve_path
 from betty.store import StoreItem
 from betty.string import kebab_case_to_snake_case
+from betty.validators.media_type import UnsupportedFileType, is_media_type
 from betty.warnings import deprecate
 
 if TYPE_CHECKING:
@@ -196,16 +192,16 @@ def make_copy_function(
             await to_thread(destination.parent.mkdir, exist_ok=True, parents=True)
             parents.add(destination.parent)
         try:
-            _jinja_media_type, extension = match_extension(source, [jinja.media_type])
-        except UnsupportedMediaType:
+            _jinja_media_type = is_media_type(source, media_types=[jinja])
+        except UnsupportedFileType:
             copy2(source, destination)
             return
 
-        destination = destination.with_name(destination.name[: -len(extension)])
+        destination = destination.with_name(destination.name[: -len(jinja_extension)])
 
         try:
-            document_media_type, _extension = match_extension(destination, media_types)
-        except UnsupportedMediaType:
+            document_media_type = is_media_type(destination, media_types=media_types)
+        except UnsupportedFileType:
             document_media_type = None
 
         document_resource_url = document.resource_url

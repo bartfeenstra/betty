@@ -13,16 +13,21 @@ if TYPE_CHECKING:
         OpenBinaryModeWriting,
         OpenTextModeReading,
         OpenTextModeWriting,
-        StrPath,
     )
+
+    from betty.pathlib import StrPath
 
 
 def _read(
     file: StrPath,
+    /,
     *,
     encoding: str | None,
     mode: OpenTextModeReading | OpenBinaryModeReading,
 ) -> str | bytes:
+    if "b" not in mode and encoding is None:
+        # Mimic Python 3.15.
+        encoding = "utf-8"
     with open(file, encoding=encoding, mode=mode) as f:
         return f.read()
 
@@ -45,9 +50,6 @@ async def read(file, *, encoding=None, mode="r"):
     """
     Read content from a file.
     """
-    if "b" not in mode and encoding is None:
-        # Mimic Python 3.15.
-        encoding = "utf-8"
     return await to_thread(_read, file, encoding=encoding, mode=mode)
 
 

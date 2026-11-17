@@ -16,7 +16,7 @@ from argparse import (
 )
 from asyncio import CancelledError
 from functools import partial
-from typing import TYPE_CHECKING, Any, Final, Literal, Never, cast, final, override
+from typing import TYPE_CHECKING, Any, Final, Literal, Never, final, override
 
 from rich_argparse import RawTextRichHelpFormatter
 
@@ -24,7 +24,7 @@ from betty import about
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.exception import HumanFacingException
+from betty.error import Error
 from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.sys import ExitCode
@@ -319,15 +319,16 @@ async def run(
     try:
         namespace = parser.parse_args(args)
     except ArgumentError as error:
-        await ui.message(
-            _("Invalid argument {argument}: {error}").format(
-                argument=str(error.argument_name), error=error.message
-            ),
-            Severity.ERROR,
+        message = _("Invalid argument {argument}: {{error}}").format(
+            argument=str(error.argument_name)
         )
-        raise SystemExit(ExitCode.ERROR_USAGE.value) from None
+        if isinstance(error, Error):
+            await ui.error(error, message)
+        else:
+            await ui.message(message.format(error=error.message), Severity.ERROR)
+        raise SystemExit(ExitCode.ERROR_USAGE) from None
     try:
-        command_func = cast(CommandFunction, namespace.__command_func)
+        command_func = namespace.__command_func
     except AttributeError:
         parser.print_help()
         raise SystemExit(ExitCode.ERROR_USAGE.value) from None
@@ -339,11 +340,6 @@ async def run(
                 result = await command_func()
         else:
             result = await command_func()
-    except HumanFacingException as error:
-        if namespace.__show_tracebacks:
-            await ui.exception()
-        await ui.message(error, Severity.ERROR)
-        raise SystemExit(ExitCode.ERROR_UNEXPECTED_RECOVERABLE.value) from None
     except (CancelledError, KeyboardInterrupt):
         if namespace.__show_tracebacks:
             await ui.exception()

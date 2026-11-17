@@ -12,7 +12,6 @@ from betty.associations.to_one import ToOne
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.media_type import HasMediaType
 from betty.entity import EntityDefinition
-from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 
@@ -29,7 +28,7 @@ if TYPE_CHECKING:
     label_plural=_("Notes"),
     label_countable=ngettext("{count} note", "{count} notes"),
 )
-class Note(AttrFreezable, HasLinks, HasMediaType):
+class Note(HasMediaType, HasLinks):
     """
     .. plugin:: entity:note.
     """

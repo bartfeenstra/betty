@@ -1,11 +1,10 @@
 from betty.associations.optional_to_one import OptionalToOne
 from betty.associations.to_one import ToOne
 from betty.entity import Entity
-from betty.freezers.attr import AttrFreezable
 from betty.test_utils.entity import DummyEntityOne
 
 
-class _Owner(AttrFreezable, Entity):
+class _Owner(Entity):
     associate = OptionalToOne(ToOne(DummyEntityOne, label="-"))
 
 

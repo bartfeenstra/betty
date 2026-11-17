@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from betty.app import App, AppConfig
 from betty.commands.config import Config
-from betty.portable.file import assert_load_file
+from betty.file import read
 from betty.serializers.json import Json
 from betty.test_utils.console import run
 
@@ -20,6 +20,6 @@ class TestConfig:
         locale = "nl"
         await run(Config(isolated_app), "config", "--locale", locale)
         configuration = AppConfig.definition.porter.load(
-            assert_load_file(serializers=[Json()])(configuration_file)
+            Json().load(await read(configuration_file))
         )
         assert configuration.locale == Locale(locale)

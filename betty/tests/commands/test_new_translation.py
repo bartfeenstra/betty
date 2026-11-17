@@ -53,7 +53,7 @@ class TestNewTranslation:
             "new-translation",
             "unknown-asset-id",
             "nl-NL",
-            expected_exit_code=ExitCode.ERROR_USAGE,
+            exit_code=ExitCode.ERROR_USAGE,
         )
 
     async def test_configure__with_invalid_locale(
@@ -64,5 +64,5 @@ class TestNewTranslation:
             "new-translation",
             "dummy",
             "",
-            expected_exit_code=ExitCode.ERROR_USAGE,
+            exit_code=ExitCode.ERROR_USAGE,
         )

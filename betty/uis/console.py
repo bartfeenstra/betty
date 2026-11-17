@@ -6,15 +6,24 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Final, TextIO, cast, final, overload, override
+from typing import TYPE_CHECKING, Any, Final, TextIO, cast, final, overload, override
 
 from rich.console import Console as RichConsole
+from rich.console import Group
+from rich.markdown import Markdown
 from rich.markup import escape
+from rich.padding import Padding
 from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsedColumn
 from rich.progress import Progress as _RichProgress
 from rich.prompt import Confirm, Prompt
+from rich.segment import Segment
+from rich.tree import Tree
 
+from betty.error import ErrorGroup
+from betty.localizable import Localizable
+from betty.localizables.gettext import _
 from betty.localizer import default_localizer
+from betty.location import format_
 from betty.progresses.no_op import NoOpProgress
 from betty.progresses.rich import RichProgress
 from betty.rich import Theme
@@ -22,10 +31,12 @@ from betty.user import Severity
 from betty.user.ui import NoDefault, Ui
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator, Callable, Mapping
+    from collections.abc import AsyncGenerator, Iterable, Mapping
 
+    from betty.error import Error
     from betty.localizer import AnyLocalizable, Localizer
     from betty.progress import Progress
+    from betty.validation import Validator
 
 
 @final
@@ -57,9 +68,17 @@ class Console(Ui):
         self._localizer = localizer
         self.severity = severity
 
-    def _print(self, message: AnyLocalizable, style: str, /) -> None:
+    def _print(self, *messages: AnyLocalizable, style: str) -> None:
         self.console.print(
-            self.localizer.localize(message), emoji=False, markup=False, style=style
+            *(
+                self.localizer.localize(message)
+                if isinstance(message, Localizable)
+                else message
+                for message in messages
+            ),
+            emoji=False,
+            markup=False,
+            style=style,
         )
 
     @override
@@ -71,11 +90,50 @@ class Console(Ui):
     async def exception(self) -> None:
         self.console.print_exception(show_locals=self.shows(Severity.DEBUG))
 
+    def _format_error(
+        self, error: Error, message: AnyLocalizable = "{error}", /
+    ) -> Iterable[Any]:
+        if isinstance(error, ErrorGroup) and len(error) == 1:
+            # @todo Finish this like UserFacingErrorGroup.__str__()
+            raise NotImplementedError
+        yield self.localizer.localize(message).format(
+            error=self.localizer.localize(error)
+        )
+        if error.at:
+            yield Markdown("# " + self.localizer.localize(_("Where")))
+            # @todo Format as Rich text, not as a plain string.
+            location = Tree("wutt???")
+            yield location
+            for locator in format_(*error.at, localizer=self.localizer):
+                location = location.add(locator)
+        if error.hint:
+            yield Markdown("# " + self.localizer.localize(_("Why")))
+            yield error.hint
+        if error.url:
+            # @todo Do we need a heading as well as a link title?
+            # @todo What if we refactor Error.url into Error.link, which is a betty.link.Link?
+            # @todo Only if we want to allow additional link labels?
+            # @todo
+            # @todo
+            yield Markdown("# " + self.localizer.localize(_("Learn more")))
+            yield f"[link={error.url}]{self.localizer.localize(_('Read more'))}[/link]"
+        if isinstance(error, ErrorGroup):
+            yield Segment.line()
+            for grouped_error in error:
+                yield Padding(Group(*self._format_error(grouped_error)), (99, 0, 0, 0))
+
+    @override
+    async def error(self, error: Error, message: AnyLocalizable = "{error}", /) -> None:
+        self._print(
+            *self._format_error(error), style=self._severity_to_style[Severity.ERROR]
+        )
+
     @override
     async def message(self, message: AnyLocalizable, severity: Severity, /) -> None:
         if self.shows(severity):
             self._print(
-                self.localizer.localize(message), self._severity_to_style[severity]
+                self.localizer.localize(message),
+                style=self._severity_to_style[severity],
             )
 
     @override
@@ -126,7 +184,7 @@ class Console(Ui):
         question: AnyLocalizable,
         /,
         *,
-        assertion: None = None,
+        validator: None = None,
         default: str | NoDefault = NoDefault,
         stdin: TextIO | None = None,
     ) -> str:
@@ -138,7 +196,7 @@ class Console(Ui):
         question: AnyLocalizable,
         /,
         *,
-        assertion: Callable[[str], T],
+        validator: Validator[str, T],
         default: str | NoDefault = NoDefault,
         stdin: TextIO | None = None,
     ) -> T:
@@ -150,7 +208,7 @@ class Console(Ui):
         question,
         /,
         *,
-        assertion=None,
+        validator=None,
         default=NoDefault,
         stdin: TextIO | None = None,
     ):
@@ -166,6 +224,6 @@ class Console(Ui):
                 **ask_kwargs,
             ),
         )
-        if assertion is None:
+        if validator is None:
             return value
-        return assertion(value)
+        return validator(value)

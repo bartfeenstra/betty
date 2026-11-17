@@ -75,7 +75,7 @@ class TestUpdateTranslations:
             "update-translations",
             "unknown-asset-id",
             str(source),
-            expected_exit_code=ExitCode.ERROR_USAGE,
+            exit_code=ExitCode.ERROR_USAGE,
         )
 
     async def test_configure__with_asset_not_found(
@@ -88,7 +88,7 @@ class TestUpdateTranslations:
             "update-translations",
             "dummy-not-found",
             str(source),
-            expected_exit_code=ExitCode.ERROR_USAGE,
+            exit_code=ExitCode.ERROR_USAGE,
         )
 
     async def test_configure__with_invalid_source_directory(
@@ -99,5 +99,5 @@ class TestUpdateTranslations:
             "update-translations",
             "dummy",
             str(tmp_path / "non-existent-source"),
-            expected_exit_code=ExitCode.ERROR_USAGE,
+            exit_code=ExitCode.ERROR_USAGE,
         )

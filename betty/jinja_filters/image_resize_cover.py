@@ -165,6 +165,7 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
         return f"betty-static:///file/{quote(destination_name)}"
 
 
+# @todo Move this to the image API, so we can declare wesupport PDF and also have an open() function that supports it
 def _load_image_image(file: Path) -> Image.Image:
     with open(file, "rb") as f:
         image_f = BytesIO(f.read())

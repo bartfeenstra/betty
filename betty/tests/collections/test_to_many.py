@@ -4,7 +4,6 @@ from betty.association import UnresolvedAssociate
 from betty.associations.to_many import ToMany
 from betty.collections.to_many import ToManyCollection
 from betty.entity import Entity, EntityDefinition
-from betty.freezers.attr import AttrFreezable
 from betty.test_utils.locale.localizable import dummy_countable_localizable
 
 
@@ -14,7 +13,7 @@ from betty.test_utils.locale.localizable import dummy_countable_localizable
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _Owner(AttrFreezable, Entity):
+class _Owner(Entity):
     associates = ToMany("betty.tests.collections.test_to_many:_Associate", label="-")
 
 
@@ -24,7 +23,7 @@ class _Owner(AttrFreezable, Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _Associate(AttrFreezable, Entity):
+class _Associate(Entity):
     pass
 
 
@@ -34,7 +33,7 @@ class _Associate(AttrFreezable, Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _BiOwner(AttrFreezable, Entity):
+class _BiOwner(Entity):
     associates = ToMany(
         "betty.tests.collections.test_to_many:_BiAssociate", "owners", label="-"
     )
@@ -46,7 +45,7 @@ class _BiOwner(AttrFreezable, Entity):
     label_plural="-",
     label_countable=dummy_countable_localizable,
 )
-class _BiAssociate(AttrFreezable, Entity):
+class _BiAssociate(Entity):
     owners = ToMany(
         "betty.tests.collections.test_to_many:_BiOwner", "associates", label="-"
     )

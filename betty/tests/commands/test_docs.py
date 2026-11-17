@@ -15,4 +15,4 @@ class TestDocs:
             side_effect=KeyboardInterrupt,
         )
 
-        await run(Docs(isolated_app), "docs", expected_exit_code=ExitCode.USER_QUIT)
+        await run(Docs(isolated_app), "docs", exit_code=ExitCode.USER_QUIT)

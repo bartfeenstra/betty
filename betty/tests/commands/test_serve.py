@@ -36,7 +36,7 @@ class TestServe:
             "serve",
             "--project",
             str(tmp_path / "betty.json"),
-            expected_exit_code=ExitCode.USER_QUIT,
+            exit_code=ExitCode.USER_QUIT,
         )
 
     async def test_configure__with_explicit_server(
@@ -61,5 +61,5 @@ class TestServe:
             str(tmp_path / "betty.json"),
             "--server",
             "builtin",
-            expected_exit_code=ExitCode.USER_QUIT,
+            exit_code=ExitCode.USER_QUIT,
         )

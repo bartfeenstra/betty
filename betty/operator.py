@@ -12,7 +12,7 @@ from typing_extensions import disjoint_base, sentinel
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
 
-    from betty.user.location import Locator
+    from betty.location import Locator
 
 
 @disjoint_base
@@ -44,8 +44,8 @@ class Chain(Operator):
 
     __slots__ = ("_operators",)
 
-    def __init__(self, *operators: Operator):
-        self._operators = tuple(operators)
+    def __init__(self, operator: Operator, *operators: Operator):
+        self._operators = (operator, *operators)
 
     @override
     def __hash__(self) -> int:

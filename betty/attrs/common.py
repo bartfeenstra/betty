@@ -5,7 +5,7 @@ Settable attributes.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 from betty.attr import Attr
 from betty.attrs.optional import OptionableAttr
@@ -59,3 +59,27 @@ class OptionableCommonAttr[
     """
     An attribute that supports common configuration operations and can be made optional.
     """
+
+    @override
+    @abstractmethod
+    def default(
+        self, default: Callable[[], SetT] | Callable[[OwnerT], SetT], /
+    ) -> OptionableCommonAttr[OwnerT, GetT, SetT, DefinitionT]:
+        pass
+
+    @override
+    @abstractmethod
+    def setter[SetterSetT](
+        self,
+        setter: Callable[[SetterSetT], SetT] | Callable[[OwnerT, SetterSetT], SetT],
+        /,
+    ) -> OptionableCommonAttr[OwnerT, GetT, SetterSetT, DefinitionT]:
+        pass
+
+    @override
+    @property
+    @abstractmethod
+    def optional(
+        self,
+    ) -> OptionableCommonAttr[OwnerT, GetT | None, SetT | None, DefinitionT]:
+        pass

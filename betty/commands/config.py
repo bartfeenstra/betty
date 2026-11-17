@@ -1,17 +1,18 @@
 from __future__ import annotations  # noqa: D100
 
-from asyncio import gather
+from asyncio import to_thread
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.app import App, AppConfig
-from betty.argparse import assertion_to_argument_type
-from betty.assertions.locale import assert_locale
+from betty.argparse import validator_to_argument_type
 from betty.console import Command, CommandDefinition, CommandResult
 from betty.factory import Manufacturable
+from betty.file import read, write
 from betty.locale import default_locale, to_language_tag
 from betty.localizables.gettext import _
-from betty.portable.file import assert_load_file, dump_file
+from betty.serializers.json import Json
 from betty.user import Severity
+from betty.validators.locale import is_locale
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser
@@ -45,18 +46,17 @@ class Config(Manufacturable, Command):
             help=self._app.ui.localizer.translate._(
                 "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
             ),
-            type=assertion_to_argument_type(
-                assert_locale, localizer=self._app.ui.localizer
-            ),
+            type=validator_to_argument_type(is_locale),
         )
         return self._command_function
 
     async def _command_function(self, *, locale: Locale) -> CommandResult:
-        serializers = await gather(*self._app.serializers)
+        serializer = Json()
+        porter = AppConfig.definition.porter
 
         if AppConfig.file.exists():
-            updated_configuration = AppConfig.definition.porter.load(
-                assert_load_file(serializers=serializers)(AppConfig.file)
+            updated_configuration = porter.load(
+                serializer.load(await read(AppConfig.file))
             )
         else:
             updated_configuration = AppConfig()
@@ -68,8 +68,5 @@ class Config(Manufacturable, Command):
             Severity.CONFIRM,
         )
 
-        await dump_file(
-            AppConfig.definition.porter.dump(updated_configuration),
-            AppConfig.file,
-            serializers=serializers,
-        )
+        await to_thread(AppConfig.file.parent.mkdir, exist_ok=True, parents=True)
+        await write(AppConfig.file, serializer.dump(porter.dump(updated_configuration)))
