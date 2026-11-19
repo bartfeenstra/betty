@@ -12,13 +12,13 @@ from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.html import plain_text_to_html
 from betty.localizables.gettext import _, ngettext
-from betty.media_type import resolve_media_type
+from betty.media_type import MediaType
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.media_type import MediaType, ResolvableMediaType
+    from betty.media_type import ResolvableMediaType
     from betty.requirement import Requires
 
 
@@ -27,6 +27,10 @@ class Renderer(HasDefinition["RendererDefinition"], metaclass=ABCMeta):
     Render content in a different media type to HTML.
     """
 
+    # @todo Move this into RendererDefinition?
+    # @todo We used to have it there, but that messed with RenderDispatcher being a renderer but NOT a plugin.
+    # @todo
+    # @todo
     @property
     @abstractmethod
     def media_type(self) -> MediaType:
@@ -91,7 +95,7 @@ class RenderDispatcher:
         Render the content.
         """
         if media_type:
-            media_type = resolve_media_type(media_type)
+            media_type = MediaType(media_type)
         else:
             return plain_text_to_html(content)
         try:

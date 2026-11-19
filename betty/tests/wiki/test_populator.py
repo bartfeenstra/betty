@@ -13,8 +13,7 @@ from betty.entities.place import Place
 from betty.entities.source import Source
 from betty.entity.collection.pool import EntityPool
 from betty.localizer import LocalizerRepository
-from betty.media_type import MediaType
-from betty.media_types import html
+from betty.media_types import html, png
 from betty.test_utils.entity import DummyEntityOne
 from betty.uis.no_op import NoOpUi
 from betty.wiki.client import Client, Image, Summary
@@ -194,13 +193,7 @@ class TestPopulator:
         )
         page_language = "en"
         page_name = "Almelo"
-        image = Image(
-            Path(__file__),
-            MediaType("application/octet-stream"),
-            "",
-            "https://example.com",
-            "example",
-        )
+        image = Image(Path(__file__), png, "", "https://example.com", "example")
         m_client.get_image.return_value = image
         summary = Summary("en", "Lipsum", "Lorem ipsum", "Lorem ipsum dolor sit amet")
         m_client.get_summary.return_value = summary

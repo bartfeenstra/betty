@@ -430,7 +430,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     "betty/operator.py": {
         "Operator": MissingReason.ABSTRACT,
     },
-    "betty/multiprocessing.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/path.py": MissingReason.SHOULD_BE_COVERED,
     "betty/pipeline.py": {
         "Pipeline": {

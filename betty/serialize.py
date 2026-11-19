@@ -5,7 +5,7 @@ The (de)serialization API.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Final, final
 
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
@@ -13,6 +13,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import JoinOr, Quote
+from betty.media_type import MediaTypeDefinitions
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.media_type import MediaType
+    from betty.media_type import MediaTypeDefinition
     from betty.portable import PortableData
     from betty.requirement import Requires
 
@@ -35,13 +36,6 @@ class Serializer(HasDefinition["SerializerDefinition"], metaclass=ABCMeta):
     """
     A serializer.
     """
-
-    @classmethod
-    @abstractmethod
-    def media_type(cls) -> MediaType:
-        """
-        The media type this serializer can serialize.
-        """
 
     @abstractmethod
     def load(self, serialized: str, /) -> PortableData:
@@ -75,7 +69,7 @@ class SerializerDefinition(
     def __init__(
         self,
         serializer_id: ResolvableMachineName,
-        *,
+        *media_types: MediaTypeDefinition,
         label: AnyLocalizable,
         auto: bool = True,
         description: AnyLocalizable | None = None,
@@ -88,6 +82,9 @@ class SerializerDefinition(
             description=description,
             requires=requires,
         )
+        self.media_types: Final[MediaTypeDefinitions] = MediaTypeDefinitions(
+            *media_types
+        )
 
 
 def serializer_for(
@@ -97,18 +94,18 @@ def serializer_for(
     Get the serializer for the given file extension.
     """
     for available_serializer in available_serializers:
-        if extension in available_serializer.media_type().extensions:
+        if available_serializer.definition.media_types.extensions.request(extension):
             return available_serializer
     raise SerializationError(
         _("Unsupported file {unsupported}. Supported types are: {supported}.").format(
             unsupported=Quote(extension),
             supported=JoinOr(*[
-                _("{extension} ({available_type})").format(
-                    extension=extension,
-                    available_type=available_serializer.definition.label,
+                _("{media_type} ({extensions})").format(
+                    media_type=media_type.label,
+                    extensions=JoinOr(*media_type.extensions),
                 )
                 for available_serializer in available_serializers
-                for extension in available_serializer.media_type().extensions
+                for media_type in available_serializer.definition.media_types
             ]),
         )
     )

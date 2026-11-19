@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 from betty.attrs.owner import OwnerAttr
 from betty.classtools.init import Init
 from betty.datas.aggregate.record import FieldDefinition
-from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
+from betty.media_type import MediaType, ResolvableMediaType
 
 if TYPE_CHECKING:
     from betty.attrs.common import OptionableCommonAttr
@@ -24,7 +24,7 @@ def new_media_type_attr(
     """
     return OwnerAttr(
         FieldDefinition(MediaType, label=label, description=description)
-    ).setter(resolve_media_type)
+    ).setter(MediaType)
 
 
 class HasMediaType(Init):

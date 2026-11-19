@@ -18,7 +18,7 @@ from betty.exception import HumanFacingException
 from betty.file import write
 from betty.hashid import hashid
 from betty.localizables.gettext import _
-from betty.media_type import resolve_media_type
+from betty.media_type import MediaType
 from betty.operator import Index, Key, Operator
 
 if TYPE_CHECKING:
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.json import JsonData
-    from betty.media_type import MediaType, ResolvableMediaType
+    from betty.media_type import ResolvableMediaType
     from betty.user.ui import Ui
 
 
@@ -72,7 +72,7 @@ class Image:
     """
 
     path: Path
-    media_type: MediaType
+    media_type: ResolvableMediaType
     title: str
     wikimedia_commons_url: str
     name: str
@@ -95,8 +95,7 @@ class Client:
         self._http_client = http_client
         self._images: MutableMapping[str, Image | None] = {}
         self._media_types = {
-            str(media_type): media_type
-            for media_type in map(resolve_media_type, media_types)
+            str(media_type): media_type for media_type in map(MediaType, media_types)
         }
         self._ui = ui
 

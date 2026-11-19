@@ -13,7 +13,6 @@ from betty.collections.mapping.dict import empty_frozen_dict
 from betty.file import write
 from betty.jinja import TemplateNames, resolve_template_names
 from betty.job import Job
-from betty.media_type import MediaType, match_extension
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -24,6 +23,7 @@ if TYPE_CHECKING:
 
     from betty.jinja import ResolvableTemplateNames, TemplateData
     from betty.job.scheduler import Scheduler
+    from betty.media_type import MediaTypeDefinition
     from betty.project import Project
 
 
@@ -103,14 +103,14 @@ class _ResourceTemplate[ResourceT](Job, metaclass=ABCMeta):
         """
         Get the job ID.
         """
-        return f"{cls.id_prefix(resource)}:{cls._match_extension(resolve_template_names(cls.template(resource)), project=project)[1]}"
+        return f"{cls.id_prefix(resource)}:{cls._match_extension(resolve_template_names(cls.template(resource)), project=project)[0].id}"
 
     @final
     @classmethod
     def _match_extension(
         cls, templates: TemplateNames, /, *, project: Project
-    ) -> tuple[MediaType, str]:
-        return match_extension(templates[0][:-3], project.app.media_types)
+    ) -> tuple[MediaTypeDefinition, str]:
+        return project.app.supported_media_types.extensions.require(templates[0][:-3])
 
 
 class ResourceTemplate[ResourceT](_ResourceTemplate[ResourceT], metaclass=ABCMeta):

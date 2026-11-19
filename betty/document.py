@@ -29,7 +29,7 @@ from betty.definition.cls import ClsDefinition
 from betty.definition.id import resolve_id
 from betty.localizables.gettext import _, ngettext
 from betty.localizer import AnyLocalizable, Localizer, default_localizer
-from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
+from betty.media_type import MediaType, ResolvableMediaType
 from betty.media_types import html
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
@@ -72,7 +72,7 @@ class Document:
         **document_vars: Any,
     ):
         self.media_type: Final[MediaType | None] = (
-            None if media_type is None else resolve_media_type(media_type)
+            None if media_type is None else MediaType(media_type)
         )
         """
         The media type.
@@ -140,7 +140,7 @@ class Document:
                 "localizer": self.localizer,
                 "media_type": self.media_type
                 if media_type is None
-                else resolve_media_type(media_type),
+                else MediaType(media_type),
                 "title": self.title,
                 **document_vars,
             },  # ty:ignore[invalid-argument-type]

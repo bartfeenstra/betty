@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -11,16 +10,11 @@ from betty.media_type import (
     MediaTypeDefinition,
     MissingMediaType,
     UnsupportedMediaType,
-    match_extension,
-    match_media_type,
-    resolve_media_type,
 )
-from betty.media_types import html, plain_text
+from betty.media_types import plain_text
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, Sequence
-
-    from betty.pathlib import StrPath
+    from collections.abc import Mapping, Sequence
 
 
 class TestMediaType:
@@ -254,11 +248,6 @@ class TestMediaType:
     ) -> None:
         assert MediaType(media_type).type == expected
 
-    def test_extensions(self) -> None:
-        extensions = [".one", ".two", ".three"]
-        sut = MediaType("text/plain", extensions=extensions)
-        assert sut.extensions == extensions
-
     def test_load(self) -> None:
         assert MediaType.definition.porter.load(
             "application/vnd.oasis.opendocument.text"
@@ -273,68 +262,6 @@ class TestMediaType:
         )
 
 
-@pytest.mark.parametrize(
-    ("expected", "source", "media_types"),
-    [
-        (plain_text, plain_text, [plain_text]),
-        (plain_text, plain_text, [html, plain_text]),
-    ],
-)
-def test_match_media_type(
-    expected: MediaType, source: MediaType, media_types: Iterable[MediaType]
-) -> None:
-    assert match_media_type(source, media_types) == expected
-
-
-@pytest.mark.parametrize(
-    ("source", "media_types"),
-    [
-        (plain_text, []),
-        (plain_text, [html]),
-    ],
-)
-def test_match_media_type__with_unsupported_media_type(
-    source: MediaType, media_types: Iterable[MediaType]
-) -> None:
-    with pytest.raises(UnsupportedMediaType):
-        match_media_type(source, media_types)
-
-
-@pytest.mark.parametrize(
-    ("expected", "source", "media_types"),
-    [
-        ((plain_text, ".txt"), "my.first.source.txt", [plain_text.media_type]),
-        ((plain_text, ".txt"), Path("my.first.source.txt"), [plain_text.media_type]),
-        (
-            (plain_text, ".txt"),
-            "my.first.source.txt",
-            [html.media_type, plain_text.media_type],
-        ),
-    ],
-)
-def test_match_extension(
-    expected: tuple[MediaType, str],
-    source: StrPath,
-    media_types: Iterable[MediaType],
-) -> None:
-    assert match_extension(source, media_types) == expected
-
-
-@pytest.mark.parametrize(
-    ("source", "media_types"),
-    [
-        ("my.first.source.txt", []),
-        ("", [plain_text.media_type]),
-        ("my.first.source.txt", [html.media_type]),
-    ],
-)
-def test_match_extension__with_unsupported_media_type(
-    source: StrPath, media_types: Iterable[MediaType]
-) -> None:
-    with pytest.raises(UnsupportedMediaType):
-        match_extension(source, media_types)
-
-
 class TestUnsupportedMediaType:
     def test_new(self) -> None:
         sut = UnsupportedMediaType(plain_text.media_type)
@@ -347,53 +274,6 @@ class TestMissingMediaType:
 
 
 class TestMediaTypeDefinition:
-    @pytest.mark.parametrize(
-        ("expected", "sut", "other"),
-        [
-            (
-                True,
-                MediaTypeDefinition(
-                    "my-first-media-type",
-                    label="-",
-                    media_type=MediaType("myfirst/mediatype"),
-                ),
-                MediaTypeDefinition(
-                    "my-first-media-type",
-                    label="-",
-                    media_type=MediaType("myfirst/mediatype"),
-                ),
-            ),
-            (
-                False,
-                MediaTypeDefinition(
-                    "my-first-media-type",
-                    label="-",
-                    media_type=MediaType("myfirst/mediatype"),
-                ),
-                MediaTypeDefinition(
-                    "my-second-media-type",
-                    label="-",
-                    media_type=MediaType("myfirst/mediatype"),
-                ),
-            ),
-            (
-                False,
-                MediaTypeDefinition(
-                    "my-first-media-type",
-                    label="-",
-                    media_type=MediaType("myfirst/mediatype"),
-                ),
-                MediaTypeDefinition(
-                    "my-first-media-type",
-                    label="-",
-                    media_type=MediaType("mysecond/mediatype"),
-                ),
-            ),
-        ],
-    )
-    def test___eq__(self, expected: bool, sut: MediaTypeDefinition, other: Any) -> None:
-        assert (sut == other) is expected
-
     def test_media_type(self) -> None:
         media_type = MediaType("text/plain")
         assert (
@@ -401,15 +281,9 @@ class TestMediaTypeDefinition:
             is media_type
         )
 
-
-def test_resolve_media_type__with_media_type() -> None:
-    media_type = MediaType("text/plain")
-    assert resolve_media_type(media_type) is media_type
-
-
-def test_resolve_media_type__with_media_type_definition() -> None:
-    media_type = MediaType("text/plain")
-    assert (
-        resolve_media_type(MediaTypeDefinition("-", label="-", media_type=media_type))
-        is media_type
-    )
+    def test_extensions(self) -> None:
+        extension = [".one", ".two", ".three"]
+        sut = MediaTypeDefinition(
+            "-", label="-", media_type="text/plain", extension=extension
+        )
+        assert sut.extensions == extension

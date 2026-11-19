@@ -26,13 +26,7 @@ from betty.html.attributes import Attributes
 from betty.locale import default_locale
 from betty.localizables.markup import JoinAnd, JoinOr
 from betty.machine_name import MachineName
-from betty.media_type import (
-    ResolvableMediaType,
-    UnsupportedMediaType,
-    match_extension,
-    resolve_media_type,
-)
-from betty.media_types import jinja
+from betty.media_type import MediaTypeDefinition, MediaTypeDefinitions
 from betty.pathlib import resolve_path
 from betty.store import StoreItem
 from betty.string import kebab_case_to_snake_case
@@ -178,16 +172,17 @@ def _npgettext(
 
 def make_copy_function(
     environment: Environment,
+    /,
     *,
     document: Document,
     is_localized_and_multilingual: bool | None = None,
-    media_types: Iterable[ResolvableMediaType] = (),
+    media_types: Iterable[MediaTypeDefinition] = (),
     www_directory: StrPath | None = None,
 ) -> CopyFunction:
     """
     Make a copy function for this renderer that renders supported files.
     """
-    media_types = tuple(map(resolve_media_type, media_types))
+    media_types = MediaTypeDefinitions(*media_types)
     parents = set()
 
     async def _copy_function(source: StrPath, destination: StrPath, /) -> None:
@@ -195,18 +190,14 @@ def make_copy_function(
         if destination.parent not in parents:
             await to_thread(destination.parent.mkdir, exist_ok=True, parents=True)
             parents.add(destination.parent)
-        try:
-            _jinja_media_type, extension = match_extension(source, [jinja.media_type])
-        except UnsupportedMediaType:
+
+        if not str(source).endswith(".j2"):
             copy2(source, destination)
             return
 
-        destination = destination.with_name(destination.name[: -len(extension)])
+        destination = destination.with_name(destination.name[:-3])
 
-        try:
-            document_media_type, _extension = match_extension(destination, media_types)
-        except UnsupportedMediaType:
-            document_media_type = None
+        document_media_type, _extension = media_types.extensions.require(destination)
 
         document_resource_url = document.resource_url
 

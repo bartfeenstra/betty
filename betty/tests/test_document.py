@@ -11,7 +11,7 @@ from betty.job import Context
 from betty.locale import default_locale
 from betty.localizables.static import StaticTranslations
 from betty.localizer import Localizer
-from betty.media_type import MediaType
+from betty.media_types import plain_text
 from betty.test_utils.entity import DummyEntityOne
 
 if TYPE_CHECKING:
@@ -148,8 +148,7 @@ class TestDocument:
         assert Document(None, resource_url).resource_url is resource_url
 
     def test_media_type(self) -> None:
-        media_type = MediaType("text/plain")
-        assert Document(media_type=media_type).media_type is media_type
+        assert Document(media_type=plain_text).media_type is plain_text
 
     def test_context__from___init___(self) -> None:
         context = Context()
