@@ -37,7 +37,7 @@ from betty.sample import Sample, Samples, Size
 from betty.serialize import SerializerDefinition
 from betty.serializers.json import Json
 from betty.service import Service
-from betty.services.asset import AssetRepositoryService
+from betty.services.asset_directory import HasAssetDirectories
 from betty.services.plugin import HasPluginServices
 from betty.services.plugin.definition.collection.catalog import PluginDefinitionsService
 from betty.services.plugin.instance.collection.catalog import PluginInstancesService
@@ -65,7 +65,7 @@ if TYPE_CHECKING:
 
 
 @final
-class App(RequirableServiceLevel, HasPluginServices):
+class App(RequirableServiceLevel, HasAssetDirectories, HasPluginServices):
     """
     The Betty application.
 
@@ -77,7 +77,6 @@ class App(RequirableServiceLevel, HasPluginServices):
          - :py:class:`betty.app.AppConfig`
     """
 
-    asset_directories = AssetRepositoryService()
     media_types = PluginDefinitionsService(MediaTypeDefinition)
     rate_limits = PluginDefinitionsService(RateLimitDefinition)
     serializers = PluginInstancesService(SerializerDefinition)

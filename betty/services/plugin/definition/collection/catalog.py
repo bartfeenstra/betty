@@ -19,7 +19,10 @@ from betty.services.plugin.definition.collection import (
 
 
 @final
-class PluginDefinitionsService[DefinitionT: PluginDefinition](
+class PluginDefinitionsService[
+    DefinitionT: PluginDefinition,
+    GetServiceT: PluginServiceCatalog,
+](
     CollectionPluginDefinitionServiceManager[
         ResolvableServiceLevelHasPluginServices,
         DefinitionT,
