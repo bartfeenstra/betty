@@ -137,7 +137,7 @@ class Imager:
         return self._readers[media_type.id].read(image)
 
     async def write(
-        self, image: Image, destination: Path, /, *, media_type: MediaTypeDefinition
+        self, image: Image, destination: Path, /, *, media_type: ResolvableMediaType
     ) -> None:
         """
         Write an image.
