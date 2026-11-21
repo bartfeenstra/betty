@@ -7,13 +7,16 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from collections.abc import Iterable, Iterator
 from email.message import EmailMessage
-from typing import TYPE_CHECKING, Final, Self, final, override
+from enum import StrEnum, auto
+from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.definition.ordered import Order, OrderedDefinition
 from betty.localizables.gettext import _, ngettext
+from betty.localizables.markup import do_you_mean
+from betty.localizer import default_localizer
 from betty.pathlib import StrPath, resolve_path
 from betty.pipeline import pipe
 from betty.plugin import PluginDefinition, PluginTypeDefinition
@@ -72,6 +75,17 @@ class MissingMediaType(RuntimeError):
         super().__init__("Missing media type")
 
 
+# @todo Can we rethink these matchers?
+# @todo
+# @todo Our original desire was to have a single entry point, able to accept strings that are either resolvable
+# @todo media types, or file names/suffixes.
+# @todo
+# @todo With _ExtensionMatcher, that's gone out of the window a bit. There was a reason, though: calling code needs
+# @todo a different return value depending on what they need to do.
+# @todo
+# @todo
+# @todo
+# @todo
 class _MediaTypeMatcher[MatchableT: MatchableMediaType, MatchT](metaclass=ABCMeta):
     @abstractmethod
     def request(self, other: MatchableT, /) -> MatchT | None:
@@ -87,6 +101,33 @@ class _MediaTypeMatcher[MatchableT: MatchableMediaType, MatchT](metaclass=ABCMet
         if match := self.request(other):
             return match
         raise UnsupportedMediaType(other)
+
+
+@final
+class MediaTypeType(StrEnum):
+    """
+    A top-level media type.
+    """
+
+    APPLICATION = auto()
+    AUDIO = auto()
+    EXAMPLE = auto()
+    FONT = auto()
+    HAPTICS = auto()
+    IMAGE = auto()
+    MESSAGE = auto()
+    MODEL = auto()
+    MULTIPART = auto()
+    TEXT = auto()
+    VIDEO = auto()
+
+    @override
+    @classmethod
+    def _missing_(cls, value: object) -> Any:
+        raise InvalidMediaType(
+            f'"{value}" is not a valid top-level media type. '
+            + default_localizer.localize(do_you_mean(*sorted(cls)))
+        )
 
 
 @final
@@ -154,7 +195,7 @@ class MediaType(str, Data, _MediaTypeMatcher["MediaType", ResolvableMediaType]):
         return self._parameters
 
     @property
-    def type(self) -> str:
+    def type(self) -> MediaTypeType:
         """
         The type, e.g. ``application`` for ``application/ld+json``.
         """
@@ -319,6 +360,7 @@ class _ExtensionMatcher(_MediaTypeMatcher[StrPath, tuple[MediaTypeDefinition, st
         return None
 
 
+# @todo Rename this.
 @final
 class MediaTypeDefinitions(MediaTypeMatcher):
     """
