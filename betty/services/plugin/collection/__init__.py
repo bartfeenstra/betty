@@ -19,7 +19,7 @@ from betty.services.plugin import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Iterator
 
     from betty.definition import ResolvableDefinition
 
@@ -77,11 +77,16 @@ class CollectionPluginServiceManager[
 
     @abstractmethod
     def new_service_item(
-        self,
-        owner: OwnerT,
-        plugin: InitT | ResolvableDefinition[DefinitionT],
-        /,
+        self, owner: OwnerT, plugin: InitT | ResolvableDefinition[DefinitionT], /
     ) -> GetServiceItemT:
         """
-        Create the new service item value for the given service provider.
+        Create the new service item value for the given owner.
         """
+
+    @final
+    def new_service_items(self, owner: OwnerT, /) -> Iterator[GetServiceItemT]:
+        """
+        Create the new service item values for the given owner.
+        """
+        for plugin in self.get_plugins(owner):
+            yield self.new_service_item(owner, plugin)

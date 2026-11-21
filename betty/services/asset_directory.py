@@ -15,9 +15,9 @@ class HasAssetDirectories(Init):
     asset_directories = PluginDefinitionsService(
         AssetDirectoryDefinition,
         new_service=lambda service, owner: StaticAssetRepository(
-            *(
-                service.new_service_item(owner, asset).assets
-                for asset in service.get_plugins(owner)
-            )
+            *(asset.assets for asset in service.new_service_items(owner))
         ),
     )
+    """
+    The available asset directories.
+    """
