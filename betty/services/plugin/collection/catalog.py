@@ -24,6 +24,12 @@ type PluginServiceCatalog[DefinitionT: PluginDefinition, ItemT] = Catalog[
     MachineName, ResolvableId[DefinitionT], ItemT
 ]
 
+type PluginServiceCatalogType[
+    DefinitionT: PluginDefinition,
+    ServiceT: PluginServiceCatalog,
+    ServiceItemT,
+] = Intersection[ServiceT, PluginServiceCatalog[DefinitionT, ServiceItemT]]
+
 
 class _PluginNotFound(PluginNotFound, KeyError):
     pass
@@ -52,9 +58,7 @@ class CatalogPluginServiceManager[
         auto: bool = True,
         new_service: Callable[
             [Self, OwnerT],
-            Intersection[
-                GetServiceT, PluginServiceCatalog[DefinitionT, GetServiceItemT]
-            ],
+            PluginServiceCatalogType[DefinitionT, GetServiceT, GetServiceItemT],
         ] = lambda self_, owner: self_._new_service_default(owner),
     ):
         super().__init__(plugin_type, auto=auto)
@@ -63,7 +67,7 @@ class CatalogPluginServiceManager[
     @final
     @override
     def new_service(self, owner: OwnerT, /) -> GetServiceT:
-        return self.__new_service(owner)
+        return self.__new_service(self, owner)
 
     @final
     def _new_service_default(

@@ -8,7 +8,10 @@ from betty.services.plugin import (
     HasPluginServices,
     ResolvableServiceLevelHasPluginServices,
 )
-from betty.services.plugin.collection.catalog import CatalogPluginServiceManager
+from betty.services.plugin.collection.catalog import (
+    CatalogPluginServiceManager,
+    PluginServiceCatalog,
+)
 from betty.test_utils.plugin import (
     DummyPluginDefinition,
     DummyPluginOne,
@@ -22,6 +25,7 @@ class _CatalogPluginServiceManagerTestSut(
     CatalogPluginServiceManager[
         ResolvableServiceLevelHasPluginServices,
         DummyPluginDefinition,
+        PluginServiceCatalog[DummyPluginDefinition, DummyPluginDefinition],
         DummyPluginDefinition,
         ResolvableDefinition[DummyPluginDefinition],
     ]

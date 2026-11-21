@@ -14,6 +14,7 @@ from betty.services.plugin import ResolvableServiceLevelHasPluginServices
 from betty.services.plugin.collection.catalog import (
     CatalogPluginServiceManager,
     PluginServiceCatalog,
+    PluginServiceCatalogType,
 )
 from betty.services.plugin.instance.collection import (
     CollectionPluginInstanceServiceManager,
@@ -26,19 +27,21 @@ if TYPE_CHECKING:
 @final
 class PluginInstancesService[
     DefinitionT: Intersection[PluginDefinition, ClsDefinition],
+    GetServiceT: PluginServiceCatalog,
     PluginManufacturerT: PluginManufacturer,
     PluginT,
 ](
     CollectionPluginInstanceServiceManager[
         ResolvableServiceLevelHasPluginServices,
         DefinitionT,
-        PluginServiceCatalog[DefinitionT, ReAwaitable[PluginT]],
+        PluginServiceCatalogType[DefinitionT, GetServiceT, ReAwaitable[PluginT]],
         PluginManufacturerT,
         PluginT,
     ],
     CatalogPluginServiceManager[
         ResolvableServiceLevelHasPluginServices,
         DefinitionT,
+        PluginServiceCatalogType[DefinitionT, GetServiceT, ReAwaitable[PluginT]],
         ReAwaitable[PluginT],
         ManufacturablePlugin[DefinitionT, PluginManufacturerT, PluginT],
     ],
