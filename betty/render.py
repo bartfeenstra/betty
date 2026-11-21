@@ -12,13 +12,12 @@ from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.html import plain_text_to_html
 from betty.localizables.gettext import _, ngettext
-from betty.media_type import MediaType
+from betty.media_type import MediaType, MediaTypeDefinition
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.media_type import ResolvableMediaType
     from betty.requirement import Requires
 
 
@@ -33,7 +32,7 @@ class Renderer(HasDefinition["RendererDefinition"], metaclass=ABCMeta):
     # @todo
     @property
     @abstractmethod
-    def media_type(self) -> MediaType:
+    def media_type(self) -> MediaTypeDefinition:
         """
         The media type this renderer can render from.
         """
@@ -89,7 +88,7 @@ class RenderDispatcher:
         self._renderers = {renderer.media_type: renderer for renderer in renderers}
 
     async def render(
-        self, content: str, media_type: ResolvableMediaType | None, /
+        self, content: str, media_type: MediaTypeDefinition | None, /
     ) -> str:
         """
         Render the content.

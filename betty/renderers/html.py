@@ -17,7 +17,7 @@ from betty.render import Renderer, RendererDefinition
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.media_type import MediaType
+    from betty.media_type import MediaTypeDefinition
     from betty.url_generator import UrlGenerator
 
 _attributes: Final[Sequence[str]] = ("href", "src")
@@ -46,8 +46,8 @@ class Html(Manufacturable, Renderer):
 
     @override
     @property
-    def media_type(self) -> MediaType:
-        return html.media_type
+    def media_type(self) -> MediaTypeDefinition:
+        return html
 
     @override
     async def render(self, content: str, /) -> str:

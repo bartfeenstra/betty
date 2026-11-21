@@ -1,6 +1,6 @@
 from typing import override
 
-from betty.media_type import MediaType
+from betty.media_type import MediaType, MediaTypeDefinition
 from betty.media_types import html
 from betty.render import RenderDispatcher, Renderer
 
@@ -16,7 +16,7 @@ class TestRenderDispatcher:
         class _Renderer(Renderer):
             @override
             @property
-            def media_type(self) -> MediaType:
+            def media_type(self) -> MediaTypeDefinition:
                 return media_type
 
             @override

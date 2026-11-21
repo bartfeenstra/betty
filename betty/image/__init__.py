@@ -33,7 +33,6 @@ if TYPE_CHECKING:
     from PIL.Image import Image
 
     from betty.machine_name import ResolvableMachineName
-    from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
     from betty.requirement import Requires
 
@@ -119,13 +118,13 @@ class Imager:
 
     @overload
     async def read(
-        self, image: StrPath, /, *, media_type: ResolvableMediaType | None = None
+        self, image: StrPath, /, *, media_type: MediaTypeDefinition | None = None
     ) -> Image:
         pass
 
     @overload
     async def read(
-        self, image: IO[bytes], /, *, media_type: ResolvableMediaType
+        self, image: IO[bytes], /, *, media_type: MediaTypeDefinition
     ) -> Image:
         pass
 

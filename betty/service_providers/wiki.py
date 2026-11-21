@@ -37,7 +37,7 @@ class Wiki(ServiceProvider[Project], Manufacturable):
                 "wiki-client"
             ).directory,
             http_client=await self.services.app.http_client,
-            media_types=self.services.app.media_types,
+            media_types=self.services.app.supported_media_types,
             ui=self.services.app.ui,
         )
 
