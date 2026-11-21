@@ -33,7 +33,7 @@ from betty.media_type import MediaTypeDefinition
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
 from betty.requirements.service_level import RequirableServiceLevel
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 from betty.serialize import SerializerDefinition
 from betty.serializers.json import Json
 from betty.service import Service
@@ -245,9 +245,9 @@ class App(RequirableServiceLevel, HasAssets):
 @final
 @ObjectDefinition(
     label=_("Application configuration"),
-    samples=Samples(
-        lambda: Sample(AppConfig(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(AppConfig(locale=default_locale), label="Full", size=Size.FULL),
+    samples=(
+        Sample(lambda: AppConfig(), label="Minimal", size=Size.MINIMAL),
+        Sample(lambda: AppConfig(locale=default_locale), label="Full", size=Size.FULL),
     ),
 )
 class AppConfig(Object, AttrFreezable):

@@ -31,9 +31,7 @@ class TestManagedLifeCycle:
     async def test_shutdown(self, wait: bool) -> None:
         carrier = []
         sut = ManagedLifeCycle()
-        sut.life_cycle.on_shutdown(
-            lambda wait: carrier.append(wait),  # noqa: PLW0108
-        )
+        sut.life_cycle.on_shutdown(lambda wait: carrier.append(wait))
         await sut.bootstrap()
         await sut.shutdown(wait=wait)
         assert carrier == [wait]
@@ -93,10 +91,7 @@ class TestLifeCycleManager:
     async def test_on(self, wait: bool) -> None:
         carrier = []
         sut = LifeCycleManager()
-        sut.on((
-            lambda: carrier.append(True),
-            lambda wait: carrier.append(wait),  # noqa: PLW0108
-        ))
+        sut.on((lambda: carrier.append(True), lambda wait: carrier.append(wait)))
         await sut.bootstrap()
         assert carrier == [True]
         await sut.shutdown(wait=wait)
@@ -129,9 +124,7 @@ class TestLifeCycleManager:
     async def test_on_shutdown(self, wait: bool) -> None:
         carrier = []
         sut = LifeCycleManager()
-        sut.on_shutdown(
-            lambda wait: carrier.append(wait),  # noqa: PLW0108
-        )
+        sut.on_shutdown(lambda wait: carrier.append(wait))
         await sut.bootstrap()
         assert not carrier
         await sut.shutdown(wait=wait)

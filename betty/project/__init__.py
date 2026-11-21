@@ -104,7 +104,7 @@ from betty.privacy.privatizer import Privatizer
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.role import RoleDefinition
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 from betty.server import ServerDefinition
 from betty.service import Service
 from betty.service_level import DownstreamServiceLevel, Plugins
@@ -139,12 +139,14 @@ if TYPE_CHECKING:
 @ObjectDefinition(
     label=_("Project locale"),
     porter=lambda definition: KeyedMappingPorter("locale", FieldsPorter(definition)),
-    samples=Samples(
-        lambda: Sample(
-            ProjectLocale(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL
+    samples=(
+        Sample(
+            lambda: ProjectLocale(Locale("nl", "NL")),
+            label="Minimal",
+            size=Size.MINIMAL,
         ),
-        lambda: Sample(
-            ProjectLocale(Locale("nl", "NL"), alias="nl"),
+        Sample(
+            lambda: ProjectLocale(Locale("nl", "NL"), alias="nl"),
             label="Full",
             size=Size.FULL,
         ),
@@ -370,14 +372,14 @@ class _ProjectConfig(Init):
 @final
 @ObjectDefinition(
     label=_("Project configuration"),
-    samples=Samples(
-        lambda: Sample(
-            ProjectConfig(title="Betty", url="https://example.com"),
+    samples=(
+        Sample(
+            lambda: ProjectConfig(title="Betty", url="https://example.com"),
             label="Minimal",
             size=Size.MINIMAL,
         ),
-        lambda: Sample(
-            ProjectConfig(
+        Sample(
+            lambda: ProjectConfig(
                 author="Bart Feenstra",
                 clean_urls=True,
                 copyright_notice=CopyrightNoticeManufacturer.definition.samples.get(

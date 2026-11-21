@@ -4,6 +4,7 @@ Describe, access, and manipulate arbitrary data.
 
 from __future__ import annotations
 
+from types import NoneType
 from typing import TYPE_CHECKING, Any, Self, final
 
 from betty.definition import HasDefinition
@@ -13,7 +14,7 @@ from betty.frozen import Freezable
 from betty.functools import LazyReCallable
 from betty.portable import Porter
 from betty.portable.error import NotPortable
-from betty.sample import Samples
+from betty.sample import ResolvableSamples, Sample, Samples
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -27,7 +28,7 @@ type ResolvableDataPorter[DefinitionT: DataDefinition, DataT] = (
 
 
 type ResolvableDataSamples[DefinitionT: DataDefinition, DataT] = (
-    Samples[DataT] | Callable[[DefinitionT], Samples[DataT]]
+    ResolvableSamples[DataT] | Callable[[DefinitionT], ResolvableSamples[DataT]]
 )
 
 
@@ -46,13 +47,15 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         samples: ResolvableDataSamples[Self, DataT] | None = None,
         **kwargs: Any,
     ):
-        self.__samples = samples or Samples()
         self.__porter = LazyReCallable[Porter[DataT]](
             lambda: (
                 porter(self) if porter and not isinstance(porter, Porter) else porter
             )  # ty:ignore[invalid-argument-type]
         )
         super().__init__(*args, cls=cls, label=label, description=description, **kwargs)
+        if not isinstance(samples, Samples | tuple | Sample | NoneType):
+            samples = samples(self)
+        self.__samples = Samples(samples or ())
 
     @final
     @property
@@ -78,9 +81,7 @@ class DataDefinition[DataT](HumanFacingDefinition, OptionalClsDefinition[DataT])
         """
         Any samples for this data.
         """
-        if isinstance(self.__samples, Samples):
-            return self.__samples
-        return self.__samples(self)
+        return self.__samples
 
 
 class Data[DefinitionT: DataDefinition = DataDefinition](

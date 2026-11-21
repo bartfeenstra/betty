@@ -15,7 +15,7 @@ from betty.datas.plugin.definition import (
 from betty.freezers.init import FrozenOnInit
 from betty.license import License, LicenseDefinition
 from betty.localizables.gettext import _
-from betty.sample import Sample, Samples
+from betty.sample import Sample
 
 if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
@@ -24,9 +24,9 @@ if TYPE_CHECKING:
 @final
 @PluginDefinitionConfigDefinition(
     LicenseDefinition,
-    samples=Samples(
-        lambda: Sample(
-            LicenseDefinitionConfig(
+    samples=(
+        Sample(
+            lambda: LicenseDefinitionConfig(
                 id="my-first-license",
                 label="My First License",
                 summary="My First License is my first license",

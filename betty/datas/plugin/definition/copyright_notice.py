@@ -15,7 +15,7 @@ from betty.datas.plugin.definition import (
 )
 from betty.freezers.init import FrozenOnInit
 from betty.localizables.gettext import _
-from betty.sample import Sample, Samples
+from betty.sample import Sample
 
 if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
@@ -24,9 +24,9 @@ if TYPE_CHECKING:
 @final
 @PluginDefinitionConfigDefinition(
     CopyrightNoticeDefinition,
-    samples=Samples(
-        lambda: Sample(
-            CopyrightNoticeDefinitionConfig(
+    samples=(
+        Sample(
+            lambda: CopyrightNoticeDefinitionConfig(
                 id="my-first-copyright-notice",
                 label="My First Copyright Notice",
                 summary="My First Copyright Notice is my first copyright notice",

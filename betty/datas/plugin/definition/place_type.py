@@ -16,15 +16,15 @@ from betty.datas.plugin.definition import (
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
 from betty.place_type import PlaceType, PlaceTypeDefinition
-from betty.sample import Sample, Samples
+from betty.sample import Sample
 
 
 @final
 @PluginDefinitionConfigDefinition(
     PlaceTypeDefinition,
-    samples=Samples(
-        lambda: Sample(
-            PlaceTypeDefinitionConfig(
+    samples=(
+        Sample(
+            lambda: PlaceTypeDefinitionConfig(
                 id="moon",
                 label="Moon",
                 label_plural="Moons",

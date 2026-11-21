@@ -45,7 +45,7 @@ from betty.operator import Attr, Key
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.project.generate import Generator
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 from betty.service_provider import ServiceProviderDefinition
 from betty.service_providers.webpack import Webpack
 from betty.service_providers.webpack.build import EntryPointProvider
@@ -201,18 +201,18 @@ class _RaspberryMintConfig(Init):
 @final
 @ObjectDefinition(
     label=_("Raspberry Mint configuration"),
-    samples=Samples(
-        lambda: Sample(RaspberryMintConfig(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(
-            RaspberryMintConfig(
+    samples=(
+        Sample(lambda: RaspberryMintConfig(), label="Minimal", size=Size.MINIMAL),
+        Sample(
+            lambda: RaspberryMintConfig(
                 primary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
                 secondary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
                 tertiary_color=ColorDefinition().samples.get(Size.MINIMAL).subject,
             ),
             label="Custom colors",
         ),
-        lambda: Sample(
-            RaspberryMintConfig(
+        Sample(
+            lambda: RaspberryMintConfig(
                 regional_content={
                     "front-page-content": [
                         ContentBuilderManufacturer(

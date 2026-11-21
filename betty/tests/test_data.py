@@ -5,7 +5,7 @@ import pytest
 from betty.data import Data, DataDefinition, resolve_data_definition
 from betty.portable.error import NotPortable
 from betty.porters.callback import CallbackPorter
-from betty.sample import Sample, Samples
+from betty.sample import Sample
 
 
 class TestDataDefinition:
@@ -33,8 +33,8 @@ class TestDataDefinition:
         assert list(sut.samples) == []
 
     def test_samples__with_samples(self) -> None:
-        sample = Sample(object(), label="-")
-        sut = DataDefinition(label="-", samples=Samples(lambda: sample))
+        sample = Sample(object, label="-")
+        sut = DataDefinition(label="-", samples=(sample))
         assert list(sut.samples) == [sample]
 
 

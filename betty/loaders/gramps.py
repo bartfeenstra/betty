@@ -39,7 +39,7 @@ from betty.plugin.factory import PluginManufacturer, ResolvablePluginManufacture
 from betty.porters.omit_field import OmitFieldPorter
 from betty.project import Project
 from betty.role import ResolvableRoleManufacturer, RoleManufacturer
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -96,9 +96,11 @@ def _new_plugin_mapping_attr[
 @final
 @ObjectDefinition(
     label=_("Family tree"),
-    samples=Samples(
-        lambda: Sample(
-            FamilyTree(name="my-gramps-family-tree"), label="Minimal", size=Size.MINIMAL
+    samples=(
+        Sample(
+            lambda: FamilyTree(name="my-gramps-family-tree"),
+            label="Minimal",
+            size=Size.MINIMAL,
         )
     ),
 )
@@ -201,22 +203,22 @@ class _GrampsConfig(Init):
 @final
 @ObjectDefinition(
     label=_("Gramps configuration"),
-    samples=Samples(
-        lambda: Sample(GrampsConfig(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(
-            GrampsConfig(executable="gramps.exe"),
+    samples=(
+        Sample(lambda: GrampsConfig(), label="Minimal", size=Size.MINIMAL),
+        Sample(
+            lambda: GrampsConfig(executable="gramps.exe"),
             label="A custom Gramps executable",
         ),
-        lambda: Sample(
-            GrampsConfig(family_trees=[FamilyTree(file="./gramps.gpkg")]),
+        Sample(
+            lambda: GrampsConfig(family_trees=[FamilyTree(file="./gramps.gpkg")]),
             label="Load a family tree from a file",
         ),
-        lambda: Sample(
-            GrampsConfig(family_trees=[FamilyTree(name="my-family-tree")]),
+        Sample(
+            lambda: GrampsConfig(family_trees=[FamilyTree(name="my-family-tree")]),
             label="Load a family tree by its name directly from Gramps",
         ),
-        lambda: Sample(
-            GrampsConfig(
+        Sample(
+            lambda: GrampsConfig(
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",
@@ -226,8 +228,8 @@ class _GrampsConfig(Init):
             ),
             label="Map a Gramps event type to a Betty event type",
         ),
-        lambda: Sample(
-            GrampsConfig(
+        Sample(
+            lambda: GrampsConfig(
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",
@@ -237,8 +239,8 @@ class _GrampsConfig(Init):
             ),
             label="Map a Gramps place type to a Betty place type",
         ),
-        lambda: Sample(
-            GrampsConfig(
+        Sample(
+            lambda: GrampsConfig(
                 family_trees=[
                     FamilyTree(
                         name="my-family-tree",

@@ -29,7 +29,7 @@ from betty.factory import DataManufacturable
 from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
     from betty.document import Document
@@ -62,9 +62,9 @@ class _SectionConfig(Init):
 @final
 @ObjectDefinition(
     label=_("Section configuration"),
-    samples=Samples(
-        lambda: Sample(
-            SectionConfig(
+    samples=(
+        Sample(
+            lambda: SectionConfig(
                 ContentBuilderManufacturer("my-first-content"),
                 heading="My First Heading",
             ),

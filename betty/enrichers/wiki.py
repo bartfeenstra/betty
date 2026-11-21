@@ -14,7 +14,7 @@ from betty.jobs.populate_wiki_entity import PopulateWikiEntity
 from betty.load import Enricher, EnricherDefinition
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 from betty.service_providers.wiki import Wiki as WikiExtension
 
 if TYPE_CHECKING:
@@ -38,9 +38,9 @@ class _WikiConfig:
 @final
 @ObjectDefinition(
     label=_("Wiki enricher configuration"),
-    samples=Samples(
-        lambda: Sample(WikiConfig(), label="Minimal", size=Size.MINIMAL),
-        lambda: Sample(WikiConfig(populate_images=False), label="Full", size=Size.FULL),
+    samples=(
+        Sample(lambda: WikiConfig(), label="Minimal", size=Size.MINIMAL),
+        Sample(lambda: WikiConfig(populate_images=False), label="Full", size=Size.FULL),
     ),
 )
 class WikiConfig(_WikiConfig, Object, AttrFreezable):

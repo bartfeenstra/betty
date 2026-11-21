@@ -366,18 +366,17 @@ Data
     *{default_localizer.localize(field.data.description)}*
 """
 
-        samples = list(data.samples)
-        if samples:
-            examples_label = "Examples" if len(samples) > 1 else "Example"
+        if data.samples:
+            examples_label = "Examples" if len(data.samples) > 1 else "Example"
             content += f"""
 {examples_label}
 {"".join(["=" * len(examples_label)])}
 
 """
             serializers = _to_thread(lambda: winuvloop.run(_get_serializers()))
-            for sample in samples:
+            for sample in data.samples:
                 example_content = ""
-                if len(samples) > 1:
+                if len(data.samples) > 1:
                     example_label = default_localizer.localize(sample.label)
                     example_content += f"""
 {example_label}

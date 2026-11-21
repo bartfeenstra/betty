@@ -50,9 +50,8 @@ class DataTestBase[DataT: Data]:
         """
         Tests that the data definition can consistently dump and load its samples.
         """
-        samples = list(self.sut_cls.definition.samples)
         porter = self.sut_cls.definition.porter
-        for sample in samples:
+        for sample in self.sut_cls.definition.samples:
             with subtests.test(str(default_localizer.localize(sample.label))):
                 portable = self.sut_cls.definition.porter.dump(sample.subject)
                 loaded = porter.load(portable)
@@ -60,7 +59,7 @@ class DataTestBase[DataT: Data]:
                 assert porter.dump(loaded) == dumped, (
                     f'Failed asserting that repeatedly loading and dumping sample "{default_localizer.localize(sample.label)}" keeps producing the same portable data'
                 )
-                for other_sample in samples:
+                for other_sample in self.sut_cls.definition.samples:
                     if other_sample is sample:
                         continue
                     assert porter.dump(other_sample.subject) != dumped, (
@@ -87,8 +86,7 @@ class DataTestBase[DataT: Data]:
         """
         Tests :py:meth:`object.__eq__` implementations with values that do not subclass :py:class:`betty.data.Data`.
         """
-        samples = list(self.sut_cls.definition.samples)
-        for sample in samples:
+        for sample in self.sut_cls.definition.samples:
             with subtests.test(str(default_localizer.localize(sample.label))):
                 assert sample.subject != other
 
@@ -96,16 +94,16 @@ class DataTestBase[DataT: Data]:
         """
         Tests :py:meth:`object.__eq__` implementations with the data definition's samples.
         """
-        samples = list(self.sut_cls.definition.samples)
-        for sample in samples:
+        for sample in self.sut_cls.definition.samples:
             with subtests.test(str(default_localizer.localize(sample.label))):
-                assert sample.subject == sample.subject, (
+                subject = sample.subject
+                assert subject == subject, (
                     f'Failed asserting that sample "{default_localizer.localize(sample.label)}" instance is equal to itself'
                 )
-                for other_sample in samples:
+                for other_sample in self.sut_cls.definition.samples:
                     if other_sample is sample:
                         continue
-                    assert sample.subject != other_sample.subject, (
+                    assert subject != other_sample.subject, (
                         f'Failed asserting that sample "{default_localizer.localize(sample.label)}" instance is not equal to sample "{default_localizer.localize(other_sample.label)}"'
                     )
 

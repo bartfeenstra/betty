@@ -39,7 +39,7 @@ from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.porters.callback import CallbackPorter
 from betty.project import Project
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 from betty.service_providers.raspberry_mint import Breakpoint, JustifyContent
 
 if TYPE_CHECKING:
@@ -114,30 +114,30 @@ class _ColumnsConfig(Init):
 @final
 @ObjectDefinition(
     label=_("Columns configuration"),
-    samples=Samples(
-        lambda: Sample(
-            ColumnsConfig([
+    samples=(
+        Sample(
+            lambda: ColumnsConfig([
                 ContentBuilderManufacturer(Render, RenderConfig("Hello, world!"))
             ]),
             label="Minimal",
             size=Size.MINIMAL,
         ),
-        lambda: Sample(
-            ColumnsConfig(
+        Sample(
+            lambda: ColumnsConfig(
                 [ContentBuilderManufacturer(Render, RenderConfig("Hello, world!"))],
                 justify_content=JustifyContent.CENTER,
             ),
             label="Justify content",
         ),
-        lambda: Sample(
-            ColumnsConfig(
+        Sample(
+            lambda: ColumnsConfig(
                 [ContentBuilderManufacturer(Render, RenderConfig("Hello, world!"))],
                 width=6,
             ),
             label="A single column with a fixed, non-responsive width",
         ),
-        lambda: Sample(
-            ColumnsConfig(
+        Sample(
+            lambda: ColumnsConfig(
                 [
                     ContentBuilderManufacturer(Render, RenderConfig("Hello, world!")),
                 ],
@@ -148,8 +148,8 @@ class _ColumnsConfig(Init):
             ),
             label="Multiple columns with fixed, non-responsive widths",
         ),
-        lambda: Sample(
-            ColumnsConfig(
+        Sample(
+            lambda: ColumnsConfig(
                 [ContentBuilderManufacturer(Render, RenderConfig("Hello, world!"))],
                 width={
                     Breakpoint.XS: 12,
@@ -158,8 +158,8 @@ class _ColumnsConfig(Init):
             ),
             label="A single column with responsive widths",
         ),
-        lambda: Sample(
-            ColumnsConfig(
+        Sample(
+            lambda: ColumnsConfig(
                 [
                     ContentBuilderManufacturer(Render, RenderConfig("Hello, world!")),
                 ],

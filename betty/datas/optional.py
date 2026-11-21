@@ -9,7 +9,7 @@ from typing import final
 from betty.data import DataDefinition
 from betty.porters.data_proxy import DataDefinitionProxyPorter
 from betty.porters.optional import OptionalPorter
-from betty.sample import Sample, Samples, Size
+from betty.sample import Sample, Size
 
 
 @final
@@ -27,8 +27,8 @@ class OptionalDefinition[DataT](DataDefinition[DataT | None]):
                     proxied,  # ty:ignore[invalid-argument-type]
                 )
             ),
-            samples=Samples(
-                lambda: Sample(None, label="Minimal", size=Size.MINIMAL),
+            samples=(
+                Sample(lambda: None, label="Minimal", size=Size.MINIMAL),
                 proxied.samples,
             ),
         )

@@ -16,15 +16,15 @@ from betty.datas.plugin.definition import (
 from betty.locale import default_locale
 from betty.localizables.static import CountableStaticTranslations
 from betty.role import Role, RoleDefinition
-from betty.sample import Sample, Samples
+from betty.sample import Sample
 
 
 @final
 @PluginDefinitionConfigDefinition(
     RoleDefinition,
-    samples=Samples(
-        lambda: Sample(
-            RoleDefinitionConfig(
+    samples=(
+        Sample(
+            lambda: RoleDefinitionConfig(
                 id="astronaut",
                 label="Astronaut",
                 label_plural="Astronauts",
