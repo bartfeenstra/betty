@@ -39,7 +39,7 @@ type MediaTypeDefinitionMediaType = (
 )
 
 
-type ResolvableMediaType = MediaType | MediaTypeDefinition | str
+type ResolvableMediaType = MediaType | str
 """
 A value that can be resolved to a :py:class:`betty.media_type.MediaType`.
 """
@@ -152,8 +152,6 @@ class MediaType(str, Data, _MediaTypeMatcher["MediaType", ResolvableMediaType]):
     ):
         if isinstance(media_type, cls):
             return media_type
-        if isinstance(media_type, MediaTypeDefinition):
-            return media_type.media_type
         message = EmailMessage()
         message["Content-Type"] = media_type
         # @todo Do we need a new dict? Can we leverage empty_frozen_dict?

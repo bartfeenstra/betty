@@ -8,23 +8,33 @@ from typing import TYPE_CHECKING, Any
 
 from betty.attrs.owner import OwnerAttr
 from betty.classtools.init import Init
+from betty.data import DataDefinition
 from betty.datas.aggregate.record import FieldDefinition
-from betty.media_type import MediaType, ResolvableMediaType
+from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
     from betty.attrs.common import OptionableCommonAttr
     from betty.localizer import AnyLocalizable
+    from betty.media_type import MediaTypeDefinition
 
 
+# @todo Make an inventory of where and how we use this. Then refactor.
+# @todo
+# @todo
+# @todo
 def new_media_type_attr(
     *, label: AnyLocalizable | None = None, description: AnyLocalizable | None = None
-) -> OptionableCommonAttr[Init, MediaType, ResolvableMediaType]:
+) -> OptionableCommonAttr[Init, MediaTypeDefinition, MediaTypeDefinition]:
     """
     Create an attribute containing a media type.
     """
     return OwnerAttr(
-        FieldDefinition(MediaType, label=label, description=description)
-    ).setter(MediaType)
+        FieldDefinition(
+            DataDefinition(label=_("Media type")),
+            label=label,
+            description=description,
+        )
+    )
 
 
 class HasMediaType(Init):
@@ -37,7 +47,7 @@ class HasMediaType(Init):
     def __init__(
         self,
         *args: Any,
-        media_type: ResolvableMediaType | None = None,
+        media_type: MediaTypeDefinition | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)

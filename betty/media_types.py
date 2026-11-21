@@ -233,6 +233,10 @@ rtf: Final[MediaTypeDefinition] = MediaTypeDefinition(
     extension=".rtf",
 )
 
+scss: Final[MediaTypeDefinition] = MediaTypeDefinition(
+    "scss", label="SCSS", extension=".scss"
+)
+
 svg: Final[MediaTypeDefinition] = MediaTypeDefinition(
     "svg", label="SVG", media_type="image/svg+xml", extension=".svg"
 )
