@@ -41,7 +41,7 @@ class Generate(Manufacturable, Command):
     async def _command_function(self, project: Project) -> CommandResult:
         async with (
             project,
-            project.upstream.ui.progress(_("Generating site…")) as progress,
+            project.app.ui.progress(_("Generating site…")) as progress,
         ):
             context = Context(progress=progress)
             await load.load(project, context=context)

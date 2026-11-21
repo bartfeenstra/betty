@@ -755,6 +755,13 @@ class Project(
             cls.localizers.override(project, Service(LocalizerRepository()))
             yield project
 
+    @property
+    def app(self) -> App:
+        """
+        The application this project runs within.
+        """
+        return self.upstream
+
     def localize_www_directory(self, locale: Locale) -> Path:
         """
         Get the WWW directory path for a locale.
@@ -829,7 +836,7 @@ class Project(
         """
         The privatizer.
         """
-        return Privatizer(self.lifetime_threshold, ui=self.upstream.ui)
+        return Privatizer(self.lifetime_threshold, ui=self.app.ui)
 
     async def new_document(
         self,

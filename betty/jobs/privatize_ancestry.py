@@ -42,7 +42,7 @@ class PrivatizeAncestry(Job):
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
-        ui = self._project.upstream.ui
+        ui = self._project.app.ui
         newly_privatized: MutableMapping[MachineName, int] = defaultdict(lambda: 0)
         entities: MutableSequence[Intersection[HasPrivacy, Entity]] = []
         for entity in self._project.ancestry:

@@ -34,7 +34,7 @@ class TestPopulateWikiEntity:
                 await do(
                     PopulateLink(
                         link,
-                        http_client=await project.upstream.http_client,
+                        http_client=await project.app.http_client,
                         localizers=[default_localizer],
                     ),
                     PopulateWikiEntity(link, project=project),

@@ -63,7 +63,7 @@ async def generate(project: Project, *, context: Context | None = None) -> None:
     await context.progress.done()
 
     threading_concurrency = cpu_count() or 2
-    scheduler = DefaultScheduler(context=context, ui=project.upstream.ui)
+    scheduler = DefaultScheduler(context=context, ui=project.app.ui)
     async with ThreadPoolExecutor(
         scheduler,
         async_concurrency=ceil(max_strands / threading_concurrency),

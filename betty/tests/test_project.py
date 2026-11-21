@@ -31,6 +31,11 @@ class TestProject:
         assert sut.upstream is isolated_app
         assert sut.directory == tmp_path
 
+    async def test_app(self) -> None:
+        async with Project.new_isolated() as sut:
+            assert sut.app is sut.app
+            assert sut.app is sut.upstream
+
     async def test_new_isolated__without_app(self) -> None:
         async with Project.new_isolated() as sut:
             assert sut.upstream is sut.upstream

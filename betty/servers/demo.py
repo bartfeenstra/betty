@@ -44,7 +44,7 @@ class DemoServer(Server):
         await self._exit_stack.enter_async_context(project)
 
         try:
-            async with project.upstream.ui.progress(_("Generating site…")) as progress:
+            async with project.app.ui.progress(_("Generating site…")) as progress:
                 await generate.generate_with_cleanup(
                     project, context=Context(progress=progress)
                 )

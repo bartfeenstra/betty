@@ -360,7 +360,7 @@ class GrampsLoader:
     ):
         super().__init__()
         self._project = project
-        self._ui = project.upstream.ui
+        self._ui = project.app.ui
         self._ancestry = ancestry
         self._handles_to_entities: MutableMapping[str, Entity] = {}
         self._attribute_prefix_key = attribute_prefix_key

@@ -110,7 +110,7 @@ class _ResourceTemplate[ResourceT](Job, metaclass=ABCMeta):
     def _match_extension(
         cls, templates: TemplateNames, /, *, project: Project
     ) -> tuple[MediaType, str]:
-        return match_extension(templates[0][:-3], project.upstream.media_types)
+        return match_extension(templates[0][:-3], project.app.media_types)
 
 
 class ResourceTemplate[ResourceT](_ResourceTemplate[ResourceT], metaclass=ABCMeta):
