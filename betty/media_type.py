@@ -175,8 +175,10 @@ class MediaType(str, Data, _MediaTypeMatcher["MediaType", ResolvableMediaType]):
             subtype = type_part_remainder
             suffix = None
         subtypes = subtype.split("+")[0].split(".")
-        # @todo NORMALIZE
+        # @todo normalize parameters
         normalized = type_ + "/" + subtype
+        if suffix:
+            normalized += suffix
         new = super().__new__(cls, normalized)
         new._parameters = parameters
         new._type = type_
