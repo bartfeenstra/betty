@@ -166,6 +166,7 @@ class Builder:
             / "packages"
             / _package_name_to_path(cast(str, package_json["name"]))
         )
+        # @todo Inject a copy function instead. Move CopyFunction out of the Jinja API.
         copy_function = make_copy_function(
             self._jinja, document=Document(context=context)
         )

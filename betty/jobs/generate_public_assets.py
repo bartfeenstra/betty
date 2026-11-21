@@ -44,6 +44,7 @@ class GenerateStaticPublicAssets(Job):
             document=await self._project.new_document(context=scheduler.context),
             www_directory=self._project.www_directory,
             is_localized_and_multilingual=self._project.multilingual,
+            media_types=self._project.app.supported_media_types,
         )
         await gather(*[
             self._generate(asset_path, copy_function)
@@ -88,6 +89,7 @@ class GenerateLocalizedPublicAssets(Job):
                 ),
                 www_directory=self._project.www_directory,
                 is_localized_and_multilingual=self._project.multilingual,
+                media_types=self._project.app.supported_media_types,
             )
             for locale in self._project.locales
         }

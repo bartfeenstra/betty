@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.media_type import MediaTypeDefinition, MediaTypeMatcher, MediaTypeRepository
+from betty.media_type import MediaTypeDefinition, MediaTypeRepository
 from betty.service_level import ServiceLevel
 from betty.services.plugin import HasPluginServices
 from betty.services.plugin.definition.collection.catalog import PluginDefinitionsService
@@ -26,7 +26,7 @@ class HasMediaTypes(ServiceLevel, HasPluginServices):
     # @todo Can we come up with a better name?
     @final
     @service
-    def supported_media_types(self) -> MediaTypeMatcher:
+    def supported_media_types(self) -> MediaTypeRepository:
         """
         The supported media types.
         """

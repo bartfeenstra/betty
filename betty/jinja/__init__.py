@@ -176,7 +176,7 @@ def make_copy_function(
     *,
     document: Document,
     is_localized_and_multilingual: bool | None = None,
-    media_types: Iterable[MediaTypeDefinition] = (),
+    media_types: Iterable[MediaTypeDefinition],
     www_directory: StrPath | None = None,
 ) -> CopyFunction:
     """
