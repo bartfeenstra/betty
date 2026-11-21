@@ -52,8 +52,7 @@ class IncompleteTranslationWarning(Template, Manufacturable):
     @classmethod
     async def new(cls, project: Project, /) -> Self:
         return cls(
-            asset_directories=project.asset_directories.directories,
-            jinja=await project.jinja,
+            asset_directories=project.assets.directories, jinja=await project.jinja
         )
 
     async def _completion(self, locale: Locale, /) -> int:

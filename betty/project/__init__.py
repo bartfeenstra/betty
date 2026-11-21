@@ -113,8 +113,7 @@ from betty.service_provider import (
     ServiceProviderDefinition,
     ServiceProviderManufacturer,
 )
-from betty.services.asset import AssetRepositoryService
-from betty.services.plugin import HasPluginServices
+from betty.services.asset import HasAssets
 from betty.services.plugin.definition.collection.catalog import PluginDefinitionsService
 from betty.services.plugin.instance.collection.catalog import PluginInstancesService
 from betty.services.plugin.instance.single import PluginInstanceService
@@ -604,10 +603,7 @@ class ProjectConfig(_ProjectConfig, Object, AttrFreezable):
 
 @final
 class Project(
-    _ProjectConfig,
-    DownstreamServiceLevel[App],
-    RequirableServiceLevel,
-    HasPluginServices,
+    _ProjectConfig, DownstreamServiceLevel[App], RequirableServiceLevel, HasAssets
 ):
     """
     Define a Betty project.
@@ -622,7 +618,6 @@ class Project(
          - :py:class:`betty.project.ProjectConfig`
     """
 
-    asset_directories = AssetRepositoryService()
     copyright_notice = PluginInstanceService(CopyrightNoticeDefinition)
     css_resources = PluginDefinitionsService(CssResourceDefinition)
     document_providers = PluginInstancesService(DocumentProviderDefinition)
@@ -775,7 +770,7 @@ class Project(
         """
         return LocalizerRepository(
             translations=TranslationsRepository(
-                assets=self.asset_directories, cache=self.binary_file_cache
+                assets=self.assets, cache=self.binary_file_cache
             )
         )
 

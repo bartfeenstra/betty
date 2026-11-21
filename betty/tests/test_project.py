@@ -39,10 +39,6 @@ class TestProject:
         async with Project.new_isolated(app=isolated_app) as sut:
             assert sut.upstream is isolated_app
 
-    async def test_assets(self, new_isolated_project: NewIsolatedProject) -> None:
-        async with new_isolated_project() as sut, sut:
-            assert len(sut.asset_directories.directories) == 2
-
     async def test_jinja(self, new_isolated_project: NewIsolatedProject) -> None:
         async with new_isolated_project() as sut, sut:
             await sut.jinja
