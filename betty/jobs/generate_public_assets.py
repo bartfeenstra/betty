@@ -8,13 +8,14 @@ from asyncio import gather
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, final, override
 
-from betty.jinja import CopyFunction, make_copy_function
+from betty.jinja import make_copy_function
 from betty.job import Job
 from betty.jobs.generate_www_directory import GenerateWwwDirectory
 
 if TYPE_CHECKING:
     from babel import Locale
 
+    from betty.file import CopyFunction
     from betty.job.scheduler import Scheduler
     from betty.project import Project
 
@@ -44,6 +45,7 @@ class GenerateStaticPublicAssets(Job):
             document=await self._project.new_document(context=scheduler.context),
             www_directory=self._project.www_directory,
             is_localized_and_multilingual=self._project.multilingual,
+            media_types=self._project.app.supported_media_types,
         )
         await gather(*[
             self._generate(asset_path, copy_function)
@@ -88,6 +90,7 @@ class GenerateLocalizedPublicAssets(Job):
                 ),
                 www_directory=self._project.www_directory,
                 is_localized_and_multilingual=self._project.multilingual,
+                media_types=self._project.app.supported_media_types,
             )
             for locale in self._project.locales
         }

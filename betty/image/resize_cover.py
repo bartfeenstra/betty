@@ -1,5 +1,5 @@
 """
-Manipulate images.
+Resize images to cover an area.
 """
 
 from __future__ import annotations
@@ -7,57 +7,23 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
-from PIL import UnidentifiedImageError
-from PIL.Image import EXTENSION, Image, init, preinit
-
-from betty.media_types import pdf
-from betty.pathlib import StrPath, resolve_path
-
 if TYPE_CHECKING:
-    from betty.media_type import MediaType
+    from PIL.Image import Image
 
-type Percentage = int
-type Pixel = int
-type OneDimensionalSize = tuple[Pixel, None] | tuple[None, Pixel]
-type TwoDimensionalSize = tuple[Pixel, Pixel]
-type Size = OneDimensionalSize | TwoDimensionalSize
-type FocusArea = tuple[Percentage, Percentage, Percentage, Percentage]
+    from betty.image import FocusArea, Size
 
 
-def is_supported_media_type(media_type: MediaType) -> bool:
-    """
-    Test if a media type is supported by the image API.
-    """
-    if media_type.type == "image":
-        return True
-    return media_type == pdf
-
-
-def image_file_path_format(image_file: StrPath, /) -> str:
-    """
-    Get the PIL image format for an image's file path.
-    """
-    suffix = resolve_path(image_file).suffix
-    if suffix not in EXTENSION:
-        preinit()
-        if suffix not in EXTENSION:
-            init()
-            if suffix not in EXTENSION:
-                raise UnidentifiedImageError(f"cannot identify image file {image_file}")
-    return EXTENSION[suffix]
-
-
-def _assert_size(size: Size) -> None:
+def _assert_size(size: Size, /) -> None:
     if size[0] is not None and size[0] <= 0 or size[1] is not None and size[1] <= 0:
         raise ValueError("Invalid size: sizes must be greater than 0")
 
 
-def _assert_area(area: FocusArea) -> None:
+def _assert_area(area: FocusArea, /) -> None:
     if area[0] >= area[2] or area[1] >= area[3]:
         raise ValueError("Invalid area")
 
 
-def _assert_boundaries(image: Image, area: FocusArea) -> None:
+def _assert_boundaries(image: Image, area: FocusArea, /) -> None:
     if (
         0 > area[0] > image.width
         or 0 > area[2] > image.width
@@ -68,7 +34,7 @@ def _assert_boundaries(image: Image, area: FocusArea) -> None:
 
 
 def resize_cover(
-    original_image: Image, resize_size: Size, *, focus: FocusArea | None = None
+    original_image: Image, resize_size: Size, /, *, focus: FocusArea | None = None
 ) -> Image:
     """
     Resize an image to cover an area.

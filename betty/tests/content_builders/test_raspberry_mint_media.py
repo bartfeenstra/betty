@@ -3,7 +3,7 @@ from betty.dirs import builtin_asset_directory
 from betty.document import Document
 from betty.entities.file import File
 from betty.localizer import default_localizer
-from betty.media_type import MediaType
+from betty.media_types import png
 from betty.test_utils.conftest import NewIsolatedProject
 
 
@@ -23,7 +23,7 @@ class TestMedia:
     ) -> None:
         resource = File(
             builtin_asset_directory / "public" / "static" / "betty-16x16.png",
-            media_type=MediaType("image/png"),
+            media_type=png,
         )
         async with (
             new_isolated_project(supported_plugins=[Media]) as project,

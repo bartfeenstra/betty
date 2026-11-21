@@ -46,9 +46,6 @@ class TestApp:
     async def test_localizers(self, isolated_app: App) -> None:
         assert isolated_app.localizers is isolated_app.localizers
 
-    async def test_process_pool(self, isolated_app: App) -> None:
-        assert isolated_app.process_pool is isolated_app.process_pool
-
     async def test_binary_file_cache(self, isolated_app: App) -> None:
         assert isolated_app.binary_file_cache is isolated_app.binary_file_cache
 

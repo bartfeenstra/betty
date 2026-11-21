@@ -66,7 +66,7 @@ class New(Manufacturable, Command):
             assertion=assert_path(),
         )
         if not configuration_file.suffix:
-            configuration_file /= f"betty{serializers[0].media_type().extensions[0]}"
+            configuration_file /= f"betty{serializers[0].media_type.extension}"
 
         configuration.locales = [
             await self._app.ui.ask_input(

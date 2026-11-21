@@ -91,7 +91,21 @@ from betty.localizables.gettext import _, pgettext
 from betty.localizables.markup import JoinOr, Quote
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
-from betty.media_type import InvalidMediaType, MediaType
+from betty.media_type import (
+    InvalidMediaType,
+    MediaType,
+    MediaTypeDefinition,
+    MediaTypeRepository,
+)
+from betty.media_types import (
+    csv,
+    gedcom,
+    geneweb,
+    gramps_xml,
+    gramps_xml_package,
+    pro_gen,
+    vcard,
+)
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeManufacturer, ResolvablePlaceTypeManufacturer
 from betty.place_types.borough import Borough
@@ -277,29 +291,19 @@ default_role_mapping: Final[Mapping[str, ResolvableRoleManufacturer]] = {
 _default_gramps_executable: Final[str] = (
     "Gramps.exe" if sys.platform.startswith("win32") else "gramps"
 )
-_gramps_extensions_native: Final[Sequence[str]] = (
-    # Gramps package
-    ".gpkg",
-    # Gramps XML
-    ".gramps",
+_gramps_media_types_native: Final[Sequence[MediaTypeDefinition]] = (
+    gramps_xml,
+    gramps_xml_package,
 )
-_gramps_extensions_import: Final[Sequence[str]] = (
-    # CSV
-    ".csv",
-    # GEDCOM
-    ".ged",
-    # GeneWeb
-    ".gw",
-    # Gramps 2.x database
-    ".grdb",
-    # Pro-Gen
-    ".def",
-    # vCard
-    ".vcf",
+_gramps_media_types_vendor: Final[Sequence[MediaTypeDefinition]] = (
+    csv,
+    gedcom,
+    geneweb,
+    pro_gen,
+    vcard,
 )
-_gramps_extensions: Final[Sequence[str]] = (
-    *_gramps_extensions_native,
-    *_gramps_extensions_import,
+_gramps_media_types: Final[MediaTypeRepository] = MediaTypeRepository(
+    *_gramps_media_types_native, *_gramps_media_types_vendor
 )
 
 
@@ -427,16 +431,16 @@ class GrampsLoader:
             Severity.INFO,
         )
 
-        if file.suffix == ".gpkg":
+        if gramps_xml_package.extensions.request(file):
             return await self.load_gpkg(file)
-        if file.suffix == ".gramps":
+        if gramps_xml.extensions.request(file):
             return await self.load_gramps(file)
-        if file.suffix in _gramps_extensions_import:
+        if file.suffix in _gramps_media_types_vendor:
             return await self._load_file_gramps_import(file)
 
         raise UserFacingGrampsError(
             _("Only the following file types can be loaded: {file_extensions}").format(
-                file_extensions=JoinOr(*sorted(_gramps_extensions))
+                file_extensions=JoinOr(*sorted(_gramps_media_types.extensions))
             )
         )
 

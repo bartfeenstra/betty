@@ -12,7 +12,7 @@ from betty.media_types import plain_text
 from betty.render import Renderer, RendererDefinition
 
 if TYPE_CHECKING:
-    from betty.media_type import MediaType
+    from betty.media_type import MediaTypeDefinition
 
 
 @RendererDefinition("plain-text", label=_("Plain text"))
@@ -23,8 +23,8 @@ class PlainText(Renderer):
 
     @override
     @property
-    def media_type(self) -> MediaType:
-        return plain_text.media_type
+    def media_type(self) -> MediaTypeDefinition:
+        return plain_text
 
     @override
     async def render(self, content: str, /) -> str:

@@ -127,7 +127,7 @@ if TYPE_CHECKING:
 
     from betty.jinja import Environment
     from betty.localizer import AnyLocalizable
-    from betty.media_type import ResolvableMediaType
+    from betty.media_type import MediaTypeDefinition
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition
     from betty.services.plugin import SupportedPlugins
@@ -846,7 +846,7 @@ class Project(
         resource_url: object = None,
         /,
         *,
-        media_type: ResolvableMediaType | None = None,
+        media_type: MediaTypeDefinition | None = None,
         **document_vars: Any,
     ) -> Document:
         """

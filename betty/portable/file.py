@@ -40,7 +40,7 @@ def assert_load_file(
         ):
             with open(file, encoding="utf-8") as f:
                 dump_data = f.read()
-            return serializer_for(serializers, file.suffix).load(dump_data)
+            return serializer_for(serializers, file.name).load(dump_data)
 
     return assert_file() | _assert
 
@@ -52,6 +52,6 @@ async def dump_file(
     Write a dump to a file.
     """
     file = resolve_path(file)
-    dump_data = serializer_for(serializers, file.suffix).dump(portable)
+    dump_data = serializer_for(serializers, file.name).dump(portable)
     await to_thread(file.parent.mkdir, exist_ok=True, parents=True)
     await write(file, dump_data)
