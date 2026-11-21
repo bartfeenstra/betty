@@ -123,6 +123,9 @@ class MediaTypeType(StrEnum):
     TEXT = auto()
     VIDEO = auto()
 
+    # @todo Extract this into a base class in betty.enum? Especially with the upcoming validation PR, that would help
+    # @todo make any enum validatable by just subclassing the base class.
+    # @todo
     @override
     @classmethod
     def _missing_(cls, value: object) -> Any:
