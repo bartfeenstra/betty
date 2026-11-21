@@ -29,6 +29,25 @@ if TYPE_CHECKING:
     from betty.machine_name import ResolvableMachineName
 
 
+type MediaTypeDefinitionExtension = str | Intersection[Not[str], Iterable[str]]
+type MediaTypeDefinitionMediaType = (
+    ResolvableMediaType
+    | Intersection[Not[ResolvableMediaType], Iterable[ResolvableMediaType]]
+)
+
+
+type ResolvableMediaType = MediaType | MediaTypeDefinition | str
+"""
+A value that can be resolved to a :py:class:`betty.media_type.MediaType`.
+"""
+
+
+type MatchableMediaType = ResolvableMediaType | StrPath
+"""
+A media type, or a file path or name that indicates a media type through its file extension.
+"""
+
+
 class InvalidMediaType(ValueError):
     """
     Raised when an identifier is not a valid media type.
@@ -53,13 +72,30 @@ class MissingMediaType(RuntimeError):
         super().__init__("Missing media type")
 
 
+class _MediaTypeMatcher[MatchableT: MatchableMediaType, MatchT](metaclass=ABCMeta):
+    @abstractmethod
+    def request(self, other: MatchableT, /) -> MatchT | None:
+        """
+        Request a match by a media type indicator.
+        """
+
+    @final
+    def require(self, other: MatchableT, /) -> MatchT:
+        """
+        Require a match by a media type indicator.
+        """
+        if match := self.request(other):
+            return match
+        raise UnsupportedMediaType(other)
+
+
 @final
 @DataDefinition(
     label=_("Media type"),
     porter=lambda _: CallbackPorter(assert_str() | MediaType, pipe),
     samples=Sample(lambda: MediaType("text/plain"), label="Plain text"),
 )
-class MediaType(str, Data):
+class MediaType(str, Data, _MediaTypeMatcher["MediaType", ResolvableMediaType]):
     """
     Define a `media type <https://en.wikipedia.org/wiki/Media_type>`_.
 
@@ -145,41 +181,16 @@ class MediaType(str, Data):
         """
         return self._suffix
 
-
-type MediaTypeDefinitionExtension = str | Intersection[Not[str], Iterable[str]]
-type MediaTypeDefinitionMediaType = (
-    ResolvableMediaType
-    | Intersection[Not[ResolvableMediaType], Iterable[ResolvableMediaType]]
-)
-
-
-type ResolvableMediaType = MediaType | MediaTypeDefinition | str
-"""
-A value that can be resolved to a :py:class:`betty.media_type.MediaType`.
-"""
-
-
-type MatchableMediaType = ResolvableMediaType | StrPath
-"""
-A media type, or a file path or name that indicates a media type through its file extension.
-"""
-
-
-class _MediaTypeMatcher[MatchableT: MatchableMediaType, MatchT](metaclass=ABCMeta):
-    @abstractmethod
-    def request(self, other: MatchableT, /) -> MatchT | None:
-        """
-        Request a match by a media type indicator.
-        """
-
-    @final
-    def require(self, other: MatchableT, /) -> MatchT:
-        """
-        Require a match by a media type indicator.
-        """
-        if match := self.request(other):
-            return match
-        raise UnsupportedMediaType(other)
+    @override
+    def request(self, other: ResolvableMediaType, /) -> Self | None:
+        other = MediaType(other)
+        if (self.type, self.subtype, self.suffix) == (
+            other.type,
+            other.subtype,
+            other.suffix,
+        ):
+            return self
+        return None
 
 
 class MediaTypeMatcher(_MediaTypeMatcher[ResolvableMediaType, "MediaTypeDefinition"]):
@@ -269,9 +280,8 @@ class MediaTypeDefinition(
 
     @override
     def request(self, other: ResolvableMediaType, /) -> MediaTypeDefinition | None:
-        other = MediaType(other)
         for media_type in self.media_types:
-            if media_type == other:
+            if media_type.request(other):
                 return self
         return None
 
@@ -326,10 +336,9 @@ class MediaTypeDefinitions(MediaTypeMatcher):
 
     @override
     def request(self, other: ResolvableMediaType, /) -> MediaTypeDefinition | None:
-        other = MediaType(other)
         for media_type_definition in self._media_types:
             for media_type in media_type_definition.media_types:
-                if media_type == other:
+                if media_type.request(other):
                     return media_type_definition
         return None
 
