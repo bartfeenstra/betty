@@ -186,7 +186,7 @@ async def _do_jobs[PluginT](
     plugins: Collection[PluginT],
     callback: Callable[[Scheduler, PluginT], Awaitable[None]],
 ) -> None:
-    scheduler = DefaultScheduler(context=context, ui=project.upstream.ui)
+    scheduler = DefaultScheduler(context=context, ui=project.app.ui)
     async with AsyncExecutor(scheduler, concurrency=max_strands):
         await gather(*map(partial(callback, scheduler), plugins))
         await scheduler.release()

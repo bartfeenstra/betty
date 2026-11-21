@@ -33,12 +33,12 @@ class Wiki(ServiceProvider[Project], Manufacturable):
         The API client.
         """
         return Client(
-            download_directory=self.services.upstream.binary_file_cache.with_scope(
+            download_directory=self.services.app.binary_file_cache.with_scope(
                 "wiki-client"
             ).directory,
-            http_client=await self.services.upstream.http_client,
-            media_types=self.services.upstream.media_types,
-            ui=self.services.upstream.ui,
+            http_client=await self.services.app.http_client,
+            media_types=self.services.app.media_types,
+            ui=self.services.app.ui,
         )
 
     @service
@@ -55,5 +55,5 @@ class Wiki(ServiceProvider[Project], Manufacturable):
             self.services.localizers,
             http_client,
             copyright_notice,
-            ui=self.services.upstream.ui,
+            ui=self.services.app.ui,
         )

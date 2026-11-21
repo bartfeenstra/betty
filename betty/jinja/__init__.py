@@ -111,7 +111,7 @@ async def new_environment(project: Project, /) -> Environment:
         "about_url_code": about.url_code,
         "about_url_documentation": about.url_documentation,
         "about_url_report_issue": about.url_report_issue,
-        "app": project.upstream,
+        "app": project.app,
         "default_locale": default_locale,
         "deprecate": deprecate,
         "localizable_join_and": JoinAnd,
