@@ -10,7 +10,6 @@ from betty.data import DataDefinition
 from betty.date import AnyDate, Date, DateRange
 from betty.localizables.gettext import _
 from betty.porters.date import AnyDatePorter
-from betty.sample import Samples
 
 
 @final
@@ -23,5 +22,5 @@ class AnyDateDefinition(DataDefinition[AnyDate]):
         super().__init__(
             label=_("Date"),
             porter=AnyDatePorter(),
-            samples=Samples(Date.definition.samples, DateRange.definition.samples),
+            samples=(Date.definition.samples, DateRange.definition.samples),
         )

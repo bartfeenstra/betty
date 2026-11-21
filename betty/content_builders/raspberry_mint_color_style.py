@@ -27,7 +27,7 @@ from betty.factory import DataManufacturable
 from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _
 from betty.project import Project
-from betty.sample import Sample, Samples
+from betty.sample import Sample
 from betty.service_providers.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 
 if TYPE_CHECKING:
@@ -45,11 +45,11 @@ class _ColorStyleConfig(Init):
 @final
 @ObjectDefinition(
     label=_("Color style configuration"),
-    samples=Samples(
-        lambda: Sample(
-            ColorStyleConfig("my-first-content", style=RaspberryMintColorStyle.DARK),
-            label="Default",
-        )
+    samples=Sample(
+        lambda: ColorStyleConfig(
+            "my-first-content", style=RaspberryMintColorStyle.DARK
+        ),
+        label="Default",
     ),
     manufacturer=lambda **fields: ColorStyleConfig(*fields.pop("content"), **fields),
 )
