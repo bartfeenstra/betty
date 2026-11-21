@@ -18,6 +18,7 @@ from betty.pathlib import StrPath, resolve_path
 from betty.pipeline import pipe
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.porters.callback import CallbackPorter
+from betty.sample import Sample
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -56,6 +57,7 @@ class MissingMediaType(RuntimeError):
 @DataDefinition(
     label=_("Media type"),
     porter=lambda _: CallbackPorter(assert_str() | MediaType, pipe),
+    samples=Sample(lambda: MediaType("text/plain"), label="Plain text"),
 )
 class MediaType(str, Data):
     """
