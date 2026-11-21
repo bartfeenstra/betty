@@ -95,7 +95,7 @@ from betty.media_type import (
     InvalidMediaType,
     MediaType,
     MediaTypeDefinition,
-    MediaTypeDefinitions,
+    MediaTypeRepository,
 )
 from betty.media_types import (
     csv,
@@ -302,7 +302,7 @@ _gramps_media_types_vendor: Final[Sequence[MediaTypeDefinition]] = (
     pro_gen,
     vcard,
 )
-_gramps_media_types: Final[MediaTypeDefinitions] = MediaTypeDefinitions(
+_gramps_media_types: Final[MediaTypeRepository] = MediaTypeRepository(
     *_gramps_media_types_native, *_gramps_media_types_vendor
 )
 

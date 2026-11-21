@@ -13,7 +13,7 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import JoinOr, Quote
-from betty.media_type import MediaTypeDefinitions
+from betty.media_type import MediaTypeRepository
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
@@ -82,9 +82,7 @@ class SerializerDefinition(
             description=description,
             requires=requires,
         )
-        self.media_types: Final[MediaTypeDefinitions] = MediaTypeDefinitions(
-            *media_types
-        )
+        self.media_types: Final[MediaTypeRepository] = MediaTypeRepository(*media_types)
 
 
 def serializer_for(

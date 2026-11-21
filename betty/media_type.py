@@ -87,6 +87,8 @@ class MissingMediaType(RuntimeError):
 # @todo
 # @todo
 class _MediaTypeMatcher[MatchableT: MatchableMediaType, MatchT](metaclass=ABCMeta):
+    __slots__ = ()
+
     @abstractmethod
     def request(self, other: MatchableT, /) -> MatchT | None:
         """
@@ -234,17 +236,54 @@ class MediaType(str, Data, _MediaTypeMatcher["MediaType", ResolvableMediaType]):
         return None
 
 
-class MediaTypeMatcher(_MediaTypeMatcher[ResolvableMediaType, "MediaTypeDefinition"]):
+class ExtensionMatcher(
+    _MediaTypeMatcher[StrPath, tuple["MediaTypeDefinition", str]], Iterable[str]
+):
+    """
+    A media type file extension matcher.
+    """
+
+    __slots__ = ()
+
+
+class MediaTypeMatcher(
+    _MediaTypeMatcher["MediaType | MediaTypeDefinition", "MediaTypeDefinition"]
+):
     """
     A media type matcher.
     """
 
+    __slots__ = ()
+
     @property
     @abstractmethod
-    def extensions(self) -> _ExtensionMatcher:
+    def extensions(self) -> ExtensionMatcher:
         """
         Match by file extensions.
         """
+
+
+@final
+class _MediaTypeDefinitionExtensionMatcher(ExtensionMatcher):
+    __slots__ = ("_extensions", "_media_type")
+
+    def __init__(self, media_type: MediaTypeDefinition, *extensions: str):
+        self._extensions = extensions
+        self._media_type = media_type
+
+    def __iter__(self) -> Iterator[str]:
+        return self._extensions.__iter__()
+
+    @override
+    def request(self, other: StrPath, /) -> tuple[MediaTypeDefinition, str] | None:
+        # @todo Can/should we normalize elsewhere too?
+        other: str = resolve_path(other).name
+        other = other[other.index(".") :]
+        # @todo Add caching here, now we have normalized ``other``
+        for extension in self._extensions:
+            if other.endswith(extension):
+                return self._media_type, extension
+        return None
 
 
 @final
@@ -301,7 +340,7 @@ class MediaTypeDefinition(
         Media types are ordered by decreasing priority.
         """
 
-        self._extensions = _ExtensionMatcher((self,))
+        self._extensions = _MediaTypeDefinitionExtensionMatcher(self, *extensions)
 
     @property
     def media_type(self) -> MediaType:
@@ -328,7 +367,7 @@ class MediaTypeDefinition(
 
     @override
     @property
-    def extensions(self) -> _ExtensionMatcher:
+    def extensions(self) -> ExtensionMatcher:
         """
         The associated file extensions.
 
@@ -338,7 +377,7 @@ class MediaTypeDefinition(
 
 
 @final
-class _ExtensionMatcher(_MediaTypeMatcher[StrPath, tuple[MediaTypeDefinition, str]]):
+class _MediaTypeRepositoryExtensionMatcher(ExtensionMatcher):
     __slots__ = ("_media_types",)
 
     def __init__(self, media_types: Iterable[MediaTypeDefinition]):
@@ -350,19 +389,18 @@ class _ExtensionMatcher(_MediaTypeMatcher[StrPath, tuple[MediaTypeDefinition, st
 
     @override
     def request(self, other: StrPath, /) -> tuple[MediaTypeDefinition, str] | None:
+        # @todo Can/should we normalize elsewhere too?
         other: str = resolve_path(other).name
         other = other[other.index(".") :]
         # @todo Add caching here, now we have normalized ``other``
         for media_type in self._media_types:
-            for extension in media_type.extensions:
-                if other.endswith(extension):
-                    return media_type, extension
+            if match := media_type.extensions.request(other):
+                return match
         return None
 
 
-# @todo Rename this.
 @final
-class MediaTypeDefinitions(MediaTypeMatcher):
+class MediaTypeRepository(MediaTypeMatcher):
     """
     A sequence of media type definitions that can be matched against.
     """
@@ -371,20 +409,19 @@ class MediaTypeDefinitions(MediaTypeMatcher):
 
     def __init__(self, *media_types: MediaTypeDefinition):
         self._media_types = media_types
-        self._extensions = _ExtensionMatcher(self)
+        self._extensions = _MediaTypeRepositoryExtensionMatcher(self)
 
     def __iter__(self):
         return self._media_types.__iter__()
 
     @override
     def request(self, other: ResolvableMediaType, /) -> MediaTypeDefinition | None:
-        for media_type_definition in self._media_types:
-            for media_type in media_type_definition.media_types:
-                if media_type.request(other):
-                    return media_type_definition
+        for media_type in self._media_types:
+            if media_type.request(other):
+                return media_type
         return None
 
     @override
     @property
-    def extensions(self) -> _ExtensionMatcher:
+    def extensions(self) -> ExtensionMatcher:
         return self._extensions

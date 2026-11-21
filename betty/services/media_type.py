@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.media_type import MediaTypeDefinition, MediaTypeDefinitions, MediaTypeMatcher
+from betty.media_type import MediaTypeDefinition, MediaTypeMatcher, MediaTypeRepository
 from betty.service_level import ServiceLevel
 from betty.services.plugin import HasPluginServices
 from betty.services.plugin.definition.collection.catalog import PluginDefinitionsService
@@ -30,4 +30,4 @@ class HasMediaTypes(ServiceLevel, HasPluginServices):
         """
         The supported media types.
         """
-        return MediaTypeDefinitions(*self.media_types)
+        return MediaTypeRepository(*self.media_types)

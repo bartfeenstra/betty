@@ -26,7 +26,7 @@ from betty.html.attributes import Attributes
 from betty.locale import default_locale
 from betty.localizables.markup import JoinAnd, JoinOr
 from betty.machine_name import MachineName
-from betty.media_type import MediaTypeDefinition, MediaTypeDefinitions
+from betty.media_type import MediaTypeDefinition, MediaTypeRepository
 from betty.pathlib import resolve_path
 from betty.store import StoreItem
 from betty.string import kebab_case_to_snake_case
@@ -182,7 +182,7 @@ def make_copy_function(
     """
     Make a copy function for this renderer that renders supported files.
     """
-    media_types = MediaTypeDefinitions(*media_types)
+    media_types = MediaTypeRepository(*media_types)
     parents = set()
 
     async def _copy_function(source: StrPath, destination: StrPath, /) -> None:

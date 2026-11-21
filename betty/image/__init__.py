@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from io import BytesIO
+from itertools import chain
 from typing import IO, TYPE_CHECKING, Final, Self, final, overload
 
 from PIL.Image import EXTENSION
@@ -15,7 +16,7 @@ from betty.definition.cls import ClsDefinition
 from betty.definition.ordered import Order, OrderedDefinition
 from betty.file import write
 from betty.localizables.gettext import _, ngettext
-from betty.media_type import MediaTypeDefinition, MediaTypeDefinitions
+from betty.media_type import MediaType, MediaTypeDefinition, MediaTypeRepository
 from betty.media_types import gif, jpeg, png
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import (
@@ -109,12 +110,12 @@ class Imager:
 
     def __init__(self, readers: Iterable[ImageReader], /):
         self._readers = {reader.definition.id: reader for reader in readers}
-        self.readable: Final[MediaTypeDefinitions] = MediaTypeDefinitions(
-            *(reader.definition.media_type for reader in self._readers.values())
+        self.readable: Final[MediaTypeRepository] = MediaTypeRepository(
+            *chain(
+                *(reader.definition.media_types for reader in self._readers.values())
+            )
         )
-        self.writable: Final[MediaTypeDefinitions] = MediaTypeDefinitions(
-            gif, jpeg, png
-        )
+        self.writable: Final[MediaTypeRepository] = MediaTypeRepository(gif, jpeg, png)
 
     @overload
     async def read(
@@ -137,7 +138,12 @@ class Imager:
         return self._readers[media_type.id].read(image)
 
     async def write(
-        self, image: Image, destination: Path, /, *, media_type: ResolvableMediaType
+        self,
+        image: Image,
+        destination: Path,
+        /,
+        *,
+        media_type: MediaType | MediaTypeDefinition,
     ) -> None:
         """
         Write an image.
