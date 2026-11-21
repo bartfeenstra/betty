@@ -8,9 +8,11 @@ from typing import ClassVar, final
 
 from typing_extensions import disjoint_base
 
+from betty.freezers.init import FrozenOnInit
+
 
 @disjoint_base
-class Definition:
+class Definition(FrozenOnInit):
     """
     A definition.
     """
