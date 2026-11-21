@@ -47,9 +47,7 @@ class GenerateStaticPublicAssets(Job):
         )
         await gather(*[
             self._generate(asset_path, copy_function)
-            async for asset_path in self._project.asset_directories.walk(
-                Path("public") / "static"
-            )
+            async for asset_path in self._project.assets.walk(Path("public") / "static")
         ])
 
     async def _generate(self, asset: Path, copy_function: CopyFunction, /) -> None:
@@ -57,7 +55,7 @@ class GenerateStaticPublicAssets(Job):
             Path("public") / "static"
         )
         await copy_function(
-            await self._project.asset_directories.get(asset), file_destination_path
+            await self._project.assets.get(asset), file_destination_path
         )
 
 
@@ -95,9 +93,7 @@ class GenerateLocalizedPublicAssets(Job):
         }
         await gather(*[
             self._generate(asset, copy_functions[locale.locale], locale.locale)
-            async for asset in self._project.asset_directories.walk(
-                Path("public") / "localized"
-            )
+            async for asset in self._project.assets.walk(Path("public") / "localized")
             for locale in self._project.locales
         ])
 
@@ -107,6 +103,4 @@ class GenerateLocalizedPublicAssets(Job):
         file_destination = self._project.localize_www_directory(
             locale
         ) / asset.relative_to(Path("public") / "localized")
-        await copy_function(
-            await self._project.asset_directories.get(asset), file_destination
-        )
+        await copy_function(await self._project.assets.get(asset), file_destination)

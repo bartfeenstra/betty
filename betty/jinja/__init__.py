@@ -77,7 +77,7 @@ async def new_environment(project: Project, /) -> Environment:
     Create a new environment.
     """
     template_directories = [
-        str(path / "templates") for path in project.asset_directories.directories
+        str(path / "templates") for path in project.assets.directories
     ]
     today = datetime.datetime.now(tz=datetime.UTC).date()
     environment = Environment(

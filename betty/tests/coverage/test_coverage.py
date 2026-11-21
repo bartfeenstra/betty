@@ -158,6 +158,11 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     "betty/service.py": {
         "Service": MissingReason.DATACLASS,
     },
+    "betty/services/asset.py": {
+        "HasAssets": {
+            "asset_directories": MissingReason.STATIC_CONTENT_ONLY,
+        },
+    },
     "betty/services/plugin/__init__.py": {
         "PluginServiceManager": {
             "new_service": MissingReason.ABSTRACT,
@@ -563,7 +568,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     },
     "betty/project/__init__.py": {
         "Project": {
-            "asset_directories": MissingReason.STATIC_CONTENT_ONLY,
             "css_resources": MissingReason.STATIC_CONTENT_ONLY,
             "document_providers": MissingReason.STATIC_CONTENT_ONLY,
             "enrichers": MissingReason.STATIC_CONTENT_ONLY,
