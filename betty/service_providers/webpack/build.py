@@ -23,10 +23,11 @@ from betty.service_level import ServiceLevel
 from betty.service_provider import ServiceProvider
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, MutableMapping, Sequence
+    from collections.abc import Iterable, Mapping, MutableMapping, Sequence
 
     from betty.jinja import Environment
     from betty.job import Context
+    from betty.media_type import MediaTypeDefinition
     from betty.pathlib import StrPath
     from betty.user.ui import Ui
 
@@ -115,16 +116,18 @@ class Builder:
 
     def __init__(
         self,
+        *,
         entry_point_providers: Sequence[EntryPointProvider],
         debug: bool,
         jinja: Environment,
+        media_types: Iterable[MediaTypeDefinition],
         root: str,
-        *,
         ui: Ui,
     ) -> None:
         self._entry_point_providers = entry_point_providers
         self._debug = debug
         self._jinja = jinja
+        self._media_types = tuple(media_types)
         self._root = root
         self._ui = ui
 
@@ -166,9 +169,10 @@ class Builder:
             / "packages"
             / _package_name_to_path(cast(str, package_json["name"]))
         )
-        # @todo Inject a copy function instead. Move CopyFunction out of the Jinja API.
         copy_function = make_copy_function(
-            self._jinja, document=Document(context=context)
+            self._jinja,
+            document=Document(context=context),
+            media_types=self._media_types,
         )
         copies = []
         for directory, _, file_names in entry_point_directory.walk():

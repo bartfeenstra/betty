@@ -8,13 +8,14 @@ from asyncio import gather
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, final, override
 
-from betty.jinja import CopyFunction, make_copy_function
+from betty.jinja import make_copy_function
 from betty.job import Job
 from betty.jobs.generate_www_directory import GenerateWwwDirectory
 
 if TYPE_CHECKING:
     from babel import Locale
 
+    from betty.file import CopyFunction
     from betty.job.scheduler import Scheduler
     from betty.project import Project
 

@@ -6,8 +6,7 @@ from __future__ import annotations
 
 import datetime
 from asyncio import to_thread
-from collections.abc import Awaitable, Callable, Iterable, Mapping
-from pathlib import Path
+from collections.abc import Callable, Iterable, Mapping
 from shutil import copy2
 from typing import TYPE_CHECKING, Any, cast, override
 
@@ -21,7 +20,7 @@ from jinja2.utils import missing
 
 from betty import about
 from betty.date import Date
-from betty.file import read, write
+from betty.file import CopyFunction, read, write
 from betty.html.attributes import Attributes
 from betty.locale import default_locale
 from betty.localizables.markup import JoinAnd, JoinOr
@@ -42,7 +41,6 @@ if TYPE_CHECKING:
 type TemplateNames = tuple[str, ...]
 type ResolvableTemplateNames = str | Iterable[str] | TemplateNames
 type TemplateData = Mapping[str, Any]
-type CopyFunction = Callable[[Path, Path], Awaitable[None]]
 
 
 def resolve_template_names(names: ResolvableTemplateNames, /) -> TemplateNames:

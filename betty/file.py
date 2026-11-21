@@ -5,6 +5,8 @@ File operations.
 from __future__ import annotations
 
 from asyncio import to_thread
+from collections.abc import Awaitable, Callable
+from pathlib import Path
 from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
@@ -15,6 +17,9 @@ if TYPE_CHECKING:
         OpenTextModeWriting,
         StrPath,
     )
+
+
+type CopyFunction = Callable[[Path, Path], Awaitable[None]]
 
 
 def _read(
