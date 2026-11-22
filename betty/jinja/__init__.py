@@ -304,8 +304,8 @@ class _ObjectProxy:
         *deprecated: str,
     ):
         self.__wrapped__ = wrapped
-        self._attrs = tuple(attr.operator for attr in wrapped.definition.fields)
-        self._deprecated = deprecated
+        self._attrs = {attr.operator for attr in wrapped.definition.fields}
+        self._deprecated = set(deprecated)
 
     def __getattr__(self, attr: str, /) -> Any:
         if attr in self._attrs:
