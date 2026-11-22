@@ -87,6 +87,9 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
         ):
             focus = file_reference.focus
 
+        # @todo We want to handle this in the template, where we check if an image is publishable (meaning we can embed
+        # @todo it in an HTML page), and then if it's readable (in which case we call this filter).
+        # @todo TLDR; The following SVG special-casing must be removed.
         # Treat SVGs as regular files.
         if file.media_type and file.media_type == svg:
             return f"betty-static:///file/{quote(file.id)}/file/{quote(file.name)}"
