@@ -118,6 +118,11 @@ class Imager:
             for reader in reversed(tuple(readers))
             for media_type in reader.definition.media_types
         }
+        # @todo Finish the list of publishable image types. Are there any image/* IANA media types that browsers cannot
+        # @todo display (surely?)
+        self.publishable: Final[MediaTypeRepository] = MediaTypeRepository(
+            gif, jpeg, png
+        )
         self.readable: Final[MediaTypeRepository] = MediaTypeRepository(
             *chain(
                 *(reader.definition.media_types for reader in self._readers.values())

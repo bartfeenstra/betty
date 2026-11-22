@@ -134,7 +134,6 @@ async def new_environment(project: Project, /) -> Environment:
         ],
         "public_css_paths": [resource.resource for resource in project.css_resources],
         "public_js_paths": [resource.resource for resource in project.js_resources],
-        "readable_image_types": (await project.app.imager).readable,
         "secondary_navigation_links": [
             link.link for link in project.links if not link.primary
         ],
