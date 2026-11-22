@@ -11,15 +11,12 @@ from typing import IO, TYPE_CHECKING, Final, final, overload
 from PIL import Image
 
 from betty.file import read, write
-from betty.media_type import (
-    MediaType,
-    MediaTypeDefinition,
-    MediaTypeMatcher,
-    MediaTypeRepository,
-)
-from betty.media_types import bmp, gif, jpeg, png, svg, webp
+from betty.media_type import MediaTypeDefinition, MediaTypeRepository
+from betty.media_types import avif, bmp, gif, jpeg, jpeg_xl, png, svg, webp
 
 if TYPE_CHECKING:
+    from collections.abc import MutableMapping
+
     from betty.pathlib import StrPath
 
 
@@ -37,17 +34,27 @@ class Imager:
     The imager.
     """
 
-    def __init__(self, media_types: MediaTypeMatcher, /):
-        self._media_types = media_types
-        # @todo Finish the list of publishable image types.
-        # @todo Take inspiration from https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types
+    def __init__(self, media_types: MediaTypeRepository, /):
         self.publishable: Final[MediaTypeRepository] = MediaTypeRepository(
-            bmp, gif, jpeg, png, svg, webp
+            avif, bmp, gif, jpeg, jpeg_xl, png, svg, webp
         )
-        # @todo Compute the readable and writable types based on PIL.Image.EXTENSION, PIL.Image.MINE, PIL.Image.OPEN,
-        # @todo and PIL.Image.SAVE.
-        self.openable: Final[MediaTypeRepository] = MediaTypeRepository()
-        self.writable: Final[MediaTypeRepository] = MediaTypeRepository(gif, jpeg, png)
+        self._openable: MutableMapping[MediaTypeDefinition, str] = {}
+        self._savable: MutableMapping[MediaTypeDefinition, str] = {}
+        for media_type in media_types:
+            for format_id, format_mime in Image.MIME:
+                if media_type.request(format_mime):
+                    if format_id in Image.OPEN:
+                        self._openable[media_type] = format_id
+                    if format_id in Image.SAVE:
+                        self._savable[media_type] = format_id
+            for format_extension, format_id in Image.EXTENSION:
+                if media_type.extensions.request(format_extension):
+                    if format_id in Image.OPEN:
+                        self._openable[media_type] = format_id
+                    if format_id in Image.SAVE:
+                        self._savable[media_type] = format_id
+        self.openable: Final[MediaTypeRepository] = MediaTypeRepository(*self._openable)
+        self.savable: Final[MediaTypeRepository] = MediaTypeRepository(*self._savable)
 
     @overload
     async def open(
@@ -69,7 +76,7 @@ class Imager:
             media_type, _extension = self.openable.extensions.require(image)
         if isinstance(image, Path):
             image = await read(image, mode="rb")
-        return Image.open(image, formats=[Image.EXTENSION[media_type.extension]])
+        return Image.open(image, formats=[self._openable[media_type]])
 
     async def save(
         self,
@@ -77,15 +84,12 @@ class Imager:
         destination: Path,
         /,
         *,
-        media_type: MediaType | MediaTypeDefinition,
+        media_type: MediaTypeDefinition,
     ) -> None:
         """
         Write an image.
         """
         image_data = BytesIO()
-        image.save(
-            image_data,
-            format=Image.EXTENSION[self.writable.require(media_type).extension],
-        )
+        image.save(image_data, format=self._savable[media_type])
         image_data.seek(0)
         await write(destination, image_data.read(), mode="wb")

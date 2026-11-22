@@ -118,6 +118,10 @@ jpeg_mpo: Final[MediaTypeDefinition] = MediaTypeDefinition(
     "jpeg-mpo", label="JPEG Multi-Picture", extension=".mpo"
 )
 
+jpeg_xl: Final[MediaTypeDefinition] = MediaTypeDefinition(
+    "jpeg-xl", label="JPEG XL", media_type="image/jxl", extension=".jxl"
+)
+
 javascript: Final[MediaTypeDefinition] = MediaTypeDefinition(
     "javascript", label="JavaScript", media_type="text/javascript", extension=".json"
 )
@@ -219,7 +223,10 @@ plain_text: Final[MediaTypeDefinition] = MediaTypeDefinition(
 )
 
 png: Final[MediaTypeDefinition] = MediaTypeDefinition(
-    "png", label="PNG", media_type="image/png", extension=".png"
+    "png",
+    label="PNG",
+    media_type=("image/png", "image/apng"),
+    extension=(".png", ".apng"),
 )
 
 pro_gen: Final[MediaTypeDefinition] = MediaTypeDefinition(
