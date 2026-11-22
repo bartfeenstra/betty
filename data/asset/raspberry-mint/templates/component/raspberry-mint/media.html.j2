@@ -4,7 +4,7 @@
             <div class="row justify-content-center">
                 <div class="col">
                     <figure>
-                        <a href="{{ file | file | url }}" class="image-link">
+                        <a href="{{ file | file_url }}" class="image-link">
                             <picture>
                                 {% for size, breakpoint in [(1300, 900), (900, 500)] %}
                                     <source srcset="{{ file | image_resize_cover((size, size)) | url }}" media="(min-width: {{ breakpoint }}px)">
@@ -24,7 +24,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <a href="{{ file | file | url }}" class="file-view-original">{% trans %}View original size{% endtrans %}</a>
+                <a href="{{ file | file_url }}" class="file-view-original">{% trans %}View original size{% endtrans %}</a>
             </div>
         </div>
         {% if file.copyright_notice is not none or file.license is not none %}

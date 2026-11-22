@@ -13,6 +13,7 @@ from os import cpu_count
 from typing import TYPE_CHECKING
 
 from betty.concurrent import max_strands
+from betty.entities.file import File
 from betty.entity import EntityDefinition
 from betty.job import Context, Job
 from betty.job.executor.threading import ThreadPoolExecutor
@@ -22,6 +23,7 @@ from betty.jobs.generate_entity_html import GenerateEntityHtml
 from betty.jobs.generate_entity_type import GenerateEntityType
 from betty.jobs.generate_entity_type_html import GenerateEntityTypeHtml
 from betty.jobs.generate_favicon import GenerateFavicon
+from betty.jobs.generate_files import GenerateFiles
 from betty.jobs.generate_public_assets import (
     GenerateLocalizedPublicAssets,
     GenerateStaticPublicAssets,
@@ -83,12 +85,6 @@ async def generate(project: Project, *, context: Context | None = None) -> None:
 
 
 async def _builtin_jobs(project: Project, /) -> AsyncIterator[Job]:
-    yield GenerateWwwDirectory(project=project)
-    yield GenerateStaticPublicAssets(project=project)
-    yield GenerateLocalizedPublicAssets(project=project)
-    yield GenerateSitemap(project=project)
-    yield GenerateRobotsTxt(project=project)
-    yield GenerateFavicon(project=project)
     async for entity_type in project.plugins[EntityDefinition]:
         if entity_type.public_facing:
             yield GenerateEntityType(entity_type, project=project)
@@ -98,6 +94,13 @@ async def _builtin_jobs(project: Project, /) -> AsyncIterator[Job]:
                 yield GenerateEntity(entity, project=project)
                 if entity_type.public_facing and entity.id.persistent and entity.public:
                     yield GenerateEntityHtml(entity, project=project)
+    yield GenerateLocalizedPublicAssets(project=project)
+    yield GenerateFavicon(project=project)
+    yield GenerateFiles(*project.ancestry[File], www_directory=project.www_directory)
+    yield GenerateRobotsTxt(project=project)
+    yield GenerateSitemap(project=project)
+    yield GenerateStaticPublicAssets(project=project)
+    yield GenerateWwwDirectory(project=project)
 
 
 def _preprocess(project: Project) -> None:

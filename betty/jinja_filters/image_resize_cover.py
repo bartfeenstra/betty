@@ -23,7 +23,6 @@ from betty.hashid import hashid_file_meta
 from betty.image import image_file_path_format, resize_cover
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
-from betty.jinja_filters.file import File as FileFilter
 from betty.media_types import svg
 from betty.project import Project
 
@@ -43,11 +42,7 @@ if TYPE_CHECKING:
 
 
 @final
-@JinjaFilterDefinition(
-    "image-resize-cover",
-    requires={Project.jinja_filters.require(FileFilter)},
-    auto=True,
-)
+@JinjaFilterDefinition("image-resize-cover", auto=True)
 class ImageResizeCover(JinjaFilter, Manufacturable):
     """
     Preprocess an image file for use in a page.
@@ -59,12 +54,10 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
         self,
         *,
         binary_file_cache: TransientBinaryFileStore,
-        file_filter: FileFilter,
         process_pool: ProcessPoolExecutor,
         www_directory: Path,
     ):
         self._binary_file_cache = binary_file_cache
-        self._file_filter = file_filter
         self._process_pool = process_pool
         self._www_directory = www_directory
 
@@ -74,7 +67,6 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
     async def new(cls, project: Project, /) -> Self:
         return cls(
             binary_file_cache=project.binary_file_cache.with_scope("image"),
-            file_filter=await project.factory.new(FileFilter),
             process_pool=project.app.process_pool,
             www_directory=project.www_directory,
         )
@@ -104,7 +96,7 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
 
         # Treat SVGs as regular files.
         if file.media_type and file.media_type == svg:
-            return await self._file_filter(context, file)
+            return f"betty-static:///file/{quote(file.id)}/file/{quote(file.name)}"
 
         job_context = context_document(context).context
 
