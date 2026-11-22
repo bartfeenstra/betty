@@ -53,7 +53,7 @@ async def add_project_argument(
         help=app.ui.localizer.translate._(
             "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
         ).format(
-            default=f"betty.{'|'.join([extension[1:] for serializer in serializers for extension in serializer.media_type().extensions])}"
+            default=f"betty.{'|'.join([extension[1:] for serializer in serializers for extension in serializer.definition.media_types.extensions])}"
         ),
         type=assertion_to_argument_type(assert_path(), localizer=app.ui.localizer),
     )
@@ -89,7 +89,7 @@ async def _read_project_configuration(
         try_configuration_files = [
             project_directory / f"betty{extension}"
             for serializer in serializers
-            for extension in serializer.media_type().extensions
+            for extension in serializer.definition.media_types.extensions
         ]
         for try_configuration_file in try_configuration_files:
             with suppress(FileNotFound):

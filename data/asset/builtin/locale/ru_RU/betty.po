@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-22 15:42+0000\n"
+"POT-Creation-Date: 2026-11-22 18:55+0000\n"
 "PO-Revision-Date: 2026-07-15 15:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ru_RU\n"
@@ -752,6 +752,9 @@ msgstr ""
 msgid "Go to the front page"
 msgstr "Перейти на главную страницу"
 
+msgid "Gramps 2.x database"
+msgstr ""
+
 #, python-brace-format
 msgid "Gramps XML must be compatible with version {supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is not supported."
 msgstr "Gramps XML должен быть совместим с версией {supported_gramps_xml_version}. Gramps XML версии {loaded_gramps_xml_version} не поддерживается."
@@ -818,6 +821,12 @@ msgid "ID"
 msgstr ""
 
 msgid "Ilpendam"
+msgstr ""
+
+msgid "Image reader"
+msgstr ""
+
+msgid "Image readers"
 msgstr ""
 
 msgid "Immigration"
@@ -1054,6 +1063,24 @@ msgstr ""
 msgid "Menu"
 msgstr "Меню"
 
+msgid "Microsoft Excel 97-2003 spreadsheet"
+msgstr ""
+
+msgid "Microsoft Excel spreadsheet"
+msgstr ""
+
+msgid "Microsoft PowerPoint 97-2003 presentation"
+msgstr ""
+
+msgid "Microsoft PowerPoint presentation"
+msgstr ""
+
+msgid "Microsoft Word 97-2003 document"
+msgstr ""
+
+msgid "Microsoft Word document"
+msgstr ""
+
 msgid "Minimum height"
 msgstr ""
 
@@ -1157,6 +1184,18 @@ msgstr ""
 msgid "Only the following file types can be loaded: {file_extensions}"
 msgstr ""
 
+msgid "OpenDocument graphics"
+msgstr ""
+
+msgid "OpenDocument presentation"
+msgstr ""
+
+msgid "OpenDocument spreadsheet"
+msgstr ""
+
+msgid "OpenDocument text"
+msgstr ""
+
 msgid "Operating system"
 msgstr ""
 
@@ -1235,6 +1274,9 @@ msgstr "Имя"
 
 msgid "Person names"
 msgstr "Имена"
+
+msgid "Photoshop document"
+msgstr ""
 
 msgid "Place"
 msgstr "Место"
@@ -1588,8 +1630,12 @@ msgid "The 'birth of the author', so to speak."
 msgstr ""
 
 #, python-brace-format
-msgid "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a valid IANA media type. This media type was ignored."
-msgstr "Объект Gramps {gramps_entity_reference} имеет атрибут {attribute_name} со значением {attribute_value}, который не является допустимым типом медиа IANA. Этот тип медиа был проигнорирован."
+msgid "The Gramps {gramps_entity_reference} entity has a MIME type of {attribute_value}, which is not a known IANA media type. This media type was ignored."
+msgstr ""
+
+#, python-brace-format
+msgid "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a known IANA media type. This media type was ignored."
+msgstr ""
 
 #, python-brace-format
 msgid "The Gramps {gramps_entity_reference} entity requires a {attribute_name} attribute. This link was ignored."
@@ -2406,6 +2452,13 @@ msgstr[1] ""
 msgstr[2] ""
 
 #, python-brace-format
+msgid "{count} image reader"
+msgid_plural "{count} image readers"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} immigration"
 msgid_plural "{count} immigrations"
 msgstr[0] ""
@@ -2723,10 +2776,6 @@ msgid "{event_type} of {subjects}"
 msgstr "{event_type} {subjects}"
 
 #, python-brace-format
-msgid "{extension} ({available_type})"
-msgstr ""
-
-#, python-brace-format
 msgctxt "localizable-join-and"
 msgid "{first} and {second}"
 msgstr "{first} и {second}"
@@ -2747,6 +2796,10 @@ msgstr ""
 #, python-brace-format
 msgid "{invalid_locale} is not a valid IETF BCP 47 language tag."
 msgstr "{invalid_locale} не является допустимым языковым тегом IETF BCP 47."
+
+#, python-brace-format
+msgid "{media_type} ({extensions})"
+msgstr ""
 
 #, python-brace-format
 msgctxt "localizable-join-and-many"

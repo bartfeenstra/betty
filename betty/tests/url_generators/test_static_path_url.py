@@ -10,7 +10,7 @@ from betty.locale import (
     default_locale_tag,
     to_language_tag,
 )
-from betty.media_type import MediaType
+from betty.media_type import MediaTypeDefinition
 from betty.media_types import html, json
 from betty.url_generators.path import PathUrlGenerator
 from betty.url_generators.static_path_url import StaticPathUrlUrlGenerator
@@ -99,7 +99,7 @@ class TestStaticPathUrlUrlGenerator:
         self,
         expected: str,
         resource: str,
-        media_type: MediaType,
+        media_type: MediaTypeDefinition,
         absolute: bool,
         locale: ResolvableLocale | None,
         additional_project_locale: Locale | None,

@@ -14,21 +14,15 @@ from betty.serialize import SerializationError, Serializer, SerializerDefinition
 from betty.typing import is_runtime_checkable_mapping, is_runtime_checkable_sequence
 
 if TYPE_CHECKING:
-    from betty.media_type import MediaType
     from betty.portable import PortableData
 
 
 @final
-@SerializerDefinition("json", label="JSON")
+@SerializerDefinition("json", media_types.json, label="JSON")
 class Json(Serializer):
     """
     .. plugin:: serializer:json.
     """
-
-    @override
-    @classmethod
-    def media_type(cls) -> MediaType:
-        return media_types.json.media_type
 
     @override
     def load(self, serialized: str, /) -> PortableData:

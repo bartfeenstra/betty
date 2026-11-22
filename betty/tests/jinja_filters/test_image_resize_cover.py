@@ -10,8 +10,7 @@ from betty.dirs import builtin_asset_directory
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.job import Context
-from betty.media_type import MediaType
-from betty.media_types import svg
+from betty.media_types import pdf, plain_text, png, svg
 from betty.test_utils.associations.has_file_references import DummyHasFileReferences
 from betty.test_utils.conftest import AssertJinja
 
@@ -32,7 +31,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         File(
             id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
-            media_type=MediaType("image/png"),
+            media_type=png,
         ),
     ),
     (
@@ -41,7 +40,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         File(
             id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
-            media_type=MediaType("image/png"),
+            media_type=png,
         ),
     ),
     (
@@ -50,7 +49,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         File(
             id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
-            media_type=MediaType("image/png"),
+            media_type=png,
         ),
     ),
     (
@@ -59,7 +58,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         File(
             id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
-            media_type=MediaType("image/png"),
+            media_type=png,
         ),
     ),
     (
@@ -68,7 +67,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         File(
             id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
-            media_type=MediaType("image/png"),
+            media_type=png,
         ),
     ),
     (
@@ -79,7 +78,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
             File(
                 id="my-first-file",
                 path=_test_filter_image_resize_cover_image_path,
-                media_type=MediaType("image/png"),
+                media_type=png,
             ),
         ),
     ),
@@ -91,7 +90,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
             File(
                 id="my-first-file",
                 path=_test_filter_image_resize_cover_image_path,
-                media_type=MediaType("image/png"),
+                media_type=png,
             ),
             focus=(0, 0, 9, 9),
         ),
@@ -148,13 +147,7 @@ class TestImageResizeCover:
         image.save(image_path)
         async with assert_jinja_str(
             "{{ filey | image_resize_cover }}",
-            data={
-                "filey": File(
-                    id="my-first-file",
-                    path=image_path,
-                    media_type=MediaType("application/pdf"),
-                )
-            },
+            data={"filey": File(id="my-first-file", path=image_path, media_type=pdf)},
         ) as rendered:
             assert rendered == "betty-static:///file/my-first-file-.jpg"
             for public_file in rendered.split("#"):
@@ -170,12 +163,7 @@ class TestImageResizeCover:
         with pytest.raises(ValueError):  # noqa: PT011
             async with assert_jinja_str(
                 "{{ filey | image_resize_cover }}",
-                data={
-                    "filey": File(
-                        path=file,
-                        media_type=MediaType("text/plain"),
-                    )
-                },
+                data={"filey": File(path=file, media_type=plain_text)},
             ):
                 pass  # pragma: nocover
 

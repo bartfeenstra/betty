@@ -1,37 +1,8 @@
-from typing import ClassVar, override
+from typing import override
 
-from betty.media_type import MediaType
+from betty.media_type import MediaTypeDefinition
 from betty.media_types import html
 from betty.render import RenderDispatcher, Renderer
-from betty.typing import Unreachable
-
-
-class _StaticRenderer(Renderer):
-    _media_type: ClassVar[MediaType]
-    _rendered_content: ClassVar[str]
-
-    @override
-    @property
-    def media_type(self) -> MediaType:
-        raise Unreachable
-
-    @override
-    async def render(self, content: str, /) -> str:
-        raise Unreachable
-
-
-class _StaticRendererOne(_StaticRenderer):
-    _media_type: ClassVar[MediaType] = MediaType(
-        "text/x.betty.test.one", extensions=[".one"]
-    )
-    _rendered_content: ClassVar[str] = "ONE"
-
-
-class _StaticRendererTwo(_StaticRenderer):
-    _media_type: ClassVar[MediaType] = MediaType(
-        "text/x.betty.test.two", extensions=[".two"]
-    )
-    _rendered_content: ClassVar[str] = "TWO"
 
 
 class TestRenderDispatcher:
@@ -40,14 +11,11 @@ class TestRenderDispatcher:
         assert await sut.render("<html>", html) == "<p>&lt;html&gt;</p>"
 
     async def test_render__with_renderers(self) -> None:
-        media_type = MediaType("text/x.betty.test")
+        media_type = MediaTypeDefinition(
+            "test", label="-", media_type="text/x.betty.test"
+        )
 
         class _Renderer(Renderer):
-            @override
-            @property
-            def media_type(self) -> MediaType:
-                return media_type
-
             @override
             async def render(self, content: str, /) -> str:
                 return "~!@#$%^&*()_+"

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
     from betty.locale import ResolvableLocale
-    from betty.media_type import ResolvableMediaType
+    from betty.media_type import MediaTypeDefinition
 
 
 @final
@@ -38,7 +38,7 @@ class UrlGeneratorDispatcher[ResourceT](UrlGenerator[ResourceT]):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: ResolvableMediaType | None = None,
+        media_type: MediaTypeDefinition | None = None,
         query: Mapping[str, Sequence[str]] = empty_frozen_dict,
     ) -> str:
         for upstream in self._upstreams:

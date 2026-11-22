@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from asyncio import to_thread
+from asyncio import gather, to_thread
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from shutil import rmtree
@@ -25,12 +25,11 @@ from betty.http_client import (
     RateLimitDefinition,
     RateLimitMiddleware,
 )
+from betty.image import Imager, ImageReaderDefinition
 from betty.life_cycle import Bootstrappable, Shutdownable
 from betty.locale import ResolvableLocale, default_locale
 from betty.localizables.gettext import _
 from betty.localizer import LocalizerRepository
-from betty.media_type import MediaTypeDefinition
-from betty.multiprocessing import ProcessPoolExecutor
 from betty.portable.file import assert_load_file
 from betty.requirements.service_level import RequirableServiceLevel
 from betty.sample import Sample, Size
@@ -38,6 +37,7 @@ from betty.serialize import SerializerDefinition
 from betty.serializers.json import Json
 from betty.service import Service
 from betty.services.asset import HasAssets
+from betty.services.media_type import HasMediaTypes
 from betty.services.plugin.definition.collection.catalog import PluginDefinitionsService
 from betty.services.plugin.instance.collection.catalog import PluginInstancesService
 from betty.services.simple import service
@@ -50,7 +50,6 @@ from betty.user.ui import Ui
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator, Callable
-    from concurrent import futures
     from pathlib import Path
 
     import aiohttp
@@ -64,7 +63,7 @@ if TYPE_CHECKING:
 
 
 @final
-class App(RequirableServiceLevel, HasAssets):
+class App(RequirableServiceLevel, HasAssets, HasMediaTypes):
     """
     The Betty application.
 
@@ -76,7 +75,7 @@ class App(RequirableServiceLevel, HasAssets):
          - :py:class:`betty.app.AppConfig`
     """
 
-    media_types = PluginDefinitionsService(MediaTypeDefinition)
+    image_readers = PluginInstancesService(ImageReaderDefinition)
     rate_limits = PluginDefinitionsService(RateLimitDefinition)
     serializers = PluginInstancesService(SerializerDefinition)
 
@@ -229,17 +228,11 @@ class App(RequirableServiceLevel, HasAssets):
         raise Unreachable("this service MUST always be explicitly overridden")
 
     @service
-    def process_pool(self) -> futures.ProcessPoolExecutor:
+    async def imager(self) -> Imager:
         """
-        The shared process pool.
-
-        Use this to run CPU/computationally-heavy tasks in other processes.
+        The imager.
         """
-        process_pool = ProcessPoolExecutor()
-        self.life_cycle.on_shutdown(
-            lambda wait: process_pool.shutdown(wait, cancel_futures=not wait)
-        )
-        return process_pool
+        return Imager(await gather(*self.image_readers))
 
 
 @final

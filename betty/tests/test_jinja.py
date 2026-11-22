@@ -49,7 +49,10 @@ async def test_make_copy_function__www_directory(
     destination_file = www_directory / "destination.test.j2"
     rendered_destination_file = www_directory / "destination.test"
     copy_function = make_copy_function(
-        environment, www_directory=www_directory, document=Document()
+        environment,
+        www_directory=www_directory,
+        document=Document(),
+        media_types=isolated_project.app.known_media_types,
     )
     await copy_function(source_file, destination_file)
     with open(rendered_destination_file, encoding="utf-8") as f:
@@ -69,7 +72,10 @@ async def test_make_copy_function__www_directory_with_hidden_file(
     destination_file = www_directory / ".destination.test.j2"
     rendered_destination_file = www_directory / ".destination.test"
     copy_function = make_copy_function(
-        environment, www_directory=www_directory, document=Document()
+        environment,
+        www_directory=www_directory,
+        document=Document(),
+        media_types=isolated_project.app.known_media_types,
     )
     await copy_function(source_file, destination_file)
     with open(rendered_destination_file, encoding="utf-8") as f:
@@ -91,6 +97,7 @@ async def test_make_copy_function__www_directory_and_is_localized_and_multilingu
         www_directory=www_directory,
         is_localized_and_multilingual=True,
         document=Document(),
+        media_types=isolated_project.app.known_media_types,
     )
     await copy_function(source_file, destination_file)
     with open(rendered_destination_file, encoding="utf-8") as f:

@@ -58,14 +58,15 @@ class TestBuilder:
     ) -> None:
         context = Context()
         sut = Builder(
-            (
+            entry_point_providers=(
                 [DummyEntryPointProviderServiceProvider(services=ServiceLevel())]
                 if with_entry_point_provider
                 else []
             ),
-            debug,
-            await isolated_project.jinja,
-            root_path,
+            debug=debug,
+            jinja=await isolated_project.jinja,
+            media_types=isolated_project.app.known_media_types,
+            root=root_path,
             ui=StaticUi(),
         )
         # Build twice, to test with warm caches as well.
@@ -100,10 +101,11 @@ class TestBuilder:
         context = Context()
         m_jinja = mocker.AsyncMock()
         sut = Builder(
-            [],
-            False,
-            m_jinja,
-            "",
+            entry_point_providers=[],
+            debug=False,
+            jinja=m_jinja,
+            media_types=(),
+            root="",
             ui=StaticUi(),
         )
         with pytest.raises(NpmUnavailable):

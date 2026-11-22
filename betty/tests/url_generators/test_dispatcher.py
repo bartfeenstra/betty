@@ -6,7 +6,7 @@ import pytest
 
 from betty.collections.mapping.dict import empty_frozen_dict
 from betty.locale import ResolvableLocale
-from betty.media_type import ResolvableMediaType
+from betty.media_type import MediaTypeDefinition
 from betty.media_types import html, json
 from betty.url_generator import UnsupportedResource, UrlGenerator
 from betty.url_generators.dispatcher import UrlGeneratorDispatcher
@@ -27,7 +27,7 @@ class TestUrlGeneratorDispatcher:
             absolute: bool = False,
             fragment: str | None = None,
             locale: ResolvableLocale | None = None,
-            media_type: ResolvableMediaType | None = None,
+            media_type: MediaTypeDefinition | None = None,
             query: Mapping[str, Sequence[str]] = empty_frozen_dict,
         ) -> str:
             return dumps({
@@ -53,7 +53,7 @@ class TestUrlGeneratorDispatcher:
             absolute: bool = False,
             fragment: str | None = None,
             locale: ResolvableLocale | None = None,
-            media_type: ResolvableMediaType | None = None,
+            media_type: MediaTypeDefinition | None = None,
             query: Mapping[str, Sequence[str]] = empty_frozen_dict,
         ) -> str:
             raise UnsupportedResource(resource)  # pragma: nocover
@@ -143,7 +143,7 @@ class TestUrlGeneratorDispatcher:
     async def test_generate(
         self,
         resource: Any,
-        media_type: ResolvableMediaType,
+        media_type: MediaTypeDefinition,
         absolute: bool,
         locale: ResolvableLocale | None,
         fragment: str | None,

@@ -4,7 +4,7 @@ from PIL import Image
 
 from betty.entities.file import File
 from betty.localizer import default_localizer
-from betty.media_type import MediaType
+from betty.media_types import png
 from betty.test_utils.conftest import AssertJinja
 
 
@@ -23,7 +23,7 @@ async def test_with_image(
     image_path = tmp_path / "image.png"
     image = Image.new("1", (1, 1))
     image.save(image_path)
-    entity = File(image_path, media_type=MediaType("image/png"))
+    entity = File(image_path, media_type=png)
     async with assert_raspberry_mint_jinja_file(
         "search/result--file.html.j2", data={"entity": entity}
     ) as rendered:

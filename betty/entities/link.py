@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from betty.association import Associate
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.media_type import ResolvableMediaType
+    from betty.media_type import MediaTypeDefinition
 
 
 @final
@@ -62,7 +62,7 @@ class Link(AttrFreezable, LinkType, HasMediaType, HasDescription, Entity):
         relationship: str | None = None,
         label: AnyLocalizable | None = None,
         description: AnyLocalizable | None = None,
-        media_type: ResolvableMediaType | None = None,
+        media_type: MediaTypeDefinition | None = None,
         owner: Associate[HasLinks] | None = None,
         privacy: Privacy = Privacy.UNDETERMINED,
     ):

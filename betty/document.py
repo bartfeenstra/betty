@@ -29,7 +29,6 @@ from betty.definition.cls import ClsDefinition
 from betty.definition.id import resolve_id
 from betty.localizables.gettext import _, ngettext
 from betty.localizer import AnyLocalizable, Localizer, default_localizer
-from betty.media_type import MediaType, ResolvableMediaType, resolve_media_type
 from betty.media_types import html
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
@@ -43,6 +42,7 @@ if TYPE_CHECKING:
     from betty.job import Context
     from betty.localizable import Localizable
     from betty.machine_name import MachineName, ResolvableMachineName
+    from betty.media_type import MediaTypeDefinition
     from betty.portable import PortableMapping
     from betty.project import Project
     from betty.requirement import Requires
@@ -67,13 +67,11 @@ class Document:
         entity_contexts: EntityContexts | None = None,
         context: Context | None = None,
         localizer: Localizer | None = None,
-        media_type: ResolvableMediaType | None = None,
+        media_type: MediaTypeDefinition | None = None,
         title: Localizable | None = None,
         **document_vars: Any,
     ):
-        self.media_type: Final[MediaType | None] = (
-            None if media_type is None else resolve_media_type(media_type)
-        )
+        self.media_type: Final[MediaTypeDefinition | None] = media_type
         """
         The media type.
         """
@@ -120,7 +118,7 @@ class Document:
     def copy(
         self,
         *,
-        media_type: ResolvableMediaType | None = None,
+        media_type: MediaTypeDefinition | None = None,
         resource: object = None,
         resource_url: object = None,
         **document_vars: Any,
@@ -138,9 +136,7 @@ class Document:
                 "context": self.context,
                 "entity_contexts": self.entity_contexts,
                 "localizer": self.localizer,
-                "media_type": self.media_type
-                if media_type is None
-                else resolve_media_type(media_type),
+                "media_type": media_type or self.media_type,
                 "title": self.title,
                 **document_vars,
             },  # ty:ignore[invalid-argument-type]

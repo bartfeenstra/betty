@@ -91,6 +91,7 @@ betty = 'betty.consoles.app:main'
 'event-type' = 'betty.event_type:EventTypeDefinition'
 'gender' = 'betty.gender:GenderDefinition'
 'http-rate-limit' = 'betty.http_client:RateLimitDefinition'
+'image-reader' = 'betty.image:ImageReaderDefinition'
 'jinja-filter' = 'betty.jinja.filter:JinjaFilterDefinition'
 'jinja-test' = 'betty.jinja.test:JinjaTestDefinition'
 'js-resource' = 'betty.html.js:JsResourceDefinition'
@@ -146,6 +147,10 @@ betty = 'betty.consoles.app:main'
 
 [project.entry-points.'betty.js_resource']
 'implicit' = 'betty.js_resources'
+
+[project.entry-points.'betty.image_reader']
+'pdf2image' = 'betty.image_readers.pdf2image:Pdf2Image'
+'pillow' = 'betty.image_readers.pillow:Pillow'
 
 [project.entry-points.'betty.license']
 'implicit' = 'betty.licenses'

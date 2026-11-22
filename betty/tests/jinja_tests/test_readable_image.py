@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertJinja
 
 
-class TestImageMediaTypeSupported:
+class TestReadableImage:
     @pytest.mark.parametrize(
         ("expected", "data"),
         [
@@ -28,9 +28,7 @@ class TestImageMediaTypeSupported:
     async def test___call__(
         self, assert_jinja_str: AssertJinja, expected: str, data: Any
     ) -> None:
-        template = (
-            "{% if data is image_media_type_supported %}true{% else %}false{% endif %}"
-        )
+        template = "{% if data is readable_image %}true{% else %}false{% endif %}"
         async with assert_jinja_str(
             template,
             data={
