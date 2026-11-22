@@ -129,8 +129,8 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
                 copyfile(cache_file, destination_file)
             else:
                 image = resize_cover(
-                    await self._imager.read(file.path), size, focus=focus
+                    await self._imager.open(file.path), size, focus=focus
                 )
-                await self._imager.write(image, cache_file, media_type=jpeg)
+                await self._imager.save(image, cache_file, media_type=jpeg)
 
         return f"betty-static:///file/{quote(destination_name)}"

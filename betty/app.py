@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from asyncio import gather, to_thread
+from asyncio import to_thread
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from shutil import rmtree
@@ -25,7 +25,7 @@ from betty.http_client import (
     RateLimitDefinition,
     RateLimitMiddleware,
 )
-from betty.image import Imager, ImageReaderDefinition
+from betty.image import Imager
 from betty.life_cycle import Bootstrappable, Shutdownable
 from betty.locale import ResolvableLocale, default_locale
 from betty.localizables.gettext import _
@@ -75,7 +75,6 @@ class App(RequirableServiceLevel, HasAssets, HasMediaTypes):
          - :py:class:`betty.app.AppConfig`
     """
 
-    image_readers = PluginInstancesService(ImageReaderDefinition)
     rate_limits = PluginDefinitionsService(RateLimitDefinition)
     serializers = PluginInstancesService(SerializerDefinition)
 
@@ -232,7 +231,7 @@ class App(RequirableServiceLevel, HasAssets, HasMediaTypes):
         """
         The imager.
         """
-        return Imager(await gather(*self.image_readers))
+        return Imager(self.known_media_types)
 
 
 @final

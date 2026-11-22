@@ -60,7 +60,7 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
     async def new(cls, project: Project, data: EntityReference, /) -> Self:
         return cls(
             entity=lambda: project.ancestry[data.type][data.id],
-            image_types=(await project.upstream.imager).readable,
+            image_types=(await project.upstream.imager).openable,
             jinja=await project.jinja,
         )
 

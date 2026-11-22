@@ -27,16 +27,16 @@ class ReadableImage(JinjaTest, Manufacturable):
     .. plugin:: jinja-test:readable-image
     """
 
-    def __init__(self, readable: MediaTypeMatcher, /):
-        self._readable = readable
+    def __init__(self, openable: MediaTypeMatcher, /):
+        self._openable = openable
 
     @override
     @App.require
     @classmethod
     async def new(cls, app: App, /) -> Self:
-        return cls((await app.imager).readable)
+        return cls((await app.imager).openable)
 
     def __call__(  # noqa: D102
         self, media_type: ResolvableMediaType | MediaTypeDefinition, /
     ) -> bool:
-        return self._readable.request(media_type) is not None
+        return self._openable.request(media_type) is not None
