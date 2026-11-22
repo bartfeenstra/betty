@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-11 22:55+0000\n"
+"POT-Creation-Date: 2026-11-22 12:02+0000\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -212,8 +212,8 @@ msgid "Betty is an application that takes a family tree and builds a website out
 msgstr "பெட்டி என்பது குடும்ப மரத்தை எடுத்து அதிலிருந்து இணையதளத்தை உருவாக்கும் ஒரு பயன்பாடாகும், இது நீங்கள் இப்போது பார்த்துக் கொண்டிருப்பதைப் போன்றது. உங்கள் வம்சாவளி ஆராய்ச்சியில் உள்ள கூடுதல் தகவல்கள், மீடியா கேலரிகள், வரைபடங்கள் மற்றும் உலாவக்கூடிய குடும்ப மரங்கள் போன்ற உங்கள் தளத்தில் அதிக ஊடாடுதலை பெட்டி சேர்க்கலாம்."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was set to {betty_event_type}."
-msgstr "பெட்டிக்கு கிராம்ப்ச் நிகழ்வு {event} இன் வகை {gramps_event_type} பற்றித் தெரியாது. நிகழ்வு இறக்குமதி செய்யப்பட்டது, ஆனால் அதன் வகை {betty_event_type} என அமைக்கப்பட்டது."
+msgid "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was omitted."
+msgstr ""
 
 #, fuzzy, python-brace-format
 msgid "Betty is unfamiliar with Gramps file {file}'s copyright notice of {copyright_notice} and ignored it."
@@ -228,12 +228,12 @@ msgid "Betty is unfamiliar with Gramps person {person}'s gender of {gender} and 
 msgstr "பெட்டி {person} இன் {gender} என்ற கிராம்ப்ச் நபரின் பாலின ஐடியைப் பற்றி அறிந்திருக்கவில்லை, மேலும் அதைப் புறக்கணித்தார்."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was set to {betty_place_type}."
-msgstr "பெட்டிக்கு கிராம்ப்ச் இடம் {place} இன் வகை {gramps_place_type} பற்றி அறிமுகம் இல்லை. இடம் இறக்குமதி செய்யப்பட்டது, ஆனால் அதன் வகை {betty_place_type} என அமைக்கப்பட்டது."
+msgid "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was omitted."
+msgstr ""
 
 #, python-brace-format
-msgid "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The role was imported, but set to {betty_role}."
-msgstr "{person} என்ற நபரின் கிராம்ப்ச் ரோல் {gramps_role} என்ற நிகழ்வில் {event_handle} என்ற கிராம்ப்ச் ஏண்டில் பெட்டிக்கு அறிமுகம் இல்லை. பங்கு இறக்குமதி செய்யப்பட்டது, ஆனால் {betty_role} என அமைக்கப்பட்டது."
+msgid "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The person and event were imported, but the role was omitted."
+msgstr ""
 
 #, python-brace-format
 msgid "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
@@ -1215,9 +1215,6 @@ msgstr "பாதை"
 msgid "People"
 msgstr "மக்கள்"
 
-msgid "People of unknown gender"
-msgstr "தெரியாத பாலினம் கொண்டவர்கள்"
-
 msgid "People's presences at this event"
 msgstr "இந்நிகழ்வில் மக்கள் வருகை"
 
@@ -1232,9 +1229,6 @@ msgstr "நபர் பெயர்"
 
 msgid "Person names"
 msgstr "நபர் பெயர்கள்"
-
-msgid "Person of unknown gender"
-msgstr "பாலினம் தெரியாத நபர்"
 
 msgid "Place"
 msgstr "இடம்"
@@ -1799,9 +1793,6 @@ msgstr "தெரியாத விசை: {unknown_key}."
 #, python-brace-format
 msgid "Unknown plugin {plugin}."
 msgstr "தெரியாத செருகுநிரல் {plugin_id}."
-
-msgid "Unknowns"
-msgstr "தெரியாதவர்கள்"
 
 #, python-brace-format
 msgid "Unsupported file {unsupported}. Supported types are: {supported}."
@@ -2477,12 +2468,6 @@ msgstr[0] "{count} நபர் பெயர்"
 msgstr[1] "{count} நபர் பெயர்கள்"
 
 #, python-brace-format
-msgid "{count} person of unknown gender"
-msgid_plural "{count} people of unknown gender"
-msgstr[0] "அறியப்படாத பாலினம் கொண்ட {count} நபர்"
-msgstr[1] "அறியப்படாத பாலினம் கொண்ட {count} நபர்கள்"
-
-#, python-brace-format
 msgid "{count} place"
 msgid_plural "{count} places"
 msgstr[0] "{count} இடம்"
@@ -2595,12 +2580,6 @@ msgid "{count} town"
 msgid_plural "{count} towns"
 msgstr[0] "{count} நகரம்"
 msgstr[1] "{count} நகரங்கள்"
-
-#, python-brace-format
-msgid "{count} unknown"
-msgid_plural "{count} unknowns"
-msgstr[0] "{count} தெரியவில்லை"
-msgstr[1] "{count} தெரியாதவர்கள்"
 
 #, python-brace-format
 msgid "{count} village"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-11 22:55+0000\n"
+"POT-Creation-Date: 2026-11-22 12:02+0000\n"
 "PO-Revision-Date: 2026-10-28 00:01+0000\n"
 "Last-Translator: Bart Feenstra <bartfeenstra@users.noreply.hosted.weblate.org>\n"
 "Language: nl_NL\n"
@@ -212,8 +212,8 @@ msgid "Betty is an application that takes a family tree and builds a website out
 msgstr "Betty is een programma dat van een stamboom een website bouwt zoals de site die je nu aan het bezoeken bent. Des te meer informatie je genealogisch onderzoek bevat, des te meer interactiviteit Betty aan je site toe kan voegen, zoals mediagalerijen, kaarten, en visuele stambomen."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was set to {betty_event_type}."
-msgstr "Betty kent het Gramps-gebeurtenistype {gramps_event_type} van gebeurtenis {event} niet. De gebeurtenis is geladen, maar hun type is nu {betty_event_type}."
+msgid "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was omitted."
+msgstr ""
 
 #, python-brace-format
 msgid "Betty is unfamiliar with Gramps file {file}'s copyright notice of {copyright_notice} and ignored it."
@@ -228,12 +228,12 @@ msgid "Betty is unfamiliar with Gramps person {person}'s gender of {gender} and 
 msgstr "Betty is niet bekend met gender {gender} van Gramps-persoon {person} en heeft het genegeerd."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was set to {betty_place_type}."
-msgstr "Betty kent het Gramps-plaatstype {gramps_place_type} van plaats {place} niet. De plaats is geladen, maar hun type is nu {betty_place_type}."
+msgid "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was omitted."
+msgstr ""
 
 #, python-brace-format
-msgid "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The role was imported, but set to {betty_role}."
-msgstr "Betty is niet bekend met de Gramps-rol {gramps_role} van persoon {person} in de gebeurtenis met Gramps-handle {event_handle}. De rol is geïmporteerd als {betty_role}."
+msgid "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The person and event were imported, but the role was omitted."
+msgstr ""
 
 #, python-brace-format
 msgid "Betty was named after <a href=\"{liberta_lankester_url}\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
@@ -1214,9 +1214,6 @@ msgstr "Pad"
 msgid "People"
 msgstr "Personen"
 
-msgid "People of unknown gender"
-msgstr "Personen met onbekend gender"
-
 msgid "People's presences at this event"
 msgstr "Mensen hun aanwezigheden bij deze gebeurtenis"
 
@@ -1231,9 +1228,6 @@ msgstr "Persoonsnaam"
 
 msgid "Person names"
 msgstr "Persoonsnamen"
-
-msgid "Person of unknown gender"
-msgstr "Persoon met onbekend gender"
 
 msgid "Place"
 msgstr "Plaats"
@@ -1798,9 +1792,6 @@ msgstr "Onbekende sleutel: {unknown_key}."
 #, python-brace-format
 msgid "Unknown plugin {plugin}."
 msgstr "Onbekende plugin {plugin}."
-
-msgid "Unknowns"
-msgstr "Onbekenden"
 
 #, python-brace-format
 msgid "Unsupported file {unsupported}. Supported types are: {supported}."
@@ -2476,12 +2467,6 @@ msgstr[0] "{count} persoonsnaam"
 msgstr[1] "{count} persoonsnamen"
 
 #, python-brace-format
-msgid "{count} person of unknown gender"
-msgid_plural "{count} people of unknown gender"
-msgstr[0] "{count} persoon met onbekend gender"
-msgstr[1] "{count} personen met onbekend gender"
-
-#, python-brace-format
 msgid "{count} place"
 msgid_plural "{count} places"
 msgstr[0] "{count} plaats"
@@ -2594,12 +2579,6 @@ msgid "{count} town"
 msgid_plural "{count} towns"
 msgstr[0] "{count} stadje"
 msgstr[1] "{count} stadjes"
-
-#, python-brace-format
-msgid "{count} unknown"
-msgid_plural "{count} unknowns"
-msgstr[0] "{count} onbekend"
-msgstr[1] "{count} onbekenden"
 
 #, python-brace-format
 msgid "{count} village"

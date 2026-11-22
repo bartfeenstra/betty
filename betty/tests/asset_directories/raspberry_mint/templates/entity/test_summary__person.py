@@ -55,14 +55,8 @@ async def test_private(assert_raspberry_mint_jinja_file: AssertJinja) -> None:
         "entity/summary--person.html.j2", data={"entity": person}
     ) as rendered:
         assert individual_name not in rendered
-        assert (
-            default_localizer.localize(birth.event_type.definition.label)
-            not in rendered
-        )
-        assert (
-            default_localizer.localize(death.event_type.definition.label)
-            not in rendered
-        )
+        assert default_localizer.localize(Birth.definition.label) not in rendered
+        assert default_localizer.localize(Death.definition.label) not in rendered
         assert "#reference" not in rendered
 
 
@@ -115,7 +109,7 @@ async def test_with_birh_indicator(
     async with assert_raspberry_mint_jinja_file(
         "entity/summary--person.html.j2", data={"entity": person}
     ) as rendered:
-        assert default_localizer.localize(birth.event_type.definition.label) in rendered
+        assert default_localizer.localize(Birth.definition.label) in rendered
         assert "#reference" in rendered
 
 
@@ -129,7 +123,7 @@ async def test_with_death_indicator(
     async with assert_raspberry_mint_jinja_file(
         "entity/summary--person.html.j2", data={"entity": person}
     ) as rendered:
-        assert default_localizer.localize(death.event_type.definition.label) in rendered
+        assert default_localizer.localize(Death.definition.label) in rendered
         assert "#reference" in rendered
 
 

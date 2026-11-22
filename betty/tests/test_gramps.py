@@ -26,9 +26,8 @@ from betty.entities.source import Source
 from betty.entity.collection.pool import EntityPool
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
-from betty.event_types.unknown import UnknownEventType
 from betty.genders.non_binary import NonBinary
-from betty.genders.unknown import UnknownGender
+from betty.genders.woman import Woman
 from betty.gramps import (
     GrampsFileNotFound,
     GrampsLoader,
@@ -40,7 +39,6 @@ from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
 from betty.localizer import Localizer, default_localizer
 from betty.media_type import MediaType
 from betty.place_types.city import City
-from betty.place_types.unknown import UnknownPlaceType
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.roles.subject import Subject
@@ -445,7 +443,7 @@ class TestGrampsLoader:
         """
         )
         place = ancestry[Place][machinify("P0000")]
-        assert isinstance(place.place_type, UnknownPlaceType)
+        assert place.place_type is None
 
     async def test_place_should_include_name(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(
@@ -692,7 +690,20 @@ class TestGrampsLoader:
         person = ancestry[Person][machinify("I0000")]
         assert not person.private
 
-    async def test_person_should_fallback_gender(
+    async def test_person_should_load_gender(self, load_partial: LoadPartial) -> None:
+        ancestry = await load_partial(
+            """
+<people>
+    <person handle="_e1dd3bf1f0041d92f586f9d8683" change="1552126972" id="I0000">
+        <gender>F</gender>
+    </person>
+</people>
+"""
+        )
+        person = ancestry[Person][machinify("I0000")]
+        assert isinstance(person.gender, Woman)
+
+    async def test_person_should_load_unknown_gender(
         self, load_partial: LoadPartial
     ) -> None:
         ancestry = await load_partial(
@@ -705,7 +716,7 @@ class TestGrampsLoader:
 """
         )
         person = ancestry[Person][machinify("I0000")]
-        assert isinstance(person.gender, UnknownGender)
+        assert person.gender is None
 
     async def test_person_should_load_gender_element(
         self, load_partial: LoadPartial
@@ -1001,9 +1012,7 @@ class TestGrampsLoader:
 </events>
 """
         )
-        assert isinstance(
-            ancestry[Event][machinify("E0000")].event_type, UnknownEventType
-        )
+        assert ancestry[Event][machinify("E0000")].event_type is None
 
     async def test_event_should_include_place(self, load_partial: LoadPartial) -> None:
         ancestry = await load_partial(

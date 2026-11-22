@@ -249,7 +249,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     },
     "betty/genders/man.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/genders/non_binary.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/genders/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/genders/woman.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/gramps.py": {
         "GrampsEntityReference": MissingReason.SHOULD_BE_COVERED,
@@ -462,7 +461,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     "betty/place_types/state.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/place_types/street.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/place_types/town.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/place_types/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/place_types/village.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/plugin/cls.py": {
         "Plugin": MissingReason.ABSTRACT,
@@ -495,7 +493,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     "betty/roles/organizer.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/roles/speaker.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/roles/subject.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/roles/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/roles/witness.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/privacy/__init__.py": {
         "Privacy": MissingReason.ENUM,
@@ -530,7 +527,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     "betty/event_types/occupation.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/event_types/residence.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/event_types/retirement.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/event_types/unknown.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/event_types/will.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/service_provider.py": {
         "ServiceProvider": MissingReason.STATIC_CONTENT_ONLY,

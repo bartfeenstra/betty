@@ -56,22 +56,23 @@ if TYPE_CHECKING:
 def _new_plugin_mapping_attr[
     DefinitionT: Intersection[PluginDefinition, ClsDefinition],
     PluginManufacturerT: PluginManufacturer,
-    PluginT,
 ](
     manufacturer: type[PluginManufacturerT],
     gramps_label: AnyLocalizable,
     default: Mapping[
-        str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]
+        str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT] | None
     ],
 ) -> CommonAttr[
     Init,
-    MutableMapping[str, PluginManufacturerT],
-    Mapping[str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]],
+    MutableMapping[str, PluginManufacturerT | None],
+    Mapping[str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT] | None],
 ]:
     return CollectionOwnerAttr[
         Init,
-        MutableMapping[str, PluginManufacturerT],
-        Mapping[str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]],
+        MutableMapping[str, PluginManufacturerT | None],
+        Mapping[
+            str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT] | None
+        ],
         MappingDefinition,
     ](
         FieldDefinition(
@@ -89,7 +90,10 @@ def _new_plugin_mapping_attr[
             optional=True,
         )  # ty: ignore[invalid-argument-type]
     ).default(
-        lambda: {key: manufacturer.resolve(value) for key, value in default.items()}
+        lambda: {
+            key: None if value is None else manufacturer.resolve(value)
+            for key, value in default.items()
+        }
     )
 
 

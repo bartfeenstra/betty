@@ -16,7 +16,6 @@ from betty.entities.presence import Presence
 from betty.entity import EntityDefinition
 from betty.freezers.attr import AttrFreezable
 from betty.functools import unique
-from betty.genders.unknown import UnknownGender
 from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 
@@ -104,7 +103,7 @@ class Person(AttrFreezable, HasFileReferences, HasCitations, HasNotes, HasLinks)
         self.parents = parents
         self.presences = presences
         self.names = names
-        self.gender = gender or UnknownGender()
+        self.gender = gender
         """
         The person's gender.
         """

@@ -13,6 +13,7 @@ from betty.content_builder import ContentBuilderDefinition
 from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.aggregate.collection.list import ListDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
+from betty.datas.optional import OptionalDefinition
 from betty.definition.id import resolve_id
 from betty.entities.event import Event
 from betty.factory import DataManufacturable, Manufacturable
@@ -55,12 +56,20 @@ class PresencesConfig(Object, AttrFreezable):
     .. data:: betty.content_builders.raspberry_mint_presences:PresencesConfig
     """
 
-    exclude = OwnerAttr(ListDefinition(value=MachineName, label=_("Exclude"))).optional
+    exclude = OwnerAttr(
+        ListDefinition(
+            value=OptionalDefinition(MachineName.definition), label=_("Exclude")
+        )
+    ).optional
     """
     The presence roles for which to exclude presences.
     """
 
-    include = OwnerAttr(ListDefinition(value=MachineName, label=_("Include"))).optional
+    include = OwnerAttr(
+        ListDefinition(
+            value=OptionalDefinition(MachineName.definition), label=_("Include")
+        )
+    ).optional
     """
     The presence roles for which to include presences.
     """
@@ -68,14 +77,20 @@ class PresencesConfig(Object, AttrFreezable):
     def __init__(
         self,
         *,
-        include: Iterable[ResolvableId[RoleDefinition]] | None = None,
-        exclude: Iterable[ResolvableId[RoleDefinition]] | None = None,
+        include: Iterable[ResolvableId[RoleDefinition] | None] | None = None,
+        exclude: Iterable[ResolvableId[RoleDefinition] | None] | None = None,
     ):
         super().__init__()
         if include is not None:
-            self.include = List(map(resolve_id, include))
+            self.include = List(
+                None if include_ is None else resolve_id(include_)
+                for include_ in include
+            )
         if exclude is not None:
-            self.exclude = List(map(resolve_id, exclude))
+            self.exclude = List(
+                None if exclude_ is None else resolve_id(exclude_)
+                for exclude_ in exclude
+            )
 
 
 @final
@@ -94,11 +109,18 @@ class Presences(Template, DataManufacturable[PresencesConfig], Manufacturable):
     def __init__(
         self,
         *,
-        include: Iterable[ResolvableId[RoleDefinition]] | None = None,
+        include: Iterable[ResolvableId[RoleDefinition] | None] | None = None,
         jinja: Environment,
     ):
         super().__init__(jinja=jinja)
-        self._include = None if include is None else tuple(map(resolve_id, include))
+        self._include = (
+            None
+            if include is None
+            else tuple(
+                None if include_ is None else resolve_id(include_)
+                for include_ in include
+            )
+        )
 
     @override
     @classmethod
@@ -131,7 +153,8 @@ class Presences(Template, DataManufacturable[PresencesConfig], Manufacturable):
                 presences = tuple(
                     presence
                     for presence in presences
-                    if presence.role.definition.id in self._include
+                    if (presence.role.definition.id if presence.role else None)
+                    in self._include
                 )
             if not presences:
                 return None

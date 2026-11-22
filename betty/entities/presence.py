@@ -53,15 +53,11 @@ class Presence(AttrFreezable, Entity):
     The event the person was present at.
     """
 
-    role: Role
-    """
-    The role the person performed at the event.
-    """
-
     def __init__(
         self,
+        /,
         person: ToOneAssociate[Person],
-        role: Role,
+        role: Role | None,
         event: ToOneAssociate[Event],
         *,
         id: ResolvableMachineName | None = None,  # noqa: A002
@@ -70,6 +66,9 @@ class Presence(AttrFreezable, Entity):
         super().__init__(id=id, privacy=privacy)
         self.person = person
         self.role = role
+        """
+        The role the person performed at the event.
+        """
         self.event = event
 
     @override

@@ -18,7 +18,6 @@ from betty.attrs.localizable import new_localizable_attr
 from betty.entities.place import Place
 from betty.entities.presence import Presence
 from betty.entity import EntityDefinition
-from betty.event_types.unknown import UnknownEventType
 from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import JoinAnd
@@ -103,7 +102,7 @@ class Event(
             privacy=privacy,
             description=description,
         )
-        self.event_type = event_type or UnknownEventType()
+        self.event_type = event_type
         """
         The type of event.
         """
@@ -118,7 +117,9 @@ class Event(
             return self.name
 
         format_kwargs: Mapping[str, AnyLocalizable] = {
-            "event_type": self.event_type.definition.label,
+            "event_type": self.event_type.definition.label
+            if self.event_type
+            else _("Unknown"),
         }
         subjects = [
             presence.person

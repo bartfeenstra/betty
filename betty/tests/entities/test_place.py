@@ -12,7 +12,6 @@ from betty.entities.place import Place
 from betty.entities.place_name import PlaceName
 from betty.entity import Entity
 from betty.place_types.hamlet import Hamlet
-from betty.place_types.unknown import UnknownPlaceType
 from betty.test_utils.entity import EntityTestBase
 
 if TYPE_CHECKING:
@@ -34,7 +33,7 @@ class TestPlace(EntityTestBase):
 
     def test_place_type__default(self) -> None:
         sut = Place()
-        assert isinstance(sut.place_type, UnknownPlaceType)
+        assert sut.place_type is None
 
     def test___init____with_events(self) -> None:
         event = Event()
