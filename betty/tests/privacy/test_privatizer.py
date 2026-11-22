@@ -22,7 +22,6 @@ from betty.privacy import Privacy
 from betty.privacy.privatizer import Privatizer
 from betty.project import Project
 from betty.roles.subject import Subject
-from betty.roles.unknown import UnknownRole
 from betty.test_utils.user.ui import StaticUi
 
 if TYPE_CHECKING:
@@ -301,9 +300,7 @@ class TestPrivatizer:
         person.citations.add(citation)
         FileReference(person, file)
         presence_as_subject = Presence(person, Subject(), Event(event_type=Birth()))
-        presence_as_unknown = Presence(
-            person, UnknownRole(), Event(event_type=Marriage())
-        )
+        presence_as_unknown = Presence(person, None, Event(event_type=Marriage()))
         await Privatizer(Project.default_lifetime_threshold, ui=StaticUi()).privatize(
             person
         )
@@ -320,9 +317,7 @@ class TestPrivatizer:
         person.citations.add(citation)
         FileReference(person, file)
         presence_as_subject = Presence(person, Subject(), Event(event_type=Birth()))
-        presence_as_unknown = Presence(
-            person, UnknownRole(), Event(event_type=Marriage())
-        )
+        presence_as_unknown = Presence(person, None, Event(event_type=Marriage()))
         await Privatizer(Project.default_lifetime_threshold, ui=StaticUi()).privatize(
             person
         )

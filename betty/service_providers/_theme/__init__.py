@@ -107,12 +107,13 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
             continue
         assert presence.event is not None
         assert presence.event.date is not None
-        if presence.role.definition.id != Subject.definition.id:
+        if not presence.role or presence.role.definition.id != Subject.definition.id:
             continue
-        if presence.event.event_type.definition.id == Birth.definition.id:
-            start_dates.append(presence.event.date)
-        if presence.event.event_type.definition.id == Death.definition.id:
-            end_dates.append(presence.event.date)
+        if presence_event_type := presence.event.event_type:
+            if presence_event_type.definition.id == Birth.definition.id:
+                start_dates.append(presence.event.date)
+            if presence_event_type.definition.id == Death.definition.id:
+                end_dates.append(presence.event.date)
     start_date = sorted(start_dates)[0] if start_dates else None
     end_date = sorted(end_dates)[0] if end_dates else None
 
@@ -173,12 +174,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
         for associated_person in associated_people:
             # For associated events, we are only interested in people's start- or end-of-life events.
             for associated_presence in associated_person.presences:
-                if (
-                    associated_presence.event.event_type.definition.id
-                    != Birth.definition.id
-                    and associated_presence.event.event_type.definition.id
-                    != Death.definition.id
-                ):
+                if not isinstance(associated_presence.event.event_type, Birth | Death):
                     continue
                 if not associated_presence.event.id.persistent:
                     continue

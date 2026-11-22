@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-11 22:55+0000\n"
+"POT-Creation-Date: 2026-11-22 12:02+0000\n"
 "PO-Revision-Date: 2026-07-17 21:25+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es_ES\n"
@@ -212,8 +212,8 @@ msgid "Betty is an application that takes a family tree and builds a website out
 msgstr ""
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was set to {betty_event_type}."
-msgstr "Betty no está familiarizada con el evento de tipo Gramps {event} de {gramps_event_type}. El evento fue importado, pero su tipo fue establecido a {betty_event_type}."
+msgid "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was omitted."
+msgstr ""
 
 #, python-brace-format
 msgid "Betty is unfamiliar with Gramps file {file}'s copyright notice of {copyright_notice} and ignored it."
@@ -228,11 +228,11 @@ msgid "Betty is unfamiliar with Gramps person {person}'s gender of {gender} and 
 msgstr "Betty no es familiar con persona Gramps con ID de género de {person} de {gender} y lo ignora."
 
 #, python-brace-format
-msgid "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was set to {betty_place_type}."
-msgstr "Betty no está familiarizada con el lugar Gramps {place} tipo de {gramps_place_type}. El lugar fue importado, pero su tipo se fijó en {betty_place_type}."
+msgid "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was omitted."
+msgstr ""
 
 #, python-brace-format
-msgid "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The role was imported, but set to {betty_role}."
+msgid "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The person and event were imported, but the role was omitted."
 msgstr ""
 
 #, python-brace-format
@@ -1212,9 +1212,6 @@ msgstr "Ruta"
 msgid "People"
 msgstr "Personas"
 
-msgid "People of unknown gender"
-msgstr ""
-
 msgid "People's presences at this event"
 msgstr "La presencias de personas en este evento"
 
@@ -1229,9 +1226,6 @@ msgstr "Nombre de persona"
 
 msgid "Person names"
 msgstr "Nombres de personas"
-
-msgid "Person of unknown gender"
-msgstr ""
 
 msgid "Place"
 msgstr "Lugar"
@@ -1792,9 +1786,6 @@ msgstr "Clave desconocida: {unknown_key}."
 #, python-brace-format
 msgid "Unknown plugin {plugin}."
 msgstr "Complemento desconocido {plugin}."
-
-msgid "Unknowns"
-msgstr "Desconocides"
 
 #, python-brace-format
 msgid "Unsupported file {unsupported}. Supported types are: {supported}."
@@ -2470,12 +2461,6 @@ msgstr[0] "{count} nombre de persona"
 msgstr[1] "{count} nombres de personas"
 
 #, python-brace-format
-msgid "{count} person of unknown gender"
-msgid_plural "{count} people of unknown gender"
-msgstr[0] ""
-msgstr[1] ""
-
-#, python-brace-format
 msgid "{count} place"
 msgid_plural "{count} places"
 msgstr[0] "{count} lugar"
@@ -2588,12 +2573,6 @@ msgid "{count} town"
 msgid_plural "{count} towns"
 msgstr[0] "{count} pueblo"
 msgstr[1] "{count} pueblos"
-
-#, python-brace-format
-msgid "{count} unknown"
-msgid_plural "{count} unknowns"
-msgstr[0] "{count} desconocide"
-msgstr[1] "{count} desconocides"
 
 #, python-brace-format
 msgid "{count} village"

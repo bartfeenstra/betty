@@ -78,7 +78,7 @@ class LoadDemoAncestry(Job):
 
             try:
                 streetmix_files = streetmix_files_per_gender[
-                    person.gender.definition.id
+                    person.gender.definition.id if person.gender else None
                 ]
             except KeyError:
                 streetmix_files = fallback_streetmix_files
@@ -500,7 +500,7 @@ class LoadDemoAncestry(Job):
 
     async def _load_streetmix_images(
         self,
-    ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
+    ) -> tuple[Mapping[MachineName | None, Sequence[File]], Sequence[File]]:
         streetmix_image_directory = builtin_asset_directory / "vendor" / "streetmix"
         masculine: Sequence[File] = []
         feminine: Sequence[File] = []

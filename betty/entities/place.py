@@ -15,7 +15,6 @@ from betty.entities.enclosure import Enclosure
 from betty.entity import EntityDefinition
 from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
-from betty.place_types.unknown import UnknownPlaceType
 from betty.privacy import Privacy
 
 if TYPE_CHECKING:
@@ -97,7 +96,7 @@ class Place(AttrFreezable, HasLinks, HasFileReferences, HasNotes):
         self.events = events
         self.enclosed_by = enclosed_by
         self.encloses = encloses
-        self.place_type = place_type or UnknownPlaceType()
+        self.place_type = place_type
         """
         The type of this place.
         """

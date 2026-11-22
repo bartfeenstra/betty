@@ -216,6 +216,8 @@ class _DateDeriver(metaclass=ABCMeta):
     ) -> bool:
         if not reference_event_types:
             return False
+        if not derivable_event.event_type:
+            return False
 
         reference_events = _get_reference_events(
             person, reference_event_types, derivable_event.event_type.definition
@@ -355,6 +357,8 @@ def _get_derivable_events(
         event = presence.event
 
         # Ignore events of the wrong type.
+        if not event.event_type:
+            continue
         if event.event_type.definition.id != derivable_event_type.id:
             continue
 
@@ -379,9 +383,13 @@ def _get_reference_events(
     for presence in person.presences:
         reference_event = presence.event
 
-        if reference_event.date is None:
+        if not reference_event.event_type:
+            continue
+        if reference_event.event_type.definition.id not in reference_event_types:
             continue
 
+        if not reference_event.date:
+            continue
         if isinstance(reference_event.date, DateRange):
             if derivable_event_type.before(reference_event.event_type.definition.id):
                 reference_date = reference_event.date.start
@@ -391,9 +399,5 @@ def _get_reference_events(
                 continue
             if reference_date.fuzzy:
                 continue
-
-        # Ignore reference events of the wrong type.
-        if reference_event.event_type.definition.id not in reference_event_types:
-            continue
 
         yield reference_event

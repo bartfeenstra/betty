@@ -322,33 +322,36 @@ class TestFamilyTree(DataTestBase[FamilyTree]):
         assert sut.source == name
 
     def test___init____with_event_types(self) -> None:
-        gramps_type = "my-first-gramps-type"
         plugin_id = "my-first-betty-plugin-id"
         sut = FamilyTree(
             name="my-first-family-tree",
-            event_types={gramps_type: EventTypeManufacturer(plugin_id)},
+            event_types={"my-first-gramps-type": EventTypeManufacturer(plugin_id)},
         )
-        assert sut.event_types[gramps_type].plugin_id == plugin_id
+        assert sut.event_types["my-first-gramps-type"]
+        assert sut.event_types["my-first-gramps-type"].plugin_id == plugin_id
+        assert sut.event_types["Birth"]
         assert sut.event_types["Birth"].plugin_id == Birth.definition.id
 
     def test___init____with_place_types(self) -> None:
-        gramps_type = "my-first-gramps-type"
         plugin_id = "my-first-betty-plugin-id"
         sut = FamilyTree(
             name="my-first-family-tree",
-            place_types={gramps_type: PlaceTypeManufacturer(plugin_id)},
+            place_types={"my-first-gramps-type": PlaceTypeManufacturer(plugin_id)},
         )
-        assert sut.place_types[gramps_type].plugin_id == plugin_id
+        assert sut.place_types["my-first-gramps-type"]
+        assert sut.place_types["my-first-gramps-type"].plugin_id == plugin_id
+        assert sut.place_types["Borough"]
         assert sut.place_types["Borough"].plugin_id == Borough.definition.id
 
     def test___init____with_roles(self) -> None:
-        gramps_type = "my-first-gramps-type"
         plugin_id = "my-first-betty-plugin-id"
         sut = FamilyTree(
             name="my-first-family-tree",
-            roles={gramps_type: RoleManufacturer(plugin_id)},
+            roles={"my-first-gramps-type": RoleManufacturer(plugin_id)},
         )
-        assert sut.roles[gramps_type].plugin_id == plugin_id
+        assert sut.roles["my-first-gramps-type"]
+        assert sut.roles["my-first-gramps-type"].plugin_id == plugin_id
+        assert sut.roles["Aide"]
         assert sut.roles["Aide"].plugin_id == Attendee.definition.id
 
     def test_source(self) -> None:

@@ -220,7 +220,6 @@ betty = 'betty.consoles.app:main'
 'project' = 'betty.project._plugin_discovery:_discover_event_types'
 'residence' = 'betty.event_types.residence:Residence'
 'retirement' = 'betty.event_types.retirement:Retirement'
-'unknown' = 'betty.event_types.unknown:UnknownEventType'
 'will' = 'betty.event_types.will:Will'
 
 [project.entry-points.'betty.service_provider']
@@ -235,7 +234,6 @@ betty = 'betty.consoles.app:main'
 'man' = 'betty.genders.man:Man'
 'non-binary' = 'betty.genders.non_binary:NonBinary'
 'project' = 'betty.project._plugin_discovery:_discover_genders'
-'unknown' = 'betty.genders.unknown:UnknownGender'
 'woman' = 'betty.genders.woman:Woman'
 
 [project.entry-points.'betty.jinja_filter']
@@ -285,7 +283,6 @@ betty = 'betty.consoles.app:main'
 'state' = 'betty.place_types.state:State'
 'street' = 'betty.place_types.street:Street'
 'town' = 'betty.place_types.town:Town'
-'unknown' = 'betty.place_types.unknown:UnknownPlaceType'
 'village' = 'betty.place_types.village:Village'
 
 [project.entry-points.'betty.role']
@@ -297,7 +294,6 @@ betty = 'betty.consoles.app:main'
 'project' = 'betty.project._plugin_discovery:_discover_roles'
 'speaker' = 'betty.roles.speaker:Speaker'
 'subject' = 'betty.roles.subject:Subject'
-'unknown' = 'betty.roles.unknown:UnknownRole'
 'witness' = 'betty.roles.witness:Witness'
 
 [project.entry-points.'betty.http_rate_limit']

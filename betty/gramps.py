@@ -71,7 +71,6 @@ from betty.event_types.marriage_announcement import MarriageAnnouncement
 from betty.event_types.occupation import Occupation
 from betty.event_types.residence import Residence
 from betty.event_types.retirement import Retirement
-from betty.event_types.unknown import UnknownEventType
 from betty.event_types.will import Will
 from betty.exception import HumanFacingException
 from betty.gender import (
@@ -81,7 +80,6 @@ from betty.gender import (
 )
 from betty.genders.man import Man
 from betty.genders.non_binary import NonBinary
-from betty.genders.unknown import UnknownGender
 from betty.genders.woman import Woman
 from betty.hashid import hashid, hashid_sequence
 from betty.license import LicenseManufacturer
@@ -113,7 +111,6 @@ from betty.place_types.region import Region
 from betty.place_types.state import State
 from betty.place_types.street import Street
 from betty.place_types.town import Town
-from betty.place_types.unknown import UnknownPlaceType
 from betty.place_types.village import Village
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
@@ -122,13 +119,19 @@ from betty.roles.attendee import Attendee
 from betty.roles.celebrant import Celebrant
 from betty.roles.informant import Informant
 from betty.roles.subject import Subject
-from betty.roles.unknown import UnknownRole
 from betty.roles.witness import Witness
 from betty.user import Severity
 
 if TYPE_CHECKING:
     from asyncio.subprocess import Process
-    from collections.abc import Iterable, Mapping, MutableMapping, Sequence
+    from collections.abc import (
+        Awaitable,
+        Callable,
+        Iterable,
+        Mapping,
+        MutableMapping,
+        Sequence,
+    )
     from xml.etree import ElementTree
 
     from babel import Locale
@@ -203,14 +206,16 @@ class GrampsEntityReference:
         return f"{self.entity_type.value} ({self.entity_id})"
 
 
-default_gender_mapping: Final[Mapping[str, ResolvableGenderManufacturer]] = {
+default_gender_mapping: Final[Mapping[str, ResolvableGenderManufacturer | None]] = {
     "F": Woman,
     "M": Man,
-    "U": UnknownGender,
+    "U": None,
     "X": NonBinary,
 }
 
-default_event_type_mapping: Final[Mapping[str, ResolvableEventTypeManufacturer]] = {
+default_event_type_mapping: Final[
+    Mapping[str, ResolvableEventTypeManufacturer | None]
+] = {
     "Adopted": Adoption,
     "Adult Christening": Baptism,
     "Baptism": Baptism,
@@ -236,7 +241,9 @@ default_event_type_mapping: Final[Mapping[str, ResolvableEventTypeManufacturer]]
 }
 
 
-default_place_type_mapping: Final[Mapping[str, ResolvablePlaceTypeManufacturer]] = {
+default_place_type_mapping: Final[
+    Mapping[str, ResolvablePlaceTypeManufacturer | None]
+] = {
     "Borough": Borough,
     "Building": Building,
     "City": City,
@@ -256,12 +263,11 @@ default_place_type_mapping: Final[Mapping[str, ResolvablePlaceTypeManufacturer]]
     "State": State,
     "Street": Street,
     "Town": Town,
-    "Unknown": UnknownPlaceType,
     "Village": Village,
 }
 
 
-default_role_mapping: Final[Mapping[str, ResolvableRoleManufacturer]] = {
+default_role_mapping: Final[Mapping[str, ResolvableRoleManufacturer | None]] = {
     "Aide": Attendee,
     "Bride": Subject,
     "Celebrant": Celebrant,
@@ -270,7 +276,6 @@ default_role_mapping: Final[Mapping[str, ResolvableRoleManufacturer]] = {
     "Groom": Subject,
     "Informant": Informant,
     "Primary": Subject,
-    "Unknown": UnknownRole,
     "Witness": Witness,
 }
 
@@ -303,18 +308,26 @@ _gramps_extensions: Final[Sequence[str]] = (
 )
 
 
+async def _none_manufacturer(_project: Project, /) -> None:
+    return None
+
+
 def _resolve_plugin_manufacturer_mapping[
-    T,
     DefinitionT: Intersection[PluginDefinition, ClsDefinition],
+    PluginT,
     PluginManufacturerT: PluginManufacturer,
 ](
-    manufacturer: type[PluginManufacturerT],
-    resolvable_manufacturers: Mapping[
-        T, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT]
+    manufacturer: type[
+        Intersection[PluginManufacturerT, PluginManufacturer[DefinitionT, PluginT]]
     ],
-) -> MutableMapping[T, PluginManufacturerT]:
+    resolvable_manufacturers: Mapping[
+        str, ResolvablePluginManufacturer[DefinitionT, PluginManufacturerT] | None
+    ],
+) -> Mapping[str, Callable[[Project], Awaitable[PluginT | None]]]:
     return {
-        gramps_type: manufacturer.resolve(resolvable_manufacturer)
+        gramps_type: _none_manufacturer
+        if resolvable_manufacturer is None
+        else manufacturer.resolve(resolvable_manufacturer)
         for gramps_type, resolvable_manufacturer in resolvable_manufacturers.items()
     }
 
@@ -973,19 +986,17 @@ class GrampsLoader:
         gramps_role = eventref.get("role")
         assert gramps_role is not None
 
-        role: Role
+        role: Role | None = None
         try:
             role_manufacturer = self._role_mapping[gramps_role]
         except KeyError:
-            role = UnknownRole()
             await self._ui.message(
                 _(
-                    "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The role was imported, but set to {betty_role}.",
+                    "Betty is unfamiliar with person {person}'s Gramps role of {gramps_role} for the event with Gramps handle {event_handle}. The person and event were imported, but the role was omitted.",
                 ).format(
                     person=Quote(person.id),
                     event_handle=Quote(event_handle),
                     gramps_role=Quote(gramps_role),
-                    betty_role=role.definition.label.localize(self._ui.localizer),
                 ),
                 Severity.WARN,
             )
@@ -1029,21 +1040,14 @@ class GrampsLoader:
             assert name is not None
             names.append(PlaceName(StaticTranslations({language: name}), date=date))
 
-        place_type: PlaceType
+        place_type: PlaceType | None = None
         try:
             place_type_manufacturer = self._place_type_mapping[gramps_type]
         except KeyError:
-            place_type = UnknownPlaceType()
             await self._ui.message(
                 _(
-                    "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was set to {betty_place_type}.",
-                ).format(
-                    place=Quote(place_id),
-                    gramps_place_type=Quote(gramps_type),
-                    betty_place_type=place_type.definition.label.localize(
-                        self._ui.localizer
-                    ),
-                ),
+                    "Betty is unfamiliar with Gramps place {place}'s type of {gramps_place_type}. The place was imported, but its type was omitted.",
+                ).format(place=Quote(place_id), gramps_place_type=Quote(gramps_type)),
                 Severity.WARN,
             )
         else:
@@ -1101,21 +1105,14 @@ class GrampsLoader:
         gramps_type = self._xpath1(element, "./ns:type").text
         assert gramps_type is not None
 
-        event_type: EventType
+        event_type: EventType | None = None
         try:
             event_type_manufacturer = self._event_type_mapping[gramps_type]
         except KeyError:
-            event_type = UnknownEventType()
             await self._ui.message(
                 _(
-                    "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was set to {betty_event_type}.",
-                ).format(
-                    event=Quote(event_id),
-                    gramps_event_type=Quote(gramps_type),
-                    betty_event_type=event_type.definition.label.localize(
-                        self._ui.localizer
-                    ),
-                ),
+                    "Betty is unfamiliar with Gramps event {event}'s type of {gramps_event_type}. The event was imported, but its type was omitted.",
+                ).format(event=Quote(event_id), gramps_event_type=Quote(gramps_type)),
                 Severity.WARN,
             )
         else:

@@ -1,10 +1,13 @@
 {%- set embedded = embedded | default(False) -%}
 {%- set person_context = document.entity_contexts['person'] -%}
 {%- if entity.name -%}
-    {%- set formatted_event = entity.name | localize | html_lang | safe -%}
+    {%- set event_label = entity.name -%}
+{%- elif entity.event_type -%}
+    {%- set event_label = entity.event_type.definition.label -%}
 {%- else -%}
-    {%- set formatted_event = entity.event_type.definition.label | localize | html_lang | safe -%}
+    {%- set event_label = _('Unknown') -%}
 {%- endif -%}
+{%- set formatted_event = event_label | localize | html_lang | safe -%}
 {%- if entity.id.persistent and not embedded -%}
     {%- set formatted_event -%}
         <a href="{{ entity | url }}">{{ formatted_event }}</a>

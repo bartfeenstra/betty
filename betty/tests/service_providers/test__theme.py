@@ -17,18 +17,14 @@ from betty.entities.presence import Presence
 from betty.entities.source import Source
 from betty.event_types.birth import Birth
 from betty.event_types.death import Death
-from betty.event_types.unknown import UnknownEventType
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.roles.subject import Subject
-from betty.roles.unknown import UnknownRole
 from betty.service_providers._theme import (
     associated_file_references,
     person_timeline_events,
 )
-from betty.test_utils.associations.has_file_references import (
-    DummyHasFileReferences,
-)
+from betty.test_utils.associations.has_file_references import DummyHasFileReferences
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -77,11 +73,11 @@ def __parameterize_with_associated_events():  # noqa: ANN202
     )
     person_roles = (
         (True, Subject()),
-        (False, UnknownRole()),
+        (False, None),
     )
     event_types = (
         (True, Birth()),
-        (False, UnknownEventType()),
+        (False, None),
     )
     event_resolvable_date_and_person_reference_event_types = (
         (True, _after_reference_date, Birth()),
@@ -155,11 +151,10 @@ class TestPersonLifetimeEvents:
         person = Person()
         event = Event(
             id=event_id,
-            event_type=UnknownEventType(),
             date=event_date,
             privacy=event_privacy,
         )
-        Presence(person, UnknownRole(), event)
+        Presence(person, None, event)
         actual = list(
             person_timeline_events(person, Project.default_lifetime_threshold)
         )
@@ -273,7 +268,7 @@ class TestAssociatedFileReferences:
         ] == [file1, file2]
 
     async def test_with_event_without_files(self) -> None:
-        event = Event(event_type=UnknownEventType())
+        event = Event()
         assert list(associated_file_references(event)) == []
 
     async def test_with_event_with_citations(self) -> None:
@@ -281,7 +276,7 @@ class TestAssociatedFileReferences:
         file2 = File(path=Path())
         file3 = File(path=Path())
         file4 = File(path=Path())
-        event = Event(event_type=UnknownEventType())
+        event = Event()
         FileReference(event, file1)
         FileReference(event, file2)
         FileReference(event, file1)
@@ -320,7 +315,7 @@ class TestAssociatedFileReferences:
             individual="Janet",
         )
         name.citations = [citation]
-        event = Event(event_type=UnknownEventType())
+        event = Event()
         FileReference(event, file5)
         FileReference(event, file6)
         FileReference(event, file4)
@@ -342,7 +337,7 @@ class TestAssociatedFileReferences:
         FileReference(place, file1)
         FileReference(place, file2)
         FileReference(place, file1)
-        event = Event(event_type=UnknownEventType())
+        event = Event()
         FileReference(event, file3)
         FileReference(event, file4)
         FileReference(event, file4)
