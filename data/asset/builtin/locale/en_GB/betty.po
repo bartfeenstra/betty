@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-22 12:02+0000\n"
+"POT-Creation-Date: 2026-11-22 15:42+0000\n"
 "PO-Revision-Date: 2026-10-25 16:51+0000\n"
 "Last-Translator: Andi Chandler <andibing@users.noreply.hosted.weblate.org>\n"
 "Language: en_GB\n"
@@ -118,6 +118,9 @@ msgstr "An IETF BCP 47 language tag, such as {example_language_tag}."
 #, python-brace-format
 msgid "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
 msgstr "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
+
+msgid "Ancestry"
+msgstr ""
 
 msgid "Announcement of divorce"
 msgstr "Announcement of divorce"
@@ -517,6 +520,9 @@ msgstr "Deaths"
 
 msgid "Debugging mode"
 msgstr "Debugging mode"
+
+msgid "Default locale"
+msgstr ""
 
 msgid "Department"
 msgstr "Department"
@@ -1077,6 +1083,9 @@ msgstr "Month"
 msgid "More plugins may be available when running this command with {argument}."
 msgstr "More plugins may be available when running this command with {argument}."
 
+msgid "Multilingual"
+msgstr ""
+
 msgid "Multiple files in a media gallery display"
 msgstr "Multiple files in a media gallery display"
 
@@ -1302,6 +1311,9 @@ msgstr[1] "Privatised {count} {entity_type} entities, because they are associate
 #, python-brace-format
 msgid "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
 msgstr "Privatised {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
+
+msgid "Project"
+msgstr ""
 
 msgid "Project author"
 msgstr "Project author"

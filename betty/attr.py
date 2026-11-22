@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Final, Never
 
+from betty.classtools.class_var import ClassVars
 from betty.classtools.init import Init
 from betty.data import DataDefinition
 from betty.datas.aggregate.record import (
@@ -13,7 +14,17 @@ from betty.datas.aggregate.record import (
     ResolvableFieldDefinition,
     resolve_field_definition,
 )
-from betty.prop import Prop
+from betty.prop import HasProps, Prop
+
+
+class HasAttrs(HasProps):
+    """
+    An object that has :py:class:`attributes <betty.attr.Attr>`.
+    """
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        cls.attrs = ClassVars(cls, Attr)
 
 
 class Attr[

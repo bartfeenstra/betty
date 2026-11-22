@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-22 12:02+0000\n"
+"POT-Creation-Date: 2026-11-22 15:42+0000\n"
 "PO-Revision-Date: 2026-10-28 00:01+0000\n"
 "Last-Translator: Bart Feenstra <bartfeenstra@users.noreply.hosted.weblate.org>\n"
 "Language: nl_NL\n"
@@ -118,6 +118,9 @@ msgstr "Een IETF BCP 47 taal-tag, zoals {example_language_tag}."
 #, python-brace-format
 msgid "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
 msgstr "Er is een onverwachte fout opgetreden. Als dit volgens jou een bug in Betty is, laat het ons alsjeblieft weten op {url}."
+
+msgid "Ancestry"
+msgstr ""
 
 msgid "Announcement of divorce"
 msgstr "Scheidingsaankondiging"
@@ -517,6 +520,9 @@ msgstr "Overlijdens"
 
 msgid "Debugging mode"
 msgstr "Debugmodus"
+
+msgid "Default locale"
+msgstr ""
 
 msgid "Department"
 msgstr "Departement"
@@ -1077,6 +1083,9 @@ msgstr "Maand"
 msgid "More plugins may be available when running this command with {argument}."
 msgstr "Er zijn mogelijk meer plugins beschikbaar als dit commando met {argument} gebruikt wordt."
 
+msgid "Multilingual"
+msgstr ""
+
 msgid "Multiple files in a media gallery display"
 msgstr "Meerdere bestanden in mediagalerijweergave"
 
@@ -1302,6 +1311,9 @@ msgstr[1] "Er zijn {count} {entity_type}-entiteiten geprivatiseerd, omdat ze met
 #, python-brace-format
 msgid "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
 msgstr "{privatized_entity_type} {privatized_entity_id} ({privatized_entity}) geprivatiseerd vanwege {reason_entity_type} {reason_entity_id} ({reason_entity})."
+
+msgid "Project"
+msgstr ""
 
 msgid "Project author"
 msgstr "Projectauteur"

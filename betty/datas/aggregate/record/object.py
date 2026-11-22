@@ -4,11 +4,9 @@ Object data types.
 
 from __future__ import annotations
 
-from typing import Any, override
+from typing import override
 
-from betty.attr import Attr
-from betty.classtools.class_var import ClassVars
-from betty.classtools.init import Init
+from betty.attr import HasAttrs
 from betty.data import Data
 from betty.datas.aggregate.record import RecordDefinition
 from betty.operator import Attr as AttrOperator
@@ -24,16 +22,16 @@ class ObjectDefinition[DataT](RecordDefinition[DataT, AttrOperator]):
     @override
     def _set_cls(self, cls: type[DataT], /) -> None:
         super()._set_cls(cls)
-        if issubclass(cls, Object):
+        if issubclass(cls, HasAttrs):
             for attr in cls.attrs:
                 self._fields[AttrOperator(attr.ownership.name)] = attr.field
 
 
-class Object[DefinitionT: ObjectDefinition = ObjectDefinition](Data[DefinitionT], Init):
+class Object[DefinitionT: ObjectDefinition = ObjectDefinition](
+    Data[DefinitionT], HasAttrs
+):
     """
     An object with attributes.
-    """
 
-    def __init_subclass__(cls, **kwargs: Any) -> None:
-        super().__init_subclass__(**kwargs)
-        cls.attrs = ClassVars(cls, Attr)
+    This is a mixin, and as such should not be used for type checking.
+    """
