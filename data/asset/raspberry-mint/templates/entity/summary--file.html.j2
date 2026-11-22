@@ -1,1 +1,1 @@
-<p class="small m-0">{% trans %}Media{% endtrans %}</p>
+<p class="small m-0">{% if entity.media_type %}{{ entity.media_type.label | localize }}{% else %}{% trans %}Media{% endtrans %}{% endif %}</p>
