@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-22 12:02+0000\n"
+"POT-Creation-Date: 2026-11-22 15:42+0000\n"
 "PO-Revision-Date: 2026-07-15 15:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fi_FI\n"
@@ -117,6 +117,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "An unexpected error occurred. If you believe this is a problem with Betty, please report this at {url}."
+msgstr ""
+
+msgid "Ancestry"
 msgstr ""
 
 msgid "Announcement of divorce"
@@ -516,6 +519,9 @@ msgid "Deaths"
 msgstr ""
 
 msgid "Debugging mode"
+msgstr ""
+
+msgid "Default locale"
 msgstr ""
 
 msgid "Department"
@@ -1075,6 +1081,9 @@ msgstr ""
 msgid "More plugins may be available when running this command with {argument}."
 msgstr ""
 
+msgid "Multilingual"
+msgstr ""
+
 msgid "Multiple files in a media gallery display"
 msgstr ""
 
@@ -1299,6 +1308,9 @@ msgstr[1] ""
 
 #, python-brace-format
 msgid "Privatized {privatized_entity_type} {privatized_entity_id} ({privatized_entity}) because of {reason_entity_type} {reason_entity_id} ({reason_entity})."
+msgstr ""
+
+msgid "Project"
 msgstr ""
 
 msgid "Project author"

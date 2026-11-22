@@ -22,13 +22,13 @@ from betty.about import version_major
 from betty.app import App
 from betty.assertions.int import assert_int
 from betty.assertions.url import assert_url
+from betty.attr import HasAttrs
 from betty.attrs.locale import new_locale_attr
 from betty.attrs.localizable import new_localizable_attr
 from betty.attrs.machine_name import new_machine_name_attr
 from betty.attrs.owner import CollectionOwnerAttr, OwnerAttr
 from betty.attrs.path import new_path_attr
 from betty.attrs.plugin_definitions import new_plugin_definition_datas_attr
-from betty.classtools.init import Init
 from betty.collection.sequence import MutableResolvableSequence
 from betty.collections.catalog.dict import DictCatalog
 from betty.collections.mapping.dict import empty_frozen_dict
@@ -39,6 +39,7 @@ from betty.copyright_notice import (
     ManufacturableCopyrightNotice,
     ResolvableCopyrightNoticeManufacturer,
 )
+from betty.data import Data, DataDefinition
 from betty.datas.aggregate.collection.catalog import CatalogDefinition
 from betty.datas.aggregate.collection.sequence import MutableSequenceDefinition
 from betty.datas.aggregate.record import FieldDefinition
@@ -95,6 +96,7 @@ from betty.localizables.gettext import _
 from betty.localizables.markup import Quote
 from betty.localizer import Localizer, LocalizerRepository
 from betty.machine_name import MachineName, ResolvableMachineName
+from betty.operator import Attr
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeDefinition
 from betty.porters.fields import FieldsPorter
@@ -181,7 +183,7 @@ class ProjectLocale(Object, AttrFreezable):
         """
 
 
-class _ProjectConfig(Init):
+class _ProjectConfig(HasAttrs):
     author = new_localizable_attr(label=_("Author")).optional
     """
     The project's author.
@@ -604,8 +606,26 @@ class ProjectConfig(_ProjectConfig, Object, AttrFreezable):
 
 
 @final
+@ObjectDefinition(
+    label=_("Project"),
+    fields={
+        Attr("ancestry"): FieldDefinition(DataDefinition(label=_("Ancestry"))),
+        Attr("copyright_notice"): FieldDefinition(
+            DataDefinition(label=_("Copyright notice"))
+        ),
+        Attr("default_locale"): FieldDefinition(
+            ProjectLocale, label=_("Default locale")
+        ),
+        Attr("license"): FieldDefinition(DataDefinition(label=_("License"))),
+        Attr("multilingual"): FieldDefinition(BoolDefinition(label=_("Multilingual"))),
+    },
+)
 class Project(
-    _ProjectConfig, DownstreamServiceLevel[App], RequirableServiceLevel, HasAssets
+    _ProjectConfig,
+    DownstreamServiceLevel[App],
+    RequirableServiceLevel,
+    HasAssets,
+    Data[ObjectDefinition],
 ):
     """
     Define a Betty project.

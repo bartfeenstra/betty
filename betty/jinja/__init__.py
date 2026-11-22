@@ -9,9 +9,16 @@ from asyncio import to_thread
 from collections.abc import Awaitable, Callable, Iterable, Mapping
 from pathlib import Path
 from shutil import copy2
-from typing import TYPE_CHECKING, Any, cast, override
+from typing import TYPE_CHECKING, Any, cast, final, override
+from warnings import warn
 
-from jinja2 import Environment, FileSystemLoader, pass_context, select_autoescape
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    UndefinedError,
+    pass_context,
+    select_autoescape,
+)
 from jinja2.async_utils import auto_await
 from jinja2.ext import Extension
 from jinja2.nodes import CallBlock, ContextReference, Node
@@ -23,6 +30,7 @@ from betty import about
 from betty.date import Date
 from betty.file import read, write
 from betty.html.attributes import Attributes
+from betty.importlib import fully_qualified_name
 from betty.locale import default_locale
 from betty.localizables.markup import JoinAnd, JoinOr
 from betty.machine_name import MachineName
@@ -40,7 +48,11 @@ from betty.warnings import deprecate
 
 if TYPE_CHECKING:
     from jinja2.parser import Parser
+    from ty_extensions import Intersection
 
+    from betty.classtools.class_var import HasClassVars
+    from betty.data import Data
+    from betty.datas.aggregate.record.object import ObjectDefinition
     from betty.document import Document
     from betty.pathlib import StrPath
     from betty.project import Project
@@ -111,14 +123,20 @@ async def new_environment(project: Project, /) -> Environment:
         "about_url_code": about.url_code,
         "about_url_documentation": about.url_documentation,
         "about_url_report_issue": about.url_report_issue,
-        "app": project.app,
         "default_locale": default_locale,
         "deprecate": deprecate,
         "localizable_join_and": JoinAnd,
         "localizable_join_or": JoinOr,
         "machine_name": MachineName,
         "new_attributes": Attributes,
-        "project": project,
+        "project": _ObjectProxy(
+            project,
+            "localizers",
+            "plugins",
+            "renderer",
+            "service_providers",
+            "url_generator",
+        ),
         "primary_navigation_links": [
             link.link for link in project.links if link.primary
         ],
@@ -268,3 +286,37 @@ class _CacheTagExtension(Extension):
             rendered = await auto_await(caller())
             await result(rendered)
             return rendered
+
+
+@final
+class _ObjectProxy:
+    """
+    A proxy around defined data objects.
+
+    This restricts access to those attributes (fields) from the object's definition or any :py:class:`betty.attr.Attr`.
+    """
+
+    __slots__ = ("__wrapped__", "_attrs", "_deprecated")
+
+    def __init__(
+        self,
+        wrapped: Intersection[Data[ObjectDefinition], HasClassVars],
+        *deprecated: str,
+    ):
+        self.__wrapped__ = wrapped
+        self._attrs = tuple(attr.operator for attr in wrapped.definition.fields)
+        self._deprecated = deprecated
+
+    def __getattr__(self, attr: str, /) -> Any:
+        if attr in self._attrs:
+            return getattr(self.__wrapped__, attr)
+        if attr in self._deprecated:
+            warn(
+                f"{fully_qualified_name(self.__wrapped__)}.{attr} is not a defined data attribute, and should not be accessed in templates.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return getattr(self.__wrapped__, attr)
+        raise UndefinedError(
+            f"{fully_qualified_name(self.__wrapped__)}.{attr} is not a defined data attribute, and cannot be accessed in templates. Do you mean {', '.join(sorted(self._attrs))} ?"
+        )
