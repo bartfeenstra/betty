@@ -139,8 +139,6 @@ class TestImageResizeCover:
             data={"filey": File(id="my-first-file", path=image_path, media_type=svg)},
         ) as rendered:
             assert rendered == "betty-static:///file/my-first-file/file/image.svg"
-            for file in rendered.split("#"):
-                assert (assert_jinja_str.project.www_directory / file[16:]).exists()
 
     async def test___call____with_pdf(
         self, assert_jinja_str: AssertJinja, tmp_path: Path

@@ -238,7 +238,7 @@ betty = 'betty.consoles.app:main'
 
 [project.entry-points.'betty.jinja_filter']
 'build-content' = 'betty.jinja_filters.build_content:BuildContent'
-'file' = 'betty.jinja_filters.file:File'
+'file-url' = 'betty.jinja_filters.file_url:FileUrl'
 'format-datetime-datetime' = 'betty.jinja_filters.format_datetime_datetime:FormatDatetimeDatetime'
 'html-lang' = 'betty.jinja_filters.html_lang:HtmlLang'
 'image-resize-cover' = 'betty.jinja_filters.image_resize_cover:ImageResizeCover'
