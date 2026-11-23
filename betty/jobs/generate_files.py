@@ -42,14 +42,14 @@ class GenerateFiles(Job):
             self.id_for, dependencies=map(GenerateEntity.id_for, files), priority=True
         )
         self._files = files
-        self._file_directory_path = www_directory / "file"
+        self._file_directory = www_directory / "file"
 
     @override
     async def do(self, scheduler: Scheduler, /) -> None:
         await gather(*(to_thread(self._do, file) for file in self._files))
 
     def _do(self, file: File, /) -> None:
-        destination = self._file_directory_path / file.id / "file" / file.name
+        destination = self._file_directory / file.id / "file" / file.name
         # For monolingual sites, these paths overlap with those created by
         # :py:class:`betty.jobs.generate_entity.GenerateEntity`, but not for multilingual sites. We therefore try to
         # create all missing parents, but also allow the directory to exist already.

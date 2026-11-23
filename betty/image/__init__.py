@@ -76,7 +76,7 @@ class Imager:
         if media_type is None:
             media_type, _extension = self.openable.extensions.require(image)
         if isinstance(image, Path):
-            image = await read(image, mode="rb")
+            image = BytesIO(await read(image, mode="rb"))
         return Image.open(image, formats=[self._openable[media_type]])
 
     async def save(

@@ -24,7 +24,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
     Sequence[tuple[str, str, File | FileReference]]
 ] = [
     (
-        "betty-static:///file/my-first-file-99x-.png",
+        "betty-static:///file/my-first-file/file/image-resize-cover/99x-.png",
         "{{ filey | image_resize_cover((99, none)) }}",
         File(
             id="my-first-file",
@@ -33,7 +33,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         ),
     ),
     (
-        "betty-static:///file/my-first-file--x99.png",
+        "betty-static:///file/my-first-file/file/image-resize-cover/-x99.png",
         "{{ filey | image_resize_cover((none, 99)) }}",
         File(
             id="my-first-file",
@@ -42,7 +42,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         ),
     ),
     (
-        "betty-static:///file/my-first-file-99x99.png",
+        "betty-static:///file/my-first-file/file/image-resize-cover/99x99.png",
         "{{ filey | image_resize_cover((99, 99)) }}",
         File(
             id="my-first-file",
@@ -51,7 +51,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         ),
     ),
     (
-        "betty-static:///file/my-first-file-99x99-1x2x3x4.png",
+        "betty-static:///file/my-first-file/file/image-resize-cover/99x99-1x2x3x4.png",
         "{{ filey | image_resize_cover((99, 99), focus=(1, 2, 3, 4)) }}",
         File(
             id="my-first-file",
@@ -60,7 +60,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         ),
     ),
     (
-        "betty-static:///file/my-first-file-99x99.png#betty-static:///file/my-first-file-99x99.png",
+        "betty-static:///file/my-first-file/file/image-resize-cover/99x99.png#betty-static:///file/my-first-file/file/image-resize-cover/99x99.png",
         "{{ filey | image_resize_cover((99, 99)) }}#{{ filey | image_resize_cover((99, 99)) }}",
         File(
             id="my-first-file",
@@ -69,7 +69,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         ),
     ),
     (
-        "betty-static:///file/my-first-file-99x99.png",
+        "betty-static:///file/my-first-file/file/image-resize-cover/99x99.png",
         "{{ filey | image_resize_cover((99, 99)) }}",
         FileReference(
             DummyHasFileReferences(),
@@ -81,7 +81,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         ),
     ),
     (
-        "betty-static:///file/my-first-file-99x99-0x0x9x9.png",
+        "betty-static:///file/my-first-file/file/image-resize-cover/99x99-0x0x9x9.png",
         "{{ filey | image_resize_cover((99, 99)) }}",
         FileReference(
             DummyHasFileReferences(),
