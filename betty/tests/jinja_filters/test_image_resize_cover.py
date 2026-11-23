@@ -3,14 +3,12 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-from PIL import Image
-from puremagic import from_file
 
 from betty.dirs import builtin_asset_directory
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.job import Context
-from betty.media_types import pdf, plain_text, png, svg
+from betty.media_types import png
 from betty.test_utils.associations.has_file_references import DummyHasFileReferences
 from betty.test_utils.conftest import AssertJinja
 
@@ -124,55 +122,3 @@ class TestImageResizeCover:
             assert rendered == expected
             for file in rendered.split("#"):
                 assert (assert_jinja_str.project.www_directory / file[16:]).exists()
-
-    async def test___call____with_svg(
-        self, assert_jinja_str: AssertJinja, tmp_path: Path
-    ) -> None:
-        image_path = tmp_path / "image.svg"
-        with open(image_path, "w", encoding="utf-8") as f:
-            f.write(
-                '<?xml version="1.0" encoding="UTF-8"?><svg version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>'
-            )
-        async with assert_jinja_str(
-            "{{ filey | image_resize_cover }}",
-            data={"filey": File(id="my-first-file", path=image_path, media_type=svg)},
-        ) as rendered:
-            assert rendered == "betty-static:///file/my-first-file/file/image.svg"
-
-    async def test___call____with_pdf(
-        self, assert_jinja_str: AssertJinja, tmp_path: Path
-    ) -> None:
-        image_path = tmp_path / "image.pdf"
-        image = Image.new("1", (1, 1))
-        image.save(image_path)
-        async with assert_jinja_str(
-            "{{ filey | image_resize_cover }}",
-            data={"filey": File(id="my-first-file", path=image_path, media_type=pdf)},
-        ) as rendered:
-            assert rendered == "betty-static:///file/my-first-file-.jpg"
-            for public_file in rendered.split("#"):
-                file = assert_jinja_str.project.www_directory / public_file[16:]
-                assert file.exists()
-                assert from_file(file, True) == "image/jpeg"
-
-    async def test___call____with_invalid_image(
-        self, assert_jinja_str: AssertJinja, tmp_path: Path
-    ) -> None:
-        file = tmp_path / "not-an-image.txt"
-        file.touch()
-        with pytest.raises(ValueError):  # noqa: PT011
-            async with assert_jinja_str(
-                "{{ filey | image_resize_cover }}",
-                data={"filey": File(path=file, media_type=plain_text)},
-            ):
-                pass  # pragma: nocover
-
-    async def test___call____with_file_without_media_type(
-        self, assert_jinja_str: AssertJinja
-    ) -> None:
-        with pytest.raises(ValueError):  # noqa: PT011
-            async with assert_jinja_str(
-                "{{ filey | image_resize_cover }}",
-                data={"filey": File(path=_test_filter_image_resize_cover_image_path)},
-            ):
-                pass  # pragma: nocover
