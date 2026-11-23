@@ -37,6 +37,6 @@ class OpenableImage(JinjaTest, Manufacturable):
         return cls((await app.imager).openable)
 
     def __call__(  # noqa: D102
-        self, media_type: ResolvableMediaType | MediaTypeDefinition, /
+        self, media_type: ResolvableMediaType | MediaTypeDefinition | None, /
     ) -> bool:
         return self._openable.request(media_type) is not None

@@ -80,8 +80,6 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
             for file_reference in associated_file_references(entity):
                 if file_reference.file.private:
                     continue
-                if file_reference.file.media_type is None:
-                    continue
                 if not self._image_types.request(file_reference.file.media_type):
                     continue
                 return file_reference

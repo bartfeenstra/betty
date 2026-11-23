@@ -37,6 +37,6 @@ class PublishableImage(JinjaTest, Manufacturable):
         return cls((await app.imager).publishable)
 
     def __call__(  # noqa: D102
-        self, media_type: ResolvableMediaType | MediaTypeDefinition, /
+        self, media_type: ResolvableMediaType | MediaTypeDefinition | None, /
     ) -> bool:
         return self._publishable.request(media_type) is not None

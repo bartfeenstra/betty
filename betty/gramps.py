@@ -818,9 +818,8 @@ class GrampsLoader:
             path=file_path,
         )
         mime = file_element.get("mime")
-        assert mime is not None
         media_type = self._project.app.known_media_types.request(mime)
-        if not media_type:
+        if mime and not media_type:
             await self._ui.message(
                 _(
                     "The Gramps {gramps_entity_reference} entity has a MIME type of {attribute_value}, which is not a known IANA media type. This media type was ignored.",
