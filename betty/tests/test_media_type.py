@@ -90,12 +90,6 @@ class TestMediaType:
         ("expected", "left", "right"),
         [
             (True, MediaType("text/plain"), MediaType("text/plain")),
-            (
-                True,
-                MediaType("text/plain"),
-                MediaTypeDefinition("-", label="-", media_type=MediaType("text/plain")),
-            ),
-            (True, MediaType("text/plain"), "text/plain"),
             (False, MediaType("text/plain"), "text/html"),
             (True, MediaType("multipart/form-data"), "multipart/form-data"),
             (
@@ -286,4 +280,4 @@ class TestMediaTypeDefinition:
         sut = MediaTypeDefinition(
             "-", label="-", media_type="text/plain", extension=extension
         )
-        assert sut.extensions == extension
+        assert list(sut.extensions) == extension

@@ -818,6 +818,9 @@ class GrampsLoader:
             path=file_path,
         )
         mime = file_element.get("mime")
+        # @todo Validate first, then request!
+        # @todo Extract this into a separate method?
+        # @todo
         media_type = self._project.app.known_media_types.request(mime)
         if mime and not media_type:
             await self._ui.message(
