@@ -73,13 +73,13 @@ class _MediaTypeMatcher[MatchableT, MatchT](metaclass=ABCMeta):
     __slots__ = ()
 
     @abstractmethod
-    def request(self, other: MatchableT, /) -> MatchT | None:
+    def request(self, other: MatchableT | None, /) -> MatchT | None:
         """
         Request a match by a media type indicator.
         """
 
     @final
-    def require(self, other: MatchableT, /) -> MatchT:
+    def require(self, other: MatchableT | None, /) -> MatchT:
         """
         Require a match by a media type indicator.
         """
@@ -263,7 +263,11 @@ class _MediaTypeDefinitionExtensionMatcher(ExtensionMatcher):
         return self._extensions.__iter__()
 
     @override
-    def request(self, other: StrPath, /) -> tuple[MediaTypeDefinition, str] | None:
+    def request(
+        self, other: StrPath | None, /
+    ) -> tuple[MediaTypeDefinition, str] | None:
+        if other is None:
+            return None
         # @todo Can/should we normalize elsewhere too?
         other: str = resolve_path(other).name
         other = other[other.index(".") :]
@@ -348,8 +352,10 @@ class MediaTypeDefinition(
 
     @override
     def request(
-        self, other: ResolvableMediaType | MediaTypeDefinition, /
+        self, other: ResolvableMediaType | MediaTypeDefinition | None, /
     ) -> MediaTypeDefinition | None:
+        if other is None:
+            return None
         if isinstance(other, MediaTypeDefinition):
             if other is self:
                 return self
@@ -382,7 +388,11 @@ class _MediaTypeRepositoryExtensionMatcher(ExtensionMatcher):
             yield from media_type.extensions
 
     @override
-    def request(self, other: StrPath, /) -> tuple[MediaTypeDefinition, str] | None:
+    def request(
+        self, other: StrPath | None, /
+    ) -> tuple[MediaTypeDefinition, str] | None:
+        if other is None:
+            return None
         # @todo Can/should we normalize elsewhere too?
         other: str = resolve_path(other).name
         other = other[other.index(".") :]
@@ -410,8 +420,10 @@ class MediaTypeRepository(MediaTypeMatcher):
 
     @override
     def request(
-        self, other: ResolvableMediaType | MediaTypeDefinition, /
+        self, other: ResolvableMediaType | MediaTypeDefinition | None, /
     ) -> MediaTypeDefinition | None:
+        if other is None:
+            return None
         for media_type in self._media_types:
             if media_type.request(other):
                 return media_type
