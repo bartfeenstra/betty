@@ -40,14 +40,15 @@ class Imager:
         )
         self._openable: MutableMapping[MediaTypeDefinition, str] = {}
         self._savable: MutableMapping[MediaTypeDefinition, str] = {}
+        Image.init()
         for media_type in media_types:
-            for format_id, format_mime in Image.MIME:
+            for format_id, format_mime in Image.MIME.items():
                 if media_type.request(format_mime):
                     if format_id in Image.OPEN:
                         self._openable[media_type] = format_id
                     if format_id in Image.SAVE:
                         self._savable[media_type] = format_id
-            for format_extension, format_id in Image.EXTENSION:
+            for format_extension, format_id in Image.EXTENSION.items():
                 if media_type.extensions.request(format_extension):
                     if format_id in Image.OPEN:
                         self._openable[media_type] = format_id

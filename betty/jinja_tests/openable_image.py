@@ -19,12 +19,12 @@ if TYPE_CHECKING:
 
 
 @final
-@JinjaTestDefinition("readable-image", auto=True)
-class ReadableImage(JinjaTest, Manufacturable):
+@JinjaTestDefinition("openable-image", auto=True)
+class OpenableImage(JinjaTest, Manufacturable):
     """
-    Test that an image type is readable.
+    Test that an image type is openable.
 
-    .. plugin:: jinja-test:readable-image
+    .. plugin:: jinja-test:openable-image
     """
 
     def __init__(self, openable: MediaTypeMatcher, /):
