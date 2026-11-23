@@ -821,6 +821,14 @@ class GrampsLoader:
         # @todo Validate first, then request!
         # @todo Extract this into a separate method?
         # @todo
+        # @todo Ideeally we'd use error locations, but that is for the next PR that is in progress...
+        # @todo
+        # @todo Remember that this is some of Betty's oldest code. We'd probably do good to reduce the number of
+        # @todo variations in translatable strings, because we want to expand our loading and validation in the near
+        # @todo future as well... (e.g. raise an error specific to a value, then add the Gramps entity and the relevant
+        # @todo field/attribute as a location.
+        # @todo
+        # @todo
         media_type = self._project.app.known_media_types.request(mime)
         if mime and not media_type:
             await self._ui.message(

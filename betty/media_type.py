@@ -243,6 +243,8 @@ class MediaTypeMatcher(
 
     __slots__ = ()
 
+    # @todo This allows calling code to know exactly which extension was matched on.
+    # @todo Do we need a variant that instead of (MediaTypeDefinition, str) returns (MediaTypeDefinition, MediaType)?
     @property
     @abstractmethod
     def extensions(self) -> ExtensionMatcher:
