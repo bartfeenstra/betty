@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from inspect import signature
+from pkgutil import resolve_name
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -23,7 +24,7 @@ from betty.attr import Attr
 from betty.classtools.class_var import ClassVars
 from betty.data import DataDefinition, ResolvableDataDefinition
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
-from betty.importlib import fully_qualified_name, import_any
+from betty.importlib import fully_qualified_name
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -126,7 +127,7 @@ class Association[
         This may be an abstract class.
         """
         if self.__associate is None:
-            self.__associate = import_any(self.associate_name)
+            self.__associate = resolve_name(self.associate_name)
         return self.__associate
 
     @overload
