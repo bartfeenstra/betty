@@ -1,6 +1,5 @@
-from __future__ import annotations
+from __future__ import annotations  # noqa: D100
 
-import sys
 from subprocess import CalledProcessError, check_call
 from typing import TYPE_CHECKING, final, override
 
@@ -14,10 +13,10 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition("dev-test-stylelint", label="Run stylelint tests")
-class DevTestStylelint(DevCommand):
+@CommandDefinition("dev-test-ty", label="Run ty tests")
+class DevTestTy(DevCommand):
     """
-    .. plugin:: command:dev-test-stylelint.
+    .. plugin:: command:dev-test-ty.
     """
 
     @override
@@ -26,11 +25,4 @@ class DevTestStylelint(DevCommand):
 
     async def _command_function(self) -> CommandResult:
         with self._error_unexpected_recoverable(CalledProcessError):
-            check_call(
-                [
-                    "node_modules/.bin/stylelint",
-                    "data/**/*.css",
-                    "data/**/*.scss",
-                ],
-                shell=sys.platform.startswith("win32"),
-            )
+            check_call(["python", "-m", "ty", "check"])

@@ -1,5 +1,6 @@
-from __future__ import annotations
+from __future__ import annotations  # noqa: D100
 
+import sys
 from subprocess import CalledProcessError, check_call
 from typing import TYPE_CHECKING, final, override
 
@@ -13,10 +14,10 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition("dev-test-ty", label="Run ty tests")
-class DevTestTy(DevCommand):
+@CommandDefinition("dev-test-tsc", label="Run tsc tests")
+class DevTestTsc(DevCommand):
     """
-    .. plugin:: command:dev-test-ty.
+    .. plugin:: command:dev-test-tsc.
     """
 
     @override
@@ -25,4 +26,11 @@ class DevTestTy(DevCommand):
 
     async def _command_function(self) -> CommandResult:
         with self._error_unexpected_recoverable(CalledProcessError):
-            check_call(["python", "-m", "ty", "check"])
+            check_call(
+                [
+                    "node_modules/.bin/tsc",
+                    "--noEmit",
+                    "--allowImportingTsExtensions",
+                ],
+                shell=sys.platform.startswith("win32"),
+            )

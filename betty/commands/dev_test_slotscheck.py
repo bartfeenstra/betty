@@ -1,6 +1,5 @@
-from __future__ import annotations
+from __future__ import annotations  # noqa: D100
 
-import sys
 from subprocess import CalledProcessError, check_call
 from typing import TYPE_CHECKING, final, override
 
@@ -14,10 +13,10 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition("dev-test-eslint", label="Run ESLint tests")
-class DevTestEslint(DevCommand):
+@CommandDefinition("dev-test-slotscheck", label="Run slotscheck")
+class DevTestSlotscheck(DevCommand):
     """
-    .. plugin:: command:dev-test-eslint.
+    .. plugin:: command:dev-test-slotscheck.
     """
 
     @override
@@ -26,13 +25,14 @@ class DevTestEslint(DevCommand):
 
     async def _command_function(self) -> CommandResult:
         with self._error_unexpected_recoverable(CalledProcessError):
-            check_call(
-                [
-                    "node_modules/.bin/eslint",
-                    "-c",
-                    "eslint.config.ts",
-                    "data",
-                    "eslint.config.ts",
-                ],
-                shell=sys.platform.startswith("win32"),
-            )
+            check_call([
+                "slotscheck",
+                "-v",
+                "-m",
+                "betty",
+                "--exclude-modules",
+                r"betty\.tests",
+                "--exclude-modules",
+                r"betty\.test_utils",
+                "--require-superclass",
+            ])

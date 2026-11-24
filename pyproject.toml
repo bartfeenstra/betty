@@ -106,235 +106,84 @@ betty = 'betty.consoles.app:main'
 'service-provider' = 'betty.service_provider:ServiceProviderDefinition'
 
 [project.entry-points.'betty.asset_directory']
-'builtin' = 'betty.asset_directories:builtin'
-'maps' = 'betty.asset_directories:maps'
+'implicit' = 'betty.asset_directories:discover'
 'project' = 'betty.project._plugin_discovery:_discover_asset_directories'
-'raspberry-mint' = 'betty.asset_directories:raspberry_mint'
-'trees' = 'betty.asset_directories:trees'
-'webpack' = 'betty.asset_directories:webpack'
-'wiki' = 'betty.asset_directories:wiki'
 
 [project.entry-points.'betty.command']
-'about' = 'betty.commands.about:About'
-'clear-caches' = 'betty.commands.clear_caches:ClearCaches'
-'config' = 'betty.commands.config:Config'
-'demo' = 'betty.commands.demo:Demo'
-'dev-build-package' = 'betty.commands._dev_build_package:DevBuildPackage'
-'dev-fix' = 'betty.commands._dev_fix:DevFix'
-'dev-profile-demo' = 'betty.commands._dev_profile_demo:DevProfileDemo'
-'dev-test-build-package' = 'betty.commands._dev_test_build_package:DevTestBuildPackage'
-'dev-test-eslint' = 'betty.commands._dev_test_eslint:DevTestEslint'
-'dev-test-pytest' = 'betty.commands._dev_test_pytest:DevTestPytest'
-'dev-test-ruff' = 'betty.commands._dev_test_ruff:DevTestRuff'
-'dev-test-slotscheck' = 'betty.commands._dev_test_slotscheck:DevTestSlotscheck'
-'dev-test-stylelint' = 'betty.commands._dev_test_stylelint:DevTestStylelint'
-'dev-test-tsc' = 'betty.commands._dev_test_tsc:DevTestTsc'
-'dev-test-ty' = 'betty.commands._dev_test_ty:DevTestTy'
-'dev-' = 'betty.commands._dev_update_translations:DevUpdateTranslations'
-'docs' = 'betty.commands.docs:Docs'
-'generate' = 'betty.commands.generate:Generate'
-'new' = 'betty.commands.new:New'
-'new-translation' = 'betty.commands.new_translation:NewTranslation'
-'serve' = 'betty.commands.serve:Serve'
-'update-translations' = 'betty.commands.update_translations:UpdateTranslations'
+'implicit' = 'betty.commands:discover'
+
+[project.entry-points.'betty.content_builder']
+'implicit' = 'betty.content_builders:discover'
 
 [project.entry-points.'betty.copyright_notice']
-'project-author' = 'betty.copyright_notices.project_author:ProjectAuthor'
+'implicit' = 'betty.copyright_notices:discover'
 'project' = 'betty.project._plugin_discovery:_discover_copyright_notices'
-'public-domain' = 'betty.copyright_notices.public_domain:PublicDomain'
-'streetmix' = 'betty.copyright_notices.streetmix:Streetmix'
-'wikipedia-contributors' = 'betty.copyright_notices.wikipedia_contributors:WikipediaContributors'
 
 [project.entry-points.'betty.css_resource']
-'webpack' = 'betty.css_resources:webpack'
+'implicit' = 'betty.css_resources:discover'
 
 [project.entry-points.'betty.document_provider']
-'webpack' = 'betty.document_providers.webpack:Webpack'
+'implicit' = 'betty.document_providers:discover'
+
+[project.entry-points.'betty.enricher']
+'implicit' = 'betty.enrichers:discover'
+
+[project.entry-points.'betty.entity']
+'implicit' = 'betty.entities:discover'
+
+[project.entry-points.'betty.event_type']
+'implicit' = 'betty.event_types:discover'
+'project' = 'betty.project._plugin_discovery:_discover_event_types'
+
+[project.entry-points.'betty.gender']
+'implicit' = 'betty.genders:discover'
+'project' = 'betty.project._plugin_discovery:_discover_genders'
+
+[project.entry-points.'betty.http_rate_limit']
+'implicit' = 'betty.http_rate_limits:discover'
+
+[project.entry-points.'betty.jinja_filter']
+'implicit' = 'betty.jinja_filters:discover'
+
+[project.entry-points.'betty.jinja_test']
+'implicit' = 'betty.jinja_tests:discover'
+
+[project.entry-points.'betty.js_resource']
+'implicit' = 'betty.js_resources:discover'
 
 [project.entry-points.'betty.license']
-'all-rights-reserved' = 'betty.licenses.all_rights_reserved:AllRightsReserved'
+'implicit' = 'betty.licenses:discover'
 'project' = 'betty.project._plugin_discovery:_discover_licenses'
-'public-domain' = 'betty.licenses.public_domain:PublicDomain'
 'spdx' = 'betty.licenses.spdx:SpdxLicenseDiscoverer.discover_for'
 
 [project.entry-points.'betty.link']
-'betty-documentation' = 'betty.links:betty_documentation'
-'betty-github' = 'betty.links:betty_github'
+'implicit' = 'betty.links:discover'
 
 [project.entry-points.'betty.loader']
-'demo' = 'betty.loaders.demo:Demo'
-'gramps' = 'betty.loaders.gramps:Gramps'
+'implicit' = 'betty.loaders:discover'
 
 [project.entry-points.'betty.media_type']
-'html' = 'betty.media_types:html'
-'jinja' = 'betty.media_types:jinja'
-'json' = 'betty.media_types:json'
-'pdf' = 'betty.media_types:pdf'
-'plain-text' = 'betty.media_types:plain_text'
-'svg' = 'betty.media_types:svg'
-'yaml' = 'betty.media_types:yaml'
-
-[project.entry-points.'betty.enricher']
-'deriver' = 'betty.enrichers.deriver:Deriver'
-'populate-links' = 'betty.enrichers.populate_links:PopulateLinks'
-'privatizer' = 'betty.enrichers.privatizer:Privatizer'
-'wiki' = 'betty.enrichers.wiki:Wiki'
-
-[project.entry-points.'betty.entity']
-'citation' = 'betty.entities.citation:Citation'
-'enclosure' = 'betty.entities.enclosure:Enclosure'
-'event' = 'betty.entities.event:Event'
-'file' = 'betty.entities.file:File'
-'file-reference' = 'betty.entities.file_reference:FileReference'
-'link' = 'betty.entities.link:Link'
-'note' = 'betty.entities.note:Note'
-'person' = 'betty.entities.person:Person'
-'person-name' = 'betty.entities.person_name:PersonName'
-'place' = 'betty.entities.place:Place'
-'place-name' = 'betty.entities.place_name:PlaceName'
-'presence' = 'betty.entities.presence:Presence'
-'source' = 'betty.entities.source:Source'
-
-[project.entry-points.'betty.event_type']
-'adoption' = 'betty.event_types.adoption:Adoption'
-'baptism' = 'betty.event_types.baptism:Baptism'
-'bar-mitzvah' = 'betty.event_types.bar_mitzvah:BarMitzvah'
-'bat-mitzvah' = 'betty.event_types.bat_mitzvah:BatMitzvah'
-'birth' = 'betty.event_types.birth:Birth'
-'burial' = 'betty.event_types.burial:Burial'
-'conference' = 'betty.event_types.conference:Conference'
-'confirmation' = 'betty.event_types.confirmation:Confirmation'
-'correspondence' = 'betty.event_types.correspondence:Correspondence'
-'cremation' = 'betty.event_types.cremation:Cremation'
-'death' = 'betty.event_types.death:Death'
-'divorce' = 'betty.event_types.divorce:Divorce'
-'divorce-announcement' = 'betty.event_types.divorce_announcement:DivorceAnnouncement'
-'emigration' = 'betty.event_types.emigration:Emigration'
-'engagement' = 'betty.event_types.engagement:Engagement'
-'funeral' = 'betty.event_types.funeral:Funeral'
-'immigration' = 'betty.event_types.immigration:Immigration'
-'marriage' = 'betty.event_types.marriage:Marriage'
-'marriage-announcement' = 'betty.event_types.marriage_announcement:MarriageAnnouncement'
-'missing' = 'betty.event_types.missing:Missing'
-'occupation' = 'betty.event_types.occupation:Occupation'
-'project' = 'betty.project._plugin_discovery:_discover_event_types'
-'residence' = 'betty.event_types.residence:Residence'
-'retirement' = 'betty.event_types.retirement:Retirement'
-'will' = 'betty.event_types.will:Will'
-
-[project.entry-points.'betty.service_provider']
-'maps' = 'betty.service_providers.maps:Maps'
-'raspberry-mint' = 'betty.service_providers.raspberry_mint:RaspberryMint'
-'spdx' = 'betty.service_providers.spdx:Spdx'
-'trees' = 'betty.service_providers.trees:Trees'
-'webpack' = 'betty.service_providers.webpack:Webpack'
-'wiki' = 'betty.service_providers.wiki:Wiki'
-
-[project.entry-points.'betty.gender']
-'man' = 'betty.genders.man:Man'
-'non-binary' = 'betty.genders.non_binary:NonBinary'
-'project' = 'betty.project._plugin_discovery:_discover_genders'
-'woman' = 'betty.genders.woman:Woman'
-
-[project.entry-points.'betty.jinja_filter']
-'build-content' = 'betty.jinja_filters.build_content:BuildContent'
-'file-url' = 'betty.jinja_filters.file_url:FileUrl'
-'format-datetime-datetime' = 'betty.jinja_filters.format_datetime_datetime:FormatDatetimeDatetime'
-'html-lang' = 'betty.jinja_filters.html_lang:HtmlLang'
-'image-resize-cover' = 'betty.jinja_filters.image_resize_cover:ImageResizeCover'
-'json-dump' = 'betty.jinja_filters.json_dump:JsonDump'
-'json-load' = 'betty.jinja_filters.json_load:JsonLoad'
-'localize' = 'betty.jinja_filters.localize:Localize'
-'negotiate-has-dates' = 'betty.jinja_filters.negotiate_has_dates:NegotiateHasDates'
-'select-has-dates' = 'betty.jinja_filters.select_has_dates:SelectHasDates'
-'to-language-tag' = 'betty.jinja_filters.to_language_tag:ToLanguageTag'
-'unique' = 'betty.jinja_filters.unique:Unique'
-'url' = 'betty.jinja_filters.url:Url'
-'webpack-entry-point-js' = 'betty.jinja_filters.webpack_entry_point_js:WebpackEntryPointJs'
-
-[project.entry-points.'betty.jinja_test']
-'has-file-references' = 'betty.jinja_tests.has_file_references:HasFileReferences'
-'image-media-type-supported' = 'betty.jinja_tests.image_media_type_supported:ImageMediaTypeSupported'
-'plugin' = 'betty.jinja_tests.plugin:Plugin'
-
-
-[project.entry-points.'betty.js_resource']
-'webpack-entry-point-loader' = 'betty.js_resources:webpack_entry_point_loader'
+'implicit' = 'betty.media_types:discover'
 
 [project.entry-points.'betty.place_type']
-'borough' = 'betty.place_types.borough:Borough'
-'building' = 'betty.place_types.building:Building'
-'cemetery' = 'betty.place_types.cemetery:Cemetery'
-'city' = 'betty.place_types.city:City'
-'country' = 'betty.place_types.country:Country'
-'county' = 'betty.place_types.county:County'
-'department' = 'betty.place_types.department:Department'
-'district' = 'betty.place_types.district:District'
-'farm' = 'betty.place_types.farm:Farm'
-'hamlet' = 'betty.place_types.hamlet:Hamlet'
-'locality' = 'betty.place_types.locality:Locality'
-'municipality' = 'betty.place_types.municipality:Municipality'
-'neighborhood' = 'betty.place_types.neighborhood:Neighborhood'
-'number' = 'betty.place_types.number:Number'
-'parish' = 'betty.place_types.parish:Parish'
+'implicit' = 'betty.place_types:discover'
 'project' = 'betty.project._plugin_discovery:_discover_place_types'
-'province' = 'betty.place_types.province:Province'
-'region' = 'betty.place_types.region:Region'
-'state' = 'betty.place_types.state:State'
-'street' = 'betty.place_types.street:Street'
-'town' = 'betty.place_types.town:Town'
-'village' = 'betty.place_types.village:Village'
-
-[project.entry-points.'betty.role']
-'attendee' = 'betty.roles.attendee:Attendee'
-'beneficiary' = 'betty.roles.beneficiary:Beneficiary'
-'celebrant' = 'betty.roles.celebrant:Celebrant'
-'informant' = 'betty.roles.informant:Informant'
-'organizer' = 'betty.roles.organizer:Organizer'
-'project' = 'betty.project._plugin_discovery:_discover_roles'
-'speaker' = 'betty.roles.speaker:Speaker'
-'subject' = 'betty.roles.subject:Subject'
-'witness' = 'betty.roles.witness:Witness'
-
-[project.entry-points.'betty.http_rate_limit']
-'wikipedia-action-api' = 'betty.http_rate_limits:wikipedia_action_api'
-'wikipedia-rest-api' = 'betty.http_rate_limits:wikipedia_rest_api'
-
-[project.entry-points.'betty.serializer']
-'json' = 'betty.serializers.json:Json'
-'yaml' = 'betty.serializers.yaml:Yaml'
-
-[project.entry-points.'betty.server']
-'builtin' = 'betty.servers.project_builtin:ProjectBuiltinServer'
 
 [project.entry-points.'betty.renderer']
-'html' = 'betty.renderers.html:Html'
-'plain-text' = 'betty.renderers.plain_text:PlainText'
+'implicit' = 'betty.renderers:discover'
 
-[project.entry-points.'betty.content_builder']
-'box' = 'betty.content_builders.box:Box'
-'map' = 'betty.content_builders.map:Map'
-'map-attribution' = 'betty.content_builders.map_attribution:MapAttribution'
-'notes' = 'betty.content_builders.notes:Notes'
-'raspberry-mint-citations' = 'betty.content_builders.raspberry_mint_citations:Citations'
-'raspberry-mint-color-style' = 'betty.content_builders.raspberry_mint_color_style:ColorStyle'
-'raspberry-mint-columns' = 'betty.content_builders.raspberry_mint_columns:Columns'
-'raspberry-mint-enclosures' = 'betty.content_builders.raspberry_mint_enclosures:Enclosures'
-'raspberry-mint-entity-card' = 'betty.content_builders.raspberry_mint_entity_card:EntityCard'
-'raspberry-mint-see-also' = 'betty.content_builders.raspberry_mint_see_also:SeeAlso'
-'raspberry-mint-facts' = 'betty.content_builders.raspberry_mint_facts:Facts'
-'raspberry-mint-families' = 'betty.content_builders.raspberry_mint_families:Families'
-'raspberry-mint-file-referees' = 'betty.content_builders.raspberry_mint_file_referees:FileReferees'
-'raspberry-mint-incomplete-translation-warning' = 'betty.content_builders.raspberry_mint_incomplete_translation_warning:IncompleteTranslationWarning'
-'raspberry-mint-media' = 'betty.content_builders.raspberry_mint_media:Media'
-'raspberry-mint-media-gallery' = 'betty.content_builders.raspberry_mint_media_gallery:MediaGallery'
-'raspberry-mint-presences' = 'betty.content_builders.raspberry_mint_presences:Presences'
-'raspberry-mint-section' = 'betty.content_builders.raspberry_mint_section:Section'
-'raspberry-mint-timeline' = 'betty.content_builders.raspberry_mint_timeline:Timeline'
-'render' = 'betty.content_builders.render:Render'
-'static' = 'betty.content_builders.static:Static'
-'tree' = 'betty.content_builders.tree:Tree'
-'wikipedia-summary' = 'betty.content_builders.wikipedia_summary:WikipediaSummary'
+[project.entry-points.'betty.role']
+'implicit' = 'betty.roles:discover'
+'project' = 'betty.project._plugin_discovery:_discover_roles'
+
+[project.entry-points.'betty.serializer']
+'implicit' = 'betty.serializers:discover'
+
+[project.entry-points.'betty.server']
+'implicit' = 'betty.servers:discover'
+
+[project.entry-points.'betty.service_provider']
+'implicit' = 'betty.service_providers:discover'
 
 [project.optional-dependencies]
 dev = [
