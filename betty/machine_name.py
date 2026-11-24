@@ -5,12 +5,13 @@ Machine names.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Final, Self, final, override
+from typing import TYPE_CHECKING, Final, Self, final
 from uuid import uuid4
 
 from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.exception import HumanFacingException
+from betty.freezers.frozen import Frozen
 from betty.localizables.gettext import _
 from betty.localizables.markup import Paragraph, Quote
 from betty.pipeline import pipe
@@ -42,7 +43,7 @@ def _load(portable: PortableData, /) -> MachineName:
     description=machine_name_description,
     porter=CallbackPorter(_load, pipe),
 )
-class MachineName(str, Data):
+class MachineName(Frozen, str, Data):
     """
     A machine name.
 
@@ -77,11 +78,6 @@ class MachineName(str, Data):
 
     def __init__(self, machine_name: str | None = None, /):
         pass
-
-    @override
-    @property
-    def is_frozen(self) -> bool:
-        return True
 
     @property
     def persistent(self) -> bool:
