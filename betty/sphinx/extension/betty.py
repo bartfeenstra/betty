@@ -7,6 +7,7 @@ from __future__ import annotations
 from asyncio import gather
 from collections.abc import Callable, Iterable, Mapping, MutableSequence, Sequence
 from functools import cmp_to_key
+from pkgutil import resolve_name
 from textwrap import indent
 from threading import Thread
 from typing import TYPE_CHECKING, override
@@ -24,7 +25,6 @@ from betty.definition.human_facing import HumanFacingDefinition
 from betty.definition.ordered import OrderedDefinition
 from betty.factory import DataManufacturable
 from betty.functools import Result
-from betty.importlib import import_any
 from betty.localizer import default_localizer
 from betty.machine_name import MachineName
 from betty.project import Project
@@ -319,7 +319,7 @@ class _DataDirective(SphinxDirective):
     def run(self) -> list[nodes.Node]:
         # Right-strip periods to avoid D400 and D415 violations.
         cls_name = self.arguments[0].rstrip(".")
-        cls = import_any(cls_name)
+        cls = resolve_name(cls_name)
         assert issubclass(cls, Data)
         data = cls.definition
         content = ""
