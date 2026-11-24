@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 class TestPlugin:
     @pytest.mark.parametrize(
-        ("expected", "plugin_identifier", "data"),
+        ("expected", "plugin_id", "data"),
         [
             (True, None, DummyPluginOne()),
             (True, DummyPluginOne.definition.id, DummyPluginOne()),
@@ -27,7 +27,7 @@ class TestPlugin:
         ],
     )
     async def test___call__(
-        self, expected: bool, plugin_identifier: MachineName | None, data: Any
+        self, expected: bool, plugin_id: MachineName | None, data: Any
     ) -> None:
-        sut = Plugin(DummyPluginDefinition)
-        assert sut(data, plugin_identifier) == expected
+        sut = Plugin()
+        assert sut(data, DummyPluginDefinition.definition.id, plugin_id) == expected

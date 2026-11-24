@@ -18,7 +18,7 @@
             {%- set formatted_alternative_names = ns.formatted_alternative_names | join(', ') %}
             <span class="aka">{%- trans names = formatted_alternative_names -%}Also known as {{ names }}{%- endtrans -%}</span>
         {%- endif -%}
-        {% set events = entity.presences | selectattr('role', 'role_plugin', 'subject') | map(attribute='event') | reject('none') | selectattr('public') | list %}
+        {% set events = entity.presences | selectattr('role', 'plugin', 'role', 'subject') | map(attribute='event') | reject('none') | selectattr('public') | list %}
         {% set ns = namespace(birth_indicators=[]) %}
         {% for event in events %}
             {% if event.event_type and event.event_type.definition.id == 'birth' %}

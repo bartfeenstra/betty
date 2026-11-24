@@ -255,7 +255,7 @@ betty = 'betty.consoles.app:main'
 [project.entry-points.'betty.jinja_test']
 'has-file-references' = 'betty.jinja_tests.has_file_references:HasFileReferences'
 'image-media-type-supported' = 'betty.jinja_tests.image_media_type_supported:ImageMediaTypeSupported'
-'plugin' = 'betty.jinja_tests.plugin:Plugin.discover'
+'plugin' = 'betty.jinja_tests.plugin:Plugin'
 
 
 [project.entry-points.'betty.js_resource']
