@@ -276,7 +276,7 @@ class TestMediaTypeDefinition:
         )
 
     def test_extensions(self) -> None:
-        extension = [".one", ".two", ".three"]
+        extension = (".one", ".two", ".three")
         sut = MediaTypeDefinition(
             "-", label="-", media_type="text/plain", extension=extension
         )

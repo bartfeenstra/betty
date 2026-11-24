@@ -14,28 +14,29 @@ from betty.assertions.str import assert_str
 from betty.data import Data, DataDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.definition.ordered import Order, OrderedDefinition
+from betty.freezers.frozen import Frozen
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import do_you_mean
 from betty.localizer import default_localizer
-from betty.pathlib import StrPath, resolve_path
+from betty.pathlib import Extension, ResolvableExtension, StrPath, resolve_path
 from betty.pipeline import pipe
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.porters.callback import CallbackPorter
 from betty.sample import Sample
+from betty.typing import RuntimeCheckableSequence, is_runtime_checkable_sequence
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
-
-    from ty_extensions import Intersection, Not
 
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
 
 
-type MediaTypeDefinitionExtension = str | Intersection[Not[str], Iterable[str]]
+type MediaTypeDefinitionExtension = (
+    ResolvableExtension | RuntimeCheckableSequence[ResolvableExtension]
+)
 type MediaTypeDefinitionMediaType = (
-    ResolvableMediaType
-    | Intersection[Not[ResolvableMediaType], Iterable[ResolvableMediaType]]
+    ResolvableMediaType | RuntimeCheckableSequence[ResolvableMediaType]
 )
 
 
@@ -123,7 +124,7 @@ class MediaTypeType(StrEnum):
     porter=lambda _: CallbackPorter(assert_str() | MediaType, pipe),
     samples=Sample(lambda: MediaType("text/plain"), label="Plain text"),
 )
-class MediaType(str, Data):
+class MediaType(Frozen, str, Data):
     """
     Define a `media type <https://en.wikipedia.org/wiki/Media_type>`_.
 
@@ -169,11 +170,6 @@ class MediaType(str, Data):
         new._subtypes = subtypes
         new._suffix = suffix
         return new
-
-    @override
-    @property
-    def is_frozen(self) -> bool:
-        return True
 
     @property
     def parameters(self) -> Mapping[str, str]:
@@ -223,7 +219,8 @@ class MediaType(str, Data):
 
 
 class ExtensionMatcher(
-    _MediaTypeMatcher[StrPath, tuple["MediaTypeDefinition", str]], Iterable[str]
+    _MediaTypeMatcher[StrPath, tuple["MediaTypeDefinition", Extension]],
+    Iterable[Extension],
 ):
     """
     A media type file extension matcher.
@@ -257,17 +254,17 @@ class MediaTypeMatcher(
 class _MediaTypeDefinitionExtensionMatcher(ExtensionMatcher):
     __slots__ = ("_extensions", "_media_type")
 
-    def __init__(self, media_type: MediaTypeDefinition, *extensions: str):
+    def __init__(self, media_type: MediaTypeDefinition, *extensions: Extension):
         self._extensions = extensions
         self._media_type = media_type
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[Extension]:
         return self._extensions.__iter__()
 
     @override
     def request(
         self, other: StrPath | None, /
-    ) -> tuple[MediaTypeDefinition, str] | None:
+    ) -> tuple[MediaTypeDefinition, Extension] | None:
         if other is None:
             return None
         # @todo Can/should we normalize elsewhere too?
@@ -318,12 +315,16 @@ class MediaTypeDefinition(
         media_types = tuple(
             map(
                 MediaType,
-                (media_type,)
-                if isinstance(media_type, MediaType | str)
-                else tuple(media_type),
+                media_type
+                if is_runtime_checkable_sequence(media_type)
+                else (media_type,),
             )
         )
-        extensions = (extension,) if isinstance(extension, str) else tuple(extension)
+        extensions = (
+            tuple(extension)
+            if is_runtime_checkable_sequence(extension)
+            else (extension,)
+        )
         assert media_types or extensions, (
             "A media type definition must have at least one media type or extension."
         )
@@ -334,7 +335,9 @@ class MediaTypeDefinition(
         Media types are ordered by decreasing priority.
         """
 
-        self._extensions = _MediaTypeDefinitionExtensionMatcher(self, *extensions)
+        self._extensions = _MediaTypeDefinitionExtensionMatcher(
+            self, *map(Extension, extensions)
+        )
 
     @property
     def media_type(self) -> MediaType:
@@ -345,7 +348,7 @@ class MediaTypeDefinition(
         return next(iter(self.media_types))
 
     @property
-    def extension(self) -> str:
+    def extension(self) -> Extension:
         """
         The preferred file extension, if any.
         """
@@ -385,14 +388,14 @@ class _MediaTypeRepositoryExtensionMatcher(ExtensionMatcher):
     def __init__(self, media_types: Iterable[MediaTypeDefinition]):
         self._media_types = media_types
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[Extension]:
         for media_type in self._media_types:
             yield from media_type.extensions
 
     @override
     def request(
         self, other: StrPath | None, /
-    ) -> tuple[MediaTypeDefinition, str] | None:
+    ) -> tuple[MediaTypeDefinition, Extension] | None:
         if other is None:
             return None
         # @todo Can/should we normalize elsewhere too?
