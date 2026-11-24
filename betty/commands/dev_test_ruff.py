@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations  # noqa: D100
 
 from subprocess import CalledProcessError, check_call
 from typing import TYPE_CHECKING, final, override

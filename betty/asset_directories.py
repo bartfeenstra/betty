@@ -8,6 +8,9 @@ from typing import Final
 
 from betty.asset import AssetDirectoryDefinition
 from betty.dirs import asset_directory
+from betty.discoveries.module import ModuleDefinitionDiscovery
+
+discover = ModuleDefinitionDiscovery(AssetDirectoryDefinition)
 
 builtin: Final[AssetDirectoryDefinition] = AssetDirectoryDefinition(
     "builtin", assets=asset_directory / "builtin", after=lambda _: True, auto=True

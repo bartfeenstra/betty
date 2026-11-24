@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations  # noqa: D100
 
 from asyncio import to_thread
 from tempfile import TemporaryDirectory

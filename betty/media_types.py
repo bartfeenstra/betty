@@ -6,8 +6,11 @@ from __future__ import annotations
 
 from typing import Final
 
+from betty.discoveries.module import ModuleDefinitionDiscovery
 from betty.localizables.gettext import _
 from betty.media_type import MediaType, MediaTypeDefinition
+
+discover = ModuleDefinitionDiscovery(MediaTypeDefinition)
 
 html: Final[MediaTypeDefinition] = MediaTypeDefinition(
     "html", label="HTML", media_type=MediaType("text/html", extensions=[".html"])

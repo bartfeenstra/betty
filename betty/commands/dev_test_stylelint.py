@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations  # noqa: D100
 
 import sys
 from subprocess import CalledProcessError, check_call
@@ -14,10 +14,10 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition("dev-test-tsc", label="Run tsc tests")
-class DevTestTsc(DevCommand):
+@CommandDefinition("dev-test-stylelint", label="Run stylelint tests")
+class DevTestStylelint(DevCommand):
     """
-    .. plugin:: command:dev-test-tsc.
+    .. plugin:: command:dev-test-stylelint.
     """
 
     @override
@@ -28,9 +28,9 @@ class DevTestTsc(DevCommand):
         with self._error_unexpected_recoverable(CalledProcessError):
             check_call(
                 [
-                    "node_modules/.bin/tsc",
-                    "--noEmit",
-                    "--allowImportingTsExtensions",
+                    "node_modules/.bin/stylelint",
+                    "data/**/*.css",
+                    "data/**/*.scss",
                 ],
                 shell=sys.platform.startswith("win32"),
             )

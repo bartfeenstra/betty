@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations  # noqa: D100
 
 from os import environ
 from subprocess import CalledProcessError, check_call

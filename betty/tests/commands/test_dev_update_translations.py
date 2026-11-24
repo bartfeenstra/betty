@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.commands._dev_update_translations import DevUpdateTranslations
+from betty.commands.dev_update_translations import DevUpdateTranslations
 from betty.test_utils.console import run
 
 
