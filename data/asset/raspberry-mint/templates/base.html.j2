@@ -18,7 +18,7 @@
                 {% include 'component/breadcrumbs.html.j2' %}
                 <h1 class="page-intro-title">{{ page_title | default(project.title) | localize | html_lang }}</h1>
                 {% block page_summary %}
-                    {% if document.resource is entity_plugin %}
+                    {% if document.resource is plugin('entity') %}
                         {% with entity = document.resource %}
                             {% include 'entity/summary--' + entity.definition.id + '.html.j2' ignore missing %}
                             {% include 'entity/details--' + entity.definition.id + '.html.j2' ignore missing %}
