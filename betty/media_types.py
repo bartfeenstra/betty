@@ -91,7 +91,7 @@ gramps_xml_package: Final[MediaTypeDefinition] = MediaTypeDefinition(
 )
 
 html: Final[MediaTypeDefinition] = MediaTypeDefinition(
-    "html", label="HTML", media_type="text/html", extension=".html"
+    "html", label="HTML", media_type="text/html", extension=(".html", ".htm")
 )
 
 icns: Final[MediaTypeDefinition] = MediaTypeDefinition(

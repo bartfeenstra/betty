@@ -18,7 +18,7 @@ from betty.freezers.frozen import Frozen
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import do_you_mean
 from betty.localizer import default_localizer
-from betty.pathlib import Extension, ResolvableExtension, StrPath, resolve_path
+from betty.pathlib import Extension, ResolvableExtension, StrPath
 from betty.pipeline import pipe
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.porters.callback import CallbackPorter
@@ -158,11 +158,11 @@ class MediaType(Frozen, str, Data):
             subtype = type_part_remainder
             suffix = None
         subtypes = subtype.split("+")[0].split(".")
-        normalized = type_ + "/" + subtype
+        normalized = type_.lower() + "/" + subtype.lower()
         if suffix:
-            normalized += suffix
+            normalized += suffix.lower()
         for parameter_name in parameters:
-            normalized += f"; {parameter_name}={parameters[parameter_name]}"
+            normalized += f"; {parameter_name.lower()}={parameters[parameter_name]}"
         new = super().__new__(cls, normalized)
         new._parameters = parameters
         new._type = type_
@@ -267,12 +267,10 @@ class _MediaTypeDefinitionExtensionMatcher(ExtensionMatcher):
     ) -> tuple[MediaTypeDefinition, Extension] | None:
         if other is None:
             return None
-        # @todo Can/should we normalize elsewhere too?
-        other: str = resolve_path(other).name
-        other = other[other.index(".") :]
+        other = Extension(other)
         # @todo Add caching here, now we have normalized ``other``
         for extension in self._extensions:
-            if other.endswith(extension):
+            if other == extension:
                 return self._media_type, extension
         return None
 
@@ -398,9 +396,7 @@ class _MediaTypeRepositoryExtensionMatcher(ExtensionMatcher):
     ) -> tuple[MediaTypeDefinition, Extension] | None:
         if other is None:
             return None
-        # @todo Can/should we normalize elsewhere too?
-        other: str = resolve_path(other).name
-        other = other[other.index(".") :]
+        other = Extension(other)
         # @todo Add caching here, now we have normalized ``other``
         for media_type in self._media_types:
             if match := media_type.extensions.request(other):
