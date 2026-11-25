@@ -35,7 +35,7 @@ def _discover_copyright_notices(
 ) -> Iterable[CopyrightNoticeDefinition]:
     return (
         plugin
-        for plugin in project._plugin_discoveries
+        for plugin in project._plugin_discoverers
         if isinstance(plugin, CopyrightNoticeDefinition)
     )
 
@@ -44,7 +44,7 @@ def _discover_copyright_notices(
 def _discover_event_types(project: Project, /) -> Iterable[EventTypeDefinition]:
     return (
         plugin
-        for plugin in project._plugin_discoveries
+        for plugin in project._plugin_discoverers
         if isinstance(plugin, EventTypeDefinition)
     )
 
@@ -53,7 +53,7 @@ def _discover_event_types(project: Project, /) -> Iterable[EventTypeDefinition]:
 def _discover_genders(project: Project, /) -> Iterable[GenderDefinition]:
     return (
         plugin
-        for plugin in project._plugin_discoveries
+        for plugin in project._plugin_discoverers
         if isinstance(plugin, GenderDefinition)
     )
 
@@ -62,7 +62,7 @@ def _discover_genders(project: Project, /) -> Iterable[GenderDefinition]:
 def _discover_licenses(project: Project, /) -> Iterable[LicenseDefinition]:
     return (
         plugin
-        for plugin in project._plugin_discoveries
+        for plugin in project._plugin_discoverers
         if isinstance(plugin, LicenseDefinition)
     )
 
@@ -71,7 +71,7 @@ def _discover_licenses(project: Project, /) -> Iterable[LicenseDefinition]:
 def _discover_place_types(project: Project, /) -> Iterable[PlaceTypeDefinition]:
     return (
         plugin
-        for plugin in project._plugin_discoveries
+        for plugin in project._plugin_discoverers
         if isinstance(plugin, PlaceTypeDefinition)
     )
 
@@ -80,6 +80,6 @@ def _discover_place_types(project: Project, /) -> Iterable[PlaceTypeDefinition]:
 def _discover_roles(project: Project, /) -> Iterable[RoleDefinition]:
     return (
         plugin
-        for plugin in project._plugin_discoveries
+        for plugin in project._plugin_discoverers
         if isinstance(plugin, RoleDefinition)
     )

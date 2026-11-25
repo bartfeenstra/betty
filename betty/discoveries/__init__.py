@@ -1,3 +1,0 @@
-"""
-Reusable plugin discoveries.
-"""

@@ -21,11 +21,11 @@ from betty.test_utils.locale.localizable import dummy_countable_localizable
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
-    from betty.plugin.discovery import ResolvableDiscovery
+    from betty.discover import ResolvableDiscoverer
     from betty.test_utils.conftest import NewIsolatedProject
 
 type NewProject = Callable[
-    [Iterable[ResolvableDiscovery[EventTypeDefinition]]],
+    [Iterable[ResolvableDiscoverer[EventTypeDefinition]]],
     AbstractAsyncContextManager[Project],
 ]
 
@@ -197,7 +197,7 @@ class TestDeriver:
     def new_project(self, new_isolated_project: NewIsolatedProject) -> NewProject:
         @asynccontextmanager
         async def _new_project(
-            event_types: Iterable[ResolvableDiscovery[EventTypeDefinition]],
+            event_types: Iterable[ResolvableDiscoverer[EventTypeDefinition]],
         ) -> AsyncGenerator[Project]:
             async with new_isolated_project(
                 plugins={EventTypeDefinition: event_types}

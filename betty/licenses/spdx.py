@@ -30,8 +30,8 @@ from betty.user import Severity
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from betty.discover import ResolvableDiscoverer
     from betty.localizer import AnyLocalizable
-    from betty.plugin.discovery import ResolvableDiscovery
     from betty.portable import PortableData, PortableSequence
     from betty.service_level import ServiceLevel
     from betty.stores.file import TransientBinaryFileStore
@@ -89,7 +89,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
     @classmethod
     async def discover_for(
         cls, services: ServiceLevel, /
-    ) -> Iterable[ResolvableDiscovery[LicenseDefinition]]:
+    ) -> Iterable[ResolvableDiscoverer[LicenseDefinition]]:
         """
         Discover SPDX licenses.
         """
@@ -100,7 +100,7 @@ class SpdxLicenseDiscoverer(Manufacturable):
             return ()
         return await (await cls.new(services)).discover()
 
-    async def discover(self) -> Iterable[ResolvableDiscovery[LicenseDefinition]]:
+    async def discover(self) -> Iterable[ResolvableDiscoverer[LicenseDefinition]]:
         """
         Discover the licenses.
         """
