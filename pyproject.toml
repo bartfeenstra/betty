@@ -106,84 +106,84 @@ betty = 'betty.consoles.app:main'
 'service-provider' = 'betty.service_provider:ServiceProviderDefinition'
 
 [project.entry-points.'betty.asset_directory']
-'implicit' = 'betty.asset_directories:discover'
+'implicit' = 'betty.asset_directories'
 'project' = 'betty.project._plugin_discovery:_discover_asset_directories'
 
 [project.entry-points.'betty.command']
-'implicit' = 'betty.commands:discover'
+'implicit' = 'betty.commands'
 
 [project.entry-points.'betty.content_builder']
-'implicit' = 'betty.content_builders:discover'
+'implicit' = 'betty.content_builders'
 
 [project.entry-points.'betty.copyright_notice']
-'implicit' = 'betty.copyright_notices:discover'
+'implicit' = 'betty.copyright_notices'
 'project' = 'betty.project._plugin_discovery:_discover_copyright_notices'
 
 [project.entry-points.'betty.css_resource']
-'implicit' = 'betty.css_resources:discover'
+'implicit' = 'betty.css_resources'
 
 [project.entry-points.'betty.document_provider']
-'implicit' = 'betty.document_providers:discover'
+'implicit' = 'betty.document_providers'
 
 [project.entry-points.'betty.enricher']
-'implicit' = 'betty.enrichers:discover'
+'implicit' = 'betty.enrichers'
 
 [project.entry-points.'betty.entity']
-'implicit' = 'betty.entities:discover'
+'implicit' = 'betty.entities'
 
 [project.entry-points.'betty.event_type']
-'implicit' = 'betty.event_types:discover'
+'implicit' = 'betty.event_types'
 'project' = 'betty.project._plugin_discovery:_discover_event_types'
 
 [project.entry-points.'betty.gender']
-'implicit' = 'betty.genders:discover'
+'implicit' = 'betty.genders'
 'project' = 'betty.project._plugin_discovery:_discover_genders'
 
 [project.entry-points.'betty.http_rate_limit']
-'implicit' = 'betty.http_rate_limits:discover'
+'implicit' = 'betty.http_rate_limits'
 
 [project.entry-points.'betty.jinja_filter']
-'implicit' = 'betty.jinja_filters:discover'
+'implicit' = 'betty.jinja_filters'
 
 [project.entry-points.'betty.jinja_test']
-'implicit' = 'betty.jinja_tests:discover'
+'implicit' = 'betty.jinja_tests'
 
 [project.entry-points.'betty.js_resource']
-'implicit' = 'betty.js_resources:discover'
+'implicit' = 'betty.js_resources'
 
 [project.entry-points.'betty.license']
-'implicit' = 'betty.licenses:discover'
+'implicit' = 'betty.licenses'
 'project' = 'betty.project._plugin_discovery:_discover_licenses'
 'spdx' = 'betty.licenses.spdx:SpdxLicenseDiscoverer.discover_for'
 
 [project.entry-points.'betty.link']
-'implicit' = 'betty.links:discover'
+'implicit' = 'betty.links'
 
 [project.entry-points.'betty.loader']
-'implicit' = 'betty.loaders:discover'
+'implicit' = 'betty.loaders'
 
 [project.entry-points.'betty.media_type']
-'implicit' = 'betty.media_types:discover'
+'implicit' = 'betty.media_types'
 
 [project.entry-points.'betty.place_type']
-'implicit' = 'betty.place_types:discover'
+'implicit' = 'betty.place_types'
 'project' = 'betty.project._plugin_discovery:_discover_place_types'
 
 [project.entry-points.'betty.renderer']
-'implicit' = 'betty.renderers:discover'
+'implicit' = 'betty.renderers'
 
 [project.entry-points.'betty.role']
-'implicit' = 'betty.roles:discover'
+'implicit' = 'betty.roles'
 'project' = 'betty.project._plugin_discovery:_discover_roles'
 
 [project.entry-points.'betty.serializer']
-'implicit' = 'betty.serializers:discover'
+'implicit' = 'betty.serializers'
 
 [project.entry-points.'betty.server']
-'implicit' = 'betty.servers:discover'
+'implicit' = 'betty.servers'
 
 [project.entry-points.'betty.service_provider']
-'implicit' = 'betty.service_providers:discover'
+'implicit' = 'betty.service_providers'
 
 [project.optional-dependencies]
 dev = [

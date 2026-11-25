@@ -7,10 +7,7 @@ from __future__ import annotations
 import re
 from typing import Final
 
-from betty.discoveries.module import ModuleDefinitionDiscovery
 from betty.http_client import RateLimitDefinition
-
-discover = ModuleDefinitionDiscovery(RateLimitDefinition)
 
 # See https://www.mediawiki.org/wiki/API:Action_API.
 wikipedia_action_api: Final[RateLimitDefinition] = RateLimitDefinition(

@@ -22,24 +22,25 @@ from betty.services.simple import service
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
+    from betty.discover import ResolvableDiscoverer
     from betty.factory import Factory
-    from betty.plugin.discovery import PluginDiscoverer, ResolvableDiscovery
+    from betty.plugin.repo import PluginRepository
 
 
 type Plugins = Mapping[
-    type[PluginDefinition], Iterable[ResolvableDiscovery[PluginDefinition]]
+    type[PluginDefinition], Iterable[ResolvableDiscoverer[PluginDefinition]]
 ]
 
 
 class _Plugins(
     FrozenDictCatalog[
-        MachineName, type[PluginDefinition] | MachineName | str, "PluginDiscoverer"
+        MachineName, type[PluginDefinition] | MachineName | str, "PluginRepository"
     ]
 ):
     @override
     def __getitem__[DefinitionT: PluginDefinition = PluginDefinition](
         self, key: type[DefinitionT] | MachineName | str
-    ) -> PluginDiscoverer[DefinitionT]:
+    ) -> PluginRepository[DefinitionT]:
         return super().__getitem__(key)  # ty:ignore[invalid-return-type]
 
 
@@ -64,7 +65,7 @@ class ServiceLevel(FrozenOnBootstrap, Init, ManagedLifeCycle):
         """
         The available plugin types and plugins.
         """
-        from betty.plugin.discovery import PluginDiscoverer
+        from betty.plugin.repo import PluginRepository
 
         plugin_types = [
             entry_point.load()
@@ -73,7 +74,7 @@ class ServiceLevel(FrozenOnBootstrap, Init, ManagedLifeCycle):
         plugin_types.extend(self._plugin_discovery.keys())
         return _Plugins(
             {
-                plugin_type.definition.id: PluginDiscoverer(
+                plugin_type.definition.id: PluginRepository(
                     self,
                     plugin_type,
                     self._plugin_discovery.get(plugin_type, None),

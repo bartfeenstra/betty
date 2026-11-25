@@ -665,7 +665,7 @@ class Project(
         license: ManufacturableLicense | None = None,  # noqa: A002
         plugins: Plugins = empty_frozen_dict,
         supported_plugins: SupportedPlugins = (),
-        _plugin_discoveries: Iterable[PluginDefinition] = (),
+        _plugin_discoverers: Iterable[PluginDefinition] = (),
     ):
         from betty.copyright_notices.project_author import ProjectAuthor
 
@@ -701,7 +701,7 @@ class Project(
         """
         The WWW directory path.
         """
-        self._plugin_discoveries = _plugin_discoveries
+        self._plugin_discoverers = _plugin_discoverers
         self._cache_directory = self.directory / ".cache" / version_major
 
     @classmethod
@@ -710,7 +710,7 @@ class Project(
         Create a new instance.
         """
         project = cls(
-            _plugin_discoveries=(
+            _plugin_discoverers=(
                 plugin.new_definition()
                 for plugin in (
                     *data.copyright_notices,

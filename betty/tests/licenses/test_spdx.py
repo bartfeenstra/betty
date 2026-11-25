@@ -9,12 +9,12 @@ import pytest
 from aiohttp import ClientSession
 from aioresponses import aioresponses
 
+from betty.discover import ResolvableDiscoverer, discover
 from betty.license import LicenseDefinition
 from betty.licenses.spdx import (
     SpdxLicenseDiscoverer,
     spdx_license_id_to_license_id,
 )
-from betty.plugin.discovery import ResolvableDiscovery, discover
 from betty.service_level import ServiceLevel
 from betty.stores.file import TransientBinaryFileStore
 from betty.test_utils.conftest import NewIsolatedApp
@@ -155,7 +155,7 @@ class TestSpdxLicenseDiscoverer:
         http_client_mock.get(SpdxLicenseDiscoverer.url, body=spdx_file.read())
 
     async def assert_with_licenses(
-        self, licenses: Iterable[ResolvableDiscovery[LicenseDefinition]]
+        self, licenses: Iterable[ResolvableDiscoverer[LicenseDefinition]]
     ) -> None:
         services = ServiceLevel()
         discovered_licenses = list(await discover(services, *licenses))
@@ -172,7 +172,7 @@ class TestSpdxLicenseDiscoverer:
         assert url == "https://spdx.org/licenses/0BSD.html"
 
     async def assert_without_licenses(
-        self, licenses: Iterable[ResolvableDiscovery[LicenseDefinition]]
+        self, licenses: Iterable[ResolvableDiscoverer[LicenseDefinition]]
     ) -> None:
         discovered_licenses = list(await discover(ServiceLevel(), *licenses))
         assert not discovered_licenses

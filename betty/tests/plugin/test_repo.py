@@ -1,0 +1,83 @@
+from __future__ import annotations
+
+from importlib.metadata import EntryPoint, EntryPoints
+from typing import TYPE_CHECKING
+
+import pytest
+
+from betty.importlib import fully_qualified_name
+from betty.plugin.error import PluginNotFound
+from betty.plugin.repo import PluginRepository
+from betty.service_level import ServiceLevel
+from betty.string import kebab_case_to_snake_case
+from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from pytest_mock import MockerFixture
+
+
+class TestPluginRepository:
+    @pytest.fixture
+    def entry_points(self, mocker: MockerFixture) -> Iterator[None]:
+        entry_point_group = kebab_case_to_snake_case(
+            DummyPluginDefinition.definition.id
+        )
+        m_entry_points = mocker.patch(
+            "importlib.metadata.entry_points",
+            return_value=EntryPoints([
+                EntryPoint(
+                    name=DummyPluginOne.definition.id,
+                    value=fully_qualified_name(DummyPluginOne),
+                    group=entry_point_group,
+                ),
+            ]),
+        )
+        yield
+        m_entry_points.assert_called_once_with(group=f"betty.{entry_point_group}")
+
+    async def test___aiter____without_plugins(self) -> None:
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, [])
+        assert not [x async for x in aiter(sut)]
+
+    async def test___aiter____with_discovered_plugins(self, entry_points: None) -> None:
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition)
+        assert DummyPluginOne.definition in [x async for x in aiter(sut)]
+
+    async def test___aiter____with_overridden_plugins(self) -> None:
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, [DummyPluginOne])
+        assert [x async for x in aiter(sut)] == [DummyPluginOne.definition]
+
+    async def test_get__with_plugin_not_found(self) -> None:
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, [])
+        with pytest.raises(PluginNotFound):
+            await sut.get("unknown-plugin")
+
+    async def test_get__with_discovered_plugins(self, entry_points: None) -> None:
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition)
+        assert await sut.get(DummyPluginOne.definition.id) is DummyPluginOne.definition
+
+    async def test_get__with_overridden_plugin(self) -> None:
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, [DummyPluginOne])
+        assert await sut.get(DummyPluginOne.definition.id) is DummyPluginOne.definition
+
+    async def test___getitem__(self, entry_points: None) -> None:
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition)
+        assert await sut[DummyPluginOne.definition.id] is DummyPluginOne.definition
+
+    async def test_ids__without_plugins(self) -> None:
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, [])
+        assert not list(await sut.ids())
+
+    async def test_ids__with_discovered_plugins(self, entry_points: None) -> None:
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition)
+        assert DummyPluginOne.definition.id in list(await sut.ids())
+
+    async def test_ids__with_overridden_plugins(self) -> None:
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, [DummyPluginOne])
+        assert list(await sut.ids()) == [DummyPluginOne.definition.id]
+
+    def test_type(self) -> None:
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition)
+        assert sut.type is DummyPluginDefinition

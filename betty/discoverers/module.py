@@ -1,5 +1,5 @@
 """
-Discover plugins within (sub)modules.
+Discover definitions within (sub)modules.
 """
 
 from __future__ import annotations
@@ -11,22 +11,18 @@ from inspect import getfile, getmembers, stack
 from pkgutil import iter_modules, resolve_name
 from typing import TYPE_CHECKING, Any, TypeGuard, final, override
 
-from betty.definition import HasDefinition
-from betty.definition.cls import ClsDefinition
-from betty.plugin import PluginDefinition
+from betty.definition import Definition, HasDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from ty_extensions import Intersection
-
     from betty.service_level import ServiceLevel
 
 
-class _ModuleDiscovery[DefinitionT: PluginDefinition]:
+class _ModuleDiscovery[DefinitionT: Definition]:
     @final
-    def __init__(self, plugin_type: type[DefinitionT], module: str | None = None, /):
-        self._type = plugin_type
+    def __init__(self, type_: type[DefinitionT], module: str | None = None, /):
+        self._type = type_
         if module:
             self._module_name = module
             self._module = resolve_name(module)
@@ -36,20 +32,20 @@ class _ModuleDiscovery[DefinitionT: PluginDefinition]:
         self._module_path = pathlib.Path(getfile(self._module)).parent
 
 
-class _ModuleMemberDiscovery[DefinitionT: PluginDefinition, MemberT](
+class _ModuleMemberDiscovery[DefinitionT: Definition, MemberT](
     _ModuleDiscovery[DefinitionT], metaclass=ABCMeta
 ):
     @final
     def __call__(self, _services: ServiceLevel, /) -> Iterator[DefinitionT]:
         """
-        Discover the plugins.
+        Discover the definitions.
         """
-        for name, member in getmembers(self._module, self._is_plugin):
+        for name, member in getmembers(self._module, self._is_discoverable):
             if not name.startswith("_"):
                 yield self._get_definition(member)
 
     @abstractmethod
-    def _is_plugin(self, member: Any, /) -> TypeGuard[MemberT]:
+    def _is_discoverable(self, member: Any, /) -> TypeGuard[MemberT]:
         pass
 
     @abstractmethod
@@ -58,15 +54,15 @@ class _ModuleMemberDiscovery[DefinitionT: PluginDefinition, MemberT](
 
 
 @final
-class ModuleDefinitionDiscovery[DefinitionT: PluginDefinition](
+class ModuleDefinitionDiscovery[DefinitionT: Definition](
     _ModuleMemberDiscovery[DefinitionT, DefinitionT]
 ):
     """
-    Discover plugin definitions within a module.
+    Discover definitions within a module.
     """
 
     @override
-    def _is_plugin(self, member: Any, /) -> TypeGuard[DefinitionT]:
+    def _is_discoverable(self, member: Any, /) -> TypeGuard[DefinitionT]:
         return isinstance(member, self._type)
 
     @override
@@ -75,15 +71,15 @@ class ModuleDefinitionDiscovery[DefinitionT: PluginDefinition](
 
 
 @final
-class ModuleClsDiscovery[DefinitionT: Intersection[PluginDefinition, ClsDefinition]](
+class ModuleClsDiscovery[DefinitionT: Definition](
     _ModuleMemberDiscovery[DefinitionT, HasDefinition[DefinitionT]]
 ):
     """
-    Discover plugin classes within a module.
+    Discover classes within a module.
     """
 
     @override
-    def _is_plugin(self, member: Any, /) -> TypeGuard[HasDefinition[DefinitionT]]:
+    def _is_discoverable(self, member: Any, /) -> TypeGuard[HasDefinition[DefinitionT]]:
         if not isinstance(member, type):
             return False
         if getattr(member, "__module__", None) != self._module.__name__:
@@ -102,16 +98,14 @@ class ModuleClsDiscovery[DefinitionT: Intersection[PluginDefinition, ClsDefiniti
 
 
 @final
-class SubmoduleClsDiscovery[DefinitionT: Intersection[PluginDefinition, ClsDefinition]](
-    _ModuleDiscovery[DefinitionT]
-):
+class SubmoduleClsDiscovery[DefinitionT: Definition](_ModuleDiscovery[DefinitionT]):
     """
-    Discover plugin classes within a module's submodules.
+    Discover definitions on classes within a module's submodules.
     """
 
     def __call__(self, _services: ServiceLevel, /) -> Iterator[DefinitionT]:
         """
-        Discover the plugins.
+        Discover the definitions.
         """
         for submodule in iter_modules([self._module_path]):
             if submodule.name.startswith("_"):
