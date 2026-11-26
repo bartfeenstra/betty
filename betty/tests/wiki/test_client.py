@@ -62,7 +62,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                media_types=ContentTypeRepository(),
+                content_types=ContentTypeRepository(),
                 ui=StaticUi(),
             )
             with pytest.raises(ClientError):
@@ -124,7 +124,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                media_types=ContentTypeRepository(),
+                content_types=ContentTypeRepository(),
                 ui=StaticUi(),
             )
             translations = await sut.get_translations(page_language, page_name)
@@ -177,7 +177,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                media_types=ContentTypeRepository(),
+                content_types=ContentTypeRepository(),
                 ui=StaticUi(),
             )
             with pytest.raises(ClientError):
@@ -231,7 +231,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                media_types=ContentTypeRepository(),
+                content_types=ContentTypeRepository(),
                 ui=StaticUi(),
             )
             actual = await sut.get_summary(page_language, page_name)
@@ -321,7 +321,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                media_types=ContentTypeRepository(),
+                content_types=ContentTypeRepository(),
                 ui=StaticUi(),
             )
             with pytest.raises(ClientError):
@@ -409,7 +409,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                media_types=ContentTypeRepository(),
+                content_types=ContentTypeRepository(),
                 ui=StaticUi(),
             )
             actual = await sut.get_place_coordinates(page_language, page_name)
@@ -513,7 +513,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                media_types=ContentTypeRepository(),
+                content_types=ContentTypeRepository(),
                 ui=StaticUi(),
             )
             with pytest.raises(ClientError):
@@ -591,7 +591,7 @@ class TestClient:
             sut = Client(
                 download_directory=download_directory,
                 http_client=http_client,
-                media_types=ContentTypeRepository(svg),
+                content_types=ContentTypeRepository(svg),
                 ui=StaticUi(),
             )
             actual = await sut.get_image(page_language, page_name)

@@ -34,26 +34,26 @@ class Imager:
     The imager.
     """
 
-    def __init__(self, media_types: ContentTypeRepository, /):
+    def __init__(self, content_types: ContentTypeRepository, /):
         self.publishable: Final[ContentTypeRepository] = ContentTypeRepository(
             avif, bmp, gif, jpeg, jpeg_xl, png, svg, webp
         )
         self._openable: MutableMapping[ContentTypeDefinition, str] = {}
         self._savable: MutableMapping[ContentTypeDefinition, str] = {}
         Image.init()
-        for media_type in media_types:
+        for content_type in content_types:
             for format_id, format_mime in Image.MIME.items():
-                if media_type.request(format_mime):
+                if content_type.request(format_mime):
                     if format_id in Image.OPEN:
-                        self._openable[media_type] = format_id
+                        self._openable[content_type] = format_id
                     if format_id in Image.SAVE:
-                        self._savable[media_type] = format_id
+                        self._savable[content_type] = format_id
             for format_extension, format_id in Image.EXTENSION.items():
-                if media_type.extensions.request(format_extension):
+                if content_type.extensions.request(format_extension):
                     if format_id in Image.OPEN:
-                        self._openable[media_type] = format_id
+                        self._openable[content_type] = format_id
                     if format_id in Image.SAVE:
-                        self._savable[media_type] = format_id
+                        self._savable[content_type] = format_id
         self.openable: Final[ContentTypeRepository] = ContentTypeRepository(
             *self._openable
         )

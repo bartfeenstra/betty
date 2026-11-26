@@ -35,9 +35,9 @@ class Url(JinjaFilter, Manufacturable):
     """
 
     def __init__(
-        self, *, media_types: MediaTypeNegotiator, url_generator: UrlGenerator
+        self, *, content_types: MediaTypeNegotiator, url_generator: UrlGenerator
     ):
-        self._media_types = media_types
+        self._content_types = content_types
         self._url_generator = url_generator
 
     @override
@@ -45,7 +45,7 @@ class Url(JinjaFilter, Manufacturable):
     @classmethod
     async def new(cls, project: Project, /) -> Self:
         return cls(
-            media_types=project.app.known_content_types,
+            content_types=project.app.known_content_types,
             url_generator=await project.url_generator,
         )
 

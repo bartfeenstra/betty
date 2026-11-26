@@ -70,7 +70,7 @@ class SerializerDefinition(
     def __init__(
         self,
         serializer_id: ResolvableMachineName,
-        *media_types: ContentTypeDefinition,
+        *content_types: ContentTypeDefinition,
         label: AnyLocalizable,
         auto: bool = True,
         description: AnyLocalizable | None = None,
@@ -83,8 +83,9 @@ class SerializerDefinition(
             description=description,
             requires=requires,
         )
-        self.media_types: Final[ContentTypeRepository] = ContentTypeRepository(
-            *media_types
+        # @todo Just support a single type?
+        self.content_types: Final[ContentTypeRepository] = ContentTypeRepository(
+            *content_types
         )
 
 
@@ -96,18 +97,18 @@ def serializer_for(
     Get the serializer for the given file extension.
     """
     for available_serializer in available_serializers:
-        if available_serializer.definition.media_types.extensions.request(extension):
+        if available_serializer.definition.content_type.extensions.request(extension):
             return available_serializer
     raise SerializationError(
         _("Unsupported file {unsupported}. Supported types are: {supported}.").format(
             unsupported=Quote(str(extension)),
             supported=JoinOr(*[
-                _("{media_type} ({extensions})").format(
-                    media_type=media_type.label,
-                    extensions=JoinOr(*media_type.extensions),
+                _("{content_type} ({extensions})").format(
+                    content_type=content_type.label,
+                    extensions=JoinOr(*content_type.extensions),
                 )
                 for available_serializer in available_serializers
-                for media_type in available_serializer.definition.media_types
+                for content_type in available_serializer.definition.content_types
             ]),
         )
     )

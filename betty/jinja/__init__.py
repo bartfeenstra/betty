@@ -192,13 +192,13 @@ def make_copy_function(
     *,
     document: Document,
     is_localized_and_multilingual: bool | None = None,
-    media_types: Iterable[ContentTypeDefinition],
+    content_types: Iterable[ContentTypeDefinition],
     www_directory: StrPath | None = None,
 ) -> CopyFunction:
     """
     Make a copy function for this renderer that renders supported files.
     """
-    media_types = ContentTypeRepository(*media_types)
+    content_types = ContentTypeRepository(*content_types)
     parents = set()
 
     async def _copy_function(source: StrPath, destination: StrPath, /) -> None:
@@ -213,7 +213,9 @@ def make_copy_function(
 
         destination = destination.with_name(destination.name[:-3])
 
-        document_media_type, _extension = media_types.extensions.require(destination)
+        document_content_type, _extension = content_types.extensions.require(
+            destination
+        )
 
         document_resource_url = document.resource_url
 
@@ -235,7 +237,7 @@ def make_copy_function(
         template = environment.from_string(content)
         rendered_content = await template.render_async(
             document=document.copy(
-                content_type=document_media_type,
+                content_type=document_content_type,
                 resource=destination,
                 resource_url=document_resource_url,
             )

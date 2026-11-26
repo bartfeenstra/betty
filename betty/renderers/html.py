@@ -28,7 +28,7 @@ _attributes: Final[Sequence[str]] = ("href", "src")
     description=_(
         "The values of the following HTML attributes will automatically be replaced with the URLs generated from them where possible: {attributes}"
     ).format(attributes=JoinAnd(*_attributes)),
-    media_types=html,
+    content_type=html,
 )
 class Html(Manufacturable, Renderer):
     """

@@ -120,14 +120,14 @@ class Builder:
         entry_point_providers: Sequence[EntryPointProvider],
         debug: bool,
         jinja: Environment,
-        media_types: Iterable[ContentTypeDefinition],
+        content_types: Iterable[ContentTypeDefinition],
         root: str,
         ui: Ui,
     ) -> None:
         self._entry_point_providers = entry_point_providers
         self._debug = debug
         self._jinja = jinja
-        self._media_types = tuple(media_types)
+        self.content_types = tuple(content_types)
         self._root = root
         self._ui = ui
 
@@ -172,7 +172,7 @@ class Builder:
         copy_function = make_copy_function(
             self._jinja,
             document=Document(context=context),
-            media_types=self._media_types,
+            content_types=self.content_types,
         )
         copies = []
         for directory, _, file_names in entry_point_directory.walk():

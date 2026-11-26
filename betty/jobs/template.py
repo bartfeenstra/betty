@@ -124,7 +124,9 @@ class ResourceTemplate[ResourceT](_ResourceTemplate[ResourceT], metaclass=ABCMet
         jinja = await self._project.jinja
         templates = resolve_template_names(self.template(self._resource))
         template = jinja.select_template(templates)
-        media_type, extension = self._match_extension(templates, project=self._project)
+        content_type, extension = self._match_extension(
+            templates, project=self._project
+        )
         await scheduler.add(*[
             Template(
                 f"{self.id}:{locale.locale}",
@@ -138,7 +140,7 @@ class ResourceTemplate[ResourceT](_ResourceTemplate[ResourceT], metaclass=ABCMet
                         self._resource,
                         context=scheduler.context,
                         localizer=await self._project.localizers.get(locale.locale),
-                        content_type=media_type,
+                        content_type=content_type,
                     )
                 },
             )
@@ -201,7 +203,9 @@ class CollectionResourceTemplate[ResourceT, ResourceItemT](
         jinja = await self._project.jinja
         templates = resolve_template_names(self.template(self._resource))
         template = jinja.select_template(templates)
-        media_type, extension = self._match_extension(templates, project=self._project)
+        content_type, extension = self._match_extension(
+            templates, project=self._project
+        )
         jobs = []
         for page in range(page_count):
             resource_items = self._resource_items[
@@ -225,7 +229,7 @@ class CollectionResourceTemplate[ResourceT, ResourceItemT](
                             self._resource,
                             context=scheduler.context,
                             localizer=await self._project.localizers.get(locale.locale),
-                            content_type=media_type,
+                            content_type=content_type,
                             resource_items=resource_items,
                             page=page,
                             page_count=page_count,

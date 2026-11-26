@@ -7,7 +7,6 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Final, final
 
-from betty.content_type import ContentTypeDefinition
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -16,8 +15,7 @@ from betty.localizables.gettext import _, ngettext
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
-
+    from betty.content_type import ContentTypeDefinition
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.requirement import Requires
@@ -55,7 +53,7 @@ class RendererDefinition(
         /,
         *,
         label: AnyLocalizable,
-        media_types: ContentTypeDefinition | Iterable[ContentTypeDefinition],
+        content_type: ContentTypeDefinition,
         auto: bool = True,
         description: AnyLocalizable | None = None,
         requires: Requires = (),
@@ -67,11 +65,7 @@ class RendererDefinition(
             description=description,
             requires=requires,
         )
-        self.media_types: Final[Sequence[ContentTypeDefinition]] = (
-            (media_types,)
-            if isinstance(media_types, ContentTypeDefinition)
-            else tuple(media_types)
-        )
+        self.content_type: Final[ContentTypeDefinition] = content_type
 
 
 @final
@@ -84,9 +78,9 @@ class RenderDispatcher:
 
     def __init__(self, *renderers: Renderer):
         self._renderers = {
-            media_type: renderer
+            content_type: renderer
             for renderer in renderers
-            for media_type in renderer.definition.media_types
+            for content_type in renderer.definition.content_types
         }
 
     async def render(self, content: str, content_type: ContentTypeDefinition, /) -> str:

@@ -12,7 +12,7 @@ from betty.localizables.gettext import _
 from betty.render import Renderer, RendererDefinition
 
 
-@RendererDefinition("plain-text", label=_("Plain text"), media_types=plain_text)
+@RendererDefinition("plain-text", label=_("Plain text"), content_type=plain_text)
 class PlainText(Renderer):
     """
     .. plugin:: renderer:plain-text.

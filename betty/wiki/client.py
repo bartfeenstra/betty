@@ -86,13 +86,13 @@ class Client:
         *,
         download_directory: Path,
         http_client: ClientSession,
-        media_types: MediaTypeNegotiator,
+        content_types: MediaTypeNegotiator,
         ui: Ui,
     ):
         self._download_directory = download_directory
         self._http_client = http_client
         self._images: MutableMapping[str, Image | None] = {}
-        self._media_types = media_types
+        self._content_type = content_types
         self._ui = ui
 
     @contextmanager
@@ -205,9 +205,9 @@ class Client:
         url = f"https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
         image_info_api_data = await self._get_query_api_data(url)
         image_info = self._lookup_json(dict, image_info_api_data, "imageinfo", 0)
-        image_info_media_type = self._lookup_json(str, image_info, "mime")
-        image_media_type = self._media_types.request(image_info_media_type)
-        if not image_media_type:
+        image_info_mime = self._lookup_json(str, image_info, "mime")
+        image_content_type = self._content_type.request(image_info_mime)
+        if not image_content_type:
             return None
         image_url = self._lookup_json(str, image_info, "url")
         image_title = self._lookup_json(str, image_info, "canonicaltitle")
@@ -225,7 +225,7 @@ class Client:
         await write(image_path, image_data, mode="wb")
         return Image(
             image_path,
-            image_media_type,
+            image_content_type,
             # Strip "File:" or any translated equivalent from the beginning of the image's title.
             image_title[image_title.index(":") + 1 :],
             image_wikimedia_commons_url,

@@ -291,19 +291,19 @@ default_role_mapping: Final[Mapping[str, ResolvableRoleManufacturer | None]] = {
 _default_gramps_executable: Final[str] = (
     "Gramps.exe" if sys.platform.startswith("win32") else "gramps"
 )
-_gramps_media_types_native: Final[Sequence[ContentTypeDefinition]] = (
+_gramps_content_types_native: Final[Sequence[ContentTypeDefinition]] = (
     gramps_xml,
     gramps_xml_package,
 )
-_gramps_media_types_vendor: Final[Sequence[ContentTypeDefinition]] = (
+_gramps_content_types_vendor: Final[Sequence[ContentTypeDefinition]] = (
     csv,
     gedcom,
     geneweb,
     pro_gen,
     vcard,
 )
-_gramps_media_types: Final[ContentTypeRepository] = ContentTypeRepository(
-    *_gramps_media_types_native, *_gramps_media_types_vendor
+_gramps_content_types: Final[ContentTypeRepository] = ContentTypeRepository(
+    *_gramps_content_types_native, *_gramps_content_types_vendor
 )
 
 
@@ -443,12 +443,12 @@ class GrampsLoader:
             return await self.load_gpkg(file)
         if gramps_xml.extensions.request(file):
             return await self.load_gramps(file)
-        if file.suffix in _gramps_media_types_vendor:
+        if file.suffix in _gramps_content_types_vendor:
             return await self._load_file_gramps_import(file)
 
         raise UserFacingGrampsError(
             _("Only the following file types can be loaded: {file_extensions}").format(
-                file_extensions=JoinOr(*sorted(_gramps_media_types.extensions))
+                file_extensions=JoinOr(*sorted(_gramps_content_types.extensions))
             )
         )
 
@@ -829,8 +829,8 @@ class GrampsLoader:
         # @todo field/attribute as a location.
         # @todo
         # @todo
-        media_type = self._project.app.known_content_types.request(mime)
-        if mime and not media_type:
+        content_type = self._project.app.known_content_types.request(mime)
+        if mime and not content_type:
             await self._ui.message(
                 _(
                     "The Gramps {gramps_entity_reference} entity has a MIME type of {attribute_value}, which is not a known IANA media type. This media type was ignored.",
@@ -842,7 +842,7 @@ class GrampsLoader:
                 ),
                 Severity.WARN,
             )
-        file.content_type = media_type
+        file.content_type = content_type
         description = file_element.get("description")
         if description:
             file.description = description
@@ -1464,23 +1464,25 @@ class GrampsLoader:
                         element, tag, f"link-{link_name}:label"
                     )
                 )
-            if "media_type" in link_attributes:
-                media_type = self._project.app.known_content_types.request(
-                    link_attributes["media_type"]
+            if "content_type" in link_attributes:
+                content_type = self._project.app.known_content_types.request(
+                    link_attributes["content_type"]
                 )
-                if not media_type:
+                if not content_type:
                     await self._ui.message(
                         _(
-                            "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a known IANA media type. This media type was ignored.",
+                            "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a known content type. This content type was ignored.",
                         ).format(
                             gramps_entity_reference=str(gramps_entity_reference),
-                            attribute_name=Quote(f"betty:link-{link_name}:media_type"),
-                            attribute_value=Quote(link_attributes["media_type"]),
+                            attribute_name=Quote(
+                                f"betty:link-{link_name}:content_type"
+                            ),
+                            attribute_value=Quote(link_attributes["content_type"]),
                         ),
                         Severity.WARN,
                     )
                 else:
-                    link.content_type = media_type
+                    link.content_type = content_type
             if "relationship" in link_attributes:
                 link.relationship = link_attributes["relationship"]
 

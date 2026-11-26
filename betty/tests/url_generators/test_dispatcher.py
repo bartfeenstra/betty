@@ -32,7 +32,7 @@ class TestUrlGeneratorDispatcher:
         ) -> str:
             return dumps({
                 "resource": resource,
-                "media_type": str(content_type),
+                "content_type": str(content_type),
                 "absolute": absolute,
                 "locale": locale,
                 "fragment": fragment,
@@ -164,7 +164,7 @@ class TestUrlGeneratorDispatcher:
             )
         ) == {
             "resource": resource,
-            "media_type": str(content_type),
+            "content_type": str(content_type),
             "absolute": absolute,
             "locale": locale,
             "fragment": fragment,
