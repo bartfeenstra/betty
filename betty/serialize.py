@@ -98,11 +98,12 @@ def serializer_for(
             unsupported=Quote(str(extension)),
             supported=JoinOr(*[
                 _("{content_type} ({extensions})").format(
-                    content_type=content_type.label,
-                    extensions=JoinOr(*content_type.extensions),
+                    content_type=available_serializer.definition.content_type.label,
+                    extensions=JoinOr(
+                        *available_serializer.definition.content_type.extensions
+                    ),
                 )
                 for available_serializer in available_serializers
-                for content_type in available_serializer.definition.content_types
             ]),
         )
     )

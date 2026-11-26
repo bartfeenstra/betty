@@ -78,9 +78,7 @@ class RenderDispatcher:
 
     def __init__(self, *renderers: Renderer):
         self._renderers = {
-            content_type: renderer
-            for renderer in renderers
-            for content_type in renderer.definition.content_types
+            renderer.definition.content_type: renderer for renderer in renderers
         }
 
     async def render(self, content: str, content_type: ContentTypeDefinition, /) -> str:
