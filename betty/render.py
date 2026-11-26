@@ -50,10 +50,10 @@ class RendererDefinition(
     def __init__(
         self,
         renderer_id: ResolvableMachineName,
+        content_type: ContentTypeDefinition,
         /,
         *,
         label: AnyLocalizable,
-        content_type: ContentTypeDefinition,
         auto: bool = True,
         description: AnyLocalizable | None = None,
         requires: Requires = (),

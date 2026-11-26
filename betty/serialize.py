@@ -7,7 +7,6 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Final, final
 
-from betty.content_type import ContentTypeRepository
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -69,24 +68,19 @@ class SerializerDefinition(
 
     def __init__(
         self,
-        serializer_id: ResolvableMachineName,
-        *content_types: ContentTypeDefinition,
+        id_: ResolvableMachineName,
+        content_type: ContentTypeDefinition,
+        /,
+        *,
         label: AnyLocalizable,
         auto: bool = True,
         description: AnyLocalizable | None = None,
         requires: Requires = (),
     ):
         super().__init__(
-            serializer_id,
-            auto=auto,
-            label=label,
-            description=description,
-            requires=requires,
+            id_, auto=auto, label=label, description=description, requires=requires
         )
-        # @todo Just support a single type?
-        self.content_types: Final[ContentTypeRepository] = ContentTypeRepository(
-            *content_types
-        )
+        self.content_type: Final[ContentTypeDefinition] = content_type
 
 
 # @todo Refactor this around ContentTypeNegotiator?
