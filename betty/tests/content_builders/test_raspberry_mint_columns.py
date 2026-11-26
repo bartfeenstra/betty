@@ -55,7 +55,7 @@ class TestColumns:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Columns]) as project,
+            new_isolated_project(support=[Columns]) as project,
             project,
         ):
             sut = await Columns.new(
@@ -70,7 +70,7 @@ class TestColumns:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Columns]) as project,
+            new_isolated_project(support=[Columns]) as project,
             project,
         ):
             sut = await Columns.new(
@@ -88,7 +88,7 @@ class TestColumns:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Columns]) as project,
+            new_isolated_project(support=[Columns]) as project,
             project,
         ):
             sut = await Columns.new(
@@ -108,7 +108,7 @@ class TestColumns:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Columns]) as project,
+            new_isolated_project(support=[Columns]) as project,
             project,
         ):
             sut = await Columns.new(

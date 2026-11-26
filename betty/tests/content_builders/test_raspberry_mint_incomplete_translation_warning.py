@@ -15,9 +15,7 @@ class TestIncompleteTranslationWarning:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(
-                supported_plugins=[IncompleteTranslationWarning]
-            ) as project,
+            new_isolated_project(support=[IncompleteTranslationWarning]) as project,
             project,
         ):
             sut = await IncompleteTranslationWarning.new(project)
@@ -28,7 +26,7 @@ class TestIncompleteTranslationWarning:
         self, tmp_path: Path, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with new_isolated_project(
-            supported_plugins=[IncompleteTranslationWarning]
+            support=[IncompleteTranslationWarning]
         ) as project:
             project.locales = ["nl"]
             async with project:

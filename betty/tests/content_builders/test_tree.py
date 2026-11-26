@@ -16,7 +16,7 @@ class TestTree:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Tree]) as project,
+            new_isolated_project(support=[Tree]) as project,
             project,
         ):
             sut = await Tree.new(project)
@@ -33,7 +33,7 @@ class TestTree:
         self, resource: Entity, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Tree]) as project,
+            new_isolated_project(support=[Tree]) as project,
             project,
         ):
             project.ancestry.add(resource)
@@ -48,7 +48,7 @@ class TestTree:
         person = Person()
         Person(parents=[person])
         async with (
-            new_isolated_project(supported_plugins=[Tree]) as project,
+            new_isolated_project(support=[Tree]) as project,
             project,
         ):
             project.ancestry.add(person)

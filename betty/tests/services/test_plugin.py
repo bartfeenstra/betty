@@ -38,7 +38,9 @@ class TestHasPluginServices:
         class _Owner(_HasPluginServices):
             plugins = PluginDefinitionsService(DummyPluginDefinition)
 
-        owner = _Owner(services=ServiceLevel(plugins={DummyPluginDefinition: []}))
+        owner = _Owner(
+            services=ServiceLevel(plugin_discoveries={DummyPluginDefinition: []})
+        )
         async with owner:
             assert not owner.plugins
 
@@ -50,7 +52,9 @@ class TestHasPluginServices:
 
             def __init__(self):
                 super().__init__(
-                    services=ServiceLevel(plugins={DummyPluginDefinition: [plugin]})
+                    services=ServiceLevel(
+                        plugin_discoveries={DummyPluginDefinition: [plugin]}
+                    )
                 )
                 type(self).plugins.add_init_plugins(self, plugin)
 
@@ -65,7 +69,9 @@ class TestHasPluginServices:
 
         owner = _Owner(
             services=ServiceLevel(
-                plugins={DummyPluginDefinition: [DummyPluginDefinition("plugin")]}
+                plugin_discoveries={
+                    DummyPluginDefinition: [DummyPluginDefinition("plugin")]
+                }
             )
         )
         async with owner:
@@ -79,7 +85,7 @@ class TestHasPluginServices:
 
         owner = _Owner(
             services=ServiceLevel(
-                plugins={
+                plugin_discoveries={
                     DummyPluginDefinition: [DummyPluginDefinition("plugin", auto=True)]
                 }
             )
@@ -95,7 +101,9 @@ class TestHasPluginServices:
 
         owner = _Owner(
             services=ServiceLevel(
-                plugins={DummyPluginDefinition: [DummyPluginDefinition("plugin")]}
+                plugin_discoveries={
+                    DummyPluginDefinition: [DummyPluginDefinition("plugin")]
+                }
             )
         )
         async with owner:
@@ -108,7 +116,9 @@ class TestHasPluginServices:
             plugins = PluginDefinitionsService(DummyPluginDefinition)
 
         plugin = DummyPluginDefinition("plugin", auto=True)
-        owner = _Owner(services=ServiceLevel(plugins={DummyPluginDefinition: [plugin]}))
+        owner = _Owner(
+            services=ServiceLevel(plugin_discoveries={DummyPluginDefinition: [plugin]})
+        )
         async with owner:
             assert plugin in owner.plugins
 
@@ -122,7 +132,9 @@ class TestHasPluginServices:
 
             def __init__(self):
                 super().__init__(
-                    services=ServiceLevel(plugins={DummyPluginDefinition: [plugin]})
+                    services=ServiceLevel(
+                        plugin_discoveries={DummyPluginDefinition: [plugin]}
+                    )
                 )
                 type(self).plugins.add_init_plugins(self, plugin)
 
@@ -142,7 +154,9 @@ class TestHasPluginServices:
                 init_plugin: ResolvableDefinition[DummyPluginDefinition],
             ):
                 super().__init__(
-                    services=ServiceLevel(plugins={DummyPluginDefinition: plugins})
+                    services=ServiceLevel(
+                        plugin_discoveries={DummyPluginDefinition: tuple(plugins)}
+                    )
                 )
                 type(self).dependents.add_init_plugins(self, init_plugin)
 
@@ -168,9 +182,9 @@ class TestHasPluginServices:
         )
         owner = _Owner(
             services=ServiceLevel(
-                plugins={DummyPluginDefinition: [dependent, dependency]},
+                plugin_discoveries={DummyPluginDefinition: [dependent, dependency]},
             ),
-            supported_plugins={dependent},
+            support_plugins={dependent},
         )
         async with owner:
             assert dependent not in owner.dependents
@@ -179,7 +193,7 @@ class TestHasPluginServices:
 
 class PluginServiceManagerTestBase:
     _services: Final[ServiceLevel] = ServiceLevel(
-        plugins={
+        plugin_discoveries={
             DummyPluginDefinition: [
                 DummyPluginOne,
                 DummyPluginTwo,
@@ -223,7 +237,7 @@ class _PluginServiceManagerTestOwner(HasPluginServices, HasServiceLevel):
 
     def __init__(self, *plugins: ResolvableDefinition[DummyPluginDefinition]):
         super().__init__(
-            services=ServiceLevel(plugins={DummyPluginDefinition: plugins})
+            services=ServiceLevel(plugin_discoveries={DummyPluginDefinition: plugins})
         )
         type(self).my_first_service.add_init_plugins(self, *plugins)
 

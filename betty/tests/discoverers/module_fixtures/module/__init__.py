@@ -1,17 +1,5 @@
 from betty.definition import HasDefinition
-from betty.discoverers.module import (
-    ModuleClsDiscovery,
-    ModuleDefinitionDiscovery,
-    SubmoduleClsDiscovery,
-)
-from betty.tests.discoverers.module_fixtures import (
-    ClsDefinition,
-    Definition,
-)
-
-discover_definition = ModuleDefinitionDiscovery(Definition)
-discover_cls = ModuleClsDiscovery(ClsDefinition)
-discover_sub_cls = SubmoduleClsDiscovery(ClsDefinition)
+from betty.tests.discoverers.module_fixtures import ClsDefinition, Definition
 
 definition = Definition()
 _definition = Definition()

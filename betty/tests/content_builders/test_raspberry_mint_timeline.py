@@ -26,7 +26,7 @@ class TestTimeline:
         self, resource: object, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Timeline]) as project,
+            new_isolated_project(support=[Timeline]) as project,
             project,
         ):
             sut = await Timeline.new(project)
@@ -39,7 +39,7 @@ class TestTimeline:
         resource = Person()
         Presence(resource, Subject(), event)
         async with (
-            new_isolated_project(supported_plugins=[Timeline]) as project,
+            new_isolated_project(support=[Timeline]) as project,
             project,
         ):
             sut = await Timeline.new(project)
@@ -56,7 +56,7 @@ class TestTimeline:
         resource = Place(events=[event])
         Enclosure(encloses=encloses, enclosed_by=resource)
         async with (
-            new_isolated_project(supported_plugins=[Timeline]) as project,
+            new_isolated_project(support=[Timeline]) as project,
             project,
         ):
             sut = await Timeline.new(project)

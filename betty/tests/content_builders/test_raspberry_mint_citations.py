@@ -25,7 +25,7 @@ class TestCitations:
         self, resource: object, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Citations]) as project,
+            new_isolated_project(support=[Citations]) as project,
             project,
         ):
             sut = await project.factory.new(Citations)
@@ -37,7 +37,7 @@ class TestCitations:
         citation = Citation(source=Source())
         resource = DummyHasCitations(citations=[citation])
         async with (
-            new_isolated_project(supported_plugins=[Citations]) as project,
+            new_isolated_project(support=[Citations]) as project,
             project,
         ):
             sut = await project.factory.new(Citations)

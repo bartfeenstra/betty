@@ -22,7 +22,7 @@ class TestEnclosures:
         self, resource: object, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Enclosures]) as project,
+            new_isolated_project(support=[Enclosures]) as project,
             project,
         ):
             sut = await Enclosures.new(project)
@@ -35,7 +35,7 @@ class TestEnclosures:
         resource = Place()
         Enclosure(encloses=encloses, enclosed_by=resource)
         async with (
-            new_isolated_project(supported_plugins=[Enclosures]) as project,
+            new_isolated_project(support=[Enclosures]) as project,
             project,
         ):
             sut = await Enclosures.new(project)

@@ -54,8 +54,8 @@ if TYPE_CHECKING:
 
     from betty.pathlib import StrPath
     from betty.portable import PortableMapping
-    from betty.service_level import Plugins
-    from betty.services.plugin import SupportedPlugins
+    from betty.service_level import PluginDiscoveries
+    from betty.services.plugin import SupportPlugins
     from betty.user.ui import Ui
 
 
@@ -91,7 +91,7 @@ class NewIsolatedApp(Protocol):
         self,
         *,
         binary_file_cache_directory: StrPath | None = None,
-        plugins: Plugins = empty_frozen_dict,
+        plugins: PluginDiscoveries = empty_frozen_dict,
         ui: Ui | None = None,
     ) -> AbstractAsyncContextManager[App]:
         raise Unreachable
@@ -107,7 +107,7 @@ def new_isolated_app() -> NewIsolatedApp:
     async def _new_isolated_app(
         *,
         binary_file_cache_directory: StrPath | None = None,
-        plugins: Plugins = empty_frozen_dict,
+        plugins: PluginDiscoveries = empty_frozen_dict,
         ui: Ui | None = None,
     ) -> AsyncGenerator[App]:
         async with App.new_isolated(
@@ -140,8 +140,8 @@ class NewIsolatedProject(Protocol):
         *,
         app: App | None = None,
         directory: StrPath | None = None,
-        plugins: Plugins = empty_frozen_dict,
-        supported_plugins: SupportedPlugins = (),
+        plugins: PluginDiscoveries = empty_frozen_dict,
+        support: SupportPlugins = (),
     ) -> AbstractAsyncContextManager[Project]:
         raise Unreachable
 
@@ -157,8 +157,8 @@ def new_isolated_project(new_isolated_app: NewIsolatedApp) -> NewIsolatedProject
         *,
         app: App | None = None,
         directory: StrPath | None = None,
-        plugins: Plugins = empty_frozen_dict,
-        supported_plugins: SupportedPlugins = (),
+        plugins: PluginDiscoveries = empty_frozen_dict,
+        support: SupportPlugins = (),
     ) -> AsyncGenerator[Project]:
         async with AsyncExitStack() as stack:
             if app is None:
@@ -166,10 +166,7 @@ def new_isolated_project(new_isolated_app: NewIsolatedApp) -> NewIsolatedProject
                     await stack.enter_async_context(new_isolated_app())
                 )
             async with Project.new_isolated(
-                app=app,
-                directory=directory,
-                plugins=plugins,
-                supported_plugins=supported_plugins,
+                app=app, directory=directory, plugins=plugins, support=support
             ) as project:
                 yield project
 

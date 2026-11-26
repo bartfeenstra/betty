@@ -20,19 +20,17 @@ from betty.plugin import PluginDefinition
 from betty.services.simple import service
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+    from collections.abc import Mapping
 
-    from betty.discover import ResolvableDiscoverer
+    from betty.definition.discover import Discovery
     from betty.factory import Factory
     from betty.plugin.repo import PluginRepository
 
 
-type Plugins = Mapping[
-    type[PluginDefinition], Iterable[ResolvableDiscoverer[PluginDefinition]]
-]
+type PluginDiscoveries = Mapping[type[PluginDefinition], Discovery[PluginDefinition]]
 
 
-class _Plugins(
+class _PluginRepositories(
     FrozenDictCatalog[
         MachineName, type[PluginDefinition] | MachineName | str, "PluginRepository"
     ]
@@ -50,7 +48,12 @@ class ServiceLevel(FrozenOnBootstrap, Init, ManagedLifeCycle):
     A service level.
     """
 
-    def __init__(self, *args: Any, plugins: Plugins = empty_frozen_dict, **kwargs: Any):
+    def __init__(
+        self,
+        *args: Any,
+        plugin_discoveries: PluginDiscoveries = empty_frozen_dict,
+        **kwargs: Any,
+    ):
         from betty.factory import Factory
 
         super().__init__(*args, **kwargs)
@@ -58,10 +61,10 @@ class ServiceLevel(FrozenOnBootstrap, Init, ManagedLifeCycle):
         """
         The object factory.
         """
-        self._plugin_discovery = plugins
+        self._plugin_discoveries = plugin_discoveries
 
     @service
-    def plugins(self) -> _Plugins:
+    def plugins(self) -> _PluginRepositories:
         """
         The available plugin types and plugins.
         """
@@ -71,13 +74,13 @@ class ServiceLevel(FrozenOnBootstrap, Init, ManagedLifeCycle):
             entry_point.load()
             for entry_point in metadata.entry_points(group="betty.plugin")
         ]
-        plugin_types.extend(self._plugin_discovery.keys())
-        return _Plugins(
+        plugin_types.extend(self._plugin_discoveries)
+        return _PluginRepositories(
             {
                 plugin_type.definition.id: PluginRepository(
                     self,
                     plugin_type,
-                    self._plugin_discovery.get(plugin_type, None),
+                    discovery=self._plugin_discoveries.get(plugin_type, None),
                 )
                 for plugin_type in plugin_types
             },

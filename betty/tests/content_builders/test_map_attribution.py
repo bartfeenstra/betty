@@ -8,7 +8,7 @@ class TestMapAttribution:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[MapAttribution]) as project,
+            new_isolated_project(support=[MapAttribution]) as project,
             project,
         ):
             sut = await MapAttribution.new(project)

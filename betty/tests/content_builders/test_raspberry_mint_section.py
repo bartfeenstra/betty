@@ -43,7 +43,7 @@ class TestSection:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Section]) as project,
+            new_isolated_project(support=[Section]) as project,
             project,
         ):
             sut = await Section.new(
@@ -59,7 +59,7 @@ class TestSection:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Section]) as project,
+            new_isolated_project(support=[Section]) as project,
             project,
         ):
             sut = await Section.new(
@@ -81,7 +81,7 @@ class TestSection:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Section]) as project,
+            new_isolated_project(support=[Section]) as project,
             project,
         ):
             sut = await Section.new(
@@ -103,7 +103,7 @@ class TestSection:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Section]) as project,
+            new_isolated_project(support=[Section]) as project,
             project,
         ):
             sut = await Section.new(

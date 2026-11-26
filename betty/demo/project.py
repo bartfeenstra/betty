@@ -59,7 +59,7 @@ async def create_project(
         app=app,
         directory=directory,
         license=LicenseManufacturer("spdx-gpl-3-0-or-later"),
-        supported_plugins=[
+        support=[
             WikipediaSummary,
         ],
         title=_("A Betty demonstration"),

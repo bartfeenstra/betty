@@ -9,6 +9,7 @@ site from the entire project.
 from __future__ import annotations
 
 from asyncio import gather, to_thread
+from collections import defaultdict
 from contextlib import AsyncExitStack, asynccontextmanager
 from operator import not_
 from shutil import rmtree
@@ -22,6 +23,8 @@ from betty.about import version_major
 from betty.app import App
 from betty.assertions.int import assert_int
 from betty.assertions.url import assert_url
+from betty.asset import AssetDirectoryDefinition
+from betty.asset_directories import builtin
 from betty.attr import HasAttrs
 from betty.attrs.locale import new_locale_attr
 from betty.attrs.localizable import new_localizable_attr
@@ -109,7 +112,7 @@ from betty.role import RoleDefinition
 from betty.sample import Sample, Size
 from betty.server import ServerDefinition
 from betty.service import Service
-from betty.service_level import DownstreamServiceLevel, Plugins
+from betty.service_level import DownstreamServiceLevel, PluginDiscoveries
 from betty.service_provider import (
     ResolvableServiceProviderManufacturer,
     ServiceProviderDefinition,
@@ -131,8 +134,8 @@ if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
     from betty.media_type import ResolvableMediaType
     from betty.pathlib import StrPath
-    from betty.plugin import PluginDefinition
-    from betty.services.plugin import SupportedPlugins
+    from betty.plugin import PluginDefinition as PluginDefinition
+    from betty.services.plugin import SupportPlugins
     from betty.store import TransientStore
     from betty.url_generator import UrlGenerator
 
@@ -663,14 +666,26 @@ class Project(
         url: str,
         copyright_notice: ManufacturableCopyrightNotice | None = None,
         license: ManufacturableLicense | None = None,  # noqa: A002
-        plugins: Plugins = empty_frozen_dict,
-        supported_plugins: SupportedPlugins = (),
-        _plugin_discoverers: Iterable[PluginDefinition] = (),
+        plugins: PluginDiscoveries = empty_frozen_dict,
+        support: SupportPlugins = (),
     ):
         from betty.copyright_notices.project_author import ProjectAuthor
 
+        directory = resolve_path(directory)
+        asset_directory = directory / "asset"
+        plugins = dict(plugins)
+        plugins[AssetDirectoryDefinition] = (
+            plugins.get(AssetDirectoryDefinition, ()),
+            AssetDirectoryDefinition(
+                "project",
+                assets=asset_directory,
+                after=lambda other: other != builtin.id,
+                before={builtin},
+                auto=True,
+            ),
+        )
         super().__init__(
-            plugins=plugins, supported_plugins=supported_plugins, upstream=app
+            plugin_discoveries=plugins, support_plugins=support, upstream=app
         )
         cls = type(self)
         cls.copyright_notice.add_init_plugins(self, copyright_notice or ProjectAuthor)
@@ -682,7 +697,7 @@ class Project(
         self.name = MachineName(hashid(str(directory)))
         self.title = title
         self.url = url
-        self.directory: Final[Path] = resolve_path(directory)
+        self.directory: Final[Path] = directory
         """
         The project directory path.
 
@@ -693,7 +708,7 @@ class Project(
         """
         The output directory path.
         """
-        self.asset_directory: Final[Path] = self.directory / "asset"
+        self.asset_directory: Final[Path] = asset_directory
         """
         The :doc:`asset directory path </usage/assets>`.
         """
@@ -701,7 +716,6 @@ class Project(
         """
         The WWW directory path.
         """
-        self._plugin_discoverers = _plugin_discoverers
         self._cache_directory = self.directory / ".cache" / version_major
 
     @classmethod
@@ -709,17 +723,17 @@ class Project(
         """
         Create a new instance.
         """
+        plugins = defaultdict(list)
+        for plugin in (
+            *data.copyright_notices,
+            *data.genders,
+            *data.licenses,
+            *data.place_types,
+            *data.roles,
+        ):
+            plugins[plugin.definition.plugin_type].append(plugin.new_definition())
         project = cls(
-            _plugin_discoverers=(
-                plugin.new_definition()
-                for plugin in (
-                    *data.copyright_notices,
-                    *data.genders,
-                    *data.licenses,
-                    *data.place_types,
-                    *data.roles,
-                )
-            ),
+            plugins=plugins,
             app=app,
             copyright_notice=data.copyright_notice,
             directory=directory,
@@ -747,8 +761,8 @@ class Project(
         *,
         app: App | None = None,
         directory: StrPath | None = None,
-        plugins: Plugins = empty_frozen_dict,
-        supported_plugins: SupportedPlugins = (),
+        plugins: PluginDiscoveries = empty_frozen_dict,
+        support: SupportPlugins = (),
     ) -> AsyncGenerator[Self]:
         """
         Creat a new, isolated, temporary project.
@@ -769,7 +783,7 @@ class Project(
                 app=app,
                 directory=directory,
                 plugins=plugins,
-                supported_plugins=supported_plugins,
+                support=support,
                 title="Betty",
                 url="https://example.com",
             )

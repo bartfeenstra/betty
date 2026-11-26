@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty.discoverers.entry_point import EntryPointDiscoverer
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.test_utils.locale.localizable import dummy_countable_localizable
 from betty.typing import Unreachable
@@ -20,6 +21,33 @@ class TestPluginTypeDefinition:
             label_countable=dummy_countable_localizable,
         )
         assert sut.id == plugin_type_id
+
+    def test_discovery__without_discovery(self) -> None:
+        @PluginTypeDefinition(
+            "-",
+            label="-",
+            label_plural="-",
+            label_countable=dummy_countable_localizable,
+        )
+        class _PluginDefinition(PluginDefinition):
+            pass
+
+        assert isinstance(_PluginDefinition.definition.discovery, EntryPointDiscoverer)
+
+    def test_discovery__with_discovery(self) -> None:
+        discovery = lambda _: ()
+
+        @PluginTypeDefinition(
+            "-",
+            label="-",
+            label_plural="-",
+            label_countable=dummy_countable_localizable,
+            discovery=discovery,
+        )
+        class _PluginDefinition(PluginDefinition):
+            pass
+
+        assert _PluginDefinition.definition.discovery is discovery
 
 
 class TestPluginDefinition:

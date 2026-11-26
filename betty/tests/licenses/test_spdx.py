@@ -1,5 +1,4 @@
 import tarfile
-from collections.abc import Iterable
 from io import BytesIO
 from json import dumps
 from pathlib import Path
@@ -9,7 +8,7 @@ import pytest
 from aiohttp import ClientSession
 from aioresponses import aioresponses
 
-from betty.discover import ResolvableDiscoverer, discover
+from betty.definition.discover import Discovery, discover
 from betty.license import LicenseDefinition
 from betty.licenses.spdx import (
     SpdxLicenseDiscoverer,
@@ -155,10 +154,10 @@ class TestSpdxLicenseDiscoverer:
         http_client_mock.get(SpdxLicenseDiscoverer.url, body=spdx_file.read())
 
     async def assert_with_licenses(
-        self, licenses: Iterable[ResolvableDiscoverer[LicenseDefinition]]
+        self, licenses: Discovery[LicenseDefinition]
     ) -> None:
         services = ServiceLevel()
-        discovered_licenses = list(await discover(services, *licenses))
+        discovered_licenses = list(await discover(services, licenses))
         assert discovered_licenses
         zero_bsd_type = discovered_licenses[0]
         assert zero_bsd_type.label == "BSD Zero Clause License"
@@ -172,9 +171,9 @@ class TestSpdxLicenseDiscoverer:
         assert url == "https://spdx.org/licenses/0BSD.html"
 
     async def assert_without_licenses(
-        self, licenses: Iterable[ResolvableDiscoverer[LicenseDefinition]]
+        self, licenses: Discovery[LicenseDefinition]
     ) -> None:
-        discovered_licenses = list(await discover(ServiceLevel(), *licenses))
+        discovered_licenses = list(await discover(ServiceLevel(), licenses))
         assert not discovered_licenses
 
     async def test_discover__without_licenses(

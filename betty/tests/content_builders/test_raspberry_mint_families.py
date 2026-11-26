@@ -22,7 +22,7 @@ class TestFamilies:
         self, resource: object, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Families]) as project,
+            new_isolated_project(support=[Families]) as project,
             project,
         ):
             sut = await Families.new(project)
@@ -35,7 +35,7 @@ class TestFamilies:
         resource = Person(id="resource", parents=[parent])
         child = Person(id="child", parents=[resource])
         async with (
-            new_isolated_project(supported_plugins=[Families]) as project,
+            new_isolated_project(support=[Families]) as project,
             project,
         ):
             project.ancestry.add(resource)

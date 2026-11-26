@@ -1,3 +1,3 @@
 """
-Reusable plugin discoverers.
+Reusable discoverers.
 """

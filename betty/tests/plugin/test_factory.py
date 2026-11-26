@@ -45,7 +45,7 @@ class _RequiredDataManufacturableDummyPlugin(
 
 class TestPluginManufacturer:
     _SERVICES = ServiceLevel(
-        plugins={
+        plugin_discoveries={
             DummyPluginDefinition: [
                 DummyPluginOne,
                 _RequiredDataManufacturableDummyPlugin,
