@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
     from betty.media_type import MediaTypeDefinition
+    from betty.pathlib import StrPath
     from betty.portable import PortableData
     from betty.requirement import Requires
 
@@ -86,7 +87,7 @@ class SerializerDefinition(
 
 
 def serializer_for(
-    available_serializers: Iterable[Serializer], extension: str, /
+    available_serializers: Iterable[Serializer], extension: StrPath, /
 ) -> Serializer:
     """
     Get the serializer for the given file extension.
@@ -96,7 +97,7 @@ def serializer_for(
             return available_serializer
     raise SerializationError(
         _("Unsupported file {unsupported}. Supported types are: {supported}.").format(
-            unsupported=Quote(extension),
+            unsupported=Quote(str(extension)),
             supported=JoinOr(*[
                 _("{media_type} ({extensions})").format(
                     media_type=media_type.label,
