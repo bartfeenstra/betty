@@ -88,6 +88,7 @@ class SerializerDefinition(
         )
 
 
+# @todo Refactor this around ContentTypeNegotiator?
 def serializer_for(
     available_serializers: Iterable[Serializer], extension: StrPath, /
 ) -> Serializer:

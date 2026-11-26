@@ -1574,7 +1574,7 @@ class TestGrampsLoader:
         assert default_localizer.localize(link.url) == url
         assert not link.description
         assert not link.has_label
-        assert link.media_type is None
+        assert link.content_type is None
         assert link.relationship is None
 
     async def test__load_attribute_links_should_include_attribute_links_full(
@@ -1615,7 +1615,7 @@ class TestGrampsLoader:
         assert link.description is not None
         assert localizer_nl.localize(link.description) == description_nl
         assert default_localizer.localize(link.description) == description_undetermined
-        assert link.media_type == MediaType(media_type)
+        assert link.content_type == MediaType(media_type)
         assert link.relationship == relationship
 
     async def test__load_attribute_links_should_warn_about_attribute_link_without_url(
@@ -1651,7 +1651,7 @@ class TestGrampsLoader:
         source = ancestry[Source][machinify("S0000")]
         assert source.links
         link_one = next(iter(source.links))
-        assert link_one.media_type is None
+        assert link_one.content_type is None
 
     @pytest.mark.parametrize(
         ("expected", "global_attribute_value", "project_attribute_value"),

@@ -5,13 +5,13 @@ import pytest
 from babel import Locale
 
 from betty.content_type import ContentTypeDefinition
+from betty.content_types import html, json
 from betty.locale import (
     ResolvableLocale,
     default_locale,
     default_locale_tag,
     to_language_tag,
 )
-from betty.media_types import html, json
 from betty.url_generators.path import PathUrlGenerator
 from betty.url_generators.static_path_url import StaticPathUrlUrlGenerator
 
@@ -53,7 +53,7 @@ class TestStaticPathUrlUrlGenerator:
         (
             "expected",
             "resource",
-            "media_type",
+            "content_type",
             "absolute",
             "locale",
             "additional_project_locale",
@@ -99,7 +99,7 @@ class TestStaticPathUrlUrlGenerator:
         self,
         expected: str,
         resource: str,
-        media_type: ContentTypeDefinition,
+        content_type: ContentTypeDefinition,
         absolute: bool,
         locale: ResolvableLocale | None,
         additional_project_locale: Locale | None,
@@ -125,7 +125,7 @@ class TestStaticPathUrlUrlGenerator:
                 absolute=absolute,
                 fragment=fragment,
                 locale=locale,
-                media_type=media_type,
+                content_type=content_type,
                 query=query,
             )
             == expected

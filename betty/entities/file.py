@@ -10,8 +10,8 @@ from betty.associations.has_citations import HasCitations
 from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.associations.to_many import ToMany, ToManyAssociates
+from betty.attrs.content_type import HasContentType
 from betty.attrs.description import HasDescription
-from betty.attrs.media_type import HasMediaType
 from betty.attrs.path import new_path_attr
 from betty.entities.file_reference import FileReference
 from betty.entity import EntityDefinition
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} file", "{count} files"),
 )
 class File(
-    AttrFreezable, HasDescription, HasLinks, HasMediaType, HasNotes, HasCitations
+    AttrFreezable, HasDescription, HasLinks, HasContentType, HasNotes, HasCitations
 ):
     """
     .. plugin:: entity:file.
@@ -76,7 +76,7 @@ class File(
         *,
         id: ResolvableMachineName | None = None,  # noqa: A002
         name: str | None = None,
-        media_type: ContentTypeDefinition | None = None,
+        content_type: ContentTypeDefinition | None = None,
         description: AnyLocalizable | None = None,
         notes: ToManyAssociates[Note] = (),
         citations: ToManyAssociates[Citation] = (),
@@ -87,7 +87,7 @@ class File(
     ):
         super().__init__(
             id=id,
-            media_type=media_type,
+            content_type=content_type,
             description=description,
             notes=notes,
             citations=citations,

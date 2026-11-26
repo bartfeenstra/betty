@@ -235,7 +235,7 @@ def make_copy_function(
         template = environment.from_string(content)
         rendered_content = await template.render_async(
             document=document.copy(
-                media_type=document_media_type,
+                content_type=document_media_type,
                 resource=destination,
                 resource_url=document_resource_url,
             )

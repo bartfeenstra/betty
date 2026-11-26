@@ -47,11 +47,30 @@ class _ContentTypeNegotiator[MatchableT, MatchT](metaclass=ABCMeta):
         raise UnsupportedMediaType(other)
 
 
-class ContentTypeNegotiator(
+class MediaTypeNegotiator(
     _ContentTypeNegotiator[
         "ResolvableMediaType | ContentTypeDefinition", "ContentTypeDefinition"
     ]
 ):
+    """
+    A content type media type negotiator.
+    """
+
+    __slots__ = ()
+
+
+class ExtensionNegotiator(
+    _ContentTypeNegotiator[StrPath, tuple["ContentTypeDefinition", Extension]],
+    Iterable[Extension],
+):
+    """
+    A content type file extension negotiator.
+    """
+
+    __slots__ = ()
+
+
+class ContentTypeNegotiator(MediaTypeNegotiator):
     """
     A content type negotiator.
     """
@@ -66,17 +85,6 @@ class ContentTypeNegotiator(
         """
         Match by file extensions.
         """
-
-
-class ExtensionNegotiator(
-    _ContentTypeNegotiator[StrPath, tuple["ContentTypeDefinition", Extension]],
-    Iterable[Extension],
-):
-    """
-    A content type file extension negotiator.
-    """
-
-    __slots__ = ()
 
 
 @final
@@ -236,7 +244,7 @@ class _ContentTypeRepositoryExtensionNegotiator(ExtensionNegotiator):
 @final
 class ContentTypeRepository(ContentTypeNegotiator):
     """
-    A sequence of content type definitions that can be matched against.
+    A sequence of content types that can be matched against.
     """
 
     __slots__ = ("_extensions", "_media_types")

@@ -53,7 +53,7 @@ class TestApp:
         assert isolated_app.cache is isolated_app.cache
 
     async def test_media_types(self, isolated_app: App) -> None:
-        assert isolated_app.media_types is isolated_app.media_types
+        assert isolated_app.content_types is isolated_app.content_types
 
     async def test_rate_limits(self, isolated_app: App) -> None:
         assert isolated_app.rate_limits is isolated_app.rate_limits

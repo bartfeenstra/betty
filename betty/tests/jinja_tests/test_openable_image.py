@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.media_types import plain_text, png
+from betty.content_types import plain_text, png
 
 if TYPE_CHECKING:
     from betty.test_utils.conftest import AssertJinja

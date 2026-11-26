@@ -34,6 +34,15 @@ from betty.associations.has_notes import HasNotes
 from betty.attrs.privacy import HasPrivacy
 from betty.collections.mapping.dict import empty_frozen_dict
 from betty.content_type import ContentTypeDefinition, ContentTypeRepository
+from betty.content_types import (
+    csv,
+    gedcom,
+    geneweb,
+    gramps_xml,
+    gramps_xml_package,
+    pro_gen,
+    vcard,
+)
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import AnyDate, Date, DateRange
 from betty.definition.cls import ClsDefinition
@@ -90,15 +99,6 @@ from betty.localizables.gettext import _, pgettext
 from betty.localizables.markup import JoinOr, Quote
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
-from betty.media_types import (
-    csv,
-    gedcom,
-    geneweb,
-    gramps_xml,
-    gramps_xml_package,
-    pro_gen,
-    vcard,
-)
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeManufacturer, ResolvablePlaceTypeManufacturer
 from betty.place_types.borough import Borough
@@ -829,7 +829,7 @@ class GrampsLoader:
         # @todo field/attribute as a location.
         # @todo
         # @todo
-        media_type = self._project.app.known_media_types.request(mime)
+        media_type = self._project.app.known_content_types.request(mime)
         if mime and not media_type:
             await self._ui.message(
                 _(
@@ -842,7 +842,7 @@ class GrampsLoader:
                 ),
                 Severity.WARN,
             )
-        file.media_type = media_type
+        file.content_type = media_type
         description = file_element.get("description")
         if description:
             file.description = description
@@ -1465,7 +1465,7 @@ class GrampsLoader:
                     )
                 )
             if "media_type" in link_attributes:
-                media_type = self._project.app.known_media_types.request(
+                media_type = self._project.app.known_content_types.request(
                     link_attributes["media_type"]
                 )
                 if not media_type:
@@ -1480,7 +1480,7 @@ class GrampsLoader:
                         Severity.WARN,
                     )
                 else:
-                    link.media_type = media_type
+                    link.content_type = media_type
             if "relationship" in link_attributes:
                 link.relationship = link_attributes["relationship"]
 

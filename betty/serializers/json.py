@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, cast, final, override
 
-from betty import media_types
+from betty import content_types
 from betty.json import JsonData
 from betty.localizables.gettext import _
 from betty.serialize import SerializationError, Serializer, SerializerDefinition
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @final
-@SerializerDefinition("json", media_types.json, label="JSON")
+@SerializerDefinition("json", content_types.json, label="JSON")
 class Json(Serializer):
     """
     .. plugin:: serializer:json.

@@ -18,7 +18,7 @@ from betty.project import Project
 from betty.service_providers._theme import associated_file_references
 
 if TYPE_CHECKING:
-    from betty.content_type import ContentTypeNegotiator
+    from betty.content_type import MediaTypeNegotiator
     from betty.document import Document
     from betty.entities.file_reference import FileReference
     from betty.entity import Entity
@@ -42,7 +42,7 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
         self,
         *,
         entity: ResolvableEntity,
-        image_types: ContentTypeNegotiator,
+        image_types: MediaTypeNegotiator,
         jinja: Environment,
     ):
         super().__init__(jinja=jinja)
@@ -80,7 +80,7 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
             for file_reference in associated_file_references(entity):
                 if file_reference.file.private:
                     continue
-                if not self._image_types.request(file_reference.file.media_type):
+                if not self._image_types.request(file_reference.file.content_type):
                     continue
                 return file_reference
         return None

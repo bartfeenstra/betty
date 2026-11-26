@@ -2,10 +2,10 @@ from pathlib import Path
 
 from PIL import Image
 
+from betty.content_types import png
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.localizer import default_localizer
-from betty.media_types import png
 from betty.test_utils.associations.has_file_references import DummyHasFileReferences
 from betty.test_utils.conftest import AssertJinja
 
@@ -26,7 +26,7 @@ async def test_with_image(
     image = Image.new("1", (1, 1))
     image.save(image_path)
     entity = DummyHasFileReferences()
-    FileReference(entity, File(image_path, media_type=png))
+    FileReference(entity, File(image_path, content_type=png))
     async with assert_raspberry_mint_jinja_file(
         "search/result-with-image.html.j2", data={"entity": entity}
     ) as rendered:

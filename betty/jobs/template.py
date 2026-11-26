@@ -110,7 +110,7 @@ class _ResourceTemplate[ResourceT](Job, metaclass=ABCMeta):
     def _match_extension(
         cls, templates: TemplateNames, /, *, project: Project
     ) -> tuple[ContentTypeDefinition, str]:
-        return project.app.known_media_types.extensions.require(templates[0][:-3])
+        return project.app.known_content_types.extensions.require(templates[0][:-3])
 
 
 class ResourceTemplate[ResourceT](_ResourceTemplate[ResourceT], metaclass=ABCMeta):
@@ -138,7 +138,7 @@ class ResourceTemplate[ResourceT](_ResourceTemplate[ResourceT], metaclass=ABCMet
                         self._resource,
                         context=scheduler.context,
                         localizer=await self._project.localizers.get(locale.locale),
-                        media_type=media_type,
+                        content_type=media_type,
                     )
                 },
             )
@@ -225,7 +225,7 @@ class CollectionResourceTemplate[ResourceT, ResourceItemT](
                             self._resource,
                             context=scheduler.context,
                             localizer=await self._project.localizers.get(locale.locale),
-                            media_type=media_type,
+                            content_type=media_type,
                             resource_items=resource_items,
                             page=page,
                             page_count=page_count,

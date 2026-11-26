@@ -1,7 +1,7 @@
 from typing import override
 
 from betty.content_type import ContentTypeDefinition
-from betty.media_types import html
+from betty.content_types import html
 from betty.render import RenderDispatcher, Renderer
 
 

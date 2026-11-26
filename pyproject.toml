@@ -114,6 +114,9 @@ betty = 'betty.consoles.app:main'
 [project.entry-points.'betty.content_builder']
 'implicit' = 'betty.content_builders'
 
+[project.entry-points.'betty.content_type']
+'implicit' = 'betty.content_types'
+
 [project.entry-points.'betty.copyright_notice']
 'implicit' = 'betty.copyright_notices'
 
@@ -156,9 +159,6 @@ betty = 'betty.consoles.app:main'
 
 [project.entry-points.'betty.loader']
 'implicit' = 'betty.loaders'
-
-[project.entry-points.'betty.media_type']
-'implicit' = 'betty.media_types'
 
 [project.entry-points.'betty.place_type']
 'implicit' = 'betty.place_types'

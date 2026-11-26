@@ -70,7 +70,7 @@ class Webpack(Generator, ServiceProvider[Project], Manufacturable):
             ],
             debug=self.services.debug,
             jinja=await self.services.jinja,
-            media_types=self.services.app.known_media_types,
+            media_types=self.services.app.known_content_types,
             root=self.services.root_path,
             ui=self.services.upstream.ui,
         )

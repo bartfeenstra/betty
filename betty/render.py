@@ -89,12 +89,12 @@ class RenderDispatcher:
             for media_type in renderer.definition.media_types
         }
 
-    async def render(self, content: str, media_type: ContentTypeDefinition, /) -> str:
+    async def render(self, content: str, content_type: ContentTypeDefinition, /) -> str:
         """
         Render the content.
         """
         try:
-            renderer = self._renderers[media_type]
+            renderer = self._renderers[content_type]
         except KeyError:
             return plain_text_to_html(content)
         else:

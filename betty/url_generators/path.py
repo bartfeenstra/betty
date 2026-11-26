@@ -73,7 +73,7 @@ class PathUrlGenerator(Manufacturable, UrlGenerator[str]):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: ContentTypeDefinition | None = None,
+        content_type: ContentTypeDefinition | None = None,
         query: Mapping[str, Sequence[str]] = empty_frozen_dict,
     ) -> str:
         url = self._base_url.rstrip("/") if absolute else ""

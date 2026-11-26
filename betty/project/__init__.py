@@ -880,7 +880,7 @@ class Project(
         resource_url: object = None,
         /,
         *,
-        media_type: ContentTypeDefinition | None = None,
+        content_type: ContentTypeDefinition | None = None,
         **document_vars: Any,
     ) -> Document:
         """
@@ -889,7 +889,7 @@ class Project(
         return Document(
             resource,
             resource_url,
-            media_type=media_type,
+            content_type=content_type,
             **{
                 key: value
                 for document_provider in await gather(*self.document_providers)

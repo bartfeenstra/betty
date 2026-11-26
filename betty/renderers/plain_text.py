@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from typing import override
 
+from betty.content_types import plain_text
 from betty.html import plain_text_to_html
 from betty.localizables.gettext import _
-from betty.media_types import plain_text
 from betty.render import Renderer, RendererDefinition
 
 

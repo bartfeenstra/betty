@@ -48,7 +48,7 @@ class StaticPathUrlUrlGenerator(UrlGenerator[str]):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: ContentTypeDefinition | None = None,
+        content_type: ContentTypeDefinition | None = None,
         query: Mapping[str, Sequence[str]] = empty_frozen_dict,
     ) -> str:
         url_parts = urlsplit(resource)
@@ -58,6 +58,6 @@ class StaticPathUrlUrlGenerator(UrlGenerator[str]):
             absolute=absolute,
             fragment=fragment,
             locale=None,
-            media_type=media_type,
+            content_type=content_type,
             query=query,
         )

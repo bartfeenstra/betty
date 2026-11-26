@@ -37,7 +37,7 @@ from betty.serialize import SerializerDefinition
 from betty.serializers.json import Json
 from betty.service import Service
 from betty.services.asset import HasAssets
-from betty.services.media_type import HasMediaTypes
+from betty.services.content_type import HasContentTypes
 from betty.services.plugin.definition.collection.catalog import PluginDefinitionsService
 from betty.services.plugin.instance.collection.catalog import PluginInstancesService
 from betty.services.simple import service
@@ -63,7 +63,7 @@ if TYPE_CHECKING:
 
 
 @final
-class App(RequirableServiceLevel, HasAssets, HasMediaTypes):
+class App(RequirableServiceLevel, HasAssets, HasContentTypes):
     """
     The Betty application.
 
@@ -231,7 +231,7 @@ class App(RequirableServiceLevel, HasAssets, HasMediaTypes):
         """
         The imager.
         """
-        return Imager(self.known_media_types)
+        return Imager(self.known_content_types)
 
 
 @final

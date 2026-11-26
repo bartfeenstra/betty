@@ -1,5 +1,5 @@
 """
-Media type services.
+Content type services.
 """
 
 from __future__ import annotations
@@ -13,21 +13,21 @@ from betty.services.plugin.definition.collection.catalog import PluginDefinition
 from betty.services.simple import service
 
 
-class HasMediaTypes(ServiceLevel, HasPluginServices):
+class HasContentTypes(ServiceLevel, HasPluginServices):
     """
-    Expose media types.
+    Expose content types.
     """
 
-    media_types = PluginDefinitionsService(ContentTypeDefinition)
+    content_types = PluginDefinitionsService(ContentTypeDefinition)
     """
-    The available media types.
+    The known content types.
     """
 
     # @todo Can we come up with a better name?
     @final
     @service
-    def known_media_types(self) -> ContentTypeRepository:
+    def known_content_types(self) -> ContentTypeRepository:
         """
-        The supported media types.
+        The supported content types.
         """
-        return ContentTypeRepository(*self.media_types)
+        return ContentTypeRepository(*self.content_types)

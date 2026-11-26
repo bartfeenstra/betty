@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final, override
 
+from betty.content_types import html
 from betty.entities.place import Place
 from betty.file import write
 from betty.job import Job
 from betty.jobs.generate_entity import GenerateEntity
-from betty.media_types import html
 
 if TYPE_CHECKING:
     from babel import Locale

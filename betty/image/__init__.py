@@ -11,8 +11,8 @@ from typing import IO, TYPE_CHECKING, Final, final, overload
 from PIL import Image
 
 from betty.content_type import ContentTypeDefinition, ContentTypeRepository
+from betty.content_types import avif, bmp, gif, jpeg, jpeg_xl, png, svg, webp
 from betty.file import read, write
-from betty.media_types import avif, bmp, gif, jpeg, jpeg_xl, png, svg, webp
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
@@ -63,25 +63,25 @@ class Imager:
 
     @overload
     async def open(
-        self, image: StrPath, /, *, media_type: ContentTypeDefinition | None = None
+        self, image: StrPath, /, *, content_type: ContentTypeDefinition | None = None
     ) -> Image.Image:
         pass
 
     @overload
     async def open(
-        self, image: IO[bytes], /, *, media_type: ContentTypeDefinition
+        self, image: IO[bytes], /, *, content_type: ContentTypeDefinition
     ) -> Image.Image:
         pass
 
-    async def open(self, image, /, *, media_type=None):
+    async def open(self, image, /, *, content_type=None):
         """
         Read an image.
         """
-        if media_type is None:
-            media_type, _extension = self.openable.extensions.require(image)
+        if content_type is None:
+            content_type, _extension = self.openable.extensions.require(image)
         if isinstance(image, Path):
             image = BytesIO(await read(image, mode="rb"))
-        return Image.open(image, formats=[self._openable[media_type]])
+        return Image.open(image, formats=[self._openable[content_type]])
 
     async def save(
         self,
@@ -89,12 +89,12 @@ class Imager:
         destination: Path,
         /,
         *,
-        media_type: ContentTypeDefinition,
+        content_type: ContentTypeDefinition,
     ) -> None:
         """
         Write an image.
         """
         image_data = BytesIO()
-        image.save(image_data, format=self._savable[media_type])
+        image.save(image_data, format=self._savable[content_type])
         image_data.seek(0)
         await write(destination, image_data.read(), mode="wb")

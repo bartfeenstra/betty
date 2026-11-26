@@ -24,12 +24,12 @@ from typing import (
     override,
 )
 
+from betty.content_types import html
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.id import resolve_id
 from betty.localizables.gettext import _, ngettext
 from betty.localizer import AnyLocalizable, Localizer, default_localizer
-from betty.media_types import html
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinition
 
@@ -67,13 +67,13 @@ class Document:
         entity_contexts: EntityContexts | None = None,
         context: Context | None = None,
         localizer: Localizer | None = None,
-        media_type: ContentTypeDefinition | None = None,
+        content_type: ContentTypeDefinition | None = None,
         title: Localizable | None = None,
         **document_vars: Any,
     ):
-        self.media_type: Final[ContentTypeDefinition | None] = media_type
+        self.content_type: Final[ContentTypeDefinition | None] = content_type
         """
-        The media type.
+        The content type.
         """
         self.resource: Final[object] = resource
         """
@@ -118,7 +118,7 @@ class Document:
     def copy(
         self,
         *,
-        media_type: ContentTypeDefinition | None = None,
+        content_type: ContentTypeDefinition | None = None,
         resource: object = None,
         resource_url: object = None,
         **document_vars: Any,
@@ -133,10 +133,10 @@ class Document:
                 **self._vars,
                 "breadcrumbs": self.breadcrumbs,
                 "citer": self.citer,
+                "content_type": content_type or self.content_type,
                 "context": self.context,
                 "entity_contexts": self.entity_contexts,
                 "localizer": self.localizer,
-                "media_type": media_type or self.media_type,
                 "title": self.title,
                 **document_vars,
             },  # ty:ignore[invalid-argument-type]
@@ -161,7 +161,7 @@ class Document:
             and self.context == other.context
             and self.entity_contexts == other.entity_contexts
             and self.localizer == other.localizer
-            and self.media_type == other.media_type
+            and self.content_type == other.content_type
             and self.resource == other.resource
             and self.resource_url == other.resource_url
             and self.title == other.title
@@ -274,7 +274,7 @@ class Breadcrumbs:
             }
             if breadcrumb.resource_url is not None:
                 breadcrumb_dump["item"] = url_generator.generate(
-                    breadcrumb.resource_url, absolute=True, media_type=html
+                    breadcrumb.resource_url, absolute=True, content_type=html
                 )
                 breadcrumb_dumps.append(breadcrumb_dump)
 

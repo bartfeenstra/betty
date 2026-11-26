@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from betty.media_types import html
+from betty.content_types import html
 from betty.url_generators.passthrough import PassthroughUrlGenerator
 
 
@@ -28,4 +28,4 @@ class TestPassthroughUrlGenerator:
     async def test_generate(self) -> None:
         resource = "some-scheme://www.example.com"
         sut = PassthroughUrlGenerator()
-        assert sut.generate(resource, media_type=html) == resource
+        assert sut.generate(resource, content_type=html) == resource

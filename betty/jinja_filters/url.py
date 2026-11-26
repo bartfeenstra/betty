@@ -9,10 +9,10 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 from jinja2 import pass_context
 
 from betty.collections.mapping.dict import empty_frozen_dict
+from betty.content_types import html
 from betty.factory import Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
-from betty.media_types import html
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
     from jinja2.runtime import Context
 
-    from betty.content_type import ContentTypeNegotiator
+    from betty.content_type import MediaTypeNegotiator
     from betty.locale import ResolvableLocale
     from betty.url_generator import UrlGenerator
 
@@ -35,7 +35,7 @@ class Url(JinjaFilter, Manufacturable):
     """
 
     def __init__(
-        self, *, media_types: ContentTypeNegotiator, url_generator: UrlGenerator
+        self, *, media_types: MediaTypeNegotiator, url_generator: UrlGenerator
     ):
         self._media_types = media_types
         self._url_generator = url_generator
@@ -45,7 +45,7 @@ class Url(JinjaFilter, Manufacturable):
     @classmethod
     async def new(cls, project: Project, /) -> Self:
         return cls(
-            media_types=project.app.known_media_types,
+            media_types=project.app.known_content_types,
             url_generator=await project.url_generator,
         )
 
@@ -65,7 +65,7 @@ class Url(JinjaFilter, Manufacturable):
             resource,
             absolute=absolute,
             fragment=fragment,
-            media_type=html,
+            content_type=html,
             locale=locale or context_document(context).localizer.locale,
             query=query,
         )

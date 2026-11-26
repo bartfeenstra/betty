@@ -1,9 +1,9 @@
 from betty.content_builders.raspberry_mint_media import Media
+from betty.content_types import png
 from betty.dirs import builtin_asset_directory
 from betty.document import Document
 from betty.entities.file import File
 from betty.localizer import default_localizer
-from betty.media_types import png
 from betty.test_utils.conftest import NewIsolatedProject
 
 
@@ -23,7 +23,7 @@ class TestMedia:
     ) -> None:
         resource = File(
             builtin_asset_directory / "public" / "static" / "betty-16x16.png",
-            media_type=png,
+            content_type=png,
         )
         async with (
             new_isolated_project(support=[Media]) as project,

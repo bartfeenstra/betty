@@ -6,15 +6,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final, override
 
+from betty.attrs.content_type import new_content_type_attr
 from betty.attrs.localizable import new_localizable_attr
-from betty.attrs.media_type import new_media_type_attr
 from betty.classtools.init import Init
 from betty.content_builder import ContentBuilder, ContentBuilderDefinition
+from betty.content_types import plain_text
 from betty.datas.aggregate.record.object import Object, ObjectDefinition
 from betty.factory import DataManufacturable
 from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _
-from betty.media_types import plain_text
 from betty.project import Project
 from betty.sample import Sample, Size
 
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 class _RenderConfig(Init):
     content = new_localizable_attr(label=_("Content"))
-    media_type = new_media_type_attr().default(lambda: plain_text)
+    content_type = new_content_type_attr().default(lambda: plain_text)
 
 
 @final
@@ -50,11 +50,11 @@ class RenderConfig(_RenderConfig, Object, AttrFreezable):
         self,
         /,
         content: AnyLocalizable,
-        media_type: ContentTypeDefinition = plain_text,
+        content_type: ContentTypeDefinition = plain_text,
     ):
         super().__init__()
         self.content = content
-        self.media_type = media_type
+        self.content_type = content_type
 
 
 @final
@@ -69,10 +69,10 @@ class Render(_RenderConfig, DataManufacturable[RenderConfig], ContentBuilder):
         *,
         content: AnyLocalizable,
         renderer: RenderDispatcher,
-        media_type: ContentTypeDefinition = plain_text,
+        content_type: ContentTypeDefinition = plain_text,
     ):
         self.content = content
-        self.media_type = media_type
+        self.content_type = content_type
         self._renderer = renderer
 
     @override
@@ -86,12 +86,12 @@ class Render(_RenderConfig, DataManufacturable[RenderConfig], ContentBuilder):
     async def new(cls, project: Project, data: RenderConfig, /) -> Self:
         return cls(
             content=data.content,
-            media_type=data.media_type,
+            content_type=data.content_type,
             renderer=await project.renderer,
         )
 
     @override
     async def build(self, *, document: Document) -> str | None:
         return await self._renderer.render(
-            document.localizer.localize(self.content), self.media_type
+            document.localizer.localize(self.content), self.content_type
         )

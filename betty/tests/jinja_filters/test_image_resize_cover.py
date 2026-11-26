@@ -4,11 +4,11 @@ from typing import Final
 
 import pytest
 
+from betty.content_types import png
 from betty.dirs import builtin_asset_directory
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.job import Context
-from betty.media_types import png
 from betty.test_utils.associations.has_file_references import DummyHasFileReferences
 from betty.test_utils.conftest import AssertJinja
 
@@ -29,7 +29,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         File(
             id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
-            media_type=png,
+            content_type=png,
         ),
     ),
     (
@@ -38,7 +38,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         File(
             id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
-            media_type=png,
+            content_type=png,
         ),
     ),
     (
@@ -47,7 +47,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         File(
             id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
-            media_type=png,
+            content_type=png,
         ),
     ),
     (
@@ -56,7 +56,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         File(
             id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
-            media_type=png,
+            content_type=png,
         ),
     ),
     (
@@ -65,7 +65,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
         File(
             id="my-first-file",
             path=_test_filter_image_resize_cover_image_path,
-            media_type=png,
+            content_type=png,
         ),
     ),
     (
@@ -76,7 +76,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
             File(
                 id="my-first-file",
                 path=_test_filter_image_resize_cover_image_path,
-                media_type=png,
+                content_type=png,
             ),
         ),
     ),
@@ -88,7 +88,7 @@ _test_filter_image_resize_cover_parameter_argvalues: Final[
             File(
                 id="my-first-file",
                 path=_test_filter_image_resize_cover_image_path,
-                media_type=png,
+                content_type=png,
             ),
             focus=(0, 0, 9, 9),
         ),

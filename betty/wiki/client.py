@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from aiohttp import ClientResponse, ClientSession
     from ty_extensions import Intersection
 
-    from betty.content_type import ContentTypeDefinition, ContentTypeNegotiator
+    from betty.content_type import ContentTypeDefinition, MediaTypeNegotiator
     from betty.json import JsonData
     from betty.user.ui import Ui
 
@@ -70,7 +70,7 @@ class Image:
     """
 
     path: Path
-    media_type: ContentTypeDefinition
+    content_type: ContentTypeDefinition
     title: str
     wikimedia_commons_url: str
     name: str
@@ -86,7 +86,7 @@ class Client:
         *,
         download_directory: Path,
         http_client: ClientSession,
-        media_types: ContentTypeNegotiator,
+        media_types: MediaTypeNegotiator,
         ui: Ui,
     ):
         self._download_directory = download_directory

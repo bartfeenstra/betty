@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final, override
 
 import yaml
 
-from betty import media_types
+from betty import content_types
 from betty.assertions.portable import assert_portable_data
 from betty.localizables.gettext import _
 from betty.serialize import SerializationError, Serializer, SerializerDefinition
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 @final
-@SerializerDefinition("yaml", media_types.yaml, label="YAML")
+@SerializerDefinition("yaml", content_types.yaml, label="YAML")
 class Yaml(Serializer):
     """
     .. plugin:: serializer:yaml.

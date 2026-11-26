@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Self, final, override
 
 from jinja2 import pass_context
 
+from betty.content_types import png
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.factory import Manufacturable
@@ -18,7 +19,6 @@ from betty.hashid import hashid_file_meta
 from betty.image.resize_cover import resize_cover
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
-from betty.media_types import png
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -120,6 +120,6 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
                     await self._imager.open(file.path), size, focus=focus
                 )
                 await to_thread(cache_file.parent.mkdir, exist_ok=True, parents=True)
-                await self._imager.save(image, cache_file, media_type=png)
+                await self._imager.save(image, cache_file, content_type=png)
             copyfile(cache_file, destination)
         return f"betty-static:///file/{'/'.join(path_parts)}"

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Final
 
 import pytest
 
+from betty.content_types import plain_text
 from betty.document import Breadcrumbs, Citer, Document, EntityContexts
 from betty.entities.citation import Citation
 from betty.entities.source import Source
@@ -11,7 +12,6 @@ from betty.job import Context
 from betty.locale import default_locale
 from betty.localizables.static import StaticTranslations
 from betty.localizer import Localizer
-from betty.media_types import plain_text
 from betty.test_utils.entity import DummyEntityOne
 
 if TYPE_CHECKING:
@@ -148,7 +148,7 @@ class TestDocument:
         assert Document(None, resource_url).resource_url is resource_url
 
     def test_media_type(self) -> None:
-        assert Document(media_type=plain_text).media_type is plain_text
+        assert Document(content_type=plain_text).content_type is plain_text
 
     def test_context__from___init___(self) -> None:
         context = Context()

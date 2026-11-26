@@ -1,5 +1,5 @@
 """
-Media type attributes.
+Content type attributes.
 """
 
 from __future__ import annotations
@@ -19,33 +19,33 @@ if TYPE_CHECKING:
 
 
 # @todo Make an inventory of where and how we use this. Then refactor.
-def new_media_type_attr(
+def new_content_type_attr(
     *, label: AnyLocalizable | None = None, description: AnyLocalizable | None = None
 ) -> OptionableCommonAttr[Init, ContentTypeDefinition, ContentTypeDefinition]:
     """
-    Create an attribute containing a media type.
+    Create an attribute containing a content type.
     """
     return OwnerAttr(
         FieldDefinition(
-            DataDefinition(label=_("Media type")),
+            DataDefinition(label=_("Content type")),
             label=label,
             description=description,
         )
     )
 
 
-class HasMediaType(Init):
+class HasContentType(Init):
     """
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
     """
 
-    media_type = new_media_type_attr().optional
+    content_type = new_content_type_attr().optional
 
     def __init__(
         self,
         *args: Any,
-        media_type: ContentTypeDefinition | None = None,
+        content_type: ContentTypeDefinition | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self.media_type = media_type
+        self.content_type = content_type

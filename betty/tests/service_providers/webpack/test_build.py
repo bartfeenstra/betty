@@ -65,7 +65,7 @@ class TestBuilder:
             ),
             debug=debug,
             jinja=await isolated_project.jinja,
-            media_types=isolated_project.app.known_media_types,
+            media_types=isolated_project.app.known_content_types,
             root=root_path,
             ui=StaticUi(),
         )

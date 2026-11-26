@@ -42,7 +42,7 @@ class TestLink(EntityTestBase):
     def test_media_type(self) -> None:
         url = "https://example.com"
         sut = Link(url)
-        assert sut.media_type is None
+        assert sut.content_type is None
 
     def test_description(self) -> None:
         url = "https://example.com"

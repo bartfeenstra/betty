@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from betty.content_type import ContentTypeDefinition
+from betty.content_types import plain_text
 from betty.media_type import (
     InvalidMediaType,
     MediaType,
     MissingMediaType,
     UnsupportedMediaType,
 )
-from betty.media_types import plain_text
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
