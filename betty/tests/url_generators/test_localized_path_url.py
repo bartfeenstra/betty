@@ -63,49 +63,49 @@ class TestLocalizedPathUrlUrlGenerator:
                 (
                     "/some/path/index.html",
                     resource,
-                    media_type,
+                    content_type,
                     False,
                     None,
                     None,
                 )
                 for resource in _generate_resources
-                for media_type in [html, json]
+                for content_type in [html, json]
             ],
             *[
                 (
                     "https://example.com/some/path/index.html",
                     resource,
-                    media_type,
+                    content_type,
                     True,
                     None,
                     None,
                 )
                 for resource in _generate_resources
-                for media_type in [html, json]
+                for content_type in [html, json]
             ],
             *[
                 (
                     f"/{default_locale_tag}/some/path/index.html",
                     resource,
-                    media_type,
+                    content_type,
                     False,
                     None,
                     Locale("nl", "NL"),
                 )
                 for resource in _generate_resources
-                for media_type in [html, json]
+                for content_type in [html, json]
             ],
             *[
                 (
                     "/nl-NL/some/path/index.html",
                     resource,
-                    media_type,
+                    content_type,
                     False,
                     "nl-NL",
                     Locale("nl", "NL"),
                 )
                 for resource in _generate_resources
-                for media_type in [html, json]
+                for content_type in [html, json]
             ],
         ],
     )

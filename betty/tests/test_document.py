@@ -147,7 +147,7 @@ class TestDocument:
         resource_url = "betty:///"
         assert Document(None, resource_url).resource_url is resource_url
 
-    def test_media_type(self) -> None:
+    def test_content_type(self) -> None:
         assert Document(content_type=plain_text).content_type is plain_text
 
     def test_context__from___init___(self) -> None:

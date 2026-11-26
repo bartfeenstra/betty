@@ -52,12 +52,12 @@ class TestFile(EntityTestBase):
         sut.private = True
         assert sut.private is True
 
-    def test_media_type(self) -> None:
+    def test_content_type(self) -> None:
         sut = File(Path(__file__))
         assert sut.content_type is None
-        media_type = plain_text
-        sut.content_type = media_type
-        assert sut.content_type == media_type
+        content_type = plain_text
+        sut.content_type = content_type
+        assert sut.content_type == content_type
 
     def test_path__with_path(self) -> None:
         with NamedTemporaryFile() as f:

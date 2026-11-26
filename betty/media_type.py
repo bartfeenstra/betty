@@ -34,6 +34,7 @@ class InvalidMediaType(ValueError):
     """
 
 
+# @todo Move this to the content type API?
 class UnsupportedMediaType(RuntimeError):
     """
     Raised when a media type is not supported.
@@ -43,6 +44,7 @@ class UnsupportedMediaType(RuntimeError):
         super().__init__(f"Unsupported media type: {media_type}")
 
 
+# @todo Move this to the content type API?
 class MissingMediaType(RuntimeError):
     """
     Raised when a media type is not missing.

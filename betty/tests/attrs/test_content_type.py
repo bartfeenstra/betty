@@ -8,13 +8,13 @@ from betty.content_types import plain_text
 
 def test_new_content_type_attr__set() -> None:
     class _Owner(Init):
-        media_type = new_content_type_attr()
+        content_type = new_content_type_attr()
 
     owner = _Owner()
-    owner.media_type = ContentTypeDefinition(
+    owner.content_type = ContentTypeDefinition(
         "-", label="-", media_type=plain_text.media_type
     )
-    assert owner.media_type is plain_text
+    assert owner.content_type is plain_text
 
 
 class TestHasContentType:

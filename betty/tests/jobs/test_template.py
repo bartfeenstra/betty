@@ -58,7 +58,7 @@ class TestResourceTemplate:
 {{ document.resource.resource_value }}
 {{ document.resource_url.resource_value }}
 {{ document.localizer.locale }}
-{{ document.media_type.id }}
+{{ document.content_type.id }}
 """)
 
     async def test_do__monolingual(self, isolated_project: Project) -> None:
@@ -156,7 +156,7 @@ class TestCollectionResourceTemplate:
 {{ document.resource.resource_value }}
 {{ document.resource_url.resource_value }}
 {{ document.localizer.locale }}
-{{ document.media_type.id }}
+{{ document.content_type.id }}
 {% for item in document.resource_items %}
 - {{ item.resource_item_value }}
 {% endfor %}

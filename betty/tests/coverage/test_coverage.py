@@ -371,7 +371,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     "betty/media_type.py": {
         "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/media_types.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/collection/__init__.py": {
         "Addable": MissingReason.ABSTRACT,
         "Appendable": MissingReason.ABSTRACT,
@@ -395,6 +394,7 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
         "KeyResolvable": MissingReason.ABSTRACT,
         "ValueResolvable": MissingReason.ABSTRACT,
     },
+    "betty/content_types.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/copyright_notice.py": {
         "CopyrightNotice": MissingReason.STATIC_CONTENT_ONLY,
         "CopyrightNoticeDefinition": MissingReason.STATIC_CONTENT_ONLY,

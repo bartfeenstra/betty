@@ -11,7 +11,7 @@ class TestRenderDispatcher:
         assert await sut.render("<html>", html) == "<p>&lt;html&gt;</p>"
 
     async def test_render__with_renderers(self) -> None:
-        media_type = ContentTypeDefinition(
+        content_type = ContentTypeDefinition(
             "test", label="-", media_type="text/x.betty.test"
         )
 
@@ -21,4 +21,4 @@ class TestRenderDispatcher:
                 return "~!@#$%^&*()_+"
 
         sut = RenderDispatcher(_Renderer())
-        assert await sut.render("", media_type) == "~!@#$%^&*()_+"
+        assert await sut.render("", content_type) == "~!@#$%^&*()_+"

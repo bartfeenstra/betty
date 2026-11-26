@@ -331,7 +331,7 @@ class Gramps(_GrampsConfig, DataManufacturable[GrampsConfig], Manufacturable, Lo
        * - ``betty:link-LINKNAME:label``
          - optional
          - A human-friendly short link label. This may contain :ref:`static translations <gramps-attributes-static-translations>`.
-       * - ``betty:link-LINKNAME:media_type``
+       * - ``betty:link-LINKNAME:content_type``
          - optional
          - An `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
        * - ``betty:link-LINKNAME:relationship``

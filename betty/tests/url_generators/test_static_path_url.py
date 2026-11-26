@@ -65,7 +65,7 @@ class TestStaticPathUrlUrlGenerator:
                 (
                     "https://example.com/some/path/index.html?my_first_query=my+first+value#my-first-fragment",
                     resource,
-                    media_type,
+                    content_type,
                     True,
                     locale,
                     additional_project_locale,
@@ -73,7 +73,7 @@ class TestStaticPathUrlUrlGenerator:
                     {"my_first_query": "my first value"},
                 )
                 for resource in _generate_resources
-                for media_type in [html, json]
+                for content_type in [html, json]
                 for locale in [None, "nl-NL"]
                 for additional_project_locale in [None, Locale("nl", "NL")]
             ],
@@ -81,7 +81,7 @@ class TestStaticPathUrlUrlGenerator:
                 (
                     "/some/path/index.html?my_first_query=my+first+value#my-first-fragment",
                     resource,
-                    media_type,
+                    content_type,
                     False,
                     locale,
                     additional_project_locale,
@@ -89,7 +89,7 @@ class TestStaticPathUrlUrlGenerator:
                     {"my_first_query": "my first value"},
                 )
                 for resource in _generate_resources
-                for media_type in [html, json]
+                for content_type in [html, json]
                 for locale in [None, "nl-NL"]
                 for additional_project_locale in [None, Locale("nl", "NL")]
             ],
