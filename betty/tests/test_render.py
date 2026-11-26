@@ -1,6 +1,6 @@
 from typing import override
 
-from betty.media_type import MediaTypeDefinition
+from betty.content_type import ContentTypeDefinition
 from betty.media_types import html
 from betty.render import RenderDispatcher, Renderer
 
@@ -11,7 +11,7 @@ class TestRenderDispatcher:
         assert await sut.render("<html>", html) == "<p>&lt;html&gt;</p>"
 
     async def test_render__with_renderers(self) -> None:
-        media_type = MediaTypeDefinition(
+        media_type = ContentTypeDefinition(
             "test", label="-", media_type="text/x.betty.test"
         )
 

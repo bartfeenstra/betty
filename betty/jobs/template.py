@@ -21,9 +21,9 @@ if TYPE_CHECKING:
     import jinja2
     from jinja2 import Template
 
+    from betty.content_type import ContentTypeDefinition
     from betty.jinja import ResolvableTemplateNames, TemplateData
     from betty.job.scheduler import Scheduler
-    from betty.media_type import MediaTypeDefinition
     from betty.project import Project
 
 
@@ -109,7 +109,7 @@ class _ResourceTemplate[ResourceT](Job, metaclass=ABCMeta):
     @classmethod
     def _match_extension(
         cls, templates: TemplateNames, /, *, project: Project
-    ) -> tuple[MediaTypeDefinition, str]:
+    ) -> tuple[ContentTypeDefinition, str]:
         return project.app.known_media_types.extensions.require(templates[0][:-3])
 
 

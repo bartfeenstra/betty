@@ -11,9 +11,8 @@ from betty.factory import Manufacturable
 from betty.jinja.test import JinjaTest, JinjaTestDefinition
 
 if TYPE_CHECKING:
+    from betty.content_type import ContentTypeDefinition, ContentTypeNegotiator
     from betty.media_type import (
-        MediaTypeDefinition,
-        MediaTypeMatcher,
         ResolvableMediaType,
     )
 
@@ -27,7 +26,7 @@ class OpenableImage(JinjaTest, Manufacturable):
     .. plugin:: jinja-test:openable-image
     """
 
-    def __init__(self, openable: MediaTypeMatcher, /):
+    def __init__(self, openable: ContentTypeNegotiator, /):
         self._openable = openable
 
     @override
@@ -37,6 +36,6 @@ class OpenableImage(JinjaTest, Manufacturable):
         return cls((await app.imager).openable)
 
     def __call__(  # noqa: D102
-        self, media_type: ResolvableMediaType | MediaTypeDefinition | None, /
+        self, media_type: ResolvableMediaType | ContentTypeDefinition | None, /
     ) -> bool:
         return self._openable.request(media_type) is not None

@@ -130,9 +130,9 @@ if TYPE_CHECKING:
     from collections.abc import AsyncGenerator, Iterable, Sequence
     from pathlib import Path
 
+    from betty.content_type import ContentTypeDefinition
     from betty.jinja import Environment
     from betty.localizer import AnyLocalizable
-    from betty.media_type import MediaTypeDefinition
     from betty.pathlib import StrPath
     from betty.plugin import PluginDefinition as PluginDefinition
     from betty.services.plugin import SupportPlugins
@@ -880,7 +880,7 @@ class Project(
         resource_url: object = None,
         /,
         *,
-        media_type: MediaTypeDefinition | None = None,
+        media_type: ContentTypeDefinition | None = None,
         **document_vars: Any,
     ) -> Document:
         """

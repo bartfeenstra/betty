@@ -7,21 +7,21 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Final, final
 
+from betty.content_type import ContentTypeRepository
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import JoinOr, Quote
-from betty.media_type import MediaTypeRepository
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from betty.content_type import ContentTypeDefinition
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.media_type import MediaTypeDefinition
     from betty.pathlib import StrPath
     from betty.portable import PortableData
     from betty.requirement import Requires
@@ -70,7 +70,7 @@ class SerializerDefinition(
     def __init__(
         self,
         serializer_id: ResolvableMachineName,
-        *media_types: MediaTypeDefinition,
+        *media_types: ContentTypeDefinition,
         label: AnyLocalizable,
         auto: bool = True,
         description: AnyLocalizable | None = None,
@@ -83,7 +83,9 @@ class SerializerDefinition(
             description=description,
             requires=requires,
         )
-        self.media_types: Final[MediaTypeRepository] = MediaTypeRepository(*media_types)
+        self.media_types: Final[ContentTypeRepository] = ContentTypeRepository(
+            *media_types
+        )
 
 
 def serializer_for(

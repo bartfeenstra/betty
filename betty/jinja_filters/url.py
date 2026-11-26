@@ -20,8 +20,8 @@ if TYPE_CHECKING:
 
     from jinja2.runtime import Context
 
+    from betty.content_type import ContentTypeNegotiator
     from betty.locale import ResolvableLocale
-    from betty.media_type import MediaTypeMatcher
     from betty.url_generator import UrlGenerator
 
 
@@ -34,7 +34,9 @@ class Url(JinjaFilter, Manufacturable):
     .. plugin:: jinja-filter:url
     """
 
-    def __init__(self, *, media_types: MediaTypeMatcher, url_generator: UrlGenerator):
+    def __init__(
+        self, *, media_types: ContentTypeNegotiator, url_generator: UrlGenerator
+    ):
         self._media_types = media_types
         self._url_generator = url_generator
 

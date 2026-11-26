@@ -33,6 +33,7 @@ from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.attrs.privacy import HasPrivacy
 from betty.collections.mapping.dict import empty_frozen_dict
+from betty.content_type import ContentTypeDefinition, ContentTypeRepository
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import AnyDate, Date, DateRange
 from betty.definition.cls import ClsDefinition
@@ -89,7 +90,6 @@ from betty.localizables.gettext import _, pgettext
 from betty.localizables.markup import JoinOr, Quote
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
-from betty.media_type import MediaTypeDefinition, MediaTypeRepository
 from betty.media_types import (
     csv,
     gedcom,
@@ -291,18 +291,18 @@ default_role_mapping: Final[Mapping[str, ResolvableRoleManufacturer | None]] = {
 _default_gramps_executable: Final[str] = (
     "Gramps.exe" if sys.platform.startswith("win32") else "gramps"
 )
-_gramps_media_types_native: Final[Sequence[MediaTypeDefinition]] = (
+_gramps_media_types_native: Final[Sequence[ContentTypeDefinition]] = (
     gramps_xml,
     gramps_xml_package,
 )
-_gramps_media_types_vendor: Final[Sequence[MediaTypeDefinition]] = (
+_gramps_media_types_vendor: Final[Sequence[ContentTypeDefinition]] = (
     csv,
     gedcom,
     geneweb,
     pro_gen,
     vcard,
 )
-_gramps_media_types: Final[MediaTypeRepository] = MediaTypeRepository(
+_gramps_media_types: Final[ContentTypeRepository] = ContentTypeRepository(
     *_gramps_media_types_native, *_gramps_media_types_vendor
 )
 

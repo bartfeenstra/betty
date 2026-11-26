@@ -25,9 +25,9 @@ from betty.service_provider import ServiceProvider
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, MutableMapping, Sequence
 
+    from betty.content_type import ContentTypeDefinition
     from betty.jinja import Environment
     from betty.job import Context
-    from betty.media_type import MediaTypeDefinition
     from betty.pathlib import StrPath
     from betty.user.ui import Ui
 
@@ -120,7 +120,7 @@ class Builder:
         entry_point_providers: Sequence[EntryPointProvider],
         debug: bool,
         jinja: Environment,
-        media_types: Iterable[MediaTypeDefinition],
+        media_types: Iterable[ContentTypeDefinition],
         root: str,
         ui: Ui,
     ) -> None:

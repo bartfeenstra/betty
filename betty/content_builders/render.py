@@ -19,9 +19,9 @@ from betty.project import Project
 from betty.sample import Sample, Size
 
 if TYPE_CHECKING:
+    from betty.content_type import ContentTypeDefinition
     from betty.document import Document
     from betty.localizer import AnyLocalizable
-    from betty.media_type import MediaTypeDefinition
     from betty.render import RenderDispatcher
 
 
@@ -50,7 +50,7 @@ class RenderConfig(_RenderConfig, Object, AttrFreezable):
         self,
         /,
         content: AnyLocalizable,
-        media_type: MediaTypeDefinition = plain_text,
+        media_type: ContentTypeDefinition = plain_text,
     ):
         super().__init__()
         self.content = content
@@ -69,7 +69,7 @@ class Render(_RenderConfig, DataManufacturable[RenderConfig], ContentBuilder):
         *,
         content: AnyLocalizable,
         renderer: RenderDispatcher,
-        media_type: MediaTypeDefinition = plain_text,
+        media_type: ContentTypeDefinition = plain_text,
     ):
         self.content = content
         self.media_type = media_type

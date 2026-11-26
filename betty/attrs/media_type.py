@@ -14,14 +14,14 @@ from betty.localizables.gettext import _
 
 if TYPE_CHECKING:
     from betty.attrs.common import OptionableCommonAttr
+    from betty.content_type import ContentTypeDefinition
     from betty.localizer import AnyLocalizable
-    from betty.media_type import MediaTypeDefinition
 
 
 # @todo Make an inventory of where and how we use this. Then refactor.
 def new_media_type_attr(
     *, label: AnyLocalizable | None = None, description: AnyLocalizable | None = None
-) -> OptionableCommonAttr[Init, MediaTypeDefinition, MediaTypeDefinition]:
+) -> OptionableCommonAttr[Init, ContentTypeDefinition, ContentTypeDefinition]:
     """
     Create an attribute containing a media type.
     """
@@ -44,7 +44,7 @@ class HasMediaType(Init):
     def __init__(
         self,
         *args: Any,
-        media_type: MediaTypeDefinition | None = None,
+        media_type: ContentTypeDefinition | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)

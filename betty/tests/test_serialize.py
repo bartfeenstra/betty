@@ -2,7 +2,7 @@ from typing import override
 
 import pytest
 
-from betty.media_type import MediaTypeDefinition
+from betty.content_type import ContentTypeDefinition
 from betty.portable import PortableData
 from betty.serialize import (
     SerializationError,
@@ -23,7 +23,7 @@ class _Serializer(Serializer):
 
 
 @SerializerDefinition(
-    "one", MediaTypeDefinition("test-one", label="-", extension=".one"), label="One"
+    "one", ContentTypeDefinition("test-one", label="-", extension=".one"), label="One"
 )
 class SerializerOne(_Serializer):
     pass

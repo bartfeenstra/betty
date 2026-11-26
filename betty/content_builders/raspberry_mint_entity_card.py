@@ -18,11 +18,11 @@ from betty.project import Project
 from betty.service_providers._theme import associated_file_references
 
 if TYPE_CHECKING:
+    from betty.content_type import ContentTypeNegotiator
     from betty.document import Document
     from betty.entities.file_reference import FileReference
     from betty.entity import Entity
     from betty.jinja import Environment
-    from betty.media_type import MediaTypeMatcher
 
 
 @final
@@ -42,7 +42,7 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
         self,
         *,
         entity: ResolvableEntity,
-        image_types: MediaTypeMatcher,
+        image_types: ContentTypeNegotiator,
         jinja: Environment,
     ):
         super().__init__(jinja=jinja)

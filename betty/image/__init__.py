@@ -10,8 +10,8 @@ from typing import IO, TYPE_CHECKING, Final, final, overload
 
 from PIL import Image
 
+from betty.content_type import ContentTypeDefinition, ContentTypeRepository
 from betty.file import read, write
-from betty.media_type import MediaTypeDefinition, MediaTypeRepository
 from betty.media_types import avif, bmp, gif, jpeg, jpeg_xl, png, svg, webp
 
 if TYPE_CHECKING:
@@ -34,12 +34,12 @@ class Imager:
     The imager.
     """
 
-    def __init__(self, media_types: MediaTypeRepository, /):
-        self.publishable: Final[MediaTypeRepository] = MediaTypeRepository(
+    def __init__(self, media_types: ContentTypeRepository, /):
+        self.publishable: Final[ContentTypeRepository] = ContentTypeRepository(
             avif, bmp, gif, jpeg, jpeg_xl, png, svg, webp
         )
-        self._openable: MutableMapping[MediaTypeDefinition, str] = {}
-        self._savable: MutableMapping[MediaTypeDefinition, str] = {}
+        self._openable: MutableMapping[ContentTypeDefinition, str] = {}
+        self._savable: MutableMapping[ContentTypeDefinition, str] = {}
         Image.init()
         for media_type in media_types:
             for format_id, format_mime in Image.MIME.items():
@@ -54,18 +54,22 @@ class Imager:
                         self._openable[media_type] = format_id
                     if format_id in Image.SAVE:
                         self._savable[media_type] = format_id
-        self.openable: Final[MediaTypeRepository] = MediaTypeRepository(*self._openable)
-        self.savable: Final[MediaTypeRepository] = MediaTypeRepository(*self._savable)
+        self.openable: Final[ContentTypeRepository] = ContentTypeRepository(
+            *self._openable
+        )
+        self.savable: Final[ContentTypeRepository] = ContentTypeRepository(
+            *self._savable
+        )
 
     @overload
     async def open(
-        self, image: StrPath, /, *, media_type: MediaTypeDefinition | None = None
+        self, image: StrPath, /, *, media_type: ContentTypeDefinition | None = None
     ) -> Image.Image:
         pass
 
     @overload
     async def open(
-        self, image: IO[bytes], /, *, media_type: MediaTypeDefinition
+        self, image: IO[bytes], /, *, media_type: ContentTypeDefinition
     ) -> Image.Image:
         pass
 
@@ -85,7 +89,7 @@ class Imager:
         destination: Path,
         /,
         *,
-        media_type: MediaTypeDefinition,
+        media_type: ContentTypeDefinition,
     ) -> None:
         """
         Write an image.

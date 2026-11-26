@@ -4,13 +4,13 @@ from typing import Any, Final
 import pytest
 from babel import Locale
 
+from betty.content_type import ContentTypeDefinition
 from betty.locale import (
     ResolvableLocale,
     default_locale,
     default_locale_tag,
     to_language_tag,
 )
-from betty.media_type import MediaTypeDefinition
 from betty.media_types import html, json
 from betty.url_generators.path import PathUrlGenerator
 from betty.url_generators.static_path_url import StaticPathUrlUrlGenerator
@@ -99,7 +99,7 @@ class TestStaticPathUrlUrlGenerator:
         self,
         expected: str,
         resource: str,
-        media_type: MediaTypeDefinition,
+        media_type: ContentTypeDefinition,
         absolute: bool,
         locale: ResolvableLocale | None,
         additional_project_locale: Locale | None,

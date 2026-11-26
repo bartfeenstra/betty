@@ -36,13 +36,13 @@ from betty.plugin.factory import PluginManufacturer, PluginManufacturerDefinitio
 if TYPE_CHECKING:
     from babel import Locale
 
+    from betty.content_type import ContentTypeDefinition
     from betty.definition.id import ResolvableId
     from betty.entities.citation import Citation
     from betty.entity import Entity
     from betty.job import Context
     from betty.localizable import Localizable
     from betty.machine_name import MachineName, ResolvableMachineName
-    from betty.media_type import MediaTypeDefinition
     from betty.portable import PortableMapping
     from betty.project import Project
     from betty.requirement import Requires
@@ -67,11 +67,11 @@ class Document:
         entity_contexts: EntityContexts | None = None,
         context: Context | None = None,
         localizer: Localizer | None = None,
-        media_type: MediaTypeDefinition | None = None,
+        media_type: ContentTypeDefinition | None = None,
         title: Localizable | None = None,
         **document_vars: Any,
     ):
-        self.media_type: Final[MediaTypeDefinition | None] = media_type
+        self.media_type: Final[ContentTypeDefinition | None] = media_type
         """
         The media type.
         """
@@ -118,7 +118,7 @@ class Document:
     def copy(
         self,
         *,
-        media_type: MediaTypeDefinition | None = None,
+        media_type: ContentTypeDefinition | None = None,
         resource: object = None,
         resource_url: object = None,
         **document_vars: Any,

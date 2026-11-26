@@ -20,6 +20,7 @@ from betty.localizables.gettext import _, ngettext
 from betty.privacy import Privacy
 
 if TYPE_CHECKING:
+    from betty.content_type import ContentTypeDefinition
     from betty.copyright_notice import CopyrightNotice
     from betty.entities.citation import Citation
     from betty.entities.link import Link
@@ -27,7 +28,6 @@ if TYPE_CHECKING:
     from betty.license import License
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.media_type import MediaTypeDefinition
     from betty.pathlib import StrPath
 
 
@@ -76,7 +76,7 @@ class File(
         *,
         id: ResolvableMachineName | None = None,  # noqa: A002
         name: str | None = None,
-        media_type: MediaTypeDefinition | None = None,
+        media_type: ContentTypeDefinition | None = None,
         description: AnyLocalizable | None = None,
         notes: ToManyAssociates[Note] = (),
         citations: ToManyAssociates[Citation] = (),

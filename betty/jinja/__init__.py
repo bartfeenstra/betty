@@ -26,6 +26,7 @@ from jinja2.runtime import DebugUndefined, StrictUndefined
 from jinja2.utils import missing
 
 from betty import about
+from betty.content_type import ContentTypeDefinition, ContentTypeRepository
 from betty.date import Date
 from betty.file import CopyFunction, read, write
 from betty.html.attributes import Attributes
@@ -33,7 +34,6 @@ from betty.importlib import fully_qualified_name
 from betty.locale import default_locale
 from betty.localizables.markup import JoinAnd, JoinOr
 from betty.machine_name import MachineName
-from betty.media_type import MediaTypeDefinition, MediaTypeRepository
 from betty.pathlib import resolve_path
 from betty.store import StoreItem
 from betty.string import kebab_case_to_snake_case
@@ -192,13 +192,13 @@ def make_copy_function(
     *,
     document: Document,
     is_localized_and_multilingual: bool | None = None,
-    media_types: Iterable[MediaTypeDefinition],
+    media_types: Iterable[ContentTypeDefinition],
     www_directory: StrPath | None = None,
 ) -> CopyFunction:
     """
     Make a copy function for this renderer that renders supported files.
     """
-    media_types = MediaTypeRepository(*media_types)
+    media_types = ContentTypeRepository(*media_types)
     parents = set()
 
     async def _copy_function(source: StrPath, destination: StrPath, /) -> None:

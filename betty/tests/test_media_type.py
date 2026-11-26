@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from betty.content_type import ContentTypeDefinition
 from betty.media_type import (
     InvalidMediaType,
     MediaType,
-    MediaTypeDefinition,
     MissingMediaType,
     UnsupportedMediaType,
 )
@@ -267,17 +267,17 @@ class TestMissingMediaType:
         assert str(MissingMediaType())
 
 
-class TestMediaTypeDefinition:
+class TestContentTypeDefinition:
     def test_media_type(self) -> None:
         media_type = MediaType("text/plain")
         assert (
-            MediaTypeDefinition("-", label="-", media_type=media_type).media_type
+            ContentTypeDefinition("-", label="-", media_type=media_type).media_type
             is media_type
         )
 
     def test_extensions(self) -> None:
         extension = (".one", ".two", ".three")
-        sut = MediaTypeDefinition(
+        sut = ContentTypeDefinition(
             "-", label="-", media_type="text/plain", extension=extension
         )
         assert list(sut.extensions) == extension

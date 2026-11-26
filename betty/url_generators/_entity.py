@@ -7,13 +7,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.collections.mapping.dict import empty_frozen_dict
-from betty.media_type import MediaTypeDefinition, MissingMediaType
+from betty.media_type import MissingMediaType
 from betty.media_types import html
 from betty.url_generator import UrlGenerator
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from betty.content_type import ContentTypeDefinition
     from betty.locale import ResolvableLocale
     from betty.url_generators.path import PathUrlGenerator
 
@@ -33,7 +34,7 @@ class _EntityUrlGenerator[ResourceT](UrlGenerator[ResourceT]):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: MediaTypeDefinition | None = None,
+        media_type: ContentTypeDefinition | None = None,
         query: Mapping[str, Sequence[str]] = empty_frozen_dict,
     ) -> str:
         if media_type is None:

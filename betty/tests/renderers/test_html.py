@@ -2,8 +2,8 @@ from collections.abc import Mapping, Sequence
 from typing import Any, TypeGuard, override
 
 from betty.collections.mapping.dict import empty_frozen_dict
+from betty.content_type import ContentTypeDefinition
 from betty.locale import ResolvableLocale
-from betty.media_type import MediaTypeDefinition
 from betty.renderers.html import Html
 from betty.url_generator import UrlGenerator
 
@@ -22,7 +22,7 @@ class _TestHtmlUrlGenerator(UrlGenerator[str]):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: MediaTypeDefinition | None = None,
+        media_type: ContentTypeDefinition | None = None,
         query: Mapping[str, Sequence[str]] = empty_frozen_dict,
     ) -> str:
         return "GENERATED-URL-AHOY"

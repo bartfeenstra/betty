@@ -7,12 +7,12 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Final, final
 
+from betty.content_type import ContentTypeDefinition
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.html import plain_text_to_html
 from betty.localizables.gettext import _, ngettext
-from betty.media_type import MediaTypeDefinition
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
@@ -55,7 +55,7 @@ class RendererDefinition(
         /,
         *,
         label: AnyLocalizable,
-        media_types: MediaTypeDefinition | Iterable[MediaTypeDefinition],
+        media_types: ContentTypeDefinition | Iterable[ContentTypeDefinition],
         auto: bool = True,
         description: AnyLocalizable | None = None,
         requires: Requires = (),
@@ -67,9 +67,9 @@ class RendererDefinition(
             description=description,
             requires=requires,
         )
-        self.media_types: Final[Sequence[MediaTypeDefinition]] = (
+        self.media_types: Final[Sequence[ContentTypeDefinition]] = (
             (media_types,)
-            if isinstance(media_types, MediaTypeDefinition)
+            if isinstance(media_types, ContentTypeDefinition)
             else tuple(media_types)
         )
 
@@ -89,7 +89,7 @@ class RenderDispatcher:
             for media_type in renderer.definition.media_types
         }
 
-    async def render(self, content: str, media_type: MediaTypeDefinition, /) -> str:
+    async def render(self, content: str, media_type: ContentTypeDefinition, /) -> str:
         """
         Render the content.
         """
