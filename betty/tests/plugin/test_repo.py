@@ -38,7 +38,7 @@ class TestPluginRepository:
         m_entry_points.assert_called_once_with(group=f"betty.{entry_point_group}")
 
     async def test___aiter____without_plugins(self) -> None:
-        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, [])
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, discovery=())
         assert not [x async for x in aiter(sut)]
 
     async def test___aiter____with_discovered_plugins(self, entry_points: None) -> None:
@@ -46,11 +46,13 @@ class TestPluginRepository:
         assert DummyPluginOne.definition in [x async for x in aiter(sut)]
 
     async def test___aiter____with_overridden_plugins(self) -> None:
-        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, [DummyPluginOne])
+        sut = PluginRepository(
+            ServiceLevel(), DummyPluginDefinition, discovery=DummyPluginOne
+        )
         assert [x async for x in aiter(sut)] == [DummyPluginOne.definition]
 
     async def test_get__with_plugin_not_found(self) -> None:
-        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, [])
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, discovery=())
         with pytest.raises(PluginNotFound):
             await sut.get("unknown-plugin")
 
@@ -59,7 +61,9 @@ class TestPluginRepository:
         assert await sut.get(DummyPluginOne.definition.id) is DummyPluginOne.definition
 
     async def test_get__with_overridden_plugin(self) -> None:
-        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, [DummyPluginOne])
+        sut = PluginRepository(
+            ServiceLevel(), DummyPluginDefinition, discovery=DummyPluginOne
+        )
         assert await sut.get(DummyPluginOne.definition.id) is DummyPluginOne.definition
 
     async def test___getitem__(self, entry_points: None) -> None:
@@ -67,7 +71,7 @@ class TestPluginRepository:
         assert await sut[DummyPluginOne.definition.id] is DummyPluginOne.definition
 
     async def test_ids__without_plugins(self) -> None:
-        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, [])
+        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, discovery=())
         assert not list(await sut.ids())
 
     async def test_ids__with_discovered_plugins(self, entry_points: None) -> None:
@@ -75,7 +79,9 @@ class TestPluginRepository:
         assert DummyPluginOne.definition.id in list(await sut.ids())
 
     async def test_ids__with_overridden_plugins(self) -> None:
-        sut = PluginRepository(ServiceLevel(), DummyPluginDefinition, [DummyPluginOne])
+        sut = PluginRepository(
+            ServiceLevel(), DummyPluginDefinition, discovery=DummyPluginOne
+        )
         assert list(await sut.ids()) == [DummyPluginOne.definition.id]
 
     def test_type(self) -> None:

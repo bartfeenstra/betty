@@ -33,7 +33,7 @@ class TestColorStyle:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[ColorStyle]) as project,
+            new_isolated_project(support=[ColorStyle]) as project,
             project,
         ):
             sut = await ColorStyle.new(
@@ -49,7 +49,7 @@ class TestColorStyle:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[ColorStyle]) as project,
+            new_isolated_project(support=[ColorStyle]) as project,
             project,
         ):
             sut = await ColorStyle.new(

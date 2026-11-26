@@ -12,7 +12,7 @@ class TestMediaGallery:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[MediaGallery]) as project,
+            new_isolated_project(support=[MediaGallery]) as project,
             project,
         ):
             sut = await MediaGallery.new(project)
@@ -23,7 +23,7 @@ class TestMediaGallery:
     ) -> None:
         resource = Person()
         async with (
-            new_isolated_project(supported_plugins=[MediaGallery]) as project,
+            new_isolated_project(support=[MediaGallery]) as project,
             project,
         ):
             sut = await MediaGallery.new(project)
@@ -36,7 +36,7 @@ class TestMediaGallery:
         file = File(__file__)
         FileReference(resource, file)
         async with (
-            new_isolated_project(supported_plugins=[MediaGallery]) as project,
+            new_isolated_project(support=[MediaGallery]) as project,
             project,
         ):
             sut = await MediaGallery.new(project)

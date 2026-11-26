@@ -51,7 +51,7 @@ class _PluginServiceRequirementTestPluginServiceManager(
 class _PluginServiceRequirementTestServices(ServiceLevel, HasPluginServices):
     def __init__(self, *my_first_plugins: ResolvableDefinition[DummyPluginDefinition]):
         super().__init__(
-            plugins={
+            plugin_discoveries={
                 DummyPluginDefinition: (
                     DummyPluginOne,
                     DummyPluginTwo,

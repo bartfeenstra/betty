@@ -107,7 +107,6 @@ betty = 'betty.consoles.app:main'
 
 [project.entry-points.'betty.asset_directory']
 'implicit' = 'betty.asset_directories'
-'project' = 'betty.project._plugin_discovery:_discover_asset_directories'
 
 [project.entry-points.'betty.command']
 'implicit' = 'betty.commands'
@@ -117,7 +116,6 @@ betty = 'betty.consoles.app:main'
 
 [project.entry-points.'betty.copyright_notice']
 'implicit' = 'betty.copyright_notices'
-'project' = 'betty.project._plugin_discovery:_discover_copyright_notices'
 
 [project.entry-points.'betty.css_resource']
 'implicit' = 'betty.css_resources'
@@ -133,11 +131,9 @@ betty = 'betty.consoles.app:main'
 
 [project.entry-points.'betty.event_type']
 'implicit' = 'betty.event_types'
-'project' = 'betty.project._plugin_discovery:_discover_event_types'
 
 [project.entry-points.'betty.gender']
 'implicit' = 'betty.genders'
-'project' = 'betty.project._plugin_discovery:_discover_genders'
 
 [project.entry-points.'betty.http_rate_limit']
 'implicit' = 'betty.http_rate_limits'
@@ -153,7 +149,6 @@ betty = 'betty.consoles.app:main'
 
 [project.entry-points.'betty.license']
 'implicit' = 'betty.licenses'
-'project' = 'betty.project._plugin_discovery:_discover_licenses'
 'spdx' = 'betty.licenses.spdx:SpdxLicenseDiscoverer.discover_for'
 
 [project.entry-points.'betty.link']
@@ -167,14 +162,12 @@ betty = 'betty.consoles.app:main'
 
 [project.entry-points.'betty.place_type']
 'implicit' = 'betty.place_types'
-'project' = 'betty.project._plugin_discovery:_discover_place_types'
 
 [project.entry-points.'betty.renderer']
 'implicit' = 'betty.renderers'
 
 [project.entry-points.'betty.role']
 'implicit' = 'betty.roles'
-'project' = 'betty.project._plugin_discovery:_discover_roles'
 
 [project.entry-points.'betty.serializer']
 'implicit' = 'betty.serializers'

@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
 
-type SupportedPlugins = Iterable[ResolvableDefinition[PluginDefinition]]
+type SupportPlugins = Iterable[ResolvableDefinition[PluginDefinition]]
 
 
 class _PluginServiceRequirementPlugins[
@@ -204,13 +204,13 @@ class HasPluginServices(FrozenOnBootstrap, HasProps, ManagedLifeCycle):
     def __init__(
         self: Intersection[Self, ResolvableServiceLevel],
         *args: Any,
-        supported_plugins: SupportedPlugins = (),
+        support_plugins: SupportPlugins = (),
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
         self._services = resolve_service_level(self)
-        self._supported_plugins: Sequence[PluginDefinition] = tuple(
-            map(resolve_definition, supported_plugins)
+        self._support_plugins: Sequence[PluginDefinition] = tuple(
+            map(resolve_definition, support_plugins)
         )
         self.life_cycle.on_bootstrap(self.__initialize)
 
@@ -231,7 +231,7 @@ class HasPluginServices(FrozenOnBootstrap, HasProps, ManagedLifeCycle):
                     self.__collect_plugin_requirements(
                         type(supported_plugin), supported_plugin.id
                     )
-                    for supported_plugin in self._supported_plugins
+                    for supported_plugin in self._support_plugins
                 ),
             ])
         )

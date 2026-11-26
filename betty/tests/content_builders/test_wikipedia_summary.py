@@ -13,7 +13,7 @@ class TestWikipediaSummary:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[WikipediaSummary]) as project,
+            new_isolated_project(support=[WikipediaSummary]) as project,
             project,
         ):
             sut = await WikipediaSummary.new(project)
@@ -30,7 +30,7 @@ class TestWikipediaSummary:
         )
         resource = DummyHasLinks(links=[Link(url)])
         async with (
-            new_isolated_project(supported_plugins=[WikipediaSummary]) as project,
+            new_isolated_project(support=[WikipediaSummary]) as project,
             project,
         ):
             project.ancestry.add(resource)

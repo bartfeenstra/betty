@@ -4,10 +4,9 @@ Discover definitions within (sub)modules.
 
 from __future__ import annotations
 
-import pathlib
 from abc import ABCMeta, abstractmethod
-from importlib import import_module
-from inspect import getfile, getmembers, stack
+from inspect import getmembers
+from pathlib import Path
 from pkgutil import iter_modules, resolve_name
 from typing import TYPE_CHECKING, Any, TypeGuard, final, override
 
@@ -19,21 +18,17 @@ if TYPE_CHECKING:
     from betty.service_level import ServiceLevel
 
 
-class _ModuleDiscovery[DefinitionT: Definition]:
+class _ModuleDiscoverer[DefinitionT: Definition]:
     @final
-    def __init__(self, type_: type[DefinitionT], module: str | None = None, /):
+    def __init__(self, type_: type[DefinitionT], module: str, /):
         self._type = type_
-        if module:
-            self._module_name = module
-            self._module = resolve_name(module)
-        else:
-            self._module_name = stack()[1].frame.f_globals["__name__"]
-            self._module = import_module(self._module_name)
-        self._module_path = pathlib.Path(getfile(self._module)).parent
+        self._module_name = module
+        self._module = resolve_name(module)
+        self._module_path = Path(self._module.__file__).parent
 
 
-class _ModuleMemberDiscovery[DefinitionT: Definition, MemberT](
-    _ModuleDiscovery[DefinitionT], metaclass=ABCMeta
+class _MemberDiscoverer[DefinitionT: Definition, MemberT](
+    _ModuleDiscoverer[DefinitionT], metaclass=ABCMeta
 ):
     @final
     def __call__(self, _services: ServiceLevel, /) -> Iterator[DefinitionT]:
@@ -54,11 +49,11 @@ class _ModuleMemberDiscovery[DefinitionT: Definition, MemberT](
 
 
 @final
-class ModuleDefinitionDiscovery[DefinitionT: Definition](
-    _ModuleMemberDiscovery[DefinitionT, DefinitionT]
+class DefinitionDiscoverer[DefinitionT: Definition](
+    _MemberDiscoverer[DefinitionT, DefinitionT]
 ):
     """
-    Discover definitions within a module.
+    Discover :py:class:`betty.definition.Definition` instances  within a module.
     """
 
     @override
@@ -71,11 +66,11 @@ class ModuleDefinitionDiscovery[DefinitionT: Definition](
 
 
 @final
-class ModuleClsDiscovery[DefinitionT: Definition](
-    _ModuleMemberDiscovery[DefinitionT, HasDefinition[DefinitionT]]
+class HasDefinitionDiscoverer[DefinitionT: Definition](
+    _MemberDiscoverer[DefinitionT, HasDefinition[DefinitionT]]
 ):
     """
-    Discover classes within a module.
+    Discover :py:class:`betty.definition.HasDefinition` instances  within a module.
     """
 
     @override
@@ -98,9 +93,11 @@ class ModuleClsDiscovery[DefinitionT: Definition](
 
 
 @final
-class SubmoduleClsDiscovery[DefinitionT: Definition](_ModuleDiscovery[DefinitionT]):
+class SubmoduleHasDefinitionDiscoverer[DefinitionT: Definition](
+    _ModuleDiscoverer[DefinitionT]
+):
     """
-    Discover definitions on classes within a module's submodules.
+    Discover :py:class:`betty.definition.Definition` instances  within a module's submodules.
     """
 
     def __call__(self, _services: ServiceLevel, /) -> Iterator[DefinitionT]:
@@ -110,6 +107,6 @@ class SubmoduleClsDiscovery[DefinitionT: Definition](_ModuleDiscovery[Definition
         for submodule in iter_modules([self._module_path]):
             if submodule.name.startswith("_"):
                 continue
-            yield from ModuleClsDiscovery(
+            yield from HasDefinitionDiscoverer(
                 self._type, self._module_name + "." + submodule.name
             )(_services)

@@ -63,6 +63,4 @@ def resolve_definition[DefinitionT: Definition](
     """
     if isinstance(definition, Definition):
         return definition
-    if isinstance(definition, type) and issubclass(definition, HasDefinition):
-        return definition.definition
-    raise ValueError(f"{definition!r} cannot be resolved to its plugin definition.")
+    return definition.definition

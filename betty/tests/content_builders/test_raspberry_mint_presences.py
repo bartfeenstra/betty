@@ -46,7 +46,7 @@ class TestPresences:
         self, resource: object, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Presences]) as project,
+            new_isolated_project(support=[Presences]) as project,
             project,
         ):
             sut = Presences(jinja=await project.jinja)
@@ -59,7 +59,7 @@ class TestPresences:
         resource = Event()
         Presence(person, Subject(), resource)
         async with (
-            new_isolated_project(supported_plugins=[Presences]) as project,
+            new_isolated_project(support=[Presences]) as project,
             project,
         ):
             sut = Presences(jinja=await project.jinja)
@@ -76,7 +76,7 @@ class TestPresences:
         Presence(person_include, Subject(), resource)
         Presence(person_exclude, Witness(), resource)
         async with (
-            new_isolated_project(supported_plugins=[Presences]) as project,
+            new_isolated_project(support=[Presences]) as project,
             project,
         ):
             sut = Presences(include=[Subject], jinja=await project.jinja)
@@ -94,7 +94,7 @@ class TestPresences:
         Presence(person_include, Subject(), resource)
         Presence(person_exclude, Witness(), resource)
         async with (
-            new_isolated_project(supported_plugins=[Presences]) as project,
+            new_isolated_project(support=[Presences]) as project,
             project,
         ):
             sut = await Presences.new(project, PresencesConfig(exclude=[Witness]))

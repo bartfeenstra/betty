@@ -12,7 +12,7 @@ class TestMedia:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Media]) as project,
+            new_isolated_project(support=[Media]) as project,
             project,
         ):
             sut = await Media.new(project)
@@ -26,7 +26,7 @@ class TestMedia:
             media_type=MediaType("image/png"),
         )
         async with (
-            new_isolated_project(supported_plugins=[Media]) as project,
+            new_isolated_project(support=[Media]) as project,
             project,
         ):
             sut = await Media.new(project)

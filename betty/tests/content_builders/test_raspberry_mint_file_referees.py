@@ -25,7 +25,7 @@ class TestFileReferees:
         self, resource: object, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[FileReferees]) as project,
+            new_isolated_project(support=[FileReferees]) as project,
             project,
         ):
             sut = await FileReferees.new(project)
@@ -38,7 +38,7 @@ class TestFileReferees:
         resource = File(__file__)
         FileReference(referee, resource)
         async with (
-            new_isolated_project(supported_plugins=[FileReferees]) as project,
+            new_isolated_project(support=[FileReferees]) as project,
             project,
         ):
             sut = await FileReferees.new(project)

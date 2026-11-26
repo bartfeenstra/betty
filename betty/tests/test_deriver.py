@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator, Callable, Iterable
+from collections.abc import AsyncGenerator, Callable
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from typing import TYPE_CHECKING, final, override
 
@@ -21,12 +21,11 @@ from betty.test_utils.locale.localizable import dummy_countable_localizable
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
-    from betty.discover import ResolvableDiscoverer
+    from betty.definition.discover import Discovery
     from betty.test_utils.conftest import NewIsolatedProject
 
 type NewProject = Callable[
-    [Iterable[ResolvableDiscoverer[EventTypeDefinition]]],
-    AbstractAsyncContextManager[Project],
+    [Discovery[EventTypeDefinition]], AbstractAsyncContextManager[Project]
 ]
 
 
@@ -197,10 +196,10 @@ class TestDeriver:
     def new_project(self, new_isolated_project: NewIsolatedProject) -> NewProject:
         @asynccontextmanager
         async def _new_project(
-            event_types: Iterable[ResolvableDiscoverer[EventTypeDefinition]],
+            event_types: Discovery[EventTypeDefinition],
         ) -> AsyncGenerator[Project]:
             async with new_isolated_project(
-                plugins={EventTypeDefinition: event_types}
+                plugins={EventTypeDefinition: event_types}  # ty: ignore[invalid-argument-type]
             ) as project:
                 yield project
 
@@ -209,7 +208,7 @@ class TestDeriver:
     @pytest.fixture
     async def project(self, new_project: NewProject) -> AsyncIterator[Project]:
         async with (
-            new_project({
+            new_project([
                 Isolated,
                 ComesBeforeReference,
                 ComesBefore,
@@ -222,7 +221,7 @@ class TestDeriver:
                 ComesBeforeAndAfter,
                 ComesBeforeAndAfterShouldExist,
                 ComesBeforeAndAfterShouldNotExist,
-            }) as project,
+            ]) as project,
             project,
         ):
             yield project
@@ -462,10 +461,10 @@ class TestDeriver:
         new_project: NewProject,
     ) -> None:
         async with (
-            new_project({
+            new_project([
                 ComesBefore,
                 ComesBeforeReference,
-            }) as project,
+            ]) as project,
             project,
         ):
             person = Person(id="my-first-person")
@@ -539,10 +538,10 @@ class TestDeriver:
         new_project: NewProject,
     ) -> None:
         async with (
-            new_project({
+            new_project([
                 ComesBeforeShouldExist,
                 ComesBeforeReference,
-            }) as project,
+            ]) as project,
             project,
         ):
             person = Person(id="my-first-person")
@@ -778,10 +777,10 @@ class TestDeriver:
         new_project: NewProject,
     ) -> None:
         async with (
-            new_project({
+            new_project([
                 ComesAfter,
                 ComesAfterReference,
-            }) as project,
+            ]) as project,
             project,
         ):
             person = Person(id="my-first-person")
@@ -844,10 +843,10 @@ class TestDeriver:
         new_project: NewProject,
     ) -> None:
         async with (
-            new_project({
+            new_project([
                 ComesAfterShouldExist,
                 ComesAfterReference,
-            }) as project,
+            ]) as project,
             project,
         ):
             person = Person(id="my-first-person")
@@ -905,13 +904,13 @@ class TestDeriver:
         self, after_date: AnyDate | None, new_project: NewProject
     ) -> None:
         async with (
-            new_project({
+            new_project([
                 ComesBeforeReference,
                 ComesBeforeShouldNotExist,
                 ComesAfterReference,
                 ComesAfterShouldNotExist,
                 ComesBeforeAndAfterShouldNotExist,
-            }) as project,
+            ]) as project,
             project,
         ):
             person = Person(id="my-first-person")

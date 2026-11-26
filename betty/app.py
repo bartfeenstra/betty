@@ -57,8 +57,8 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.pathlib import StrPath
-    from betty.service_level import Plugins
-    from betty.services.plugin import SupportedPlugins
+    from betty.service_level import PluginDiscoveries
+    from betty.services.plugin import SupportPlugins
     from betty.services.simple.synchronous import TypedSynchronousServiceOrFactory
     from betty.store import TransientStore
 
@@ -86,8 +86,8 @@ class App(RequirableServiceLevel, HasAssets):
         binary_file_cache: TypedSynchronousServiceOrFactory[
             App, TransientBinaryFileStore
         ],
-        plugins: Plugins = empty_frozen_dict,
-        supported_plugins: SupportedPlugins = (),
+        plugins: PluginDiscoveries = empty_frozen_dict,
+        support: SupportPlugins = (),
         ui: Ui | Callable[[App], ResolvableAwaitable[Ui]] | None = None,
     ):
         cls = type(self)
@@ -97,7 +97,7 @@ class App(RequirableServiceLevel, HasAssets):
             if isinstance(binary_file_cache, TransientBinaryFileStore)
             else binary_file_cache,
         )
-        super().__init__(plugins=plugins, supported_plugins=supported_plugins)
+        super().__init__(plugin_discoveries=plugins, support_plugins=support)
         self._ui: Ui
         if ui is None:
             self.life_cycle.on_bootstrap(self._set_default_ui)
@@ -155,7 +155,7 @@ class App(RequirableServiceLevel, HasAssets):
         cls,
         *,
         binary_file_cache_directory: StrPath | None = None,
-        plugins: Plugins = empty_frozen_dict,
+        plugins: PluginDiscoveries = empty_frozen_dict,
         ui: Ui | None = None,
     ) -> AsyncGenerator[Self]:
         """

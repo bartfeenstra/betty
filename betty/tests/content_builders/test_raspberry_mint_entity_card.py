@@ -10,7 +10,7 @@ class TestEntityCard:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[EntityCard]) as project,
+            new_isolated_project(support=[EntityCard]) as project,
             project,
         ):
             entity = Person(id="my-first-entity")

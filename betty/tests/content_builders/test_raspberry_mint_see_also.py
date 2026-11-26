@@ -10,7 +10,7 @@ class TestSeeAlso:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[SeeAlso]) as project,
+            new_isolated_project(support=[SeeAlso]) as project,
             project,
         ):
             sut = await SeeAlso.new(project)
@@ -22,7 +22,7 @@ class TestSeeAlso:
     ) -> None:
         resource = Person()
         async with (
-            new_isolated_project(supported_plugins=[SeeAlso]) as project,
+            new_isolated_project(support=[SeeAlso]) as project,
             project,
         ):
             sut = await SeeAlso.new(project)
@@ -34,7 +34,7 @@ class TestSeeAlso:
         url = "betty:///my-first-page"
         resource = Person(links=[Link(url)])
         async with (
-            new_isolated_project(supported_plugins=[SeeAlso]) as project,
+            new_isolated_project(support=[SeeAlso]) as project,
             project,
         ):
             sut = await SeeAlso.new(project)

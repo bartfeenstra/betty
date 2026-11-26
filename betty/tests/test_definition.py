@@ -1,48 +1,18 @@
 from __future__ import annotations
 
-from typing import Any
-
-import pytest
-
 from betty.definition import (
     Definition,
     DefinitionClassVar,
     HasDefinition,
-    ResolvableDefinition,
     resolve_definition,
 )
 from betty.test_utils.plugin import DummyPluginOne
 
 
-@pytest.mark.parametrize(
-    "plugin_definition",
-    [
-        DummyPluginOne.definition,
-        DummyPluginOne,
-    ],
-)
-def test_resolve_definition__with_valid_plugin_definition(
-    plugin_definition: ResolvableDefinition,
-) -> None:
+def test_resolve_definition() -> None:
 
-    assert resolve_definition(plugin_definition) is DummyPluginOne.definition
-
-
-@pytest.mark.parametrize(
-    "plugin_definition",
-    [
-        "",
-        object(),
-        None,
-    ],
-)
-def test_resolve_definition__with_invalid_plugin_definition(
-    plugin_definition: Any,
-) -> None:
-    with pytest.raises(
-        ValueError,  # noqa: PT011
-    ):
-        resolve_definition(plugin_definition)
+    assert resolve_definition(DummyPluginOne.definition) is DummyPluginOne.definition
+    assert resolve_definition(DummyPluginOne) is DummyPluginOne.definition
 
 
 class TestDefinitionClassVar:

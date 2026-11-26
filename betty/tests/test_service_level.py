@@ -18,15 +18,15 @@ class TestServiceLevel:
             sut.plugins[DummyPluginDefinition]
 
     async def test_plugins__with_plugin_definition_cls(self) -> None:
-        sut = ServiceLevel(plugins={DummyPluginDefinition: [DummyPluginOne]})
+        sut = ServiceLevel(plugin_discoveries={DummyPluginDefinition: [DummyPluginOne]})
         assert list(await sut.plugins[DummyPluginDefinition].ids())
 
     async def test_plugins__with_machine_name(self) -> None:
-        sut = ServiceLevel(plugins={DummyPluginDefinition: [DummyPluginOne]})
+        sut = ServiceLevel(plugin_discoveries={DummyPluginDefinition: [DummyPluginOne]})
         assert list(await sut.plugins[DummyPluginDefinition.definition.id].ids())
 
     async def test_plugins__with_str(self) -> None:
-        sut = ServiceLevel(plugins={DummyPluginDefinition: [DummyPluginOne]})
+        sut = ServiceLevel(plugin_discoveries={DummyPluginDefinition: [DummyPluginOne]})
         assert list(await sut.plugins[str(DummyPluginDefinition.definition.id)].ids())
 
     async def test_factory(self) -> None:

@@ -81,7 +81,7 @@ class TestCollectionPluginServiceManager(PluginServiceManagerTestBase):
         )
         owner = _CollectionPluginServiceManagerTestOwner(
             services=ServiceLevel(
-                plugins={
+                plugin_discoveries={
                     _DummyOrderedPluginDefinition: (
                         after_center_2,
                         after_center,

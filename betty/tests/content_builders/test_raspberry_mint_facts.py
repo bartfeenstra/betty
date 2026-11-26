@@ -24,7 +24,7 @@ class TestFacts:
         self, resource: object, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Facts]) as project,
+            new_isolated_project(support=[Facts]) as project,
             project,
         ):
             sut = await Facts.new(project)
@@ -36,7 +36,7 @@ class TestFacts:
         resource = Citation(source=Source())
         fact = DummyHasCitations(citations=[resource])
         async with (
-            new_isolated_project(supported_plugins=[Facts]) as project,
+            new_isolated_project(support=[Facts]) as project,
             project,
         ):
             sut = await Facts.new(project)
@@ -51,7 +51,7 @@ class TestFacts:
         citation = Citation(source=resource)
         fact = DummyHasCitations(citations=[citation])
         async with (
-            new_isolated_project(supported_plugins=[Facts]) as project,
+            new_isolated_project(support=[Facts]) as project,
             project,
         ):
             sut = await Facts.new(project)

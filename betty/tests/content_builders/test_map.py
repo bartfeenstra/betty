@@ -20,7 +20,7 @@ class TestMap:
         self, new_isolated_project: NewIsolatedProject
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Map]) as project,
+            new_isolated_project(support=[Map]) as project,
             project,
         ):
             sut = await Map.new(project)
@@ -40,7 +40,7 @@ class TestMap:
         new_isolated_project: NewIsolatedProject,
     ) -> None:
         async with (
-            new_isolated_project(supported_plugins=[Map]) as project,
+            new_isolated_project(support=[Map]) as project,
             project,
         ):
             project.ancestry.add(has_associated_places)
@@ -77,7 +77,7 @@ class TestMap:
     ) -> None:
         has_associated_places, place = has_map_entities
         async with (
-            new_isolated_project(supported_plugins=[Map]) as project,
+            new_isolated_project(support=[Map]) as project,
             project,
         ):
             project.ancestry.add(has_associated_places)
