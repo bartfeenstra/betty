@@ -26,7 +26,7 @@ async def new(
     await dump_file(
         configuration.definition.porter.dump(configuration),
         configuration_file,
-        serializers=await gather(*app.serializers),
+        *await gather(*app.serializers),
     )
     await app.ui.message(
         _("Saved your project to {configuration_file}.").format(

@@ -833,7 +833,7 @@ class GrampsLoader:
         if mime and not content_type:
             await self._ui.message(
                 _(
-                    "The Gramps {gramps_entity_reference} entity has a MIME type of {attribute_value}, which is not a known IANA media type. This media type was ignored.",
+                    "The Gramps {gramps_entity_reference} entity has a MIME type of {attribute_value}, which is not a known content type. This MIME type was ignored.",
                 ).format(
                     gramps_entity_reference=str(
                         GrampsEntityReference(GrampsEntityType.OBJECT, file_id)

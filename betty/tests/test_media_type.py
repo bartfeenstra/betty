@@ -4,13 +4,10 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from betty.content_type import ContentTypeDefinition
 from betty.content_types import plain_text
 from betty.media_type import (
     InvalidMediaType,
     MediaType,
-    MissingMediaType,
-    UnsupportedMediaType,
 )
 
 if TYPE_CHECKING:
@@ -254,30 +251,3 @@ class TestMediaType:
             )
             == "application/vnd.oasis.opendocument.text"
         )
-
-
-class TestUnsupportedMediaType:
-    def test_new(self) -> None:
-        sut = UnsupportedMediaType(plain_text.media_type)
-        assert str(plain_text.media_type) in str(sut)
-
-
-class TestMissingMediaType:
-    def test_new(self) -> None:
-        assert str(MissingMediaType())
-
-
-class TestContentTypeDefinition:
-    def test_media_type(self) -> None:
-        media_type = MediaType("text/plain")
-        assert (
-            ContentTypeDefinition("-", label="-", media_type=media_type).media_type
-            is media_type
-        )
-
-    def test_extensions(self) -> None:
-        extension = (".one", ".two", ".three")
-        sut = ContentTypeDefinition(
-            "-", label="-", media_type="text/plain", extension=extension
-        )
-        assert list(sut.extensions) == extension

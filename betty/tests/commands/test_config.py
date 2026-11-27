@@ -20,6 +20,6 @@ class TestConfig:
         locale = "nl"
         await run(Config(isolated_app), "config", "--locale", locale)
         configuration = AppConfig.definition.porter.load(
-            assert_load_file(serializers=[Json()])(configuration_file)
+            assert_load_file(Json())(configuration_file)
         )
         assert configuration.locale == Locale(locale)

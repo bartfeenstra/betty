@@ -1,5 +1,5 @@
 """
-Media type plugins.
+Reusable content types.
 """
 
 from __future__ import annotations

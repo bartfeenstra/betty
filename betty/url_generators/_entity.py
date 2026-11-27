@@ -7,8 +7,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final, override
 
 from betty.collections.mapping.dict import empty_frozen_dict
+from betty.content_type import MissingContentType
 from betty.content_types import html
-from betty.media_type import MissingMediaType
 from betty.url_generator import UrlGenerator
 
 if TYPE_CHECKING:
@@ -38,7 +38,7 @@ class _EntityUrlGenerator[ResourceT](UrlGenerator[ResourceT]):
         query: Mapping[str, Sequence[str]] = empty_frozen_dict,
     ) -> str:
         if content_type is None:
-            raise MissingMediaType()
+            raise MissingContentType()
         if content_type is html:
             if not locale:
                 locale = self._path_url_generator.default_locale

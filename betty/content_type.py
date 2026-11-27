@@ -6,12 +6,12 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from collections.abc import Iterable, Iterator, Sequence
-from typing import TYPE_CHECKING, Final, Self, final, override
+from typing import TYPE_CHECKING, Any, Final, Self, final, override
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.definition.ordered import Order, OrderedDefinition
 from betty.localizables.gettext import _, ngettext
-from betty.media_type import MediaType, ResolvableMediaType, UnsupportedMediaType
+from betty.media_type import MediaType, ResolvableMediaType
 from betty.pathlib import Extension, ResolvableExtension, StrPath
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.typing import RuntimeCheckableSequence, is_runtime_checkable_sequence
@@ -19,6 +19,7 @@ from betty.typing import RuntimeCheckableSequence, is_runtime_checkable_sequence
 if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
+
 
 type ContentTypeDefinitionExtension = (
     ResolvableExtension | RuntimeCheckableSequence[ResolvableExtension]
@@ -28,23 +29,67 @@ type ContentTypeDefinitionMediaType = (
 )
 
 
+@final
+class UnsupportedContentType(RuntimeError):
+    """
+    Raised when a content type is not supported.
+    """
+
+    def __init__(self, media_type: Any, /):
+        super().__init__(f"Unsupported content type: {media_type}")
+
+
+@final
+class MissingContentType(RuntimeError):
+    """
+    Raised when a content type is missing.
+    """
+
+    def __init__(self):
+        super().__init__("Missing content type")
+
+
+@final
+class MissingMediaType(RuntimeError):
+    """
+    Raised when a content type's media type is missing.
+    """
+
+    def __init__(self, content_type: ContentTypeDefinition, /):
+        super().__init__(
+            f'Content type "{content_type.id}" does not have any associated media types.'
+        )
+
+
+@final
+class MissingExtension(RuntimeError):
+    """
+    Raised when a content type's extension is missing.
+    """
+
+    def __init__(self, content_type: ContentTypeDefinition, /):
+        super().__init__(
+            f'Content type "{content_type.id}" does not have any associated file extensions.'
+        )
+
+
 class _ContentTypeNegotiator[MatchableT, MatchT](metaclass=ABCMeta):
     __slots__ = ()
 
     @abstractmethod
     def request(self, other: MatchableT | None, /) -> MatchT | None:
         """
-        Request a match by a media type indicator.
+        Request a match by a content type indicator.
         """
 
     @final
     def require(self, other: MatchableT | None, /) -> MatchT:
         """
-        Require a match by a media type indicator.
+        Require a match by a content type indicator.
         """
         if match := self.request(other):
             return match
-        raise UnsupportedMediaType(other)
+        raise UnsupportedContentType(other)
 
 
 class MediaTypeNegotiator(
@@ -161,7 +206,7 @@ class ContentTypeDefinition(
             else (extension,)
         )
         assert media_types or extensions, (
-            "A media type definition must have at least one media type or extension."
+            "A content type must have at least one media type or extension."
         )
         self.media_types: Final[Sequence[MediaType]] = media_types
         """
@@ -179,16 +224,20 @@ class ContentTypeDefinition(
         """
         The preferred media type, if any.
         """
-        # @todo Raise a custom exception?
-        return next(iter(self.media_types))
+        try:
+            return next(iter(self.media_types))
+        except StopIteration:
+            raise MissingMediaType(self) from None
 
     @property
     def extension(self) -> Extension:
         """
         The preferred file extension, if any.
         """
-        # @todo Raise a custom exception?
-        return next(iter(self.extensions))
+        try:
+            return next(iter(self.extensions))
+        except StopIteration:
+            raise MissingExtension(self) from None
 
     @override
     def request(

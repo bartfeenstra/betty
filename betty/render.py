@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 class Renderer(HasDefinition["RendererDefinition"], metaclass=ABCMeta):
     """
-    Render content in a different media type to HTML.
+    Render content to HTML.
     """
 
     @abstractmethod

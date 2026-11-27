@@ -9,6 +9,7 @@ from enum import StrEnum, auto
 from typing import TYPE_CHECKING, Any, final, override
 
 from betty.assertions.str import assert_str
+from betty.collections.mapping.dict import FrozenDict, empty_frozen_dict
 from betty.data import Data, DataDefinition
 from betty.freezers.frozen import Frozen
 from betty.localizables.gettext import _
@@ -34,26 +35,6 @@ class InvalidMediaType(ValueError):
     """
 
 
-# @todo Move this to the content type API?
-class UnsupportedMediaType(RuntimeError):
-    """
-    Raised when a media type is not supported.
-    """
-
-    def __init__(self, media_type: Any, /):
-        super().__init__(f"Unsupported media type: {media_type}")
-
-
-# @todo Move this to the content type API?
-class MissingMediaType(RuntimeError):
-    """
-    Raised when a media type is not missing.
-    """
-
-    def __init__(self):
-        super().__init__("Missing media type")
-
-
 @final
 class MediaTypeType(StrEnum):
     """
@@ -72,8 +53,6 @@ class MediaTypeType(StrEnum):
     TEXT = auto()
     VIDEO = auto()
 
-    # @todo Extract this into a base class in betty.enum? Especially with the upcoming validation PR, that would help
-    # @todo make any enum validatable by just subclassing the base class.
     @override
     @classmethod
     def _missing_(cls, value: object) -> Any:
@@ -105,8 +84,8 @@ class MediaType(Frozen, str, Data):
             return media_type
         message = EmailMessage()
         message["Content-Type"] = media_type
-        # @todo Do we need a new dict? Can we leverage empty_frozen_dict?
-        parameters = dict(message["Content-Type"].params)
+        message_params = message["Content-Type"].params
+        parameters = FrozenDict(message_params) if message_params else empty_frozen_dict
         type_part = message.get_content_type()
         # EmailMessage.get_content_type() always returns a type, and will fall back to alternatives if the header is
         # invalid.

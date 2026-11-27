@@ -7,17 +7,15 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Final, final
 
+from betty.content_type import ContentTypeRepository
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _, ngettext
-from betty.localizables.markup import JoinOr, Quote
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.content_type import ContentTypeDefinition
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
@@ -84,26 +82,11 @@ class SerializerDefinition(
 
 
 # @todo Refactor this around ContentTypeNegotiator?
-def serializer_for(
-    available_serializers: Iterable[Serializer], extension: StrPath, /
-) -> Serializer:
+def serializer_for(file: StrPath, *serializers: Serializer) -> Serializer:
     """
     Get the serializer for the given file extension.
     """
-    for available_serializer in available_serializers:
-        if available_serializer.definition.content_type.extensions.request(extension):
-            return available_serializer
-    raise SerializationError(
-        _("Unsupported file {unsupported}. Supported types are: {supported}.").format(
-            unsupported=Quote(str(extension)),
-            supported=JoinOr(*[
-                _("{content_type} ({extensions})").format(
-                    content_type=available_serializer.definition.content_type.label,
-                    extensions=JoinOr(
-                        *available_serializer.definition.content_type.extensions
-                    ),
-                )
-                for available_serializer in available_serializers
-            ]),
-        )
-    )
+    mapping = {
+        serializer.definition.content_type: serializer for serializer in serializers
+    }
+    return mapping[ContentTypeRepository(*mapping).extensions.require(file)[0]]

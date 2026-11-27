@@ -129,7 +129,7 @@ class App(RequirableServiceLevel, HasAssets, HasContentTypes):
         """
         if AppConfig.file.exists():
             data = AppConfig.definition.porter.load(
-                assert_load_file(serializers=[Json()])(AppConfig.file),
+                assert_load_file(Json())(AppConfig.file),
             )
             locale = data.locale
         else:

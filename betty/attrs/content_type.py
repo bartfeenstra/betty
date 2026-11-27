@@ -18,7 +18,6 @@ if TYPE_CHECKING:
     from betty.localizer import AnyLocalizable
 
 
-# @todo Make an inventory of where and how we use this. Then refactor.
 def new_content_type_attr(
     *, label: AnyLocalizable | None = None, description: AnyLocalizable | None = None
 ) -> OptionableCommonAttr[Init, ContentTypeDefinition, ContentTypeDefinition]:
@@ -36,7 +35,7 @@ def new_content_type_attr(
 
 class HasContentType(Init):
     """
-    A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
+    A resource with a :py:class:`content type <betty.content_type.ContentTypeDefinition>`.
     """
 
     content_type = new_content_type_attr().optional

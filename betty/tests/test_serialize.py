@@ -31,9 +31,9 @@ class SerializerOne(_Serializer):
 
 def test_serializer_for__with_supported_type() -> None:
     serializer = SerializerOne()
-    assert serializer_for([serializer], ".one") is serializer
+    assert serializer_for(".one", serializer) is serializer
 
 
 def test_serializer_for_with_unsupported_type() -> None:
     with pytest.raises(SerializationError):
-        serializer_for([], ".unknown")
+        serializer_for(".unknown")

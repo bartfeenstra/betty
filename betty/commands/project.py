@@ -21,7 +21,6 @@ from betty.user import Severity
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser
-    from collections.abc import Iterable
 
     from betty.app import App
     from betty.console import CommandFunction, CommandResult
@@ -94,7 +93,7 @@ async def _read_project_configuration(
         for try_configuration_file in try_configuration_files:
             with suppress(FileNotFound):
                 return await _read_project_configuration_file(
-                    try_configuration_file, serializers, app.ui
+                    try_configuration_file, app.ui, *serializers
                 )
         raise ConfigurationFileNotFound(
             _(
@@ -111,15 +110,15 @@ async def _read_project_configuration(
         )
     return await _read_project_configuration_file(
         (project_directory / provided_configuration_file).expanduser().resolve(),
-        serializers,
         app.ui,
+        *serializers,
     )
 
 
 async def _read_project_configuration_file(
-    configuration_file: Path, serializers: Iterable[Serializer], ui: Ui
+    configuration_file: Path, ui: Ui, *serializers: Serializer
 ) -> tuple[ProjectConfig, Path]:
-    assert_configuration = assert_load_file(serializers=serializers)
+    assert_configuration = assert_load_file(*serializers)
     try:
         portable = assert_configuration(configuration_file)
     except HumanFacingException as error:

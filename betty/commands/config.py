@@ -56,7 +56,7 @@ class Config(Manufacturable, Command):
 
         if AppConfig.file.exists():
             updated_configuration = AppConfig.definition.porter.load(
-                assert_load_file(serializers=serializers)(AppConfig.file)
+                assert_load_file(*serializers)(AppConfig.file)
             )
         else:
             updated_configuration = AppConfig()
@@ -71,5 +71,5 @@ class Config(Manufacturable, Command):
         await dump_file(
             AppConfig.definition.porter.dump(updated_configuration),
             AppConfig.file,
-            serializers=serializers,
+            *serializers,
         )
