@@ -5,10 +5,15 @@ The negotiation API.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, Final, final, override
+
+from typing_extensions import sentinel
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Iterable, Mapping
+
+
+NoMatch = sentinel("NoMatch")
 
 
 class Negotiator[
@@ -24,13 +29,13 @@ class Negotiator[
     __slots__ = ()
 
     @abstractmethod
-    def new_unsupported(self, key: KeyT, /) -> UnsupportedT:
+    def _new_unsupported(self, key: ResolvableKeyT | KeyT, /) -> UnsupportedT:
         """
         Create a new error for an unsupported key.
         """
 
     @abstractmethod
-    def request(self, other: ResolvableKeyT | KeyT, /) -> MatchT | None:
+    def request(self, other: ResolvableKeyT | KeyT, /) -> MatchT | NoMatch:
         """
         Request a match by a key.
         """
@@ -40,9 +45,10 @@ class Negotiator[
         """
         Require a match by a key.
         """
-        if match := self.request(other):
-            return match
-        raise self.new_unsupported(other)
+        match = self.request(other)
+        if match is NoMatch:
+            raise self._new_unsupported(other)
+        return match
 
 
 class MappingNegotiator[KeyT, ResolvableKeyT, MatchT, UnsupportedT: Exception, ValueT](
@@ -52,7 +58,7 @@ class MappingNegotiator[KeyT, ResolvableKeyT, MatchT, UnsupportedT: Exception, V
     A negotiator backed by a mapping.
     """
 
-    __slots__ = ("_matcher", "_resolver", "_targets")
+    __slots__ = ("__matcher", "_resolver", "_targets")
 
     @final
     def __init__(
@@ -63,19 +69,19 @@ class MappingNegotiator[KeyT, ResolvableKeyT, MatchT, UnsupportedT: Exception, V
         /,
         *values: ValueT,
     ):
-        self._matcher = matcher
-        self._resolver = resolver
-        self._targets = {
+        self.__matcher = matcher
+        self._resolver: Final[Callable[[ResolvableKeyT | KeyT], KeyT]] = resolver
+        self._targets: Final[Mapping[KeyT, ValueT]] = {
             key: target for target in reversed(values) for key in keyer(target)
         }
 
     @final
     @override
-    def request(self, other: ResolvableKeyT | KeyT, /) -> MatchT | None:
+    def request(self, other: ResolvableKeyT | KeyT, /) -> MatchT | NoMatch:
         if other is None:
-            return None
+            return NoMatch
         other = self._resolver(other)
         target = self._targets.get(other, None)
         if target:
-            return self._matcher(target)
-        return None
+            return self.__matcher(target)
+        return NoMatch

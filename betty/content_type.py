@@ -137,7 +137,7 @@ class MediaTypeNegotiator(
 
     @final
     @override
-    def new_unsupported(self, other: MediaType, /) -> UnsupportedMediaType:
+    def _new_unsupported(self, other: MediaType, /) -> UnsupportedMediaType:
         return UnsupportedMediaType(other, *self)
 
 
@@ -158,7 +158,7 @@ class ExtensionNegotiator(
 
     @final
     @override
-    def new_unsupported(self, other: Extension, /) -> UnsupportedExtension:
+    def _new_unsupported(self, other: Extension, /) -> UnsupportedExtension:
         return UnsupportedExtension(other, *self)
 
 
@@ -295,7 +295,7 @@ class ContentTypeDefinition(
 
     @final
     @override
-    def new_unsupported(self, other: MachineName, /) -> UnsupportedContentType:
+    def _new_unsupported(self, other: MachineName, /) -> UnsupportedContentType:
         return UnsupportedContentType(other, self)
 
     @override
@@ -338,7 +338,7 @@ class ContentTypeRepository(ContentTypeNegotiator, Collection[ContentTypeDefinit
         yield from self._content_types.values()
 
     @override
-    def new_unsupported(self, other: MachineName, /) -> UnsupportedContentType:
+    def _new_unsupported(self, other: MachineName, /) -> UnsupportedContentType:
         return UnsupportedContentType(other, *self)
 
     @override
