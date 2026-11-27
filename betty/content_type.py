@@ -135,6 +135,7 @@ class MissingExtension(RuntimeError):
         )
 
 
+# @todo Can we extract some of this into a new negotiation API? It may well prove useful for negotiating locales as well.
 class _Negotiator[
     KeyT,
     MatchableT,
@@ -250,6 +251,8 @@ class _MappingNegotiator[
         self,
         keyer: Callable[[ContentTypeDefinition], Iterable[KeyT]],
         resolver: Callable[[MatchableT], KeyT],
+        # @todo What if we accept ContentTypeDefinition | HasContentType | HasDefinition[HasContentType] (a new base class)?
+        # @todo Then we can easily reuse these negotiators, say, for serializers or renderers.
         *content_types: ContentTypeDefinition,
     ):
         self._content_types = {
