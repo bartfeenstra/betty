@@ -368,9 +368,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
             "persistent": MissingReason.COVERED_ELSEWHERE,
         },
     },
-    "betty/media_type.py": {
-        "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
-    },
     "betty/collection/__init__.py": {
         "Addable": MissingReason.ABSTRACT,
         "Appendable": MissingReason.ABSTRACT,
@@ -683,7 +680,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     },
     "betty/url_generator.py": {
         "GenerationError": MissingReason.ABSTRACT,
-        "UnsupportedMediaType": MissingReason.SHOULD_BE_COVERED,
         "UnsupportedResource": MissingReason.STATIC_CONTENT_ONLY,
         "UrlGenerator": MissingReason.ABSTRACT,
     },

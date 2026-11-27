@@ -9,13 +9,13 @@ from betty.content_types import plain_text
 from betty.media_type import MediaType
 
 
-class TestUnsupportedMediaType:
+class TestUnsupportedContentType:
     def test_new(self) -> None:
         sut = UnsupportedContentType(plain_text.media_type)
         assert str(plain_text.media_type) in str(sut)
 
 
-class TestMissingMediaType:
+class TestMissingContentType:
     def test_new(self) -> None:
         assert str(MissingContentType())
 

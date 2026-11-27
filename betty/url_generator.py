@@ -61,5 +61,5 @@ class UrlGenerator[ResourceT](metaclass=ABCMeta):
         Generate a URL for a resource.
 
         :raise UnsupportedResource:
-        :raise UnsupportedMediaType:
+        :raise UnsupportedContentType:
         """
