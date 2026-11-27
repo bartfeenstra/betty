@@ -5,24 +5,24 @@ Content types.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from collections.abc import Callable, Iterable, Iterator, Sequence
-from typing import TYPE_CHECKING, Final, Self, final, override
+from collections.abc import Callable, Collection, Iterable, Iterator
+from typing import TYPE_CHECKING, Self, final, override
 
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.definition.ordered import Order, OrderedDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _, ngettext
-from betty.localizables.markup import Paragraph, do_you_mean
+from betty.localizables.markup import Paragraphs, Quote, do_you_mean
+from betty.machine_name import MachineName
 from betty.media_type import MediaType, ResolvableMediaType
 from betty.pathlib import Extension, ResolvableExtension, StrPath
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.typing import RuntimeCheckableSequence, is_runtime_checkable_sequence
 
 if TYPE_CHECKING:
-    from ty_extensions import Intersection
-
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
+
 
 type ContentTypeDefinitionExtension = (
     ResolvableExtension | RuntimeCheckableSequence[ResolvableExtension]
@@ -32,22 +32,20 @@ type ContentTypeDefinitionMediaType = (
 )
 
 
-class _ContentTypeNegotiationError(HumanFacingException, ValueError):
+class _UnsupportedContentTypeIndicator(HumanFacingException, ValueError):
     pass
 
 
 @final
-class UnsupportedContentType(_ContentTypeNegotiationError):
+class UnsupportedContentType(_UnsupportedContentTypeIndicator):
     """
     Raised when a content type is not supported.
     """
 
-    _message = _("Unsupported content type.")
-
-    def __init__(self, *content_types: ContentTypeDefinition):
+    def __init__(self, value: MachineName, *content_types: ContentTypeDefinition):
         super().__init__(
-            Paragraph(
-                self._message,
+            Paragraphs(
+                _("Unsupported content type {value}.").format(value=Quote(value)),
                 do_you_mean(
                     *(content_type.definition.label for content_type in content_types)
                 ),
@@ -56,17 +54,15 @@ class UnsupportedContentType(_ContentTypeNegotiationError):
 
 
 @final
-class UnsupportedMediaType(_ContentTypeNegotiationError):
+class UnsupportedMediaType(_UnsupportedContentTypeIndicator):
     """
     Raised when a media type is not supported.
     """
 
-    _message = _("Unsupported media type.")
-
-    def __init__(self, *content_types: ContentTypeDefinition):
+    def __init__(self, value: MediaType, *content_types: ContentTypeDefinition):
         super().__init__(
-            Paragraph(
-                self._message,
+            Paragraphs(
+                _("Unsupported media type {value}.").format(value=Quote(value)),
                 do_you_mean(
                     *(
                         _("{media_type} ({content_type})").format(
@@ -82,17 +78,15 @@ class UnsupportedMediaType(_ContentTypeNegotiationError):
 
 
 @final
-class UnsupportedExtension(_ContentTypeNegotiationError):
+class UnsupportedExtension(_UnsupportedContentTypeIndicator):
     """
     Raised when a file extension is not supported.
     """
 
-    _message = _("Unsupported file type.")
-
-    def __init__(self, *content_types: ContentTypeDefinition):
+    def __init__(self, value: Extension, *content_types: ContentTypeDefinition):
         super().__init__(
-            Paragraph(
-                self._message,
+            Paragraphs(
+                _("Unsupported file type {value}.").format(value=Quote(value)),
                 do_you_mean(
                     *(
                         _("{extension} ({content_type})").format(
@@ -141,8 +135,19 @@ class MissingExtension(RuntimeError):
         )
 
 
-class _Negotiator[MatchableT, MatchT](metaclass=ABCMeta):
+class _Negotiator[
+    KeyT,
+    MatchableT,
+    MatchT,
+    UnsupportedT: _UnsupportedContentTypeIndicator,
+](metaclass=ABCMeta):
     __slots__ = ()
+
+    @abstractmethod
+    def new_unsupported(self, other: KeyT, /) -> UnsupportedT:
+        """
+        Create a new error for an unsupported media type indicator.
+        """
 
     @abstractmethod
     def request(self, other: MatchableT | None, /) -> MatchT | None:
@@ -157,43 +162,61 @@ class _Negotiator[MatchableT, MatchT](metaclass=ABCMeta):
         """
         if match := self.request(other):
             return match
-        # @todo We have 3(!) error classes now, depending on what details calling code needs.
-        # @todo Maybe we need an implementation on
-        # @todo - ContentTypeNegotiator
-        # @todo - MediaTypeNegotiator
-        # @todo - ExtensionNegotiator
-        # @todo to ensure we raise the right exceptions everywhere?
-        # @todo OOOOH! Create 3 little mixins.
-        # @todo
-        raise UnsupportedContentType(other)
+        raise self.new_unsupported(other)
 
 
-type MediaTypeNegotiator = Intersection[
+class MediaTypeNegotiator(
     _Negotiator[
-        ContentTypeDefinition | ResolvableMediaType,
-        tuple[ContentTypeDefinition, MediaType],
+        MediaType,
+        "ContentTypeDefinition | ResolvableMediaType",
+        tuple["ContentTypeDefinition", MediaType],
+        UnsupportedMediaType,
     ],
-    Iterable[MediaType],
-]
+    Collection[MediaType],
+):
+    """
+    Negotiate content types by media type.
+    """
+
+    __slots__ = ()
+
+    @final
+    @override
+    def new_unsupported(self, other: MediaType, /) -> UnsupportedMediaType:
+        return UnsupportedMediaType(other, *self)
 
 
-type ExtensionNegotiator = Intersection[
+class ExtensionNegotiator(
     _Negotiator[
-        ContentTypeDefinition | ResolvableExtension,
-        tuple[ContentTypeDefinition, Extension],
+        Extension,
+        "ContentTypeDefinition | ResolvableExtension",
+        tuple["ContentTypeDefinition", Extension],
+        UnsupportedExtension,
     ],
-    Iterable[Extension],
-]
+    Collection[Extension],
+):
+    """
+    Negotiate content types by file extension.
+    """
+
+    __slots__ = ()
+
+    @final
+    @override
+    def new_unsupported(self, other: Extension, /) -> UnsupportedExtension:
+        return UnsupportedExtension(other, *self)
 
 
 class ContentTypeNegotiator(
     _Negotiator[
+        MachineName,
         "ContentTypeDefinition | ResolvableMediaType | ResolvableExtension",
         "ContentTypeDefinition",
+        UnsupportedContentType,
     ]
 ):
     """
-    A content type negotiator.
+    Negotiate content types.
     """
 
     __slots__ = ()
@@ -202,32 +225,42 @@ class ContentTypeNegotiator(
     @abstractmethod
     def media_types(self) -> MediaTypeNegotiator:
         """
-        Match by file extensions.
+        Match by associated media types.
         """
 
     @property
     @abstractmethod
     def extensions(self) -> ExtensionNegotiator:
         """
-        Match by file extensions.
+        Match by associated file extensions.
+
+        Extensions include a leading dot, and are ordered by decreasing priority.
         """
 
 
-@final
-class _ContentTypeDefinitionExtensionNegotiator(
-    _Negotiator[
-        "ContentTypeDefinition | ResolvableExtension",
-        tuple["ContentTypeDefinition, Extension"],
-    ]
-):
-    __slots__ = ("_content_type", "_extensions")
+class _MappingNegotiator[
+    KeyT,
+    MatchableT,
+    MatchT,
+    UnsupportedT: _UnsupportedContentTypeIndicator,
+](_Negotiator[KeyT, MatchableT, MatchT, UnsupportedT]):
+    __slots__ = ("_content_types", "_resolver")
 
-    def __init__(self, content_type: ContentTypeDefinition, *extensions: Extension):
-        self._extensions = set(extensions)
-        self._content_type = content_type
+    def __init__(
+        self,
+        keyer: Callable[[ContentTypeDefinition], Iterable[KeyT]],
+        resolver: Callable[[MatchableT], KeyT],
+        *content_types: ContentTypeDefinition,
+    ):
+        self._content_types = {
+            key: content_type
+            for content_type in reversed(content_types)
+            for key in keyer(content_type)
+        }
+        self._resolver = resolver
 
-    def __iter__(self) -> Iterator[Extension]:
-        return self._extensions.__iter__()
+    def __iter__(self) -> Iterator[KeyT]:
+        yield from self._content_types
 
     @override
     def request(
@@ -235,10 +268,37 @@ class _ContentTypeDefinitionExtensionNegotiator(
     ) -> tuple[ContentTypeDefinition, Extension] | None:
         if other is None:
             return None
-        other = Extension(other)
-        if other in self._extensions:
-            return self._content_type, other
+        other = self._resolver(other)
+        match = self._content_types.get(other, None)
+        if match:
+            return match, other
         return None
+
+
+@final
+class _MediaTypeMappingNegotiator(
+    _MappingNegotiator[
+        MediaType,
+        "ContentTypeDefinition | ResolvableMediaType",
+        tuple["ContentTypeDefinition", MediaType],
+        UnsupportedMediaType,
+    ],
+    MediaTypeNegotiator,
+):
+    pass
+
+
+@final
+class _ExtensionMappingNegotiator(
+    _MappingNegotiator[
+        Extension,
+        "ContentTypeDefinition | ResolvableExtension",
+        tuple["ContentTypeDefinition", Extension],
+        UnsupportedExtension,
+    ],
+    ExtensionNegotiator,
+):
+    pass
 
 
 @final
@@ -292,16 +352,8 @@ class ContentTypeDefinition(
         assert media_types or extensions, (
             "A content type must have at least one media type or extension."
         )
-        self.media_types: Final[Sequence[MediaType]] = media_types
-        """
-        The media types.
-
-        Media types are ordered by decreasing priority.
-        """
-
-        self._extensions = _ContentTypeDefinitionExtensionNegotiator(
-            self, *map(Extension, extensions)
-        )
+        self._media_types = _MediaTypeMappingNegotiator(self)
+        self._extensions = _ExtensionMappingNegotiator(self)
 
     @property
     def media_type(self) -> MediaType:
@@ -323,128 +375,60 @@ class ContentTypeDefinition(
         except StopIteration:
             raise MissingExtension(self) from None
 
+    @final
+    @override
+    def new_unsupported(self, other: MachineName, /) -> UnsupportedContentType:
+        return UnsupportedContentType(other, self)
+
     @override
     def request(
         self, other: ResolvableMediaType | ContentTypeDefinition | None, /
     ) -> ContentTypeDefinition | None:
-        if other is None:
-            return None
-        if isinstance(other, ContentTypeDefinition):
-            if other is self:
-                return self
-            return None
-        for media_type in self.media_types:
-            if media_type.match(other):
-                return self
-        return None
+        # @todo Finish this
+        raise NotImplementedError
+
+    @override
+    @property
+    def media_types(self) -> MediaTypeNegotiator:
+        return self._media_types
 
     @override
     @property
     def extensions(self) -> ExtensionNegotiator:
-        """
-        The associated file extensions.
-
-        Extensions include a leading dot, and are ordered by decreasing priority.
-        """
         return self._extensions
 
 
 @final
-class _ContentTypeRepositoryExtensionNegotiator(ExtensionNegotiator):
-    __slots__ = ("_extensions",)
-
-    def __init__(self, *content_types: ContentTypeDefinition):
-        self._extensions = {
-            extension: content_type
-            for content_type in reversed(content_types)
-            for extension in content_type.extensions
-        }
-
-    def __iter__(self) -> Iterator[Extension]:
-        yield from self._extensions
-
-    @override
-    def request(
-        self, other: StrPath | None, /
-    ) -> tuple[ContentTypeDefinition, Extension] | None:
-        if other is None:
-            return None
-        other = Extension(other)
-        match = self._extensions.get(other, None)
-        if match:
-            return match, other
-        return None
-
-
-# @todo Develop this further.
-# @todo We have 2 input types:
-# @todo - ContentTypeDefinition (must provide the keys, because the necessary key data does not exist on the definition yet)
-# @todo - ContentTypeRepository (the definitions are complete and we can key anything we'd like)
-# @todo And 3 output types (each with their own .require() mixin):
-# @todo - ContentTypeDefinition
-# @todo - tuple[ContentTypeDefinition, MediaType]
-# @todo - tuple[ContentTypeDefinition, Extension]
-# @todo
-# @todo
-# @todo
-@final
-class _MappingNegotiator[MatchableT, MatchT, KeyT](_Negotiator[MatchableT, MatchT]):
-    __slots__ = ("_content_types", "_resolver")
-
-    def __init__(
-        self,
-        keyer: Callable[[ContentTypeDefinition], Iterable[KeyT]],
-        resolver: Callable[[MatchableT], KeyT],
-        *content_types: ContentTypeDefinition,
-    ):
-        self._content_types = {
-            key: content_type
-            for content_type in reversed(content_types)
-            for key in keyer(content_type)
-        }
-        self._resolver = resolver
-
-    def __iter__(self) -> Iterator[KeyT]:
-        yield from self._content_types
-
-    @override
-    def request(
-        self, other: StrPath | None, /
-    ) -> tuple[ContentTypeDefinition, Extension] | None:
-        if other is None:
-            return None
-        other = self._resolver(other)
-        match = self._content_types.get(other, None)
-        if match:
-            return match, other
-        return None
-
-
-@final
-class ContentTypeRepository(ContentTypeNegotiator):
+class ContentTypeRepository(ContentTypeNegotiator, Collection[ContentTypeDefinition]):
     """
     A sequence of content types that can be matched against.
     """
 
-    __slots__ = ("_extensions", "_media_types")
+    __slots__ = ("_extensions", "_content_types", "_media_types")
 
-    def __init__(self, *media_types: ContentTypeDefinition):
-        self._media_types = media_types
-        self._extensions = _ContentTypeRepositoryExtensionNegotiator(self)
+    def __init__(self, *content_types: ContentTypeDefinition):
+        self._content_types = content_types
+        self._media_types = _MediaTypeMappingNegotiator(self)
+        self._extensions = _ExtensionMappingNegotiator(self)
 
     def __iter__(self):
-        return self._media_types.__iter__()
+        return self._content_types.__iter__()
+
+    @override
+    def new_unsupported(self, other: MachineName, /) -> UnsupportedContentType:
+        return UnsupportedContentType(other, *self)
 
     @override
     def request(
         self, other: ResolvableMediaType | ContentTypeDefinition | None, /
     ) -> ContentTypeDefinition | None:
-        if other is None:
-            return None
-        for media_type in self._media_types:
-            if media_type.request(other):
-                return media_type
-        return None
+        # @todo Finish this
+        raise NotImplementedError
+
+    @override
+    @property
+    def media_types(self) -> MediaTypeNegotiator:
+        return self._media_types
 
     @override
     @property
