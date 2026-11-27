@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-22 18:55+0000\n"
+"POT-Creation-Date: 2026-11-27 11:46+0000\n"
 "PO-Revision-Date: 2026-10-28 00:01+0000\n"
 "Last-Translator: Bart Feenstra <bartfeenstra@users.noreply.hosted.weblate.org>\n"
 "Language: nl_NL\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
+"Generated-By: Babel 2.19.0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -420,6 +420,12 @@ msgstr "Contentbouwer"
 
 msgid "Content builders"
 msgstr "Contentbouwers"
+
+msgid "Content type"
+msgstr ""
+
+msgid "Content types"
+msgstr ""
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
@@ -825,12 +831,6 @@ msgstr "ID"
 msgid "Ilpendam"
 msgstr "Ilpendam"
 
-msgid "Image reader"
-msgstr ""
-
-msgid "Image readers"
-msgstr ""
-
 msgid "Immigration"
 msgstr "Immigratie"
 
@@ -1055,9 +1055,6 @@ msgstr "Mediagalerij"
 
 msgid "Media type"
 msgstr "Mediatype"
-
-msgid "Media types"
-msgstr "Mediatypes"
 
 msgid "Men"
 msgstr "Mannen"
@@ -1635,11 +1632,11 @@ msgid "The 'birth of the author', so to speak."
 msgstr "De 'geboorte van de auteur', om het zo maar even te zeggen."
 
 #, python-brace-format
-msgid "The Gramps {gramps_entity_reference} entity has a MIME type of {attribute_value}, which is not a known IANA media type. This media type was ignored."
+msgid "The Gramps {gramps_entity_reference} entity has a MIME type of {attribute_value}, which is not a known content type. This MIME type was ignored."
 msgstr ""
 
 #, python-brace-format
-msgid "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a known IANA media type. This media type was ignored."
+msgid "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a known content type. This content type was ignored."
 msgstr ""
 
 #, python-brace-format
@@ -1850,10 +1847,6 @@ msgstr "Onbekende sleutel: {unknown_key}."
 #, python-brace-format
 msgid "Unknown plugin {plugin}."
 msgstr "Onbekende plugin {plugin}."
-
-#, python-brace-format
-msgid "Unsupported file {unsupported}. Supported types are: {supported}."
-msgstr "Niet ondersteund bestand {unsupported}. Ondersteunde bestandstypes zijn: {supported}."
 
 msgid "Update existing translations"
 msgstr "Update bestaande vertalingen"
@@ -2267,6 +2260,12 @@ msgstr[0] "{count} contentbouwer"
 msgstr[1] "{count} contentbouwers"
 
 #, python-brace-format
+msgid "{count} content type"
+msgid_plural "{count} content types"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} copyright notice"
 msgid_plural "{count} copyright notices"
 msgstr[0] "{count} copyrightbericht"
@@ -2405,12 +2404,6 @@ msgstr[0] "{count} gehucht"
 msgstr[1] "{count} gehuchten"
 
 #, python-brace-format
-msgid "{count} image reader"
-msgid_plural "{count} image readers"
-msgstr[0] ""
-msgstr[1] ""
-
-#, python-brace-format
 msgid "{count} immigration"
 msgid_plural "{count} immigrations"
 msgstr[0] "{count} immigratie"
@@ -2457,12 +2450,6 @@ msgid "{count} marriage"
 msgid_plural "{count} marriages"
 msgstr[0] "{count} huwelijk"
 msgstr[1] "{count} huwelijken"
-
-#, python-brace-format
-msgid "{count} media type"
-msgid_plural "{count} media types"
-msgstr[0] "{count} mediatype"
-msgstr[1] "{count} mediatypes"
 
 #, python-brace-format
 msgid "{count} missing"
@@ -2705,10 +2692,6 @@ msgstr "{invalid_color} is geen geldige hexadecimale kleur, zoals bijvoorbeeld {
 #, python-brace-format
 msgid "{invalid_locale} is not a valid IETF BCP 47 language tag."
 msgstr "{invalid_locale} is geen geldige IETF BCP 47 taaltag."
-
-#, python-brace-format
-msgid "{media_type} ({extensions})"
-msgstr ""
 
 #, python-brace-format
 msgctxt "localizable-join-and-many"

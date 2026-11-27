@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-22 18:55+0000\n"
+"POT-Creation-Date: 2026-11-27 11:46+0000\n"
 "PO-Revision-Date: 2026-07-15 13:31+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ta\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
+"Generated-By: Babel 2.19.0\n"
 
 #, python-brace-format
 msgctxt "localizable-quote"
@@ -420,6 +420,12 @@ msgstr "உள்ளடக்கத்தை உருவாக்குபவ�
 
 msgid "Content builders"
 msgstr "உள்ளடக்கத்தை உருவாக்குபவர்கள்"
+
+msgid "Content type"
+msgstr ""
+
+msgid "Content types"
+msgstr ""
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
@@ -826,12 +832,6 @@ msgstr "ஐடி"
 msgid "Ilpendam"
 msgstr "இல்பெண்டம்"
 
-msgid "Image reader"
-msgstr ""
-
-msgid "Image readers"
-msgstr ""
-
 msgid "Immigration"
 msgstr "குடிநுழைவு"
 
@@ -1056,9 +1056,6 @@ msgstr "மீடியா கேலரி"
 
 msgid "Media type"
 msgstr "ஊடக வகை"
-
-msgid "Media types"
-msgstr "ஊடக வகைகள்"
 
 msgid "Men"
 msgstr "ஆண்கள்"
@@ -1636,11 +1633,11 @@ msgid "The 'birth of the author', so to speak."
 msgstr "'ஆசிரியர் பிறப்பு' என்று சொல்லலாம்."
 
 #, python-brace-format
-msgid "The Gramps {gramps_entity_reference} entity has a MIME type of {attribute_value}, which is not a known IANA media type. This media type was ignored."
+msgid "The Gramps {gramps_entity_reference} entity has a MIME type of {attribute_value}, which is not a known content type. This MIME type was ignored."
 msgstr ""
 
 #, python-brace-format
-msgid "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a known IANA media type. This media type was ignored."
+msgid "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a known content type. This content type was ignored."
 msgstr ""
 
 #, python-brace-format
@@ -1851,10 +1848,6 @@ msgstr "தெரியாத விசை: {unknown_key}."
 #, python-brace-format
 msgid "Unknown plugin {plugin}."
 msgstr "தெரியாத செருகுநிரல் {plugin_id}."
-
-#, python-brace-format
-msgid "Unsupported file {unsupported}. Supported types are: {supported}."
-msgstr "ஆதரிக்கப்படாத கோப்பு {unsupported}. ஆதரிக்கப்படும் வகைகள்: {supported}."
 
 msgid "Update existing translations"
 msgstr "ஏற்கனவே உள்ள மொழிபெயர்ப்புகளைப் புதுப்பிக்கவும்"
@@ -2268,6 +2261,12 @@ msgstr[0] "{count} உள்ளடக்கத்தை உருவாக்க
 msgstr[1] "{count} உள்ளடக்க உருவாக்குநர்கள்"
 
 #, python-brace-format
+msgid "{count} content type"
+msgid_plural "{count} content types"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} copyright notice"
 msgid_plural "{count} copyright notices"
 msgstr[0] "{count} பதிப்புரிமை அறிவிப்பு"
@@ -2406,12 +2405,6 @@ msgstr[0] "{count} குக்கிராமம்"
 msgstr[1] "{count} குக்கிராமங்கள்"
 
 #, python-brace-format
-msgid "{count} image reader"
-msgid_plural "{count} image readers"
-msgstr[0] ""
-msgstr[1] ""
-
-#, python-brace-format
 msgid "{count} immigration"
 msgid_plural "{count} immigrations"
 msgstr[0] "{count} குடியேற்றம்"
@@ -2458,12 +2451,6 @@ msgid "{count} marriage"
 msgid_plural "{count} marriages"
 msgstr[0] "{count} திருமணம்"
 msgstr[1] "{count} திருமணங்கள்"
-
-#, python-brace-format
-msgid "{count} media type"
-msgid_plural "{count} media types"
-msgstr[0] "{count} மீடியா வகை"
-msgstr[1] "{count} மீடியா வகைகள்"
 
 #, python-brace-format
 msgid "{count} missing"
@@ -2706,10 +2693,6 @@ msgstr "{invalid_color} என்பது {example_color} போன்ற ச�
 #, python-brace-format
 msgid "{invalid_locale} is not a valid IETF BCP 47 language tag."
 msgstr "{invalid_locale} என்பது சரியான IETF BCP 47 மொழி குறிச்சொல் அல்ல."
-
-#, python-brace-format
-msgid "{media_type} ({extensions})"
-msgstr ""
 
 #, python-brace-format
 msgctxt "localizable-join-and-many"
