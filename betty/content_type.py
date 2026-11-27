@@ -20,6 +20,7 @@ from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.typing import RuntimeCheckableSequence, is_runtime_checkable_sequence
 
 if TYPE_CHECKING:
+    from betty.definition.id import ResolvableId
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
 
@@ -59,20 +60,11 @@ class UnsupportedMediaType(_UnsupportedContentTypeIndicator):
     Raised when a media type is not supported.
     """
 
-    def __init__(self, value: MediaType, *content_types: ContentTypeDefinition):
+    def __init__(self, value: MediaType, *media_types: MediaType):
         super().__init__(
             Paragraphs(
                 _("Unsupported media type {value}.").format(value=Quote(value)),
-                do_you_mean(
-                    *(
-                        _("{media_type} ({content_type})").format(
-                            media_type=media_type,
-                            content_type=content_type.definition.label,
-                        )
-                        for content_type in content_types
-                        for media_type in content_type.media_types
-                    )
-                ),
+                do_you_mean(*media_types),
             )
         )
 
@@ -83,20 +75,11 @@ class UnsupportedExtension(_UnsupportedContentTypeIndicator):
     Raised when a file extension is not supported.
     """
 
-    def __init__(self, value: Extension, *content_types: ContentTypeDefinition):
+    def __init__(self, value: Extension, *extensions: Extension):
         super().__init__(
             Paragraphs(
                 _("Unsupported file type {value}.").format(value=Quote(value)),
-                do_you_mean(
-                    *(
-                        _("{extension} ({content_type})").format(
-                            extension=extension,
-                            content_type=content_type.definition.label,
-                        )
-                        for content_type in content_types
-                        for extension in content_type.extensions
-                    )
-                ),
+                do_you_mean(*extensions),
             )
         )
 
@@ -211,7 +194,7 @@ class ExtensionNegotiator(
 class ContentTypeNegotiator(
     _Negotiator[
         MachineName,
-        "ContentTypeDefinition | ResolvableMediaType | ResolvableExtension",
+        "ResolvableId[ContentTypeDefinition]",
         "ContentTypeDefinition",
         UnsupportedContentType,
     ]
@@ -247,6 +230,7 @@ class _MappingNegotiator[
 ](_Negotiator[KeyT, MatchableT, MatchT, UnsupportedT]):
     __slots__ = ("_content_types", "_resolver")
 
+    @final
     def __init__(
         self,
         keyer: Callable[[ContentTypeDefinition], Iterable[KeyT]],
@@ -262,13 +246,13 @@ class _MappingNegotiator[
         }
         self._resolver = resolver
 
+    @final
     def __iter__(self) -> Iterator[KeyT]:
         yield from self._content_types
 
+    @final
     @override
-    def request(
-        self, other: StrPath | None, /
-    ) -> tuple[ContentTypeDefinition, Extension] | None:
+    def request(self, other: StrPath | None, /) -> MatchT | None:
         if other is None:
             return None
         other = self._resolver(other)
@@ -385,7 +369,7 @@ class ContentTypeDefinition(
 
     @override
     def request(
-        self, other: ResolvableMediaType | ContentTypeDefinition | None, /
+        self, other: ResolvableId[ContentTypeDefinition] | None, /
     ) -> ContentTypeDefinition | None:
         # @todo Finish this
         raise NotImplementedError
@@ -423,7 +407,7 @@ class ContentTypeRepository(ContentTypeNegotiator, Collection[ContentTypeDefinit
 
     @override
     def request(
-        self, other: ResolvableMediaType | ContentTypeDefinition | None, /
+        self, other: ResolvableId[ContentTypeDefinition] | None, /
     ) -> ContentTypeDefinition | None:
         # @todo Finish this
         raise NotImplementedError
