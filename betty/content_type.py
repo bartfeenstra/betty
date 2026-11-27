@@ -4,8 +4,8 @@ Content types.
 
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
-from collections.abc import Callable, Collection, Iterable, Iterator
+from abc import abstractmethod
+from collections.abc import Collection
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.definition.human_facing import HumanFacingDefinition
@@ -16,7 +16,8 @@ from betty.localizables.gettext import _, ngettext
 from betty.localizables.markup import Paragraphs, Quote, do_you_mean
 from betty.machine_name import MachineName
 from betty.media_type import MediaType, ResolvableMediaType
-from betty.pathlib import Extension, ResolvableExtension, StrPath
+from betty.negotiation import MappingNegotiator, Negotiator
+from betty.pathlib import Extension, ResolvableExtension
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.typing import RuntimeCheckableSequence, is_runtime_checkable_sequence
 
@@ -119,39 +120,8 @@ class MissingExtension(RuntimeError):
         )
 
 
-# @todo Can we extract some of this into a new negotiation API? It may well prove useful for negotiating locales as well.
-class _Negotiator[
-    KeyT,
-    MatchableT,
-    MatchT,
-    UnsupportedT: _UnsupportedContentTypeIndicator,
-](metaclass=ABCMeta):
-    __slots__ = ()
-
-    @abstractmethod
-    def new_unsupported(self, other: KeyT, /) -> UnsupportedT:
-        """
-        Create a new error for an unsupported media type indicator.
-        """
-
-    @abstractmethod
-    def request(self, other: MatchableT | None, /) -> MatchT | None:
-        """
-        Request a match by a content type indicator.
-        """
-
-    @final
-    def require(self, other: MatchableT | None, /) -> MatchT:
-        """
-        Require a match by a content type indicator.
-        """
-        if match := self.request(other):
-            return match
-        raise self.new_unsupported(other)
-
-
 class MediaTypeNegotiator(
-    _Negotiator[
+    Negotiator[
         MediaType,
         "ContentTypeDefinition | ResolvableMediaType",
         tuple["ContentTypeDefinition", MediaType],
@@ -172,7 +142,7 @@ class MediaTypeNegotiator(
 
 
 class ExtensionNegotiator(
-    _Negotiator[
+    Negotiator[
         Extension,
         "ContentTypeDefinition | ResolvableExtension",
         tuple["ContentTypeDefinition", Extension],
@@ -193,7 +163,7 @@ class ExtensionNegotiator(
 
 
 class ContentTypeNegotiator(
-    _Negotiator[
+    Negotiator[
         MachineName,
         "ResolvableId[ContentTypeDefinition]",
         "ContentTypeDefinition",
@@ -223,49 +193,9 @@ class ContentTypeNegotiator(
         """
 
 
-class _MappingNegotiator[
-    KeyT,
-    MatchableT,
-    MatchT,
-    UnsupportedT: _UnsupportedContentTypeIndicator,
-](_Negotiator[KeyT, MatchableT, MatchT, UnsupportedT]):
-    __slots__ = ("_content_types", "_resolver")
-
-    @final
-    def __init__(
-        self,
-        keyer: Callable[[ContentTypeDefinition], Iterable[KeyT]],
-        resolver: Callable[[MatchableT], KeyT],
-        # @todo What if we accept ContentTypeDefinition | HasContentType | HasDefinition[HasContentType] (a new base class)?
-        # @todo Then we can easily reuse these negotiators, say, for serializers or renderers.
-        *content_types: ContentTypeDefinition,
-    ):
-        self._content_types = {
-            key: content_type
-            for content_type in reversed(content_types)
-            for key in keyer(content_type)
-        }
-        self._resolver = resolver
-
-    @final
-    def __iter__(self) -> Iterator[KeyT]:
-        yield from self._content_types
-
-    @final
-    @override
-    def request(self, other: StrPath | None, /) -> MatchT | None:
-        if other is None:
-            return None
-        other = self._resolver(other)
-        match = self._content_types.get(other, None)
-        if match:
-            return match, other
-        return None
-
-
 @final
 class _MediaTypeMappingNegotiator(
-    _MappingNegotiator[
+    MappingNegotiator[
         MediaType,
         "ContentTypeDefinition | ResolvableMediaType",
         tuple["ContentTypeDefinition", MediaType],
@@ -278,7 +208,7 @@ class _MediaTypeMappingNegotiator(
 
 @final
 class _ExtensionMappingNegotiator(
-    _MappingNegotiator[
+    MappingNegotiator[
         Extension,
         "ContentTypeDefinition | ResolvableExtension",
         tuple["ContentTypeDefinition", Extension],
