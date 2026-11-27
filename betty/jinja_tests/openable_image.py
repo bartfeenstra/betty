@@ -11,7 +11,7 @@ from betty.factory import Manufacturable
 from betty.jinja.test import JinjaTest, JinjaTestDefinition
 
 if TYPE_CHECKING:
-    from betty.content_type import ContentTypeDefinition, MediaTypeNegotiator
+    from betty.content_type import ContentTypeDefinition, ContentTypeNegotiator
     from betty.media_type import (
         ResolvableMediaType,
     )
@@ -26,7 +26,7 @@ class OpenableImage(JinjaTest, Manufacturable):
     .. plugin:: jinja-test:openable-image
     """
 
-    def __init__(self, openable: MediaTypeNegotiator, /):
+    def __init__(self, openable: ContentTypeNegotiator, /):
         self._openable = openable
 
     @override

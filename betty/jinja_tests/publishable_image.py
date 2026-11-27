@@ -11,7 +11,7 @@ from betty.factory import Manufacturable
 from betty.jinja.test import JinjaTest, JinjaTestDefinition
 
 if TYPE_CHECKING:
-    from betty.content_type import ContentTypeDefinition, MediaTypeNegotiator
+    from betty.content_type import ContentTypeDefinition, ContentTypeNegotiator
     from betty.media_type import (
         ResolvableMediaType,
     )
@@ -26,7 +26,7 @@ class PublishableImage(JinjaTest, Manufacturable):
     .. plugin:: jinja-test:publishable-image
     """
 
-    def __init__(self, publishable: MediaTypeNegotiator, /):
+    def __init__(self, publishable: ContentTypeNegotiator, /):
         self._publishable = publishable
 
     @override

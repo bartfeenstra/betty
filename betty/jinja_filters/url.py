@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
     from jinja2.runtime import Context
 
-    from betty.content_type import MediaTypeNegotiator
+    from betty.content_type import ContentTypeNegotiator
     from betty.locale import ResolvableLocale
     from betty.url_generator import UrlGenerator
 
@@ -35,7 +35,7 @@ class Url(JinjaFilter, Manufacturable):
     """
 
     def __init__(
-        self, *, content_types: MediaTypeNegotiator, url_generator: UrlGenerator
+        self, *, content_types: ContentTypeNegotiator, url_generator: UrlGenerator
     ):
         self._content_types = content_types
         self._url_generator = url_generator

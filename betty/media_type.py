@@ -149,14 +149,3 @@ class MediaType(Frozen, str, Data):
         The suffix, e.g. ``json`` for ``application/ld+json``.
         """
         return self._suffix
-
-    def match(self, other: ResolvableMediaType, /) -> bool:
-        """
-        Check if another media type matches (is compatible with) this one.
-        """
-        other = MediaType(other)
-        return (self.type, self.subtype, self.suffix) == (
-            other.type,
-            other.subtype,
-            other.suffix,
-        )

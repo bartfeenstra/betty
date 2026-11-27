@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from aiohttp import ClientResponse, ClientSession
     from ty_extensions import Intersection
 
-    from betty.content_type import ContentTypeDefinition, MediaTypeNegotiator
+    from betty.content_type import ContentTypeDefinition, ContentTypeNegotiator
     from betty.json import JsonData
     from betty.user.ui import Ui
 
@@ -86,7 +86,7 @@ class Client:
         *,
         download_directory: Path,
         http_client: ClientSession,
-        content_types: MediaTypeNegotiator,
+        content_types: ContentTypeNegotiator,
         ui: Ui,
     ):
         self._download_directory = download_directory
