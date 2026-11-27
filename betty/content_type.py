@@ -9,6 +9,7 @@ from collections.abc import Callable, Collection, Iterable, Iterator
 from typing import TYPE_CHECKING, Self, final, override
 
 from betty.definition.human_facing import HumanFacingDefinition
+from betty.definition.id import resolve_id
 from betty.definition.ordered import Order, OrderedDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _, ngettext
@@ -371,8 +372,11 @@ class ContentTypeDefinition(
     def request(
         self, other: ResolvableId[ContentTypeDefinition] | None, /
     ) -> ContentTypeDefinition | None:
-        # @todo Finish this
-        raise NotImplementedError
+        if other is None:
+            return None
+        if resolve_id(other) == self.id:
+            return self
+        return None
 
     @override
     @property
@@ -394,12 +398,14 @@ class ContentTypeRepository(ContentTypeNegotiator, Collection[ContentTypeDefinit
     __slots__ = ("_extensions", "_content_types", "_media_types")
 
     def __init__(self, *content_types: ContentTypeDefinition):
-        self._content_types = content_types
+        self._content_types = {
+            content_type.id: content_type for content_type in content_types
+        }
         self._media_types = _MediaTypeMappingNegotiator(self)
         self._extensions = _ExtensionMappingNegotiator(self)
 
     def __iter__(self):
-        return self._content_types.__iter__()
+        yield from self._content_types.values()
 
     @override
     def new_unsupported(self, other: MachineName, /) -> UnsupportedContentType:
@@ -409,8 +415,9 @@ class ContentTypeRepository(ContentTypeNegotiator, Collection[ContentTypeDefinit
     def request(
         self, other: ResolvableId[ContentTypeDefinition] | None, /
     ) -> ContentTypeDefinition | None:
-        # @todo Finish this
-        raise NotImplementedError
+        if other is None:
+            return None
+        return self._content_types.get(resolve_id(other), None)
 
     @override
     @property
