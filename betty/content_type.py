@@ -8,8 +8,10 @@ from abc import abstractmethod
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Self, final, override
 
+from ty_extensions import Not
+
 from betty.definition.human_facing import HumanFacingDefinition
-from betty.definition.id import resolve_id
+from betty.definition.id import ResolvableId, resolve_id
 from betty.definition.ordered import Order, OrderedDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _, ngettext
@@ -22,7 +24,6 @@ from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.typing import RuntimeCheckableSequence, is_runtime_checkable_sequence
 
 if TYPE_CHECKING:
-    from betty.definition.id import ResolvableId
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
 
@@ -62,7 +63,7 @@ class UnsupportedMediaType(_UnsupportedContentTypeIndicator):
     Raised when a media type is not supported.
     """
 
-    def __init__(self, value: MediaType, *media_types: MediaType):
+    def __init__(self, value: ResolvableMediaType, *media_types: MediaType):
         super().__init__(
             Paragraphs(
                 _("Unsupported media type {value}.").format(value=Quote(value)),
@@ -77,10 +78,10 @@ class UnsupportedExtension(_UnsupportedContentTypeIndicator):
     Raised when a file extension is not supported.
     """
 
-    def __init__(self, value: Extension, *extensions: Extension):
+    def __init__(self, value: ResolvableExtension, *extensions: Extension):
         super().__init__(
             Paragraphs(
-                _("Unsupported file type {value}.").format(value=Quote(value)),
+                _("Unsupported file type {value}.").format(value=Quote(str(value))),
                 do_you_mean(*extensions),
             )
         )
@@ -102,9 +103,11 @@ class MissingMediaType(RuntimeError):
     Raised when a content type's media type is missing.
     """
 
-    def __init__(self, content_type: ContentTypeDefinition, /):
+    def __init__(self, content_type: ContentTypeDefinition | None = None, /):
         super().__init__(
             f'Content type "{content_type.id}" does not have any associated media types.'
+            if content_type
+            else "No media type was given."
         )
 
 
@@ -114,18 +117,20 @@ class MissingExtension(RuntimeError):
     Raised when a content type's extension is missing.
     """
 
-    def __init__(self, content_type: ContentTypeDefinition, /):
+    def __init__(self, content_type: ContentTypeDefinition | None = None, /):
         super().__init__(
             f'Content type "{content_type.id}" does not have any associated file extensions.'
+            if content_type
+            else "No extension was given."
         )
 
 
 class MediaTypeNegotiator(
     Negotiator[
         MediaType,
-        "ContentTypeDefinition | ResolvableMediaType",
+        ResolvableMediaType,
         tuple["ContentTypeDefinition", MediaType],
-        UnsupportedMediaType,
+        UnsupportedMediaType | MissingMediaType,
     ],
     Collection[MediaType],
 ):
@@ -137,16 +142,18 @@ class MediaTypeNegotiator(
 
     @final
     @override
-    def _new_unsupported(self, other: MediaType, /) -> UnsupportedMediaType:
+    def _new_unsupported(
+        self, other: ResolvableMediaType, /
+    ) -> UnsupportedMediaType | MissingMediaType:
         return UnsupportedMediaType(other, *self)
 
 
 class ExtensionNegotiator(
     Negotiator[
         Extension,
-        "ContentTypeDefinition | ResolvableExtension",
+        ResolvableExtension,
         tuple["ContentTypeDefinition", Extension],
-        UnsupportedExtension,
+        UnsupportedExtension | MissingMediaType,
     ],
     Collection[Extension],
 ):
@@ -158,16 +165,18 @@ class ExtensionNegotiator(
 
     @final
     @override
-    def _new_unsupported(self, other: Extension, /) -> UnsupportedExtension:
+    def _new_unsupported(
+        self, other: ResolvableExtension, /
+    ) -> UnsupportedExtension | MissingMediaType:
         return UnsupportedExtension(other, *self)
 
 
 class ContentTypeNegotiator(
     Negotiator[
         MachineName,
-        "ResolvableId[ContentTypeDefinition]",
+        "ResolvableId[ContentTypeDefinition] | None",
         "ContentTypeDefinition",
-        UnsupportedContentType,
+        UnsupportedContentType | MissingMediaType,
     ]
 ):
     """
@@ -193,13 +202,34 @@ class ContentTypeNegotiator(
         """
 
 
+class _CollectionMappingNegotiator[
+    KeyT,
+    ResolvableKeyT,
+    MatchT: Not[None],
+    UnsupportedT: Exception,
+    ValueT,
+](
+    MappingNegotiator[KeyT, ResolvableKeyT, MatchT, UnsupportedT, ValueT],
+    Collection[ValueT],
+):
+    def __contains__(self, key: ResolvableKeyT | KeyT):
+        return self._resolve(key) in self._values
+
+    def __iter__(self):
+        return self._values.__iter__()
+
+    def __len__(self):
+        return self._values.__len__()
+
+
 @final
 class _MediaTypeMappingNegotiator(
-    MappingNegotiator[
+    _CollectionMappingNegotiator[
         MediaType,
-        "ContentTypeDefinition | ResolvableMediaType",
+        ResolvableMediaType,
         tuple["ContentTypeDefinition", MediaType],
-        UnsupportedMediaType,
+        UnsupportedMediaType | MissingMediaType,
+        MediaType,
     ],
     MediaTypeNegotiator,
 ):
@@ -208,11 +238,12 @@ class _MediaTypeMappingNegotiator(
 
 @final
 class _ExtensionMappingNegotiator(
-    MappingNegotiator[
+    _CollectionMappingNegotiator[
         Extension,
-        "ContentTypeDefinition | ResolvableExtension",
+        ResolvableExtension,
         tuple["ContentTypeDefinition", Extension],
-        UnsupportedExtension,
+        UnsupportedExtension | MissingMediaType,
+        Extension,
     ],
     ExtensionNegotiator,
 ):
@@ -295,8 +326,12 @@ class ContentTypeDefinition(
 
     @final
     @override
-    def _new_unsupported(self, other: MachineName, /) -> UnsupportedContentType:
-        return UnsupportedContentType(other, self)
+    def _new_unsupported(
+        self, other: ResolvableId[ContentTypeDefinition] | None, /
+    ) -> UnsupportedContentType | MissingMediaType:
+        if other is None:
+            return MissingMediaType()
+        return UnsupportedContentType(resolve_id(other), self)
 
     @override
     def request(
@@ -320,12 +355,19 @@ class ContentTypeDefinition(
 
 
 @final
-class ContentTypeRepository(ContentTypeNegotiator, Collection[ContentTypeDefinition]):
+class ContentTypeRepository(
+    _CollectionMappingNegotiator[
+        MachineName,
+        ResolvableId[ContentTypeDefinition] | None,
+        ContentTypeDefinition,
+        UnsupportedContentType | MissingMediaType,
+        Extension,
+    ],
+    ContentTypeNegotiator,
+):
     """
     A sequence of content types that can be matched against.
     """
-
-    __slots__ = ("_extensions", "_content_types", "_media_types")
 
     def __init__(self, *content_types: ContentTypeDefinition):
         self._content_types = {
@@ -338,16 +380,12 @@ class ContentTypeRepository(ContentTypeNegotiator, Collection[ContentTypeDefinit
         yield from self._content_types.values()
 
     @override
-    def _new_unsupported(self, other: MachineName, /) -> UnsupportedContentType:
-        return UnsupportedContentType(other, *self)
-
-    @override
-    def request(
+    def _new_unsupported(
         self, other: ResolvableId[ContentTypeDefinition] | None, /
-    ) -> ContentTypeDefinition | None:
+    ) -> UnsupportedContentType | MissingMediaType:
         if other is None:
-            return None
-        return self._content_types.get(resolve_id(other), None)
+            return MissingMediaType()
+        return UnsupportedContentType(resolve_id(other), *self)
 
     @override
     @property
