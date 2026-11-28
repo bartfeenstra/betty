@@ -368,10 +368,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
             "persistent": MissingReason.COVERED_ELSEWHERE,
         },
     },
-    "betty/media_type.py": {
-        "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/media_types.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/collection/__init__.py": {
         "Addable": MissingReason.ABSTRACT,
         "Appendable": MissingReason.ABSTRACT,
@@ -395,6 +391,7 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
         "KeyResolvable": MissingReason.ABSTRACT,
         "ValueResolvable": MissingReason.ABSTRACT,
     },
+    "betty/content_types.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/copyright_notice.py": {
         "CopyrightNotice": MissingReason.STATIC_CONTENT_ONLY,
         "CopyrightNoticeDefinition": MissingReason.STATIC_CONTENT_ONLY,
@@ -440,7 +437,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     "betty/operator.py": {
         "Operator": MissingReason.ABSTRACT,
     },
-    "betty/multiprocessing.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/path.py": MissingReason.SHOULD_BE_COVERED,
     "betty/pipeline.py": {
         "Pipeline": {
@@ -684,7 +680,6 @@ _baseline: Final[Mapping[str, _ModuleIgnore]] = {
     },
     "betty/url_generator.py": {
         "GenerationError": MissingReason.ABSTRACT,
-        "UnsupportedMediaType": MissingReason.SHOULD_BE_COVERED,
         "UnsupportedResource": MissingReason.STATIC_CONTENT_ONLY,
         "UrlGenerator": MissingReason.ABSTRACT,
     },

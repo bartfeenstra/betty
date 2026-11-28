@@ -4,35 +4,25 @@ The ``image_resize_cover`` Jinja filter.
 
 from __future__ import annotations
 
-import warnings
-from _asyncio import get_running_loop
-from io import BytesIO
+from asyncio import to_thread
+from pathlib import Path
 from shutil import copyfile
 from typing import TYPE_CHECKING, Self, final, override
-from urllib.parse import quote
 
 from jinja2 import pass_context
-from pdf2image.pdf2image import convert_from_path
-from PIL import Image
-from PIL.Image import DecompressionBombWarning
 
+from betty.content_types import png
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.factory import Manufacturable
 from betty.hashid import hashid_file_meta
-from betty.image import image_file_path_format, resize_cover
+from betty.image.resize_cover import resize_cover
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
-from betty.media_types import svg
 from betty.project import Project
 
 if TYPE_CHECKING:
-    from collections.abc import (
-        Callable,
-    )
-    from concurrent.futures import ProcessPoolExecutor
-    from pathlib import Path
-
+    from betty.image import Imager
     from betty.stores.file import TransientBinaryFileStore
 
 if TYPE_CHECKING:
@@ -54,12 +44,12 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
         self,
         *,
         binary_file_cache: TransientBinaryFileStore,
-        process_pool: ProcessPoolExecutor,
+        imager: Imager,
         www_directory: Path,
     ):
         self._binary_file_cache = binary_file_cache
-        self._process_pool = process_pool
-        self._www_directory = www_directory
+        self._imager = imager
+        self._file_directory = www_directory / "file"
 
     @override
     @Project.require
@@ -67,7 +57,7 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
     async def new(cls, project: Project, /) -> Self:
         return cls(
             binary_file_cache=project.binary_file_cache.with_scope("image"),
-            process_pool=project.app.process_pool,
+            imager=await project.app.imager,
             www_directory=project.www_directory,
         )
 
@@ -76,13 +66,15 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
         self,
         context: Context,
         filey: File | FileReference,
-        size: Size | None = None,
+        size: Size,
+        /,
         *,
         focus: FocusArea | None = None,
     ) -> str:
         """
         :return: A ``betty-static://`` URL resource from which a public URL can be generated.
         """
+        width, height = size
         file = filey if isinstance(filey, File) else filey.file
         assert file is not None
         file_reference = filey if isinstance(filey, FileReference) else None
@@ -94,116 +86,40 @@ class ImageResizeCover(JinjaFilter, Manufacturable):
         ):
             focus = file_reference.focus
 
-        # Treat SVGs as regular files.
-        if file.media_type and file.media_type == svg:
-            return f"betty-static:///file/{quote(file.id)}/file/{quote(file.name)}"
-
         job_context = context_document(context).context
 
-        destination_name = f"{file.id}-"
-        if size is not None:
-            width, height = size
-            if width is None:
-                destination_name += f"-x{height}"
-            elif height is None:
-                destination_name += f"{width}x-"
-            else:
-                destination_name += f"{width}x{height}"
-        if focus is not None:
-            destination_name += f"-{focus[0]}x{focus[1]}x{focus[2]}x{focus[3]}"
-
-        file_directory = self._www_directory / "file"
-
-        if file.media_type:
-            if file.media_type.type == "image":
-                image_loader = _load_image_image
-                destination_name += file.path.suffix
-            elif (
-                file.media_type.type == "application"
-                and file.media_type.subtype == "pdf"
-            ):
-                image_loader = _load_image_application_pdf
-                destination_name += "." + "jpg"
-            else:
-                raise ValueError(
-                    f'Cannot convert a file of media type "{file.media_type}" to an image.'
-                )
+        if width is None:
+            key = f"-x{height}"
+        elif height is None:
+            key = f"{width}x-"
         else:
-            raise ValueError("Cannot convert a file without a media type to an image.")
+            key = f"{width}x{height}"
+        if focus is not None:
+            key += f"-{focus[0]}x{focus[1]}x{focus[2]}x{focus[3]}"
 
-        job_store_key = f"{await hashid_file_meta(file.path)}:{destination_name}"
+        cache_key = f"{await hashid_file_meta(file.path)}:{key}"
         execute_filter = True
         if job_context:
-            async with job_context.store.with_scope("filter_image").hasset(
-                job_store_key
+            async with job_context.store.with_scope(self.definition.id).hasset(
+                cache_key
             ) as setter:
                 if setter:
                     await setter(True)
                 else:
                     execute_filter = False
+        path_parts = (file.id, "file", self.definition.id, key + png.extension)
         if execute_filter:
-            loop = get_running_loop()
-            await loop.run_in_executor(
-                self._process_pool,
-                _execute_filter_image,
-                image_loader,
-                file.path,
-                self._binary_file_cache.file(job_store_key),
-                file_directory,
-                destination_name,
-                size,
-                focus,
-            )
-        return f"betty-static:///file/{quote(destination_name)}"
-
-
-def _load_image_image(file: Path) -> Image.Image:
-    with open(file, "rb") as f:
-        image_f = BytesIO(f.read())
-    # Ignore warnings about decompression bombs, because we know where the files come from.
-    with warnings.catch_warnings(action="ignore", category=DecompressionBombWarning):
-        return Image.open(image_f, formats=[image_file_path_format(file)])
-
-
-def _load_image_application_pdf(file: Path) -> Image.Image:
-    # Ignore warnings about decompression bombs, because we know where the files come from.
-    with warnings.catch_warnings(action="ignore", category=DecompressionBombWarning):
-        return convert_from_path(file)[0]
-
-
-def _execute_filter_image(
-    image_loader: Callable[[Path], Image.Image],
-    file: Path,
-    cache_file: Path,
-    destination_directory: Path,
-    destination_name: str,
-    size: Size | None,
-    focus: FocusArea | None,
-) -> None:
-    destination_file = destination_directory / destination_name
-    destination_directory.mkdir(exist_ok=True, parents=True)
-
-    # If no customizations are needed, work straight from the source.
-    if size is None and file.suffix == destination_file.suffix:
-        copyfile(file, destination_file)
-        return
-
-    try:
-        # Try using a previously cached image.
-        copyfile(cache_file, destination_file)
-    except FileNotFoundError:
-        # Apply customizations, and cache the customized image.
-        original_image = converted_image = image_loader(file)
-        try:
-            cache_file.parent.mkdir(exist_ok=True, parents=True)
-            if size is not None:
-                converted_image = resize_cover(converted_image, size, focus=focus)
-            converted_image.save(
-                cache_file,
-                format=image_file_path_format(destination_file),
-            )
-            del converted_image
-        finally:
-            original_image.close()
-            del original_image
-        copyfile(cache_file, destination_file)
+            destination = Path(self._file_directory, *path_parts)
+            # For monolingual sites, these paths overlap with those created by
+            # :py:class:`betty.jobs.generate_entity.GenerateEntity`, but not for multilingual sites. We therefore try to
+            # create all missing parents, but also allow the directory to exist already.
+            await to_thread(destination.parent.mkdir, exist_ok=True, parents=True)
+            cache_file = self._binary_file_cache.file(cache_key)
+            if not cache_file.exists():
+                image = resize_cover(
+                    await self._imager.open(file.path), size, focus=focus
+                )
+                await to_thread(cache_file.parent.mkdir, exist_ok=True, parents=True)
+                await self._imager.save(image, cache_file, content_type=png)
+            copyfile(cache_file, destination)
+        return f"betty-static:///file/{'/'.join(path_parts)}"

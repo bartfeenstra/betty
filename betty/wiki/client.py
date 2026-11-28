@@ -18,14 +18,12 @@ from betty.exception import HumanFacingException
 from betty.file import write
 from betty.hashid import hashid
 from betty.localizables.gettext import _
-from betty.media_type import resolve_media_type
 from betty.operator import Index, Key, Operator
 
 if TYPE_CHECKING:
     from collections.abc import (
         AsyncGenerator,
         Generator,
-        Iterable,
         Mapping,
         MutableMapping,
     )
@@ -33,8 +31,8 @@ if TYPE_CHECKING:
     from aiohttp import ClientResponse, ClientSession
     from ty_extensions import Intersection
 
+    from betty.content_type import ContentTypeDefinition, ContentTypeNegotiator
     from betty.json import JsonData
-    from betty.media_type import MediaType, ResolvableMediaType
     from betty.user.ui import Ui
 
 
@@ -72,7 +70,7 @@ class Image:
     """
 
     path: Path
-    media_type: MediaType
+    content_type: ContentTypeDefinition
     title: str
     wikimedia_commons_url: str
     name: str
@@ -88,16 +86,13 @@ class Client:
         *,
         download_directory: Path,
         http_client: ClientSession,
-        media_types: Iterable[ResolvableMediaType] = (),
+        content_types: ContentTypeNegotiator,
         ui: Ui,
     ):
         self._download_directory = download_directory
         self._http_client = http_client
         self._images: MutableMapping[str, Image | None] = {}
-        self._media_types = {
-            str(media_type): media_type
-            for media_type in map(resolve_media_type, media_types)
-        }
+        self._content_type = content_types
         self._ui = ui
 
     @contextmanager
@@ -210,10 +205,9 @@ class Client:
         url = f"https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
         image_info_api_data = await self._get_query_api_data(url)
         image_info = self._lookup_json(dict, image_info_api_data, "imageinfo", 0)
-        image_info_media_type = self._lookup_json(str, image_info, "mime")
-        try:
-            image_media_type = self._media_types[image_info_media_type]
-        except KeyError:
+        image_info_mime = self._lookup_json(str, image_info, "mime")
+        image_content_type = self._content_type.request(image_info_mime)
+        if not image_content_type:
             return None
         image_url = self._lookup_json(str, image_info, "url")
         image_title = self._lookup_json(str, image_info, "canonicaltitle")
@@ -231,7 +225,7 @@ class Client:
         await write(image_path, image_data, mode="wb")
         return Image(
             image_path,
-            image_media_type,
+            image_content_type,
             # Strip "File:" or any translated equivalent from the beginning of the image's title.
             image_title[image_title.index(":") + 1 :],
             image_wikimedia_commons_url,

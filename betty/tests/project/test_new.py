@@ -15,7 +15,7 @@ async def test_new(isolated_app: App, tmp_path: Path) -> None:
     url = "https://exampleexampleexample.com/example"
     await new(isolated_app, ProjectConfig(title=title, url=url), configuration_file)
     configuration = ProjectConfig.definition.porter.load(
-        assert_load_file(serializers=[Json()])(configuration_file)
+        assert_load_file(Json())(configuration_file)
     )
     assert default_localizer.localize(configuration.title) == title
     assert configuration.url == url

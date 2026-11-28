@@ -9,6 +9,10 @@ from pathlib import Path
 
 # This mimics _typeshed.StrPath
 type StrPath = str | PathLike[str]
+type ResolvableExtension = Extension | StrPath
+"""
+A file extension.
+"""
 
 
 def resolve_path(path: StrPath) -> Path:
@@ -18,3 +22,20 @@ def resolve_path(path: StrPath) -> Path:
     if isinstance(path, Path):
         return path
     return Path(path)
+
+
+class Extension(str):
+    """
+    A file extension.
+    """
+
+    __slots__ = ()
+
+    def __new__(  # noqa: D102
+        cls, extension: ResolvableExtension, /
+    ):
+        if isinstance(extension, cls):
+            return extension
+        path = resolve_path(extension)
+        suffix = path.suffix or path.name
+        return super().__new__(cls, "." + suffix.lstrip(".").lower() if suffix else "")

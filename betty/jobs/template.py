@@ -13,7 +13,6 @@ from betty.collections.mapping.dict import empty_frozen_dict
 from betty.file import write
 from betty.jinja import TemplateNames, resolve_template_names
 from betty.job import Job
-from betty.media_type import MediaType, match_extension
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -22,6 +21,7 @@ if TYPE_CHECKING:
     import jinja2
     from jinja2 import Template
 
+    from betty.content_type import ContentTypeDefinition
     from betty.jinja import ResolvableTemplateNames, TemplateData
     from betty.job.scheduler import Scheduler
     from betty.project import Project
@@ -103,14 +103,14 @@ class _ResourceTemplate[ResourceT](Job, metaclass=ABCMeta):
         """
         Get the job ID.
         """
-        return f"{cls.id_prefix(resource)}:{cls._match_extension(resolve_template_names(cls.template(resource)), project=project)[1]}"
+        return f"{cls.id_prefix(resource)}:{cls._match_extension(resolve_template_names(cls.template(resource)), project=project)[0].id}"
 
     @final
     @classmethod
     def _match_extension(
         cls, templates: TemplateNames, /, *, project: Project
-    ) -> tuple[MediaType, str]:
-        return match_extension(templates[0][:-3], project.app.media_types)
+    ) -> tuple[ContentTypeDefinition, str]:
+        return project.app.known_content_types.extensions.require(templates[0][:-3])
 
 
 class ResourceTemplate[ResourceT](_ResourceTemplate[ResourceT], metaclass=ABCMeta):
@@ -124,7 +124,9 @@ class ResourceTemplate[ResourceT](_ResourceTemplate[ResourceT], metaclass=ABCMet
         jinja = await self._project.jinja
         templates = resolve_template_names(self.template(self._resource))
         template = jinja.select_template(templates)
-        media_type, extension = self._match_extension(templates, project=self._project)
+        content_type, extension = self._match_extension(
+            templates, project=self._project
+        )
         await scheduler.add(*[
             Template(
                 f"{self.id}:{locale.locale}",
@@ -138,7 +140,7 @@ class ResourceTemplate[ResourceT](_ResourceTemplate[ResourceT], metaclass=ABCMet
                         self._resource,
                         context=scheduler.context,
                         localizer=await self._project.localizers.get(locale.locale),
-                        media_type=media_type,
+                        content_type=content_type,
                     )
                 },
             )
@@ -201,7 +203,9 @@ class CollectionResourceTemplate[ResourceT, ResourceItemT](
         jinja = await self._project.jinja
         templates = resolve_template_names(self.template(self._resource))
         template = jinja.select_template(templates)
-        media_type, extension = self._match_extension(templates, project=self._project)
+        content_type, extension = self._match_extension(
+            templates, project=self._project
+        )
         jobs = []
         for page in range(page_count):
             resource_items = self._resource_items[
@@ -225,7 +229,7 @@ class CollectionResourceTemplate[ResourceT, ResourceItemT](
                             self._resource,
                             context=scheduler.context,
                             localizer=await self._project.localizers.get(locale.locale),
-                            media_type=media_type,
+                            content_type=content_type,
                             resource_items=resource_items,
                             page=page,
                             page_count=page_count,

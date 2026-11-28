@@ -2,9 +2,9 @@ from typing import Any
 
 import pytest
 
+from betty.content_types import html
 from betty.entity import Entity, EntityDefinition
 from betty.locale import default_locale, default_locale_tag
-from betty.media_types import html
 from betty.test_utils.entity import DummyEntityOne
 from betty.url_generators.entity_type import EntityTypeUrlGenerator
 from betty.url_generators.path import PathUrlGenerator
@@ -54,4 +54,4 @@ class TestEntityTypeUrlGenerator:
                 clean_urls=True,
             )
         )
-        assert sut.generate(entity_type, media_type=html) == expected
+        assert sut.generate(entity_type, content_type=html) == expected

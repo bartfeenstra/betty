@@ -13,12 +13,12 @@ from betty.content_builders.template import Template, TemplateBuild
 from betty.datas.entity_reference import EntityReference
 from betty.entity import ResolvableEntity, resolve
 from betty.factory import DataManufacturable
-from betty.image import is_supported_media_type
 from betty.localizables.gettext import _
 from betty.project import Project
 from betty.service_providers._theme import associated_file_references
 
 if TYPE_CHECKING:
+    from betty.content_type import ContentTypeNegotiator
     from betty.document import Document
     from betty.entities.file_reference import FileReference
     from betty.entity import Entity
@@ -38,9 +38,16 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
     .. plugin:: content-builder:raspberry-mint-entity-card
     """
 
-    def __init__(self, *, entity: ResolvableEntity, jinja: Environment):
+    def __init__(
+        self,
+        *,
+        entity: ResolvableEntity,
+        image_types: ContentTypeNegotiator,
+        jinja: Environment,
+    ):
         super().__init__(jinja=jinja)
         self._entity = entity
+        self._image_types = image_types
 
     @override
     @classmethod
@@ -53,6 +60,7 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
     async def new(cls, project: Project, data: EntityReference, /) -> Self:
         return cls(
             entity=lambda: project.ancestry[data.type][data.id],
+            image_types=(await project.upstream.imager).openable,
             jinja=await project.jinja,
         )
 
@@ -72,9 +80,7 @@ class EntityCard(Template, DataManufacturable[EntityReference]):
             for file_reference in associated_file_references(entity):
                 if file_reference.file.private:
                     continue
-                if file_reference.file.media_type is None:
-                    continue
-                if not is_supported_media_type(file_reference.file.media_type):
+                if not self._image_types.request(file_reference.file.content_type):
                     continue
                 return file_reference
         return None

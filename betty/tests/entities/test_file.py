@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING, cast, override
 
 import pytest
 
+from betty.content_types import plain_text
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.entities.note import Note
 from betty.entity import Entity
-from betty.media_types import plain_text
 from betty.privacy import Privacy
 from betty.test_utils.associations.has_file_references import (
     DummyHasFileReferences,
@@ -52,12 +52,12 @@ class TestFile(EntityTestBase):
         sut.private = True
         assert sut.private is True
 
-    def test_media_type(self) -> None:
+    def test_content_type(self) -> None:
         sut = File(Path(__file__))
-        assert sut.media_type is None
-        media_type = plain_text
-        sut.media_type = media_type
-        assert sut.media_type == media_type
+        assert sut.content_type is None
+        content_type = plain_text
+        sut.content_type = content_type
+        assert sut.content_type == content_type
 
     def test_path__with_path(self) -> None:
         with NamedTemporaryFile() as f:

@@ -5,24 +5,28 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 from __future__ import annotations
 
 from email.message import EmailMessage
-from typing import TYPE_CHECKING, Final, Self, final, override
+from enum import StrEnum, auto
+from typing import TYPE_CHECKING, Any, final, override
 
 from betty.assertions.str import assert_str
+from betty.collections.mapping.dict import FrozenDict, empty_frozen_dict
 from betty.data import Data, DataDefinition
-from betty.definition.human_facing import HumanFacingDefinition
-from betty.definition.ordered import Order, OrderedDefinition
-from betty.freezers.init import FrozenOnInit
-from betty.localizables.gettext import _, ngettext
-from betty.pathlib import StrPath
-from betty.plugin import PluginDefinition, PluginTypeDefinition
+from betty.freezers.frozen import Frozen
+from betty.localizables.gettext import _
+from betty.localizables.markup import do_you_mean
+from betty.localizer import default_localizer
+from betty.pipeline import pipe
 from betty.porters.callback import CallbackPorter
+from betty.sample import Sample
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, Sequence
+    from collections.abc import Mapping, Sequence
 
-    from betty.localizer import AnyLocalizable
-    from betty.machine_name import ResolvableMachineName
-    from betty.portable import PortableData
+
+type ResolvableMediaType = MediaType | str
+"""
+A value that can be resolved to a :py:class:`betty.media_type.MediaType`.
+"""
 
 
 class InvalidMediaType(ValueError):
@@ -31,63 +35,63 @@ class InvalidMediaType(ValueError):
     """
 
 
-class UnsupportedMediaType(RuntimeError):
+@final
+class MediaTypeType(StrEnum):
     """
-    Raised when a media type is not supported.
-    """
-
-    def __init__(self, media_type: MediaTypeIndicator, /):
-        super().__init__(f"Unsupported media type: {media_type}")
-
-
-class MissingMediaType(RuntimeError):
-    """
-    Raised when a media type is not missing.
+    A top-level media type.
     """
 
-    def __init__(self):
-        super().__init__("Missing media type")
+    APPLICATION = auto()
+    AUDIO = auto()
+    EXAMPLE = auto()
+    FONT = auto()
+    HAPTICS = auto()
+    IMAGE = auto()
+    MESSAGE = auto()
+    MODEL = auto()
+    MULTIPART = auto()
+    TEXT = auto()
+    VIDEO = auto()
 
-
-__load = assert_str()
-
-
-def _load(portable: PortableData, /) -> MediaType:
-    return MediaType(__load(portable))
+    @override
+    @classmethod
+    def _missing_(cls, value: object) -> Any:
+        raise InvalidMediaType(
+            f'"{value}" is not a valid top-level media type. '
+            + default_localizer.localize(do_you_mean(*sorted(cls)))
+        )
 
 
 @final
 @DataDefinition(
     label=_("Media type"),
-    porter=CallbackPorter(_load, lambda media_type: media_type._str),
+    porter=lambda _: CallbackPorter(assert_str() | MediaType, pipe),
+    samples=Sample(lambda: MediaType("text/plain"), label="Plain text"),
 )
-class MediaType(Data, FrozenOnInit):
+class MediaType(Frozen, str, Data):
     """
     Define a `media type <https://en.wikipedia.org/wiki/Media_type>`_.
 
     Media types are also commonly known as content types or MIME types.
     """
 
-    _suffix: str | None
+    __slots__ = ("_parameters", "_type", "_subtype", "_subtypes", "_suffix")
 
-    def __init__(self, media_type: str, *, extensions: Sequence[str] = ()):
-        self._str = media_type
+    def __new__(  # noqa: D102
+        cls, media_type: ResolvableMediaType, /
+    ):
+        if isinstance(media_type, cls):
+            return media_type
         message = EmailMessage()
         message["Content-Type"] = media_type
+        message_params = message["Content-Type"].params
+        parameters = FrozenDict(message_params) if message_params else empty_frozen_dict
         type_part = message.get_content_type()
         # EmailMessage.get_content_type() always returns a type, and will fall back to alternatives if the header is
         # invalid.
         if not media_type.startswith(type_part):
             raise InvalidMediaType(f'"{media_type}" is not a valid media type.')
-        self.parameters: Mapping[str, str] = dict(message["Content-Type"].params)
-        """
-        The parameters, e.g. ``{"charset": "UTF-8"}`` for ``"text/html; charset=UTF-8"``.
-        """
-        _type, type_part_remainder = type_part.split("/")
-        self.type: Final[str] = _type
-        """
-        The type, e.g. ``application`` for ``application/ld+json``.
-        """
+        type_, type_part_remainder = type_part.split("/")
         if not type_part_remainder:
             raise InvalidMediaType("The subtype must not be empty.")
         plus_position = type_part_remainder.find("+")
@@ -97,138 +101,51 @@ class MediaType(Data, FrozenOnInit):
         else:
             subtype = type_part_remainder
             suffix = None
-        self.subtype: Final[str] = subtype
+        subtypes = subtype.split("+")[0].split(".")
+        normalized = type_.lower() + "/" + subtype.lower()
+        if suffix:
+            normalized += suffix.lower()
+        for parameter_name in parameters:
+            normalized += f"; {parameter_name.lower()}={parameters[parameter_name]}"
+        new = super().__new__(cls, normalized)
+        new._parameters = parameters
+        new._type = type_
+        new._subtype = subtype
+        new._subtypes = subtypes
+        new._suffix = suffix
+        return new
+
+    @property
+    def parameters(self) -> Mapping[str, str]:
+        """
+        The parameters, e.g. ``{"charset": "UTF-8"}`` for ``"text/html; charset=UTF-8"``.
+        """
+        return self._parameters
+
+    @property
+    def type(self) -> MediaTypeType:
+        """
+        The type, e.g. ``application`` for ``application/ld+json``.
+        """
+        return self._type
+
+    @property
+    def subtype(self) -> str:
         """
         The subtype, e.g. ``"vnd.oasis.opendocument.text"`` for ``"application/vnd.oasis.opendocument.text"``.
         """
-        self.subtypes = subtype.split("+")[0].split(".")
+        return self._subtype
+
+    @property
+    def subtypes(self) -> Sequence[str]:
         """
         The subtype parts, e.g. ``["vnd", "oasis", "opendocument", "text"]`` for ``"application/vnd.oasis.opendocument.text"``.
         """
-        self.suffix: Final[str | None] = suffix
+        return self._subtypes
+
+    @property
+    def suffix(self) -> str | None:
         """
         The suffix, e.g. ``json`` for ``application/ld+json``.
         """
-        self.extensions: Sequence[str] = extensions
-        """
-        The file extensions associated with this media type.
-
-        Extensions must include a leading dot, and are returned in order of decreasing priority.
-        """
-
-    @override
-    def __hash__(self) -> int:
-        return hash(self._str)
-
-    @override
-    def __str__(self) -> str:
-        return self._str
-
-    @override
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, str):
-            try:
-                return self == MediaType(other)
-            except InvalidMediaType:
-                return False
-        if not isinstance(other, MediaType):
-            return NotImplemented
-        return (self.type, self.subtype, self.suffix, self.parameters) == (
-            other.type,
-            other.subtype,
-            self.suffix,
-            other.parameters,
-        )
-
-
-type MediaTypeIndicator = MediaType | StrPath
-"""
-A media type, or a file path or name that indicates a media type through its file extension.
-"""
-
-
-def match_media_type(
-    match: MediaType, supported_media_types: Iterable[ResolvableMediaType], /
-) -> MediaType:
-    """
-    Match a media type against available media types.
-    """
-    for supported_media_type in map(resolve_media_type, supported_media_types):
-        if supported_media_type == match:
-            return supported_media_type
-    raise UnsupportedMediaType(match)
-
-
-def match_extension(
-    match: StrPath, supported_media_types: Iterable[ResolvableMediaType], /
-) -> tuple[MediaType, str]:
-    """
-    Match a file extension indicator against available media types.
-    """
-    match = str(match)
-    for supported_media_type in map(resolve_media_type, supported_media_types):
-        for extension in supported_media_type.extensions:
-            if match.endswith(extension):
-                return supported_media_type, extension
-    raise UnsupportedMediaType(match)
-
-
-@final
-@PluginTypeDefinition(
-    "media-type",
-    label=_("Media type"),
-    label_plural=_("Media types"),
-    label_countable=ngettext("{count} media type", "{count} media types"),
-)
-class MediaTypeDefinition(HumanFacingDefinition, OrderedDefinition, PluginDefinition):
-    """
-    .. plugin_type:: media-type.
-    """
-
-    def __init__(
-        self,
-        media_type_id: ResolvableMachineName,
-        *,
-        label: AnyLocalizable,
-        description: AnyLocalizable | None = None,
-        media_type: MediaType,
-        after: Order[Self] = (),
-        auto: bool = True,
-        before: Order[Self] = (),
-    ):
-        super().__init__(
-            media_type_id,
-            after=after,
-            auto=auto,
-            before=before,
-            description=description,
-            label=label,
-        )
-        self._media_type = media_type
-
-    @override
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, MediaType):
-            return self.media_type == other
-        if not isinstance(other, MediaTypeDefinition):
-            return NotImplemented
-        return self.id == other.id and self.media_type == other.media_type
-
-    @property
-    def media_type(self) -> MediaType:
-        """
-        The media type.
-        """
-        return self._media_type
-
-
-type ResolvableMediaType = MediaType | MediaTypeDefinition
-
-
-def resolve_media_type(media_type: ResolvableMediaType, /) -> MediaType:
-    """
-    Resolve a media type.
-    """
-    if isinstance(media_type, MediaType):
-        return media_type
-    return media_type.media_type
+        return self._suffix

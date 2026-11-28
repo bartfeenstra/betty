@@ -33,6 +33,16 @@ from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.attrs.privacy import HasPrivacy
 from betty.collections.mapping.dict import empty_frozen_dict
+from betty.content_type import ContentTypeDefinition, ContentTypeRepository
+from betty.content_types import (
+    csv,
+    gedcom,
+    geneweb,
+    gramps_xml,
+    gramps_xml_package,
+    pro_gen,
+    vcard,
+)
 from betty.copyright_notice import CopyrightNoticeManufacturer
 from betty.date import AnyDate, Date, DateRange
 from betty.definition.cls import ClsDefinition
@@ -89,7 +99,6 @@ from betty.localizables.gettext import _, pgettext
 from betty.localizables.markup import JoinOr, Quote
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
-from betty.media_type import InvalidMediaType, MediaType
 from betty.pathlib import resolve_path
 from betty.place_type import PlaceTypeManufacturer, ResolvablePlaceTypeManufacturer
 from betty.place_types.borough import Borough
@@ -282,29 +291,19 @@ default_role_mapping: Final[Mapping[str, ResolvableRoleManufacturer | None]] = {
 _default_gramps_executable: Final[str] = (
     "Gramps.exe" if sys.platform.startswith("win32") else "gramps"
 )
-_gramps_extensions_native: Final[Sequence[str]] = (
-    # Gramps package
-    ".gpkg",
-    # Gramps XML
-    ".gramps",
+_gramps_content_types_native: Final[Sequence[ContentTypeDefinition]] = (
+    gramps_xml,
+    gramps_xml_package,
 )
-_gramps_extensions_import: Final[Sequence[str]] = (
-    # CSV
-    ".csv",
-    # GEDCOM
-    ".ged",
-    # GeneWeb
-    ".gw",
-    # Gramps 2.x database
-    ".grdb",
-    # Pro-Gen
-    ".def",
-    # vCard
-    ".vcf",
+_gramps_content_types_vendor: Final[Sequence[ContentTypeDefinition]] = (
+    csv,
+    gedcom,
+    geneweb,
+    pro_gen,
+    vcard,
 )
-_gramps_extensions: Final[Sequence[str]] = (
-    *_gramps_extensions_native,
-    *_gramps_extensions_import,
+_gramps_content_types: Final[ContentTypeRepository] = ContentTypeRepository(
+    *_gramps_content_types_native, *_gramps_content_types_vendor
 )
 
 
@@ -440,16 +439,16 @@ class GrampsLoader:
             Severity.INFO,
         )
 
-        if file.suffix == ".gpkg":
+        if gramps_xml_package.extensions.request(file):
             return await self.load_gpkg(file)
-        if file.suffix == ".gramps":
+        if gramps_xml.extensions.request(file):
             return await self.load_gramps(file)
-        if file.suffix in _gramps_extensions_import:
+        if file.suffix in _gramps_content_types_vendor:
             return await self._load_file_gramps_import(file)
 
         raise UserFacingGrampsError(
             _("Only the following file types can be loaded: {file_extensions}").format(
-                file_extensions=JoinOr(*sorted(_gramps_extensions))
+                file_extensions=JoinOr(*sorted(_gramps_content_types.extensions))
             )
         )
 
@@ -819,8 +818,31 @@ class GrampsLoader:
             path=file_path,
         )
         mime = file_element.get("mime")
-        assert mime is not None
-        file.media_type = MediaType(mime)
+        # @todo Validate first, then request!
+        # @todo Extract this into a separate method?
+        # @todo
+        # @todo Ideeally we'd use error locations, but that is for the next PR that is in progress...
+        # @todo
+        # @todo Remember that this is some of Betty's oldest code. We'd probably do good to reduce the number of
+        # @todo variations in translatable strings, because we want to expand our loading and validation in the near
+        # @todo future as well... (e.g. raise an error specific to a value, then add the Gramps entity and the relevant
+        # @todo field/attribute as a location.
+        # @todo
+        # @todo
+        content_type = self._project.app.known_content_types.request(mime)
+        if mime and not content_type:
+            await self._ui.message(
+                _(
+                    "The Gramps {gramps_entity_reference} entity has a MIME type of {attribute_value}, which is not a known content type. This MIME type was ignored.",
+                ).format(
+                    gramps_entity_reference=str(
+                        GrampsEntityReference(GrampsEntityType.OBJECT, file_id)
+                    ),
+                    attribute_value=Quote(mime),
+                ),
+                Severity.WARN,
+            )
+        file.content_type = content_type
         description = file_element.get("description")
         if description:
             file.description = description
@@ -1442,23 +1464,25 @@ class GrampsLoader:
                         element, tag, f"link-{link_name}:label"
                     )
                 )
-            if "media_type" in link_attributes:
-                try:
-                    media_type = MediaType(link_attributes["media_type"])
-                except InvalidMediaType:
+            if "content_type" in link_attributes:
+                content_type = self._project.app.known_content_types.request(
+                    link_attributes["content_type"]
+                )
+                if not content_type:
                     await self._ui.message(
                         _(
-                            "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a valid IANA media type. This media type was ignored.",
+                            "The Gramps {gramps_entity_reference} entity has a {attribute_name} attribute with value {attribute_value}, which is not a known content type. This content type was ignored.",
                         ).format(
                             gramps_entity_reference=str(gramps_entity_reference),
-                            link_name=link_name,
-                            attribute_name=Quote(f"betty:link-{link_name}:media_type"),
-                            attribute_value=Quote(link_attributes["media_type"]),
+                            attribute_name=Quote(
+                                f"betty:link-{link_name}:content_type"
+                            ),
+                            attribute_value=Quote(link_attributes["content_type"]),
                         ),
                         Severity.WARN,
                     )
                 else:
-                    link.media_type = media_type
+                    link.content_type = content_type
             if "relationship" in link_attributes:
                 link.relationship = link_attributes["relationship"]
 

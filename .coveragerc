@@ -4,7 +4,6 @@ omit =
     betty/sphinx/extension/betty.py
 branch = True
 concurrency =
-    multiprocessing
     thread
 parallel = True
 source = betty

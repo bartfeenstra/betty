@@ -5,22 +5,21 @@ The (de)serialization API.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Final, final
 
+from betty.content_type import ContentTypeRepository
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.exception import HumanFacingException
 from betty.localizables.gettext import _, ngettext
-from betty.localizables.markup import JoinOr, Quote
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
+    from betty.content_type import ContentTypeDefinition
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.media_type import MediaType
+    from betty.pathlib import StrPath
     from betty.portable import PortableData
     from betty.requirement import Requires
 
@@ -35,13 +34,6 @@ class Serializer(HasDefinition["SerializerDefinition"], metaclass=ABCMeta):
     """
     A serializer.
     """
-
-    @classmethod
-    @abstractmethod
-    def media_type(cls) -> MediaType:
-        """
-        The media type this serializer can serialize.
-        """
 
     @abstractmethod
     def load(self, serialized: str, /) -> PortableData:
@@ -74,7 +66,9 @@ class SerializerDefinition(
 
     def __init__(
         self,
-        serializer_id: ResolvableMachineName,
+        id_: ResolvableMachineName,
+        content_type: ContentTypeDefinition,
+        /,
         *,
         label: AnyLocalizable,
         auto: bool = True,
@@ -82,33 +76,17 @@ class SerializerDefinition(
         requires: Requires = (),
     ):
         super().__init__(
-            serializer_id,
-            auto=auto,
-            label=label,
-            description=description,
-            requires=requires,
+            id_, auto=auto, label=label, description=description, requires=requires
         )
+        self.content_type: Final[ContentTypeDefinition] = content_type
 
 
-def serializer_for(
-    available_serializers: Iterable[Serializer], extension: str, /
-) -> Serializer:
+# @todo Refactor this around ContentTypeNegotiator?
+def serializer_for(file: StrPath, *serializers: Serializer) -> Serializer:
     """
     Get the serializer for the given file extension.
     """
-    for available_serializer in available_serializers:
-        if extension in available_serializer.media_type().extensions:
-            return available_serializer
-    raise SerializationError(
-        _("Unsupported file {unsupported}. Supported types are: {supported}.").format(
-            unsupported=Quote(extension),
-            supported=JoinOr(*[
-                _("{extension} ({available_type})").format(
-                    extension=extension,
-                    available_type=available_serializer.definition.label,
-                )
-                for available_serializer in available_serializers
-                for extension in available_serializer.media_type().extensions
-            ]),
-        )
-    )
+    mapping = {
+        serializer.definition.content_type: serializer for serializer in serializers
+    }
+    return mapping[ContentTypeRepository(*mapping).extensions.require(file)[0]]

@@ -11,12 +11,12 @@
 <meta name="twitter:card" content="summary_large_image">
 {% if document.resource %}
     {% if document.resource is has_file_references %}
-        {% set page_image_reference = document.resource.files | selectattr('file.public') | selectattr('file.media_type', 'image_media_type_supported') | first %}
+        {% set page_image_reference = document.resource.files | selectattr('file.public') | selectattr('file.content_type', 'openable_image') | first %}
         {% if page_image_reference is defined %}
             {% set page_image = page_image_reference.file %}
             {% set page_image_url = ('betty-static://' ~ page_image_reference | image_resize_cover((500, 500))) | url(absolute=true) %}
             <meta name="og:image" content="{{ page_image_url }}">
-            <meta name="og:image:type" content="{{ page_image.media_type }}">
+            <meta name="og:image:type" content="{{ page_image.content_type }}">
             <meta name="twitter:image" content="{{ page_image_url }}">
             {% if page_image.description %}
                 <meta name="og:image:description" content="{{ page_image.description | localize }}">

@@ -13,9 +13,9 @@ from betty.url_generator import UrlGenerator
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from betty.content_type import ContentTypeDefinition
     from betty.entity.collection.pool import EntityPool
     from betty.locale import ResolvableLocale
-    from betty.media_type import ResolvableMediaType
     from betty.url_generators.entity import EntityUrlGenerator
 
 
@@ -57,7 +57,7 @@ class EntityUrlUrlGenerator(UrlGenerator[str]):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: ResolvableMediaType | None = None,
+        content_type: ContentTypeDefinition | None = None,
         query: Mapping[str, Sequence[str]] = empty_frozen_dict,
     ) -> str:
         url_parts = urlsplit(resource)
@@ -69,6 +69,6 @@ class EntityUrlUrlGenerator(UrlGenerator[str]):
             absolute=absolute,
             fragment=fragment,
             locale=locale,
-            media_type=media_type,
+            content_type=content_type,
             query=query,
         )

@@ -18,7 +18,7 @@ from betty.test_utils.user.ui import StaticUi
 
 def _assert_new(configuration_file: Path) -> ProjectConfig:
     return ProjectConfig.definition.porter.load(
-        assert_load_file(serializers=[Json()])(configuration_file)
+        assert_load_file(Json())(configuration_file)
     )
 
 

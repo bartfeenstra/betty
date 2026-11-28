@@ -23,8 +23,9 @@ from betty.service_level import ServiceLevel
 from betty.service_provider import ServiceProvider
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, MutableMapping, Sequence
+    from collections.abc import Iterable, Mapping, MutableMapping, Sequence
 
+    from betty.content_type import ContentTypeDefinition
     from betty.jinja import Environment
     from betty.job import Context
     from betty.pathlib import StrPath
@@ -115,16 +116,18 @@ class Builder:
 
     def __init__(
         self,
+        *,
         entry_point_providers: Sequence[EntryPointProvider],
         debug: bool,
         jinja: Environment,
+        content_types: Iterable[ContentTypeDefinition],
         root: str,
-        *,
         ui: Ui,
     ) -> None:
         self._entry_point_providers = entry_point_providers
         self._debug = debug
         self._jinja = jinja
+        self.content_types = tuple(content_types)
         self._root = root
         self._ui = ui
 
@@ -167,7 +170,9 @@ class Builder:
             / _package_name_to_path(cast(str, package_json["name"]))
         )
         copy_function = make_copy_function(
-            self._jinja, document=Document(context=context)
+            self._jinja,
+            document=Document(context=context),
+            content_types=self.content_types,
         )
         copies = []
         for directory, _, file_names in entry_point_directory.walk():

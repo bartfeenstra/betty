@@ -5,9 +5,9 @@ from typing import Any, TypeGuard, override
 import pytest
 
 from betty.collections.mapping.dict import empty_frozen_dict
+from betty.content_type import ContentTypeDefinition
+from betty.content_types import html, json
 from betty.locale import ResolvableLocale
-from betty.media_type import ResolvableMediaType
-from betty.media_types import html, json
 from betty.url_generator import UnsupportedResource, UrlGenerator
 from betty.url_generators.dispatcher import UrlGeneratorDispatcher
 
@@ -27,12 +27,12 @@ class TestUrlGeneratorDispatcher:
             absolute: bool = False,
             fragment: str | None = None,
             locale: ResolvableLocale | None = None,
-            media_type: ResolvableMediaType | None = None,
+            content_type: ContentTypeDefinition | None = None,
             query: Mapping[str, Sequence[str]] = empty_frozen_dict,
         ) -> str:
             return dumps({
                 "resource": resource,
-                "media_type": str(media_type),
+                "content_type": str(content_type),
                 "absolute": absolute,
                 "locale": locale,
                 "fragment": fragment,
@@ -53,7 +53,7 @@ class TestUrlGeneratorDispatcher:
             absolute: bool = False,
             fragment: str | None = None,
             locale: ResolvableLocale | None = None,
-            media_type: ResolvableMediaType | None = None,
+            content_type: ContentTypeDefinition | None = None,
             query: Mapping[str, Sequence[str]] = empty_frozen_dict,
         ) -> str:
             raise UnsupportedResource(resource)  # pragma: nocover
@@ -83,7 +83,7 @@ class TestUrlGeneratorDispatcher:
     @pytest.mark.parametrize(
         (
             "resource",
-            "media_type",
+            "content_type",
             "absolute",
             "locale",
             "fragment",
@@ -143,7 +143,7 @@ class TestUrlGeneratorDispatcher:
     async def test_generate(
         self,
         resource: Any,
-        media_type: ResolvableMediaType,
+        content_type: ContentTypeDefinition,
         absolute: bool,
         locale: ResolvableLocale | None,
         fragment: str | None,
@@ -159,12 +159,12 @@ class TestUrlGeneratorDispatcher:
                 absolute=absolute,
                 fragment=fragment,
                 locale=locale,
-                media_type=media_type,
+                content_type=content_type,
                 query=query,
             )
         ) == {
             "resource": resource,
-            "media_type": str(media_type),
+            "content_type": str(content_type),
             "absolute": absolute,
             "locale": locale,
             "fragment": fragment,

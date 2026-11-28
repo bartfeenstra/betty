@@ -8,8 +8,8 @@
                 <a href="{{ generated_link_url }}"{% if localized_link_url.locale is not none %}
                    hreflang="{{ localized_link_url.locale | to_language_tag }}"{% endif %}
                         {% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}
-                        {% if link.media_type is not none %}
-                   type="{{ link.media_type }}"{% endif %}>{{ link.label | localize or generated_link_url }}</a>
+                        {% if link.content_type is not none %}
+                   type="{{ link.content_type }}"{% endif %}>{{ link.label | localize or generated_link_url }}</a>
                 {% if link.description %}
                     <p class="small">{{ link.description | localize }}</p>
                 {% endif %}

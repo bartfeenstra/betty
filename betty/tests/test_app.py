@@ -46,17 +46,14 @@ class TestApp:
     async def test_localizers(self, isolated_app: App) -> None:
         assert isolated_app.localizers is isolated_app.localizers
 
-    async def test_process_pool(self, isolated_app: App) -> None:
-        assert isolated_app.process_pool is isolated_app.process_pool
-
     async def test_binary_file_cache(self, isolated_app: App) -> None:
         assert isolated_app.binary_file_cache is isolated_app.binary_file_cache
 
     async def test_cache(self, isolated_app: App) -> None:
         assert isolated_app.cache is isolated_app.cache
 
-    async def test_media_types(self, isolated_app: App) -> None:
-        assert isolated_app.media_types is isolated_app.media_types
+    async def test_content_types(self, isolated_app: App) -> None:
+        assert isolated_app.content_types is isolated_app.content_types
 
     async def test_rate_limits(self, isolated_app: App) -> None:
         assert isolated_app.rate_limits is isolated_app.rate_limits

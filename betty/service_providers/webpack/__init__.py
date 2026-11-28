@@ -63,13 +63,14 @@ class Webpack(Generator, ServiceProvider[Project], Manufacturable):
         The Webpack builder.
         """
         return build.Builder(
-            [
+            entry_point_providers=[
                 extension
                 for extension in await gather(*self.services.service_providers)
                 if isinstance(extension, EntryPointProvider)
             ],
-            self.services.debug,
-            await self.services.jinja,
-            self.services.root_path,
+            debug=self.services.debug,
+            jinja=await self.services.jinja,
+            content_types=self.services.app.known_content_types,
+            root=self.services.root_path,
             ui=self.services.upstream.ui,
         )

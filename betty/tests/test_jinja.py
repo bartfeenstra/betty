@@ -42,34 +42,40 @@ async def test_make_copy_function__www_directory(
     isolated_project: Project, tmp_path: Path
 ) -> None:
     environment = await new_environment(isolated_project)
-    source_file = tmp_path / "source.test.j2"
+    source_file = tmp_path / "source.txt.j2"
     with open(source_file, "w", encoding="utf-8") as f:
         f.write("{{ document.resource }}\n{{ document.resource_url }}")
     www_directory = tmp_path / "www"
-    destination_file = www_directory / "destination.test.j2"
-    rendered_destination_file = www_directory / "destination.test"
+    destination_file = www_directory / "destination.txt.j2"
+    rendered_destination_file = www_directory / "destination.txt"
     copy_function = make_copy_function(
-        environment, www_directory=www_directory, document=Document()
+        environment,
+        www_directory=www_directory,
+        document=Document(),
+        content_types=isolated_project.app.known_content_types,
     )
     await copy_function(source_file, destination_file)
     with open(rendered_destination_file, encoding="utf-8") as f:
         assert (
             f.read()
-        ).strip() == f"{rendered_destination_file}\nbetty:///destination.test"
+        ).strip() == f"{rendered_destination_file}\nbetty:///destination.txt"
 
 
 async def test_make_copy_function__www_directory_with_hidden_file(
     isolated_project: Project, tmp_path: Path
 ) -> None:
     environment = await new_environment(isolated_project)
-    source_file = tmp_path / "source.test.j2"
+    source_file = tmp_path / "source.txt.j2"
     with open(source_file, "w", encoding="utf-8") as f:
         f.write("{{ document.resource }}\n{{ document.resource_url }}")
     www_directory = tmp_path / "www"
-    destination_file = www_directory / ".destination.test.j2"
-    rendered_destination_file = www_directory / ".destination.test"
+    destination_file = www_directory / ".destination.txt.j2"
+    rendered_destination_file = www_directory / ".destination.txt"
     copy_function = make_copy_function(
-        environment, www_directory=www_directory, document=Document()
+        environment,
+        www_directory=www_directory,
+        document=Document(),
+        content_types=isolated_project.app.known_content_types,
     )
     await copy_function(source_file, destination_file)
     with open(rendered_destination_file, encoding="utf-8") as f:
@@ -80,23 +86,24 @@ async def test_make_copy_function__www_directory_and_is_localized_and_multilingu
     isolated_project: Project, tmp_path: Path
 ) -> None:
     environment = await new_environment(isolated_project)
-    source_file = tmp_path / "source.test.j2"
+    source_file = tmp_path / "source.txt.j2"
     with open(source_file, "w", encoding="utf-8") as f:
         f.write("{{ document.resource }}\n{{ document.resource_url }}")
     www_directory = tmp_path / "www"
-    destination_file = www_directory / default_locale_tag / "destination.test.j2"
-    rendered_destination_file = www_directory / default_locale_tag / "destination.test"
+    destination_file = www_directory / default_locale_tag / "destination.txt.j2"
+    rendered_destination_file = www_directory / default_locale_tag / "destination.txt"
     copy_function = make_copy_function(
         environment,
         www_directory=www_directory,
         is_localized_and_multilingual=True,
         document=Document(),
+        content_types=isolated_project.app.known_content_types,
     )
     await copy_function(source_file, destination_file)
     with open(rendered_destination_file, encoding="utf-8") as f:
         assert (
             f.read()
-        ).strip() == f"{rendered_destination_file}\nbetty:///destination.test"
+        ).strip() == f"{rendered_destination_file}\nbetty:///destination.txt"
 
 
 class Test_CacheTagExtension:

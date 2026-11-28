@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, final, override
 
 from betty.associations.has_links import HasLinks
 from betty.associations.to_one import ToOne
+from betty.attrs.content_type import HasContentType
 from betty.attrs.description import HasDescription
 from betty.attrs.localizable import new_localizable_attr
-from betty.attrs.media_type import HasMediaType
 from betty.attrs.owner import OwnerAttr
 from betty.attrs.privacy import HasPrivacy
 from betty.datas.str import StrDefinition
@@ -23,9 +23,9 @@ from betty.privacy.resolve import merge_privacies
 
 if TYPE_CHECKING:
     from betty.association import Associate
+    from betty.content_type import ContentTypeDefinition
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.media_type import ResolvableMediaType
 
 
 @final
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} link", "{count} links"),
     public_facing=False,
 )
-class Link(AttrFreezable, LinkType, HasMediaType, HasDescription, Entity):
+class Link(AttrFreezable, LinkType, HasContentType, HasDescription, Entity):
     """
     .. plugin:: entity:link.
     """
@@ -62,12 +62,12 @@ class Link(AttrFreezable, LinkType, HasMediaType, HasDescription, Entity):
         relationship: str | None = None,
         label: AnyLocalizable | None = None,
         description: AnyLocalizable | None = None,
-        media_type: ResolvableMediaType | None = None,
+        content_type: ContentTypeDefinition | None = None,
         owner: Associate[HasLinks] | None = None,
         privacy: Privacy = Privacy.UNDETERMINED,
     ):
         super().__init__(
-            id=id, media_type=media_type, description=description, privacy=privacy
+            id=id, content_type=content_type, description=description, privacy=privacy
         )
         self.url = url
         self._label = label

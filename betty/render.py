@@ -5,34 +5,26 @@ Provide the Render API.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Final, final
 
 from betty.definition import HasDefinition
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.html import plain_text_to_html
 from betty.localizables.gettext import _, ngettext
-from betty.media_type import resolve_media_type
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 
 if TYPE_CHECKING:
+    from betty.content_type import ContentTypeDefinition
     from betty.localizer import AnyLocalizable
     from betty.machine_name import ResolvableMachineName
-    from betty.media_type import MediaType, ResolvableMediaType
     from betty.requirement import Requires
 
 
 class Renderer(HasDefinition["RendererDefinition"], metaclass=ABCMeta):
     """
-    Render content in a different media type to HTML.
+    Render content to HTML.
     """
-
-    @property
-    @abstractmethod
-    def media_type(self) -> MediaType:
-        """
-        The media type this renderer can render from.
-        """
 
     @abstractmethod
     async def render(self, content: str, /) -> str:
@@ -58,6 +50,8 @@ class RendererDefinition(
     def __init__(
         self,
         renderer_id: ResolvableMachineName,
+        content_type: ContentTypeDefinition,
+        /,
         *,
         label: AnyLocalizable,
         auto: bool = True,
@@ -71,6 +65,7 @@ class RendererDefinition(
             description=description,
             requires=requires,
         )
+        self.content_type: Final[ContentTypeDefinition] = content_type
 
 
 @final
@@ -82,20 +77,16 @@ class RenderDispatcher:
     """
 
     def __init__(self, *renderers: Renderer):
-        self._renderers = {renderer.media_type: renderer for renderer in renderers}
+        self._renderers = {
+            renderer.definition.content_type: renderer for renderer in renderers
+        }
 
-    async def render(
-        self, content: str, media_type: ResolvableMediaType | None, /
-    ) -> str:
+    async def render(self, content: str, content_type: ContentTypeDefinition, /) -> str:
         """
         Render the content.
         """
-        if media_type:
-            media_type = resolve_media_type(media_type)
-        else:
-            return plain_text_to_html(content)
         try:
-            renderer = self._renderers[media_type]
+            renderer = self._renderers[content_type]
         except KeyError:
             return plain_text_to_html(content)
         else:

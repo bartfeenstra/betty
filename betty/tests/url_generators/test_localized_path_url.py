@@ -4,14 +4,14 @@ from typing import Any, Final
 import pytest
 from babel import Locale
 
+from betty.content_type import ContentTypeDefinition
+from betty.content_types import html, json
 from betty.locale import (
     ResolvableLocale,
     default_locale,
     default_locale_tag,
     to_language_tag,
 )
-from betty.media_type import MediaType
-from betty.media_types import html, json
 from betty.url_generators.localized_path_url import LocalizedPathUrlUrlGenerator
 from betty.url_generators.path import PathUrlGenerator
 
@@ -53,7 +53,7 @@ class TestLocalizedPathUrlUrlGenerator:
         (
             "expected",
             "resource",
-            "media_type",
+            "content_type",
             "absolute",
             "locale",
             "additional_project_locale",
@@ -63,49 +63,49 @@ class TestLocalizedPathUrlUrlGenerator:
                 (
                     "/some/path/index.html",
                     resource,
-                    media_type,
+                    content_type,
                     False,
                     None,
                     None,
                 )
                 for resource in _generate_resources
-                for media_type in [html, json]
+                for content_type in [html, json]
             ],
             *[
                 (
                     "https://example.com/some/path/index.html",
                     resource,
-                    media_type,
+                    content_type,
                     True,
                     None,
                     None,
                 )
                 for resource in _generate_resources
-                for media_type in [html, json]
+                for content_type in [html, json]
             ],
             *[
                 (
                     f"/{default_locale_tag}/some/path/index.html",
                     resource,
-                    media_type,
+                    content_type,
                     False,
                     None,
                     Locale("nl", "NL"),
                 )
                 for resource in _generate_resources
-                for media_type in [html, json]
+                for content_type in [html, json]
             ],
             *[
                 (
                     "/nl-NL/some/path/index.html",
                     resource,
-                    media_type,
+                    content_type,
                     False,
                     "nl-NL",
                     Locale("nl", "NL"),
                 )
                 for resource in _generate_resources
-                for media_type in [html, json]
+                for content_type in [html, json]
             ],
         ],
     )
@@ -113,7 +113,7 @@ class TestLocalizedPathUrlUrlGenerator:
         self,
         expected: str,
         resource: str,
-        media_type: MediaType,
+        content_type: ContentTypeDefinition,
         absolute: bool,
         locale: ResolvableLocale | None,
         additional_project_locale: Locale | None,
@@ -135,7 +135,7 @@ class TestLocalizedPathUrlUrlGenerator:
         assert (
             sut.generate(
                 resource,
-                media_type=media_type,
+                content_type=content_type,
                 absolute=absolute,
                 locale=locale,
             )

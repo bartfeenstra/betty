@@ -58,7 +58,7 @@ class TestResourceTemplate:
 {{ document.resource.resource_value }}
 {{ document.resource_url.resource_value }}
 {{ document.localizer.locale }}
-{{ document.media_type }}
+{{ document.content_type.id }}
 """)
 
     async def test_do__monolingual(self, isolated_project: Project) -> None:
@@ -78,7 +78,7 @@ class TestResourceTemplate:
 My First Resource Value
 My First Resource Value
 en_US
-text/html"""
+html"""
         )
 
     async def test_do__multilingual(self) -> None:
@@ -111,7 +111,7 @@ text/html"""
 My First Resource Value
 My First Resource Value
 {locale}
-text/html"""
+html"""
                     )
 
 
@@ -156,7 +156,7 @@ class TestCollectionResourceTemplate:
 {{ document.resource.resource_value }}
 {{ document.resource_url.resource_value }}
 {{ document.localizer.locale }}
-{{ document.media_type }}
+{{ document.content_type.id }}
 {% for item in document.resource_items %}
 - {{ item.resource_item_value }}
 {% endfor %}
@@ -183,7 +183,7 @@ class TestCollectionResourceTemplate:
 My First Resource Value
 My First Resource Value
 en_US
-text/html
+html
 """
         )
 
@@ -219,7 +219,7 @@ text/html
 My First Resource Value
 My First Resource Value
 {locale}
-text/html
+html
 """
                     )
 
@@ -248,7 +248,7 @@ text/html
 My First Resource Value
 My First Resource Value
 en_US
-text/html
+html
 - My First Resource Item Value
 - My Second Resource Item Value
 """
@@ -267,7 +267,7 @@ text/html
 My First Resource Value
 My First Resource Value
 en_US
-text/html
+html
 - My Third Resource Item Value
 """
                 )
@@ -308,7 +308,7 @@ text/html
 My First Resource Value
 My First Resource Value
 {locale}
-text/html
+html
 - My First Resource Item Value
 - My Second Resource Item Value
 """
@@ -328,7 +328,7 @@ text/html
 My First Resource Value
 My First Resource Value
 {locale}
-text/html
+html
 - My Third Resource Item Value
 """
                     )

@@ -2,7 +2,7 @@ from typing import override
 
 import pytest
 
-from betty.media_type import MediaType
+from betty.content_type import ContentTypeDefinition
 from betty.portable import PortableData
 from betty.serialize import (
     SerializationError,
@@ -22,19 +22,18 @@ class _Serializer(Serializer):
         return ""  # pragma: nocover
 
 
-@SerializerDefinition("one", label="One")
+@SerializerDefinition(
+    "one", ContentTypeDefinition("test-one", label="-", extension=".one"), label="One"
+)
 class SerializerOne(_Serializer):
-    @override
-    @classmethod
-    def media_type(cls) -> MediaType:
-        return MediaType("text/x.betty.test.one", extensions=[".one"])
+    pass
 
 
 def test_serializer_for__with_supported_type() -> None:
     serializer = SerializerOne()
-    assert serializer_for([serializer], ".one") is serializer
+    assert serializer_for(".one", serializer) is serializer
 
 
 def test_serializer_for_with_unsupported_type() -> None:
     with pytest.raises(SerializationError):
-        serializer_for([], ".unknown")
+        serializer_for(".unknown")

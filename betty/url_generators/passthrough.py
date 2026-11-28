@@ -13,8 +13,8 @@ from betty.url_generator import UrlGenerator
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from betty.content_type import ContentTypeDefinition
     from betty.locale import ResolvableLocale
-    from betty.media_type import ResolvableMediaType
 
 
 @final
@@ -41,7 +41,7 @@ class PassthroughUrlGenerator(UrlGenerator[str]):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: ResolvableMediaType | None = None,
+        content_type: ContentTypeDefinition | None = None,
         query: Mapping[str, Sequence[str]] = empty_frozen_dict,
     ) -> str:
         return resource

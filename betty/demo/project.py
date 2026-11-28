@@ -18,6 +18,7 @@ from betty.content_builders.raspberry_mint_incomplete_translation_warning import
 from betty.content_builders.raspberry_mint_section import Section, SectionConfig
 from betty.content_builders.render import Render, RenderConfig
 from betty.content_builders.wikipedia_summary import WikipediaSummary
+from betty.content_types import html
 from betty.datas.entity_reference import EntityReference
 from betty.enrichers.deriver import Deriver
 from betty.enrichers.wiki import Wiki
@@ -31,7 +32,6 @@ from betty.loaders.demo import Demo
 from betty.locale import default_locale
 from betty.localizables.gettext import _
 from betty.localizables.markup import Chain
-from betty.media_types import html
 from betty.project import Project
 from betty.service_provider import ServiceProviderManufacturer
 from betty.service_providers.maps import Maps

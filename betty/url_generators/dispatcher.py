@@ -12,8 +12,8 @@ from betty.url_generator import UnsupportedResource, UrlGenerator
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from betty.content_type import ContentTypeDefinition
     from betty.locale import ResolvableLocale
-    from betty.media_type import ResolvableMediaType
 
 
 @final
@@ -38,7 +38,7 @@ class UrlGeneratorDispatcher[ResourceT](UrlGenerator[ResourceT]):
         absolute: bool = False,
         fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: ResolvableMediaType | None = None,
+        content_type: ContentTypeDefinition | None = None,
         query: Mapping[str, Sequence[str]] = empty_frozen_dict,
     ) -> str:
         for upstream in self._upstreams:
@@ -48,7 +48,7 @@ class UrlGeneratorDispatcher[ResourceT](UrlGenerator[ResourceT]):
                     absolute=absolute,
                     fragment=fragment,
                     locale=locale,
-                    media_type=media_type,
+                    content_type=content_type,
                     query=query,
                 )
         raise UnsupportedResource(resource)

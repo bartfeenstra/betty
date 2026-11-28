@@ -8,28 +8,22 @@ from typing import TYPE_CHECKING, final, override
 
 import yaml
 
-from betty import media_types
+from betty import content_types
 from betty.assertions.portable import assert_portable_data
 from betty.localizables.gettext import _
 from betty.serialize import SerializationError, Serializer, SerializerDefinition
 from betty.typing import is_runtime_checkable_mapping, is_runtime_checkable_sequence
 
 if TYPE_CHECKING:
-    from betty.media_type import MediaType
     from betty.portable import PortableData
 
 
 @final
-@SerializerDefinition("yaml", label="YAML")
+@SerializerDefinition("yaml", content_types.yaml, label="YAML")
 class Yaml(Serializer):
     """
     .. plugin:: serializer:yaml.
     """
-
-    @override
-    @classmethod
-    def media_type(cls) -> MediaType:
-        return media_types.yaml.media_type
 
     @override
     def load(self, serialized: str, /) -> PortableData:

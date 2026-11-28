@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, final, override
 from betty.associations.has_links import HasLinks
 from betty.associations.has_notes import HasNotes
 from betty.associations.to_one import ToOne
+from betty.attrs.content_type import HasContentType
 from betty.attrs.localizable import new_localizable_attr
-from betty.attrs.media_type import HasMediaType
 from betty.entity import EntityDefinition
 from betty.freezers.attr import AttrFreezable
 from betty.localizables.gettext import _, ngettext
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     label_plural=_("Notes"),
     label_countable=ngettext("{count} note", "{count} notes"),
 )
-class Note(AttrFreezable, HasLinks, HasMediaType):
+class Note(AttrFreezable, HasLinks, HasContentType):
     """
     .. plugin:: entity:note.
     """

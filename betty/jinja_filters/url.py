@@ -8,16 +8,19 @@ from typing import TYPE_CHECKING, Any, Self, final, override
 
 from jinja2 import pass_context
 
+from betty.collections.mapping.dict import empty_frozen_dict
+from betty.content_types import html
 from betty.factory import Manufacturable
 from betty.jinja import context_document
 from betty.jinja.filter import JinjaFilter, JinjaFilterDefinition
-from betty.media_type import MediaType
-from betty.media_types import html
 from betty.project import Project
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+
     from jinja2.runtime import Context
 
+    from betty.content_type import ContentTypeNegotiator
     from betty.locale import ResolvableLocale
     from betty.url_generator import UrlGenerator
 
@@ -31,27 +34,38 @@ class Url(JinjaFilter, Manufacturable):
     .. plugin:: jinja-filter:url
     """
 
-    def __init__(self, url_generator: UrlGenerator, /):
+    def __init__(
+        self, *, content_types: ContentTypeNegotiator, url_generator: UrlGenerator
+    ):
+        self._content_types = content_types
         self._url_generator = url_generator
 
     @override
     @Project.require
     @classmethod
     async def new(cls, project: Project, /) -> Self:
-        return cls(await project.url_generator)
+        return cls(
+            content_types=project.app.known_content_types,
+            url_generator=await project.url_generator,
+        )
 
     @pass_context
     async def __call__(  # noqa: D102
         self,
         context: Context,
         resource: Any,
+        /,
+        *,
+        absolute: bool = False,
+        fragment: str | None = None,
         locale: ResolvableLocale | None = None,
-        media_type: str | None = None,
-        **kwargs: Any,
+        query: Mapping[str, Sequence[str]] = empty_frozen_dict,
     ) -> str:
         return self._url_generator.generate(
             resource,
-            media_type=MediaType(media_type) if media_type else html,
+            absolute=absolute,
+            fragment=fragment,
+            content_type=html,
             locale=locale or context_document(context).localizer.locale,
-            **kwargs,
+            query=query,
         )

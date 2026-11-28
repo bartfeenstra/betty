@@ -12,6 +12,7 @@ import pytest_asyncio
 from babel import Locale
 
 from betty.collections.mapping.dict import empty_frozen_dict
+from betty.content_types import plain_text
 from betty.copyright_notices.public_domain import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
@@ -37,7 +38,6 @@ from betty.gramps import (
 )
 from betty.licenses.public_domain import PublicDomain as PublicDomainLicense
 from betty.localizer import Localizer, default_localizer
-from betty.media_type import MediaType
 from betty.place_types.city import City
 from betty.privacy import Privacy
 from betty.project import Project
@@ -1574,7 +1574,7 @@ class TestGrampsLoader:
         assert default_localizer.localize(link.url) == url
         assert not link.description
         assert not link.has_label
-        assert link.media_type is None
+        assert link.content_type is None
         assert link.relationship is None
 
     async def test__load_attribute_links_should_include_attribute_links_full(
@@ -1598,7 +1598,7 @@ class TestGrampsLoader:
       <srcattribute type="betty:link-full:label:nl" value="{label_nl}"/>
       <srcattribute type="betty:link-full:description" value="{description_undetermined}"/>
       <srcattribute type="betty:link-full:description:nl" value="{description_nl}"/>
-      <srcattribute type="betty:link-full:media_type" value="{media_type}"/>
+      <srcattribute type="betty:link-full:content_type" value="{media_type}"/>
       <srcattribute type="betty:link-full:relationship" value="{relationship}"/>
     </source>
 </sources>
@@ -1615,7 +1615,7 @@ class TestGrampsLoader:
         assert link.description is not None
         assert localizer_nl.localize(link.description) == description_nl
         assert default_localizer.localize(link.description) == description_undetermined
-        assert link.media_type == MediaType(media_type)
+        assert link.content_type is plain_text
         assert link.relationship == relationship
 
     async def test__load_attribute_links_should_warn_about_attribute_link_without_url(
@@ -1643,7 +1643,7 @@ class TestGrampsLoader:
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
       <srcattribute type="betty:link-one:url" value="https://example.com"/>
-      <srcattribute type="betty:link-one:media_type" value="not-a-valid-media-type"/>
+      <srcattribute type="betty:link-one:content_type" value="not-a-valid-media-type"/>
     </source>
 </sources>
 """
@@ -1651,7 +1651,7 @@ class TestGrampsLoader:
         source = ancestry[Source][machinify("S0000")]
         assert source.links
         link_one = next(iter(source.links))
-        assert link_one.media_type is None
+        assert link_one.content_type is None
 
     @pytest.mark.parametrize(
         ("expected", "global_attribute_value", "project_attribute_value"),

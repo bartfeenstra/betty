@@ -7,28 +7,22 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, cast, final, override
 
-from betty import media_types
+from betty import content_types
 from betty.json import JsonData
 from betty.localizables.gettext import _
 from betty.serialize import SerializationError, Serializer, SerializerDefinition
 from betty.typing import is_runtime_checkable_mapping, is_runtime_checkable_sequence
 
 if TYPE_CHECKING:
-    from betty.media_type import MediaType
     from betty.portable import PortableData
 
 
 @final
-@SerializerDefinition("json", label="JSON")
+@SerializerDefinition("json", content_types.json, label="JSON")
 class Json(Serializer):
     """
     .. plugin:: serializer:json.
     """
-
-    @override
-    @classmethod
-    def media_type(cls) -> MediaType:
-        return media_types.json.media_type
 
     @override
     def load(self, serialized: str, /) -> PortableData:

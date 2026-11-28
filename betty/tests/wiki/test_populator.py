@@ -7,14 +7,13 @@ from unittest.mock import AsyncMock, call
 from babel import Locale
 from geopy import Point
 
+from betty.content_types import html, png
 from betty.copyright_notices.wikipedia_contributors import WikipediaContributors
 from betty.entities.link import Link
 from betty.entities.place import Place
 from betty.entities.source import Source
 from betty.entity.collection.pool import EntityPool
 from betty.localizer import LocalizerRepository
-from betty.media_type import MediaType
-from betty.media_types import html
 from betty.test_utils.entity import DummyEntityOne
 from betty.uis.no_op import NoOpUi
 from betty.wiki.client import Client, Image, Summary
@@ -67,7 +66,7 @@ class TestPopulator:
         assert localizer_en.localize(link.label) == "Amsterdam (en)"
         assert localizer_nl.localize(link.label) == "Amsterdam (nl)"
         assert localizer_uk.localize(link.label) == "Амстердам (uk)"
-        assert link.media_type == html
+        assert link.content_type == html
         assert link.relationship == "external"
         assert link.description is not None
         m_client.get_translations.assert_awaited_once_with("en", "Amsterdam")
@@ -107,7 +106,7 @@ class TestPopulator:
         assert (
             localizer_en.localize(link.url) == "http://en.wikipedia.org/wiki/Amsterdam"
         )
-        assert link.media_type == html
+        assert link.content_type == html
         assert link.relationship == "external"
         assert link.description is not None
         m_client.get_translations.assert_awaited_once_with("en", "Amsterdam")
@@ -194,13 +193,7 @@ class TestPopulator:
         )
         page_language = "en"
         page_name = "Almelo"
-        image = Image(
-            Path(__file__),
-            MediaType("application/octet-stream"),
-            "",
-            "https://example.com",
-            "example",
-        )
+        image = Image(Path(__file__), png, "", "https://example.com", "example")
         m_client.get_image.return_value = image
         summary = Summary("en", "Lipsum", "Lorem ipsum", "Lorem ipsum dolor sit amet")
         m_client.get_summary.return_value = summary

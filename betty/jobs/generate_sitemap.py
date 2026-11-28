@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final, final, override
 
+from betty.content_types import html
 from betty.file import write
 from betty.job import Job
 from betty.jobs.generate_www_directory import GenerateWwwDirectory
-from betty.media_types import html
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
@@ -74,7 +74,7 @@ class GenerateSitemap(Job):
 
                 sitemap_batch_urls.append(
                     url_generator.generate(
-                        entity, absolute=True, locale=locale.locale, media_type=html
+                        entity, absolute=True, locale=locale.locale, content_type=html
                     )
                 )
                 sitemap_batch_urls_length += 1

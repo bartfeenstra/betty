@@ -10,12 +10,12 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeVar, final, override
 
 from betty.associations.has_notes import HasNotes
+from betty.content_types import html
 from betty.entities.file import File
 from betty.entities.person import Person
 from betty.entities.place import Place
 from betty.entity import Entity, EntityDefinition
 from betty.file import write
-from betty.media_types import html
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence

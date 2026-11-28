@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from betty.associations.has_file_references import HasFileReferences
 from betty.associations.has_links import HasLinks
 from betty.concurrent import Lock, ThreadSafeLock
+from betty.content_types import html
 from betty.entities.file import File
 from betty.entities.file_reference import FileReference
 from betty.entities.link import Link
@@ -22,7 +23,6 @@ from betty.locale.error import LocaleError
 from betty.localizables.gettext import _
 from betty.localizables.static import StaticTranslations
 from betty.machine_name import MachineName
-from betty.media_types import html
 from betty.user import Severity
 from betty.wiki import NotAPageError, parse_page_link
 from betty.wiki.client import ClientError
@@ -85,8 +85,8 @@ class Populator:
             )
         except NotAPageError:
             return
-        if link.media_type is None:
-            link.media_type = html
+        if link.content_type is None:
+            link.content_type = html
         if link.relationship is None:
             link.relationship = "external"
         if link.description is None:
@@ -213,7 +213,7 @@ class Populator:
                     id=f"wikipedia-{MachineName.machinify(hashid(image.wikimedia_commons_url))}",
                     name=image.name,
                     path=image.path,
-                    media_type=image.media_type,
+                    content_type=image.content_type,
                     links=[
                         Link(
                             StaticTranslations(
@@ -226,7 +226,7 @@ class Populator:
                             description=_(
                                 "Find out more about this image on Wikimedia Commons."
                             ),
-                            media_type=html,
+                            content_type=html,
                         )
                     ],
                     copyright_notice=self._copyright_notice,
